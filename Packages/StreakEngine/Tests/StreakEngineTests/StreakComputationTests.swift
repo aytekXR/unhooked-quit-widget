@@ -189,3 +189,27 @@ struct StreakComputationEdgeTests {
         #expect(value.moneySaved == Decimal(string: "52")!)
     }
 }
+
+// MARK: - DI seam contract (test-suite §3: view models inject `any StreakCalculating`)
+
+@Suite("StreakCalculating seam")
+struct StreakCalculatingSeamTests {
+
+    @Test("the injected instance seam agrees with the static computation core")
+    func test_instanceSeam_agreesWithStaticCore() {
+        let calculator: any StreakCalculating = StreakCalculator()
+        let quit = QuitSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
+        let now = epoch + TimeInterval(30 * hour)
+
+        #expect(calculator.currentStreak(for: quit, now: now)
+            == StreakCalculator.currentStreak(for: quit, now: now))
+        #expect(calculator.currentStreak(for: quit, now: now, monotonic: nil, milestones: table)
+            == StreakCalculator.currentStreak(for: quit, now: now, milestones: table))
+        #expect(calculator.momentum(cleanSeconds: 1, totalSeconds: 2)
+            == StreakCalculator.momentum(cleanSeconds: 1, totalSeconds: 2))
+        #expect(calculator.moneySaved(weeklySpend: Decimal(string: "26")!, cleanSeconds: week)
+            == StreakCalculator.moneySaved(weeklySpend: Decimal(string: "26")!, cleanSeconds: week))
+        #expect(calculator.nextMilestone(elapsedSeconds: 0, in: table)
+            == StreakCalculator.nextMilestone(elapsedSeconds: 0, in: table))
+    }
+}
