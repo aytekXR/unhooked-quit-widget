@@ -98,6 +98,9 @@ targets:
     platform: iOS
     sources:
       - Tests/Unit
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: "YES"
     dependencies:
       - target: Unhooked
       - package: StreakEngine
@@ -109,6 +112,9 @@ targets:
     platform: iOS
     sources:
       - Tests/Snapshot
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: "YES"
     dependencies:
       - target: Unhooked
       - package: SnapshotTesting
@@ -118,6 +124,9 @@ targets:
     platform: iOS
     sources:
       - Tests/UITests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: "YES"
     dependencies:
       - target: Unhooked
 
