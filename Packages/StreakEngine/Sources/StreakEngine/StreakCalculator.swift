@@ -45,39 +45,86 @@ public struct StreakCalculator: Sendable {
     /// normal scheduling/rounding noise, not tampering.
     public static let defaultClockTolerance: TimeInterval = 60
 
-    /// RED (E1.2 commit C): sentinel body so the clock-integrity tests compile and fail.
+    /// Clock verdict for a read: does the wall clock agree with the monotonic evidence?
+    /// `.timezoneShift` names a wall adjustment shaped like a manual traveler correction
+    /// (quarter-hour multiple within ±14h); any other beyond-tolerance disagreement — in
+    /// EITHER direction, forward fiddling inflates — is `.clockRolledBack`.
     public static func sanityCheck(
         anchor: MonotonicAnchor,
         now: Date,
         monotonic: MonotonicNow,
         tolerance: TimeInterval = defaultClockTolerance
     ) -> ClockSanity {
-        .timezoneShift
+        evaluate(anchor: anchor, now: now, monotonic: monotonic, tolerance: tolerance).sanity
     }
 
-    /// RED (E1.2 commit C): sentinel body so the clock-integrity tests compile and fail.
+    /// The freeze-not-inflate elapsed value (ADR-7): within a boot the monotonic uptime
+    /// delta is ground truth whenever the wall clock disagrees beyond tolerance — a wall
+    /// jump in either direction can neither inflate nor reset the streak. Across a reboot
+    /// (bootID mismatch) uptimes are incomparable, so it falls back to the wall clock,
+    /// floored at zero (a wall reading before the anchor is a definite rollback).
+    /// NOTE for consumers: `uptime` readings must come from a clock that keeps counting
+    /// across device sleep (mach_continuous_time / CLOCK_BOOTTIME derived), or sleep time
+    /// would read as a forward wall jump.
     public static func conservativeElapsedSeconds(
         anchor: MonotonicAnchor,
         now: Date,
         monotonic: MonotonicNow,
         tolerance: TimeInterval = defaultClockTolerance
     ) -> Int {
-        -999
+        evaluate(anchor: anchor, now: now, monotonic: monotonic, tolerance: tolerance).elapsedSeconds
+    }
+
+    /// Single shared branch set for verdict + conservative value (one arm inventory under
+    /// the 100%-branch bar; the two public faces above stay straight-line).
+    private static func evaluate(
+        anchor: MonotonicAnchor,
+        now: Date,
+        monotonic: MonotonicNow,
+        tolerance: TimeInterval
+    ) -> (sanity: ClockSanity, elapsedSeconds: Int) {
+        let wallDelta = now.timeIntervalSince(anchor.wallClock)
+
+        guard monotonic.bootID == anchor.bootID else {
+            if wallDelta < -tolerance { return (.clockRolledBack, 0) }
+            return (.normal, max(0, Int(wallDelta)))
+        }
+
+        let monoDelta = max(0, monotonic.uptime - anchor.uptime)
+        let disagreement = wallDelta - monoDelta
+        if abs(disagreement) <= tolerance {
+            return (.normal, max(0, Int(wallDelta)))
+        }
+
+        let magnitude = abs(disagreement)
+        let remainder = magnitude.truncatingRemainder(dividingBy: 900)
+        let timezoneShaped = magnitude <= 14 * 3_600 + tolerance
+            && (remainder <= tolerance || 900 - remainder <= tolerance)
+        return (timezoneShaped ? .timezoneShift : .clockRolledBack, Int(monoDelta))
     }
 
     /// The E1.1 headline: a fully-derived readout from the snapshot and an injected `now`.
     /// Money and momentum use CUMULATIVE clean time (`priorCleanSeconds` + current elapsed),
     /// which equals the current streak for a never-slipped goal and stays correct when E1.3
-    /// slip archiving populates the prior bank. `monotonic:` is deliberately unread in E1.1
-    /// — the E1.2 clock guard activates through this same entry point; adding a branch on it
-    /// now would leave an uncoverable arm under the 100%-branch bar.
+    /// slip archiving populates the prior bank. When both an anchor and a monotonic reading
+    /// are present, elapsed time and the verdict come from the E1.2 guard (freeze-not-
+    /// inflate); otherwise the pure wall-clock path runs, exactly as in E1.1.
     public static func currentStreak(
         for quit: QuitSnapshot,
         now: Date,
         monotonic: MonotonicNow? = nil,
         milestones: MilestoneTable? = nil
     ) -> StreakValue {
-        let elapsed = max(0, Int(now.timeIntervalSince(quit.startAt)))
+        let sanity: ClockSanity
+        let elapsed: Int
+        if let anchor = quit.monotonicAnchor, let reading = monotonic {
+            (sanity, elapsed) = evaluate(
+                anchor: anchor, now: now, monotonic: reading, tolerance: defaultClockTolerance
+            )
+        } else {
+            sanity = .normal
+            elapsed = max(0, Int(now.timeIntervalSince(quit.startAt)))
+        }
         let clean = max(0, quit.priorCleanSeconds) + elapsed
         let tracked = max(0, Int(now.timeIntervalSince(quit.trackedSince)))
         return StreakValue(
@@ -85,7 +132,7 @@ public struct StreakCalculator: Sendable {
             moneySaved: moneySaved(weeklySpend: quit.weeklySpend, cleanSeconds: clean),
             momentum: momentum(cleanSeconds: clean, totalSeconds: tracked),
             nextMilestone: milestones.flatMap { nextMilestone(elapsedSeconds: elapsed, in: $0) },
-            clockSanity: .normal
+            clockSanity: sanity
         )
     }
 }
