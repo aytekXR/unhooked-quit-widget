@@ -17,6 +17,8 @@ struct PanicPlaceholderView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("root.panicPlaceholder")
         .onAppear {
             PanicLaunchTrace.endIfActive()
             PanicLaunchFlag.clear()

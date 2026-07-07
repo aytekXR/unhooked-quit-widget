@@ -10,16 +10,19 @@ enum PanicLaunchFlag {
     /// Key inside the App Group defaults suite. Stable across targets.
     static let key = "panic.launch.requested"
 
+    private static var groupDefaults: UserDefaults? {
+        UserDefaults(suiteName: AppIdentifiers.appGroupID)
+    }
+
     static func set() {
-        // E0.3 red state: not implemented yet — test_panicIntent_setsLaunchFlag_inAppGroupDefaults
-        // is expected to fail until the walking-skeleton implementation commit.
+        groupDefaults?.set(true, forKey: key)
     }
 
     static func isSet() -> Bool {
-        false
+        groupDefaults?.bool(forKey: key) ?? false
     }
 
     static func clear() {
-        // Not implemented yet (see set()).
+        groupDefaults?.removeObject(forKey: key)
     }
 }

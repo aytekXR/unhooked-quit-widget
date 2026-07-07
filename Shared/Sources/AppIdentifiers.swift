@@ -18,8 +18,6 @@ enum AppIdentifiers {
 
     /// URL of the shared App Group container, identically derivable from either target.
     static var appGroupContainerURL: URL? {
-        // E0.2 red state: not implemented yet — test_appGroup_containerURL_isSharedBetweenTargets
-        // is expected to fail until the walking-skeleton implementation commit.
-        nil
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
     }
 }

@@ -20,6 +20,8 @@ struct RootPlaceholderView: View {
                 .multilineTextAlignment(.center)
         }
         .padding(20)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("root.placeholder")
     }
 }
 

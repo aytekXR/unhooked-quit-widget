@@ -12,9 +12,6 @@ enum RootKind: Equatable, Sendable {
 /// Pure launch-route decision, kept I/O-free so it is unit-testable without UI.
 enum LaunchRouter {
     static func resolveRoot(panicFlagIsSet: Bool) -> RootKind {
-        // E0.3 red state: routing not implemented yet —
-        // test_sceneRoot_whenPanicFlagSet_buildsPanicPlaceholderNotTabs is expected to fail
-        // until the walking-skeleton implementation commit.
-        .placeholderTabs
+        panicFlagIsSet ? .panicPlaceholder : .placeholderTabs
     }
 }
