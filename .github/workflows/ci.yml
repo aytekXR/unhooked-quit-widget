@@ -1,0 +1,198 @@
+# E0.1 CI pipeline: unit → snapshot → UI-smoke lanes + dormant TestFlight lane.
+# Portfolio note: the docs consume "ci-templates" reusable workflows, but no portfolio
+# ci-templates repo exists yet — this workflow is authored in-repo and is the seed to
+# contribute back once a second consumer appears (implementation-plan E0.1).
+#
+# Cost discipline: this repo is PRIVATE, so macOS runners bill at 10x. Package units
+# run on Linux (official swift container, 1x); the three app lanes share one
+# build-for-testing product on a single macOS job; superseded runs are cancelled.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel superseded runs on branches/PRs, but never cancel main (a second merge must
+# not abort an in-flight TestFlight upload once that lane activates).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  package-units:
+    name: "Package units · ${{ matrix.package }}"
+    runs-on: ubuntu-latest
+    container: swift:6.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [StreakEngine, WidgetToolkit, PaywallKit]
+    steps:
+      - uses: actions/checkout@v4
+      - name: swift test
+        run: swift test --package-path "Packages/${{ matrix.package }}"
+
+  app:
+    name: "App lanes · build + unit + snapshot + UI smoke"
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode 26 + runner facts
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XCODE" ]; then sudo xcode-select -s "$XCODE"; fi
+          sw_vers
+          xcodebuild -version
+          xcrun simctl list runtimes || true
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Cache SPM clones
+        uses: actions/cache@v4
+        with:
+          path: .spm-packages
+          key: spm-${{ runner.os }}-${{ hashFiles('project.yml') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Pick iPhone simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries[]
+             | select(.key | contains("iOS"))
+             | .value[]
+             | select(.isAvailable)
+             | select(.name | startswith("iPhone"))
+            ][0].udid // empty')
+          if [ -z "$UDID" ]; then
+            echo "::error::No available iPhone simulator on this runner"
+            xcrun simctl list devices
+            exit 1
+          fi
+          echo "Using simulator $UDID"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$UDID" || true
+
+      - name: Build for testing
+        id: build
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project Unhooked.xcodeproj \
+            -scheme Unhooked \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -clonedSourcePackagesDirPath .spm-packages \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO
+
+      # The three E0.1 lanes run independently so a red lane never hides another
+      # lane's result (each still fails the job).
+      - name: Unit lane (UnhookedTests)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building \
+            -project Unhooked.xcodeproj \
+            -scheme Unhooked \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            -only-testing:UnhookedTests \
+            -resultBundlePath Results/unit.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Snapshot lane (UnhookedSnapshotTests)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building \
+            -project Unhooked.xcodeproj \
+            -scheme Unhooked \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            -only-testing:UnhookedSnapshotTests \
+            -resultBundlePath Results/snapshot.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: UI smoke lane (UnhookedUITests)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building \
+            -project Unhooked.xcodeproj \
+            -scheme Unhooked \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            -only-testing:UnhookedUITests \
+            -resultBundlePath Results/uismoke.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      # Recorded-but-missing snapshot references and xcresult bundles land here so a
+      # red run's outputs can be committed/inspected without a local macOS machine.
+      - name: Upload test outputs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-outputs
+          path: |
+            Results
+            Tests/**/__Snapshots__
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ── TestFlight lane (E0.1) ──────────────────────────────────────────────────
+  # DORMANT until Gate G0 (rename) clears: bundle ID, App Store Connect app, and
+  # signing (fastlane match) may only be created under the cleared name
+  # (feasibility §7 condition 1; architecture naming note). A broken test blocks
+  # upload structurally via `needs`. Activation: provision the secrets named below,
+  # then this lane runs on every merge to main (roadmap §3: internal TestFlight
+  # continuous from Week 0 — blocked on the operator-owned rename).
+  testflight-gate:
+    name: TestFlight gate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - id: check
+        env:
+          ASC_KEY: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
+        run: |
+          if [ -n "$ASC_KEY" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=TestFlight lane dormant::Blocked on Gate G0 (rename). Provision secrets ASC_API_KEY_P8_BASE64, ASC_KEY_ID, ASC_ISSUER_ID, MATCH_GIT_URL, MATCH_PASSWORD after the rename clears — see fastlane/Fastfile and docs/resume-prompt.md."
+          fi
+
+  testflight:
+    name: TestFlight upload (fastlane beta)
+    needs: [package-units, app, testflight-gate]
+    if: needs.testflight-gate.outputs.enabled == 'true'
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select newest Xcode 26
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XCODE" ]; then sudo xcode-select -s "$XCODE"; fi
+          xcodebuild -version
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: fastlane beta
+        env:
+          ASC_API_KEY_P8_BASE64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: fastlane beta

@@ -1,0 +1,52 @@
+# E0.1 TestFlight lane — DORMANT until Gate G0 (rename) clears.
+#
+# Operator checklist to activate (all operator-owned; agents must not do these):
+#   1. Close Gate G0: clear the new name (App Store search / USPTO / domains).
+#   2. Create bundle ID + App Group ID + CloudKit container under the NEW name
+#      (architecture naming note), then sweep the placeholders per project.yml.
+#   3. Create the App Store Connect app + an ASC API key; set up a fastlane match
+#      certificates repo.
+#   4. Provision GitHub secrets: ASC_API_KEY_P8_BASE64, ASC_KEY_ID, ASC_ISSUER_ID,
+#      MATCH_GIT_URL, MATCH_PASSWORD. CI activates automatically on the next merge.
+#
+# fastlane is preinstalled on GitHub macOS runners; no Gemfile needed at skeleton
+# stage (pin one when the lane goes live).
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Build, sign (match), and upload an internal TestFlight build"
+  lane :beta do
+    setup_ci
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_content: ENV.fetch("ASC_API_KEY_P8_BASE64"),
+      is_key_content_base64: true
+    )
+
+    match(
+      type: "appstore",
+      readonly: true,
+      git_url: ENV.fetch("MATCH_GIT_URL"),
+      api_key: api_key
+    )
+
+    # E0.1 acceptance: build number auto-increments — monotonic per CI run.
+    build_number = ENV.fetch("GITHUB_RUN_NUMBER")
+
+    gym(
+      project: "Unhooked.xcodeproj",
+      scheme: "Unhooked",
+      export_method: "app-store",
+      xcargs: "CURRENT_PROJECT_VERSION=#{build_number}"
+    )
+
+    pilot(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true,
+      distribute_external: false
+    )
+  end
+end

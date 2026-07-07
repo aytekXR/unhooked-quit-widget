@@ -1,0 +1,134 @@
+# XcodeGen project definition — the .xcodeproj is generated, never committed.
+# Generate with: xcodegen generate   (CI does this on every run)
+#
+# ── Gate G0 (rename) sweep list ──────────────────────────────────────────────
+# "Unhooked" is a working title; bundle/App Group IDs below are PLACEHOLDERS and
+# must NEVER be registered in App Store Connect / developer portal (feasibility §7
+# condition 1; architecture naming note). When the rename clears, sweep:
+#   1. PRODUCT_BUNDLE_IDENTIFIER values below (app + widget extension)
+#   2. The application-groups entitlement values below (2 targets)
+#   3. CFBundleDisplayName info properties below (app + widget extension)
+#   4. Shared/Sources/AppIdentifiers.swift (appGroupID + loggingSubsystem)
+#   5. Target/scheme names in this file (optional — internal only)
+# ─────────────────────────────────────────────────────────────────────────────
+name: Unhooked
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.0"
+
+packages:
+  # Portfolio shared packages (architecture §14). No portfolio repos exist yet, so
+  # these live in-repo as local stub packages; extraction to their own repos happens
+  # when a second consumer appears (implementation-plan §Portfolio Packages).
+  StreakEngine:
+    path: Packages/StreakEngine
+  WidgetToolkit:
+    path: Packages/WidgetToolkit
+  PaywallKit:
+    path: Packages/PaywallKit
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    from: "1.18.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: "YES"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "0.1.0"
+    TARGETED_DEVICE_FAMILY: "1"          # iPhone only, v1 (architecture header)
+    SUPPORTS_MACCATALYST: "NO"
+    ENABLE_USER_SCRIPT_SANDBOXING: "YES"
+
+targets:
+  Unhooked:
+    type: application
+    platform: iOS
+    sources:
+      - App/Sources
+      - Shared/Sources
+    dependencies:
+      - target: UnhookedWidgets
+      - package: StreakEngine
+      - package: WidgetToolkit
+      - package: PaywallKit
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Unhooked            # working title — swept at Gate G0
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: App/Unhooked.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.dev.placeholder.quitwidget.shared   # PLACEHOLDER — Gate G0 sweep
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.quitwidget   # PLACEHOLDER — Gate G0 sweep
+
+  UnhookedWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Widgets/Sources
+      - Shared/Sources
+    info:
+      path: Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: Unhooked Widgets    # working title — swept at Gate G0
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Widgets/UnhookedWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.dev.placeholder.quitwidget.shared   # PLACEHOLDER — Gate G0 sweep
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.quitwidget.widgets   # PLACEHOLDER — Gate G0 sweep
+
+  UnhookedTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests/Unit
+    dependencies:
+      - target: Unhooked
+      - package: StreakEngine
+      - package: WidgetToolkit
+      - package: PaywallKit
+
+  UnhookedSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests/Snapshot
+    dependencies:
+      - target: Unhooked
+      - package: SnapshotTesting
+
+  UnhookedUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - Tests/UITests
+    dependencies:
+      - target: Unhooked
+
+schemes:
+  Unhooked:
+    build:
+      targets:
+        Unhooked: all
+    test:
+      gatherCoverageData: true
+      targets:
+        - UnhookedTests
+        - UnhookedSnapshotTests
+        - UnhookedUITests
