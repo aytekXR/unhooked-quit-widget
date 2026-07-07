@@ -90,7 +90,7 @@ jobs:
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -clonedSourcePackagesDirPath .spm-packages \
             -derivedDataPath DerivedData \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_IDENTITY=-
 
       # The three E0.1 lanes run independently so a red lane never hides another
       # lane's result (each still fails the job).
@@ -105,7 +105,7 @@ jobs:
             -derivedDataPath DerivedData \
             -only-testing:UnhookedTests \
             -resultBundlePath Results/unit.xcresult \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_IDENTITY=-
 
       - name: Snapshot lane (UnhookedSnapshotTests)
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
@@ -118,7 +118,7 @@ jobs:
             -derivedDataPath DerivedData \
             -only-testing:UnhookedSnapshotTests \
             -resultBundlePath Results/snapshot.xcresult \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_IDENTITY=-
 
       - name: UI smoke lane (UnhookedUITests)
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
@@ -131,7 +131,7 @@ jobs:
             -derivedDataPath DerivedData \
             -only-testing:UnhookedUITests \
             -resultBundlePath Results/uismoke.xcresult \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_IDENTITY=-
 
       # Recorded-but-missing snapshot references and xcresult bundles land here so a
       # red run's outputs can be committed/inspected without a local macOS machine.
