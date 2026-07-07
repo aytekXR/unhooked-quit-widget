@@ -39,6 +39,32 @@ public struct StreakCalculator: Sendable {
             .first { $0.afterHours * secondsPerHour > max(0, elapsedSeconds) }
     }
 
+    // MARK: Clock-integrity guard (E1.2 — ADR-7)
+
+    /// Disagreement between wall clock and monotonic evidence below this is treated as
+    /// normal scheduling/rounding noise, not tampering.
+    public static let defaultClockTolerance: TimeInterval = 60
+
+    /// RED (E1.2 commit C): sentinel body so the clock-integrity tests compile and fail.
+    public static func sanityCheck(
+        anchor: MonotonicAnchor,
+        now: Date,
+        monotonic: MonotonicNow,
+        tolerance: TimeInterval = defaultClockTolerance
+    ) -> ClockSanity {
+        .timezoneShift
+    }
+
+    /// RED (E1.2 commit C): sentinel body so the clock-integrity tests compile and fail.
+    public static func conservativeElapsedSeconds(
+        anchor: MonotonicAnchor,
+        now: Date,
+        monotonic: MonotonicNow,
+        tolerance: TimeInterval = defaultClockTolerance
+    ) -> Int {
+        -999
+    }
+
     /// The E1.1 headline: a fully-derived readout from the snapshot and an injected `now`.
     /// Money and momentum use CUMULATIVE clean time (`priorCleanSeconds` + current elapsed),
     /// which equals the current streak for a never-slipped goal and stays correct when E1.3
