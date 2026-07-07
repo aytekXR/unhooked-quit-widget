@@ -8,10 +8,17 @@
 # build-for-testing product on a single macOS job; superseded runs are cancelled.
 name: CI
 
+# Docs-only pushes skip CI entirely (macOS minutes are 10x on this private repo).
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
 
 # Cancel superseded runs on branches/PRs, but never cancel main (a second merge must
 # not abort an in-flight TestFlight upload once that lane activates).
