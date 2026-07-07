@@ -1,0 +1,348 @@
+# Implementation Plan: Unhooked — TDD Work Breakdown
+
+| Field | Value |
+|---|---|
+| Document | Implementation Plan v1.0 |
+| Date | 2026-07-07 |
+| Inputs | PRD v1.0, Feasibility Report v1.0, MVP v1.0, Architecture v1.0, Roadmap v1.0 |
+| Method | TDD-first: every task names the failing test(s) written before implementation |
+| Test stack | Swift Testing (units), widget snapshot tests, thin XCUITest smoke, signposted on-device latency test |
+
+Conventions: tasks are ordered within epics and epics are roughly ordered; `Deps:` lists blocking tasks. Test names are illustrative-but-concrete Swift Testing function names. Tasks tagged **[PKG:X]** belong to shared portfolio package `X`, not this app's repo (see §Portfolio Packages at the end). Pure-copy/config work has "tests" in the form of checklists or CI gates where a unit test is meaningless — stated explicitly per task.
+
+---
+
+## Epic 0 — Walking Skeleton & De-risk Spike (Week 0)
+
+Goal: an empty app that boots, builds, tests, and ships to TestFlight automatically — plus the measured verdict on the product's headline claim. Nothing else starts until E0.1–E0.3 are green.
+
+### E0.1 Repo + CI pipeline (build → test → TestFlight)
+- **Goal:** `main` produces a signed internal TestFlight build on every merge; unit + snapshot + UI-smoke lanes exist (even if near-empty).
+- **Failing tests first:** `test_walkingSkeleton_appLaunches()` (XCUITest: app reaches a root view with accessibility id `root.placeholder`); a placeholder unit test `test_ci_runsSwiftTesting()` — both committed red before the workflow exists, so the first green CI run proves the whole pipeline.
+- **Acceptance:** GitHub Actions (from `ci-templates`) runs unit → snapshot → UI-smoke → fastlane match sign → TestFlight upload; a broken test blocks upload; build number auto-increments.
+- **Deps:** none. **[PKG:ci-templates]** for any reusable-workflow gaps found.
+
+### E0.2 App targets + App Group + shared-package wiring
+- **Goal:** app target, widget-extension target, App Group container, and SPM dependencies on StreakEngine/WidgetToolkit/PaywallKit (stub versions acceptable) plus the app-local `AnalyticsService` (TelemetryDeck wrapper) all compile under Swift 6 strict concurrency.
+- **Failing tests first:** `test_appGroup_containerURL_isSharedBetweenTargets()` (writes a sentinel file from app-side test, asserts path derivation matches extension's), `test_packages_linkAndExposeEntryPoints()`.
+- **Acceptance:** both targets build in CI; widget extension renders a static placeholder widget on device; strict concurrency = complete, zero warnings-as-errors exceptions.
+- **Deps:** E0.1.
+
+### E0.3 Panic-latency spike (measurement harness, throwaway UI)
+- **Goal:** a lock-screen interactive AppIntent that opens a bare full-screen view, with a signposted measurement of lock-to-visible cold time on iPhone 15-class hardware. Produces the go/degrade copy decision (roadmap M0).
+- **Failing tests first:** `test_panicIntent_setsLaunchFlag_inAppGroupDefaults()`, `test_sceneRoot_whenPanicFlagSet_buildsPanicPlaceholderNotTabs()`; on-device signpost assertion `test_panicColdLaunch_signpost_under2000ms()` (allowed to fail initially — it IS the spike question; it graduates to a permanent CI gate in E3).
+- **Acceptance:** measured number recorded in `docs/spike-panic-latency.md` with device/OS matrix; decision (2s claim vs "fast") recorded; ControlWidget registration (Control Center + Action button) verified manually on device.
+- **Deps:** E0.2.
+
+**Epic 0 Definition of Done:** empty app on TestFlight via CI; all three tasks' tests green (or E0.3's latency gate consciously re-thresholded per spike verdict); spike doc + rename-gate status recorded; no product code beyond the panic placeholder.
+
+---
+
+## Epic 1 — StreakEngine (pure logic, portfolio package) **[PKG:StreakEngine]**
+
+Goal: the highest-test-density code in the product — all streak/momentum/clock/undo/adherence math as a pure, I/O-free package. Unhooked is the anchor consumer defining the v1 API (architecture §14). This epic has no UI and can run fully parallel to E2's scaffolding.
+
+### E1.1 Streak computation from anchors
+- **Goal:** `currentStreak(for:now:)` returning days/hours, money saved, momentum %, next milestone — all derived, never stored.
+- **Failing tests first:** `test_streak_daysAndHours_fromStartAnchor()`, `test_moneySaved_weeklySpendProRata()`, `test_momentum_cleanOverTotal_asPercent()`, `test_nextMilestone_selectsFirstUnreached()`, `test_streak_zeroSecondsAfterFreshStart()`.
+- **Acceptance:** pure function, `Sendable`, no `Date()` calls inside (time injected via `TimeAnchor`); 100% branch coverage on this file.
+- **Deps:** none (package repo).
+
+### E1.2 Clock-integrity guard (monotonic anchor)
+- **Goal:** `sanityCheck(anchor:now:)` → `normal | clockRolledBack | timezoneShift`; freeze-not-inflate semantics.
+- **Failing tests first:** `test_clockSetBackward_streakFreezes_neverInflates()`, `test_clockSetBackward_thenRecovers_streakResumesFromAnchor()`, `test_timezoneTravel_westward_doesNotAddADay()`, `test_timezoneTravel_eastward_doesNotLoseADay()`, `test_rebootChangesBootID_fallsBackToWallClockSanity()`.
+- **Acceptance:** the PRD §6.2 "streak never inflates" property holds under a property-based test sweeping random clock perturbations (`test_property_streakMonotonicUnderClockNoise()`).
+- **Deps:** E1.1.
+
+### E1.3 Slip archiving, momentum preservation, 10-minute undo
+- **Goal:** `applySlip` archives current→best, restarts counter, preserves cumulative totals; `undoSlip` restores within window, nil after.
+- **Failing tests first:** `test_slip_archivesToBest_whenCurrentExceedsBest()`, `test_slip_preservesTotalCleanSeconds()`, `test_momentum_survivesSlip_partialCredit()`, `test_undo_within10Minutes_restoresExactPriorState()`, `test_undo_at10MinutesPlus1Second_returnsNil()`, `test_bestStreak_neverDecreases_afterAnySlipSequence()`.
+- **Acceptance:** append-only invariants asserted (best/totalClean monotonic non-decreasing) incl. a debug assertion path test.
+- **Deps:** E1.1, E1.2.
+
+### E1.4 Reduce-mode adherence
+- **Goal:** `adherence(for:in:)` counting allowance-adherent days for the alcohol persona.
+- **Failing tests first:** `test_reduceMode_dayUnderAllowance_isAdherent()`, `test_reduceMode_dayAtAllowance_isAdherent_overIsNot()`, `test_reduceMode_dayCloseUsesQuitTimezone()`, `test_reduceMode_streakCountsAdherentDaysNotAbstinence()`.
+- **Acceptance:** day boundaries computed in the quit's timezone; DST-transition day handled (`test_reduceMode_dstTransitionDay_countsOnce()`).
+- **Deps:** E1.1.
+
+**Epic 1 Definition of Done:** package tagged v1.0.0; edge-case suite (all above) is a named CI release gate for the app; API reviewed against Vigil/Vakit/Keeper needs (no Unhooked-specific types leak into the package surface); zero I/O, zero Apple-framework imports beyond Foundation.
+
+---
+
+## Epic 2 — Persistence, Repository & Erase (Weeks 1–2)
+
+### E2.1 Single SwiftData store in the App Group (CloudKit-mirrored)
+- **Goal:** one SwiftData store (CloudKit-mirrored: Quit, Slip, UrgeEvent, QuizProfile, AppSettings) in the App Group container, per architecture §4. The v1.2 companion transcript store (`CompanionMessage`) is a *separate non-mirrored local store* so transcripts never sync (architecture §5.3) — added in Epic 12, not here.
+- **Failing tests first:** `test_store_mirrorsExpectedModels()`, `test_companionTranscriptStore_hasNoCloudKitConfiguration()` (inspects ModelConfiguration — the auditable privacy promise; store added in E12), `test_allMirroredModelProperties_haveDefaultsOrOptionals()` (CloudKit constraint), `test_storeLivesInAppGroupContainer()`.
+- **Acceptance:** widget extension opens the same store read-only; file protection classes set per §10 (`test_store_protectionClass_completeUntilFirstUnlock()`).
+- **Deps:** E0.2.
+
+### E2.2 QuitRepository
+- **Goal:** the only component touching SwiftData contexts; synchronous-fast `logSlip`, `logUrgeEvent`, `activeQuits`, max-3 enforcement.
+- **Failing tests first:** `test_logSlip_isSynchronous_noAwaitNoNetwork()` (type-level + timing assertion), `test_logSlip_persistsBeforeReturning()`, `test_activeQuits_excludesArchived()`, `test_createQuit_fourthActiveQuit_throwsLimitError()`, `test_repositoryWrite_triggersDebouncedWidgetReload()` (spy on `WidgetRefreshing`, asserts single reload for a 3-write burst within 500ms).
+- **Acceptance:** zero-lost-data rule #1 holds: slip write precedes any UI transition; repository is the sole SwiftData importer outside trivial `@Query` lists (enforced by a lint/grep CI check).
+- **Deps:** E2.1, E1.3.
+
+### E2.3 CloudKit dedupe merge pass
+- **Goal:** launch-time merge deduping `Quit` by `id`, keeping max per monotonic field (last-writer-wins can never shrink history).
+- **Failing tests first:** `test_mergeDuplicateQuits_keepsMaxTotalTrackedSeconds()`, `test_merge_takesFieldwiseMax_bestStreak_totalClean()`, `test_merge_unionsSlipsWithoutDuplicates()`, `test_merge_noDuplicates_isNoOp()`.
+- **Acceptance:** property test: any merge order yields identical result (`test_property_mergeIsCommutativeAndIdempotent()`).
+- **Deps:** E2.1.
+
+### E2.4 One-tap erase (local + CloudKit + caches)
+- **Goal:** `eraseEverything()` deletes both stores, purges the CloudKit private zone, clears RevenueCat cache and app-group pre-caches, fires final analytics event if opted in.
+- **Failing tests first:** `test_erase_deletesBothStoreFiles()`, `test_erase_requestsCloudKitZoneDeletion()` (mock CKContainer), `test_erase_clearsPanicPreCacheDefaults()`, `test_erase_appRelaunch_startsAtOnboarding()` (UI smoke).
+- **Acceptance:** MVP §7 erase release-gate scriptable on device; fully-local mode (iCloud off) verified as first-class (`test_iCloudUnavailable_appFunctionsFullyLocal()` via mocked account status).
+- **Deps:** E2.1, E2.2.
+
+**Epic 2 Definition of Done:** all stores/repositories tested against mocked contexts and one on-device smoke; privacy-by-configuration tests (E2.1) run as part of the release gate; no view code touches SwiftData directly.
+
+---
+
+## Epic 3 — Panic Path (Weeks 1–2; the product's soul)
+
+### E3.1 PanicIntent + first-class launch mode (productionizing the spike) **[PKG:WidgetToolkit — `InstantLaunch` module]**
+- **Goal:** intent sets app-group flag; scene builds `PanicView` as root when flagged; SDK init deferred post-frame; motivations pre-cached to app-group defaults on every write.
+- **Failing tests first:** `test_panicLaunch_skipsSDKInitBeforeFirstFrame()` (init-order spy), `test_motivationsPreCache_updatedOnEveryQuitWrite()`, `test_panicLaunch_withQuitID_selectsThatQuit()`, `test_panicLaunch_noQuitSelected_showsQuitPicker()`, permanent CI gate `test_panicColdLaunch_signpost_underBudget()` (threshold from E0.3 verdict).
+- **Acceptance:** works from lock-screen widget, Control Center, and Action button with notifications off and Focus on (manual device checklist + XCUITest for in-app source); first frame performs zero store queries and zero network.
+- **Deps:** E0.3, E2.2 (pre-cache write hook).
+
+### E3.2 Panic flow UI (breath → timer → reasons → redirect → exits)
+- **Goal:** the ~90s skippable sequence per PRD §6.4, haptic-guided 4-7-8 pacer, both exit states routing correctly.
+- **Failing tests first:** `test_panicFlow_everyStepSkippable()`, `test_breathPacer_pattern_478_threeRounds()` (pattern model unit test), `test_reasonsStep_rendersVerbatimMotivations_fromPreCache()`, `test_exitUrgePassed_logsUrgeEventAverted()`, `test_exitSlipped_routesToSlipFlow()`, `test_panicFlow_recordsStepsReached()`, snapshot tests per step incl. Dynamic Type XXL.
+- **Acceptance:** end-to-end completable with VoiceOver (XCUITest with accessibility audit) and haptics-only mode; quiet celebration on averted (no confetti-grade dopamine); `panic_step_reached` fires per step.
+- **Deps:** E3.1, E2.2; motivations content requires E5.2 (stub motivations until then).
+
+### E3.3 Panic entry-point matrix
+- **Goal:** ControlWidget registration (Control Center, Action button, lock-screen control) + per-widget quit parameter; discreet variant titled "Reset".
+- **Failing tests first:** `test_panicIntent_parameter_quitEntity_resolvesActiveQuits()`, `test_controlWidget_discreetMode_usesNeutralTitleAndSymbol()`.
+- **Acceptance:** all four `panic_opened` sources reachable and correctly attributed; manual device matrix (lock screen / CC / Action button × Focus on/off) documented and green.
+- **Deps:** E3.1.
+
+**Epic 3 Definition of Done:** panic-latency CI gate permanent; entry-point device matrix green; flow accessible (VoiceOver + haptics-only + Dynamic Type); zero network dependency proven by airplane-mode manual test.
+
+---
+
+## Epic 4 — Slip Flow & Forgiveness (Week 2)
+
+### E4.1 Slip logging UI (≤2 taps) + undo
+- **Goal:** two-tap slip from dashboard or panic exit; archive + momentum framing; optional reflection note (autosaved on keystroke pause); 10-minute undo affordance.
+- **Failing tests first:** `test_slipFlow_completesInTwoTaps_fromDashboard()` (XCUITest), `test_reflectionNote_autosavesOnPause()`, `test_undoBanner_visibleFor10Minutes_thenGone()`, `test_slipUndo_firesSlipUndoneEvent_andRestoresStreak()`, `test_slipLogged_afterUndoWindow_firesAnalyticsOnce()` (event fires post-window, not at tap — matches MVP §5 trigger).
+- **Acceptance:** recovery framing shows archived best + momentum %; rate-limited celebrations but never rate-limited help (repeat slips always get resources link).
+- **Deps:** E1.3, E2.2, E3.2 (routing).
+
+### E4.2 Zero-shame copy enforcement
+- **Goal:** every slip/relapse string passes the no-shame checklist; copy centralized in one audited strings table.
+- **Failing tests first:** `test_slipStrings_containNoForbiddenLexicon()` (unit test scanning the strings table against a banned-word/phrase list: "failed", "ruined", "back to day 1", etc.); checklist review is the human half.
+- **Acceptance:** copy audit checklist (MVP §7) signed; forbidden-lexicon test is a permanent CI gate.
+- **Deps:** E4.1.
+
+**Epic 4 Definition of Done:** slip → undo → re-slip sequences fuzz-tested against StreakEngine invariants; post-slip screen shows momentum + best; copy gate in CI.
+
+---
+
+## Epic 5 — Onboarding Quiz, Age Gate & Summary (Week 2)
+
+### E5.1 Age gate (first screen)
+- **Goal:** birth-year entry; under-17 blocked to resources; only a boolean stored.
+- **Failing tests first:** `test_ageGate_under17_blocksAndShowsResources()`, `test_ageGate_birthYearNeverPersisted()` (asserts AppSettings has only `ageGatePassed`), `test_ageGate_firesAgeGateBlocked_withNoAgeProperty()`.
+- **Acceptance:** feasibility condition #6 met; no habit content reachable pre-gate.
+- **Deps:** E2.1, E8.1 (event enum).
+
+### E5.2 Quiz engine + 12–14 screens
+- **Goal:** data-driven quiz (screens from a config array, one question each, progress bar) capturing habit/frequency/spend/triggers/motivations/goal; answers → `QuizProfile` + quit creation.
+- **Failing tests first:** `test_quiz_everyStepAdvance_firesQuizStepCompleted(step:)`, `test_quiz_answersPersistLocallyOnly()`, `test_quiz_backNavigation_preservesAnswers()`, `test_quizCompletion_createsQuitWithMotivationsAndSpend()`, `test_quizCompletion_writesMotivationsPreCache()`.
+- **Acceptance:** median completion ≤120s across 5 test users (beta checklist); screens scaffolded by agents, copy owned by founder; custom habit name never leaves device.
+- **Deps:** E5.1, E2.2.
+
+### E5.3 Personalized summary + social proof screen
+- **Goal:** projected yearly savings + risk-window hint derived on-device; social-proof screen; hands off to paywall.
+- **Failing tests first:** `test_summary_projectedSavings_matchesSpendMath()`, `test_riskWindowHint_derivedFromTriggerAnswers()`, `test_summary_shownBeforeAnyPaywall()` (navigation-order test), snapshot tests.
+- **Acceptance:** PRD P0 story 1 satisfied: summary before paywall, always.
+- **Deps:** E5.2.
+
+**Epic 5 Definition of Done:** quiz funnel instrumented per-step and visible in a TelemetryDeck test dashboard; XCUITest runs the full quiz→summary path; age gate is un-bypassable (navigation test).
+
+---
+
+## Epic 6 — Widget Suite & Discreet Mode (Week 3)
+
+### E6.1 Timeline provider + WidgetToolkit integration **[PKG:WidgetToolkit]**
+- **Goal:** stateless provider reading shared store → StreakEngine → entries; midnight/DST rollover; stale-grace; `Text(timerInterval:)` ticking counters.
+- **Failing tests first:** `test_timeline_entriesCrossMidnight_incrementDay()`, `test_timeline_dstSpringForward_dayBoundaryCorrect()`, `test_staleGraceEntry_showsLastKnownStreak_ticking()`, `test_provider_readsStoreReadOnly()`.
+- **Acceptance:** rollover/stale logic lives in WidgetToolkit (portfolio-shared), only templates live in the app.
+- **Deps:** E1.1, E2.1.
+
+### E6.2 Widget families (accessoryRectangular/Circular/Inline, systemSmall/Medium, StandBy)
+- **Goal:** all six surfaces per PRD §6.3, incl. rectangular's interactive Panic button and per-widget quit selector.
+- **Failing tests first:** snapshot tests `test_snapshot_<family>_<lightDarkStandBy>()` (matrix), `test_rectangularWidget_panicButton_invokesPanicIntentWithQuitID()`, `test_widgetConfiguration_quitSelector_listsActiveQuitsOnly()`, `test_standby_eveningState_showsMadeItThroughCopy()`.
+- **Acceptance:** every family updates ≤60s after a logged event (E2.2's debounced reload + manual device check); extension memory <30MB in Instruments.
+- **Deps:** E6.1, E3.1.
+
+### E6.3 Discreet mode + alternate icons + privacy overlay
+- **Goal:** numbers-only/neutral variant for every family; "Calendar-ish"/"Timer" alt icons; app-switcher privacy overlay when discreet.
+- **Failing tests first:** snapshot matrix `test_snapshot_<family>_discreet()` asserting no habit-identifying strings/symbols (string-scan on rendered accessibility labels: `test_discreetWidgets_accessibilityLabels_containNoHabitTerms()`), `test_altIcon_switch_appliesAndPersists()`, `test_appSwitcherOverlay_activeWhenDiscreet()`.
+- **Acceptance:** MVP AC #10: no widget or icon in discreet mode names a habit; `discreet_mode_enabled` fires.
+- **Deps:** E6.2.
+
+**Epic 6 Definition of Done:** full snapshot matrix (6 families × light/dark/StandBy × normal/discreet) green in CI; 60s-staleness and timezone manual QA checklist done on device; widget-family reporting (`widget_active`) wired.
+
+---
+
+## Epic 7 — Monetization (Week 3–4)
+
+### E7.1 PaywallKit + RevenueCat products **[PKG:PaywallKit]**
+- **Goal:** entitlement state machine (`trial|active|lapsed|never`), products $6.99/mo + annual A/B $29.99 vs $39.99 with 3-day trial, restore, reinstall survival.
+- **Failing tests first:** `test_entitlementState_mapsRevenueCatCustomerInfo()` (all four states, mocked), `test_trialStart_firesTrialStartedEvent()`, `test_restore_recoversEntitlement_withoutAccount()`, `test_entitlementCheck_offline_usesCachedState()`.
+- **Acceptance:** sandbox + TestFlight verification per MVP §7 (trial start, conversion, monthly, restore, reinstall); pricing is config, not code.
+- **Deps:** E0.2; app wiring needs E5.3.
+
+### E7.2 Superwall variant adapter (teaser vs hard A/B)
+- **Goal:** Superwall behind PaywallKit's interface (removable per ADR-4); variant assignment logged; teaser mode = 1-day local timer then re-present.
+- **Failing tests first:** `test_paywallViewed_carriesVariantAndSource()`, `test_teaserMode_expiresAfter1Day_representsPaywall()`, `test_teaserExpiry_paywallSource_isTeaserExpiry()`, `test_superwallRemoved_paywallKitFallbackRendersHardVariant()` (the de-integration insurance test).
+- **Acceptance:** variant flips remotely without app release (manual verification); both variants pass 3.1.1 copy review checklist.
+- **Deps:** E7.1, E5.3.
+
+### E7.3 Win-back offer (config)
+- **Goal:** 50%-off annual win-back offered 7 days post trial-lapse via RevenueCat offer, no push dependency.
+- **Failing tests first:** `test_winback_eligibility_trialLapsedPlus7Days()`, `test_winback_notShownToActiveOrNeverTrialed()`, `test_winbackPurchase_firesPurchaseWinbackAnnual()`.
+- **Acceptance:** eligibility verified in sandbox time-travel; surfaced in-app (settings/paywall source), never via notification.
+- **Deps:** E7.1.
+
+**Epic 7 Definition of Done:** full sandbox purchase matrix documented and green; paywall never traps a user (failure paths always offer retry + restore); Superwall isolated behind PaywallKit; guideline-3.1.1 checklist signed.
+
+---
+
+## Epic 8 — Analytics & Privacy Enforcement (starts Week 1, closes Week 4)
+
+### E8.1 Typed `AnalyticsEvent` enum + `AnalyticsService` (TelemetryDeck wrapper)
+- **Goal:** the §5.1 architecture enum wrapped by the app-local `AnalyticsService` over the TelemetryDeck SDK — forbidden properties are unrepresentable; opt-in default OFF; on-device queue. (This is app code, not a shared portfolio package — architecture §14 lists no analytics package.)
+- **Failing tests first:** `test_analyticsFacade_hasNoGenericTrackMethod()` (API-shape assertion), `test_slipLogged_payload_hasNoTimestampProperty()`, `test_everyEventCase_serializesOnlyWhitelistedKeys()` (exhaustive over `CaseIterable` fixtures), `test_optOut_sendsNothing()` (network spy).
+- **Acceptance:** all MVP §5 events implemented; enum lands week 1 so every feature instruments against it from day one.
+- **Deps:** E0.2.
+
+### E8.2 Consent screen + payload audit harness
+- **Goal:** quiz-adjacent opt-in (default off) + a repeatable MITM audit script for the release gate.
+- **Failing tests first:** `test_consentDefaultsToOff()`, `test_analyticsEventsBlockedBeforeConsent()`; the audit itself is a documented manual/scripted gate (`docs/payload-audit.md`) run against a TestFlight build.
+- **Acceptance:** intercepted traffic contains only §5 events/properties — no journal content, no slip timestamps, no custom names; audit checklist in release criteria.
+- **Deps:** E8.1, E5.2.
+
+**Epic 8 Definition of Done:** every analytics call site type-checks against the enum; payload audit executed and archived; App Privacy label drafted from the audit result.
+
+---
+
+## Epic 9 — Safety, Compliance & Accessibility (Week 4)
+
+### E9.1 Resources screen + helplines + alcohol notice
+- **Goal:** region-aware `helplines.json`, one tap from Settings and every slip flow; fixed alcohol withdrawal-danger notice shown once, calmly.
+- **Failing tests first:** `test_resources_reachableFromSettingsAndSlipFlow_oneTap()` (navigation tests), `test_helplines_regionFallbackToGlobal()`, `test_alcoholNotice_shownOnceOnAlcoholQuitCreation()`, `test_resourcesViewed_firesWithSource()`.
+- **Acceptance:** MVP AC #14; helpline data validated against a schema test (`test_helplinesJSON_matchesSchema()`).
+- **Deps:** E2.2, E4.1.
+
+### E9.2 Content-table audit (milestones)
+- **Goal:** `milestones.json` per category, all "commonly reported" phrasing, no medical claims.
+- **Failing tests first:** `test_milestonesJSON_matchesSchema()`, `test_milestoneCopy_containsNoMedicalClaimLexicon()` (banned-phrase scan: "cures", "reverses", "your lungs heal", etc.); human audit checklist for nuance.
+- **Acceptance:** audit signed; file is bundled (ADR-9 — no hot updates).
+- **Deps:** none (content task, parallelizable).
+
+### E9.3 Accessibility pass
+- **Goal:** VoiceOver through quiz/panic/slip; haptics-only pacer; Dynamic Type max without truncation.
+- **Failing tests first:** `test_a11yAudit_quizPanicSlip_noViolations()` (XCUITest `performAccessibilityAudit`), `test_hapticsOnlyPacer_runsWithoutVisualDependency()`, snapshot tests at `.accessibility5` asserting no truncation on streak + paywall copy.
+- **Acceptance:** MVP §7 accessibility gate green.
+- **Deps:** E3.2, E4.1, E5.2, E7.2.
+
+**Epic 9 Definition of Done:** all compliance release-gate items in MVP §7 "Safety & compliance" checkable; banned-lexicon tests permanent in CI; 17+ rating + clinical metadata drafted.
+
+---
+
+## Epic 10 — Beta, Review & Launch Hardening (Weeks 4–6)
+
+### E10.1 External beta program
+- **Goal:** ≥15 testers across the three personas; feedback loop; crash-free ≥99.5% via MetricKit.
+- **Tests:** no new unit tests — the "test" is the beta checklist: quiz ≤120s median across 5 users, panic-latency field confirmation, widget staleness/timezone QA, discreet-mode real-phone check.
+- **Acceptance:** MVP §7 crash-free + funnel-instrumentation-trust gates met; dashboards (quiz funnel by variant, panic source mix, RevenueCat cohorts) live.
+- **Deps:** Epics 1–9 substantially complete (M2).
+
+### E10.2 Submission package
+- **Goal:** review notes (quiz-gated onboarding, PanicIntent, 17+ context, no accounts), App Privacy label, ASO assets under the **cleared name** (Gate G0), screenshots leading with lock-screen widget + privacy positioning.
+- **Tests:** checklist-gated (MVP §7 "Submission package"); `test_release_bundleContainsNoExplicitTermsInMetadata()`-style lint on metadata files where automatable.
+- **Acceptance:** submitted; 1–2 review rounds absorbed within roadmap weeks 5–6; month-3 kill/pivot checkpoint calendared.
+- **Deps:** E10.1, Gate G0 (rename).
+
+**Epic 10 Definition of Done:** v1.0 approved and live; launch dashboards trusted; incident/rollback plan (phased release at 1–2%/day initially) documented.
+
+---
+
+## Epic 11 — v1.1 Fast-Follow (post-launch weeks 1–2)
+
+### E11.1 Live Activity urge timer **[partially PKG:WidgetToolkit]**
+- **Goal:** 15-minute Dynamic Island countdown started from panic step 2.
+- **Failing tests first:** `test_urgeTimer_liveActivityStartsFromPanicFlow()`, `test_liveActivity_endsAtTimerCompletion_orUrgeResolution()`, `test_liveActivity_discreetMode_neutralPresentation()`.
+- **Acceptance:** works with Focus on; no notification dependency; degrades silently if Live Activities disabled.
+- **Deps:** E3.2, launch stability.
+
+### E11.2 Milestone share cards
+- **Goal:** rendered-image share cards (no links, no server), anonymous-safe designs incl. discreet variant.
+- **Failing tests first:** snapshot tests per card design, `test_shareCard_containsNoCustomHabitName()`.
+- **Acceptance:** share sheet only; nothing transmitted by the app itself.
+- **Deps:** E1.1.
+
+### E11.3 Funnel iteration #1
+- **Goal:** retire losing paywall variant; ASO keyword iteration; win-back cohort check with real lapse data.
+- **Tests:** dashboard-driven; `test_paywallKit_frozenVariantRendersWithoutSuperwall()` when/if de-integration executes.
+- **Deps:** 2+ weeks of launch data.
+
+**Epic 11 Definition of Done:** v1.1 approved; Live Activity + share cards in field; A/B decision recorded with data.
+
+---
+
+## Epic 12 — v1.2 AI Urge Companion + Insights (gated; post-launch weeks 3–5)
+
+Gate: v1.0 crash-free ≥99.5% and funnel showing signs of life (roadmap Phase-5 gate). If the kill/pivot trend is negative, this epic is cancelled.
+
+### E12.1 Companion Cloudflare Worker **[PKG: SupaKit edge-fn AI-proxy pattern — ported to the Worker; App Attest rate limiter]**
+- **Goal:** one stateless Cloudflare Worker (per ADR-5): App Attest verify → KV rate limit (10 msgs/day, 3 sessions/day per device) → keyword + Haiku-class safety screen → Claude Haiku-class coaching (max_tokens 300, prompt-cached system prompt) → strict JSON `{kind, text, remainingToday}`; fixed versioned crisis template.
+- **Failing tests first (Worker test suite):** `test_missingOrInvalidAttest_rejected()`, `test_rateLimit_11thMessageOfDay_returnsRateLimited()`, `test_crisisKeyword_shortCircuits_toFixedTemplate_neverCallsCoachingModel()`, `test_postResponseSafetyCheck_flagsAndReplacesWithTemplate()`, `test_response_isStrictJSON_kindDiscriminated()`, `test_requestPayload_rejectsOversizeOrExtraFields()`, `test_kvRateCounters_olderThan7Days_expire()`.
+- **Acceptance:** no content stored server-side; Worker logging metadata-only (counts + status codes); Claude key in the Worker secret store only; cost alarm configured (> $5/day pre-1k users).
+- **Deps:** launch stability gate.
+
+### E12.2 EvalHarness golden sets **[PKG:EvalHarness]**
+- **Goal:** coaching-tone acceptance set + crisis-detection recall set gating every prompt/model change in CI (ADR-5).
+- **Failing tests first:** the golden sets ARE the tests: `eval_crisisRecall_atLeast_targetOnGoldenSet()`, `eval_coachingTone_noMedicalAdvice_noMoralizing_onGoldenSet()` — committed red against an empty prompt, green once the v1 prompt passes.
+- **Acceptance:** CI blocks any change to prompt/model files unless evals pass; crisis template content clinically reviewed (human gate).
+- **Deps:** E12.1 (runs in parallel with prompt authoring).
+
+### E12.3 Client chat UI + local-only transcripts
+- **Goal:** opt-in labeled chat inside the panic redirect menu; `CompanionMessage` in a separate non-mirrored local store (never CloudKit-synced); offline fail-soft to bundled scripts.
+- **Failing tests first:** `test_companionMessages_liveInNonMirroredStore()`, `test_request_carriesOnlyHabitCategory_noMotivationsNoNames()`, `test_offlineOrError_showsStaticUrgeScripts_neverDeadEnds()`, `test_rateLimitedResponse_showsStaticContent_neverUpsell()`, `test_crisisResponse_endsCoachingSession()`, `test_consentDisclosure_shownBeforeFirstUse()`.
+- **Acceptance:** PRD §6.6 guardrails demonstrably enforced client-side and server-side; transcripts excluded from CloudKit (store-config test) and from erase-surviving caches.
+- **Deps:** E12.1, E2.1.
+
+### E12.4 On-device pattern insights + Health mindful minutes
+- **Goal:** risk-window insight ("Sun 10pm–1am") computed on-device from `UrgeEvent`/`Slip` timestamps; opt-in HealthKit mindful-minutes write from breath pacer.
+- **Failing tests first:** `test_riskWindow_computedFromLocalEventsOnly()`, `test_riskWindow_insufficientData_showsNothingNotGuesses()`, `test_mindfulMinutes_writtenOnlyWithHealthAuthorization()`.
+- **Acceptance:** zero network involvement in insights (no new analytics properties); Health write opt-in via standard sheet.
+- **Deps:** weeks of field data; E3.2.
+
+**Epic 12 Definition of Done:** eval gates permanent in CI; cost dashboard + alarm live; safety review of crisis paths signed; consent copy shipped; ADR-2's no-second-backend rule (one Cloudflare Worker total, ADR-5) still holds.
+
+---
+
+## Portfolio Packages: Consumed vs Contributed (per architecture §14)
+
+**Consumed by this app (work happens in the package repos, not here):**
+
+| Package | Tasks that live there | This app's role |
+|---|---|---|
+| **StreakEngine** | ALL of Epic 1 (E1.1–E1.4) | Anchor consumer; Unhooked's requirements define the v1 API for Vigil/Vakit/Keeper |
+| **WidgetToolkit** | E6.1 (rollover, stale-grace, timer-text helpers); E3.1's `InstantLaunch` module (intent→flag→dedicated launch pattern); E11.1 Live Activity helpers; discreet-variant pattern docs (E6.3) | Consumer + contributor of the panic-launch and discreet patterns |
+| **PaywallKit** | E7.1 core entitlement machine; E7.2's Superwall adapter as an *optional removable module* | Consumer; contributes the Superwall adapter |
+| **EvalHarness** | E12.2 harness plumbing (golden-set runner, CI gate action) | Consumer; golden-set *content* is app-specific and stays in this repo |
+| **ci-templates** | E0.1 reusable workflows; new on-device panic-latency signpost job contributed back | Consumer + contributor |
+| **SupaKit (pattern only)** | E12.1's edge-fn AI-proxy template (strict output contract, caps, key hiding) ported to the Cloudflare Worker; the App Attest anonymous rate-limit Worker contributed back as a template | Consumer of the pattern + contributor |
+| **L10nPipeline** | Not consumed in v1 (EN only); TR fast-follow post-launch | Deferred |
+
+**Stays in this app's repo:** all UI/flows (quiz, panic, slip, dashboard, paywall screens), widget templates, content JSONs (milestones/helplines/panicScript), the app's `AnalyticsEvent` enum, review/ASO/compliance materials, golden-set content, and the companion client UI.
+
+**Sequencing rule for package work:** package tasks are scheduled inside their consuming epics (E1 alongside week 1, etc.) but merged to the package repos with their own CI, versioned tags, and no Unhooked-specific types in public APIs — the definition of "shared" is that Vigil/Vakit could consume the same tag unchanged.
