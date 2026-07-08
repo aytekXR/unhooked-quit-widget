@@ -11,8 +11,10 @@ public struct StreakCalculator: Sendable {
 
     /// Momentum as a fraction 0...1 = cumulative clean ÷ total tracked (architecture §5.1).
     /// Zero tracked time ⇒ 1.0: nothing tracked yet means nothing wasted (the no-shame
-    /// reading; the value first drops when a slip introduces a gap in E1.3). Negative clean
-    /// reads as 0; the ratio is clamped so inconsistent inputs can never leave 0...1.
+    /// reading). An E1.3 slip leaves it unchanged in the same tick — the ended streak is
+    /// banked whole (the forgiveness differentiator); gaps only enter through consumer
+    /// state where tracked history exceeds banked clean time. Negative clean reads as 0;
+    /// the ratio is clamped so inconsistent inputs can never leave 0...1.
     public static func momentum(cleanSeconds: Int, totalSeconds: Int) -> Double {
         guard totalSeconds > 0 else { return 1.0 }
         let ratio = Double(max(0, cleanSeconds)) / Double(totalSeconds)
