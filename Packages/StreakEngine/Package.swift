@@ -1,14 +1,17 @@
 // swift-tools-version: 6.0
 import PackageDescription
 
-// Portfolio package stub (architecture §14). Unhooked is the anchor consumer that
-// defines the v1 API; the real engine (streak math, monotonic clock integrity, slip
-// archiving/undo, Reduce adherence) is Epic 1, strictly TDD-first. Extraction to its
-// own repo happens when a second consumer (Vigil/Vakit/Keeper) appears.
+// Portfolio package (architecture §14): streak math, monotonic clock integrity, slip
+// archiving/undo, allowance adherence — built TDD-first with Unhooked as the anchor
+// consumer defining the v1 API. Extraction to its own repo happens when a second
+// consumer (Vigil/Vakit/Keeper) appears.
 // Package rule: zero I/O, zero Apple-framework imports beyond Foundation.
 let package = Package(
     name: "StreakEngine",
-    platforms: [.iOS("26.0"), .macOS("15.0")],
+    // Portfolio floor, deliberately BELOW the anchor app's iOS 26: pure Foundation math
+    // needs nothing newer than the Swift 6 stdlib (iOS 18 / macOS 15 — one release
+    // train). Lowering further on first consumer need is non-breaking; raising is not.
+    platforms: [.iOS("18.0"), .macOS("15.0")],
     products: [
         .library(name: "StreakEngine", targets: ["StreakEngine"])
     ],
