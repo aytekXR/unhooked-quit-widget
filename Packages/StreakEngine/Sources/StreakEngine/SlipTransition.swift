@@ -19,8 +19,28 @@ extension StreakCalculator {
         at now: Date,
         monotonic: MonotonicNow? = nil
     ) -> QuitSnapshot {
-        // Sentinel (red): archives nothing, banks nothing, forgets the history.
-        QuitSnapshot(startAt: now)
+        let ended = guardedElapsedSeconds(of: quit, at: now, monotonic: monotonic)
+        var next = quit
+        next.startAt = now
+        // Banked history heals to zero on the way in: a malformed negative bank must not
+        // survive an archive (the detector below still holds — max(0, x) + ended >= x).
+        next.priorCleanSeconds = max(0, quit.priorCleanSeconds) + ended
+        next.bestStreakSeconds = max(quit.bestStreakSeconds, ended)
+        // Re-anchor the NEW streak from the reading; with no reading there is no honest
+        // anchor for it — the stale one would make the guard measure from the old start.
+        next.monotonicAnchor = monotonic.map {
+            MonotonicAnchor(bootID: $0.bootID, uptime: $0.uptime, wallClock: now)
+        }
+        // A newer slip replaces (finalizes) any still-open undo: one reversible slip at a
+        // time (architecture §9 rule 3), so only the overwritten values are recorded.
+        next.pendingUndo = PendingSlipUndo(
+            priorStartAt: quit.startAt,
+            priorCleanSeconds: quit.priorCleanSeconds,
+            priorBestStreakSeconds: quit.bestStreakSeconds,
+            priorMonotonicAnchor: quit.monotonicAnchor
+        )
+        assert(Self.appendOnlyViolations(from: quit, to: next).isEmpty)
+        return next
     }
 
     /// Restores the exact pre-slip state while the undo window is open; `nil` once it has
@@ -30,14 +50,58 @@ extension StreakCalculator {
         at now: Date,
         monotonic: MonotonicNow? = nil
     ) -> QuitSnapshot? {
-        // Sentinel (red): never restores, never expires.
-        quit
+        guard let undo = quit.pendingUndo else { return nil }
+        // `startAt`/`monotonicAnchor` were re-set at the slip instant, so elapsed-since-
+        // slip IS the quit's own guarded elapsed: clock fiddling can neither stretch nor
+        // burn the window when evidence is present. Without evidence a rollback reads as
+        // zero (window stays open) — freeze-not-inflate favors the user's streak.
+        guard guardedElapsedSeconds(of: quit, at: now, monotonic: monotonic) <= undoWindowSeconds else {
+            return nil
+        }
+        // Debug tripwire: the bookkeeping can only record values a slip later raised.
+        assert(undo.priorBestStreakSeconds <= quit.bestStreakSeconds)
+        assert(undo.priorCleanSeconds <= quit.priorCleanSeconds)
+        return QuitSnapshot(
+            startAt: undo.priorStartAt,
+            trackedSince: quit.trackedSince,
+            weeklySpend: quit.weeklySpend,
+            priorCleanSeconds: undo.priorCleanSeconds,
+            monotonicAnchor: undo.priorMonotonicAnchor,
+            bestStreakSeconds: undo.priorBestStreakSeconds,
+            pendingUndo: nil // consumed; any older slip's undo was already finalized
+        )
     }
 
-    /// Pure detector behind the §9 rule-3 debug assertion: names every append-only
-    /// invariant a slip transition would violate. `applySlip` asserts it returns empty.
+    /// Pure detector behind the append-only debug assertion (test-suite §1.1 item 7:
+    /// "any code path that would decrease them asserts in debug"): names every invariant
+    /// a slip transition would violate. `applySlip` asserts it returns empty; `undoSlip`
+    /// is the sanctioned exemption (§9 rule 3) and never runs it.
     static func appendOnlyViolations(from old: QuitSnapshot, to new: QuitSnapshot) -> [String] {
-        // Sentinel (red): cries wolf, names nothing.
-        ["sentinel: not yet implemented"]
+        var violations: [String] = []
+        if new.bestStreakSeconds < old.bestStreakSeconds {
+            violations.append("bestStreakSeconds decreased \(old.bestStreakSeconds) → \(new.bestStreakSeconds)")
+        }
+        if new.priorCleanSeconds < old.priorCleanSeconds {
+            violations.append("priorCleanSeconds decreased \(old.priorCleanSeconds) → \(new.priorCleanSeconds)")
+        }
+        if new.trackedSince != old.trackedSince {
+            violations.append("trackedSince moved \(old.trackedSince) → \(new.trackedSince)")
+        }
+        return violations
+    }
+
+    /// One elapsed-seconds rule for both transitions: the E1.2 guard whenever an anchor
+    /// and a reading are both present, the zero-floored wall clock otherwise — the same
+    /// timeline `currentStreak` displays, so archives and windows can never disagree
+    /// with what the user sees.
+    private static func guardedElapsedSeconds(
+        of quit: QuitSnapshot,
+        at now: Date,
+        monotonic: MonotonicNow?
+    ) -> Int {
+        if let anchor = quit.monotonicAnchor, let reading = monotonic {
+            return conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: reading)
+        }
+        return max(0, Int(now.timeIntervalSince(quit.startAt)))
     }
 }
