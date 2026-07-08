@@ -2,99 +2,121 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v1.3 |
-| Last updated | 2026-07-08 (end of Session 04) |
-| Phase | Phase 1 core build — Epic 1 code-complete (E1.1–E1.4 DONE) |
-| Next session objective | **Epic 1 close-out (v1.0.0 tag + CI release gate + portfolio API review), then E2.1 SwiftData store if fully done** |
+| Document | Resume Prompt v1.4 |
+| Last updated | 2026-07-08 (end of Session 05) |
+| Phase | Phase 1 core build — Epic 1 CLOSED (tagged streakengine-v1.0.0); E2.1 green pushed, CI-blocked on billing |
+| Next session objective | **FIRST verify commit H (E2.1 green) on CI once billing clears, then E2.2 QuitRepository (incl. the carried ADR-7 reboot-cap red test)** |
 
 ---
 
+## ⚠️ Step 0 — blocked on operator, do this before ANY new work
+
+**GitHub Actions is down for this repo: billing.** Run 28976762483 (commit H, ae4d34f —
+E2.1 green) never started, both attempts: *"The job was not started because recent
+account payments have failed or your spending limit needs to be increased."* The
+operator must fix Billing & plans (payment method or Actions spending limit — note
+macOS minutes bill at 10x on this private repo; this session ran three macOS lanes).
+
+Once billing clears, the agent's first action is: `gh run rerun 28976762483` (or push
+an empty commit) and verify the E2.1 green run — expected all-green; the red run
+(28975932867) already empirically proved the risky parts (schema introspection API,
+App Group resolution, on-disk container open at a custom URL). If the app lane is NOT
+green, fixing it red-first IS the session until it is. Do not start E2.2 on top of an
+unverified E2.1.
+
 ## Where we are
 
-**All of Epic 1 is code-complete, green, and adversarially reviewed** (see `past-prompts.md`
-Sessions 03–04). `Packages/StreakEngine` holds: `StreakCalculator` (streak/money/momentum/
-milestones), the ADR-7 clock guard (`sanityCheck`/`conservativeElapsedSeconds`),
-E1.3 slip transitions (`applySlip`/`undoSlip`, `PendingSlipUndo`, boundary-inclusive 600s
-guarded undo window, append-only debug assertion with pure `appendOnlyViolations` detector),
-and E1.4 Reduce adherence (`adherence(for:in:allowancePerDay:timezone:)`, whole-day
-evaluation, half-open day membership, `startOfDay`-re-anchored boundaries surviving
-midnight DST transitions). 63/63 tests green locally; llvm-cov 100% regions/functions/lines
-package-wide. Two review-confirmed MAJOR bugs were fixed red-first in Session 04: the slip
-instant now rides the guarded timeline (momentum can't inflate via rollback slips), and
-adherence day boundaries re-anchor each step (America/Santiago-class midnight transitions).
-Ratified semantics live in the Session 03 + 04 "Key decisions" — read both before touching
-the engine.
+**Epic 1 is closed**: `Packages/StreakEngine` is tagged **streakengine-v1.0.0**
+(annotated, on af5b969) with 63/63 tests green and llvm-cov 100% regions/functions/
+lines; the E1 edge-case suite is a **named merge-blocking CI release gate**
+(`Release gate · StreakEngine edge-case suite`, Linux, mechanical floors: lines ≥98%
+package-wide, regions ≥95% on StreakCalculator.swift + SlipTransition.swift; TestFlight
+lane `needs` it). The adversarial portfolio API review (architecture §14) landed six
+verified findings — headline: the input type is now **`StreakSnapshot`** (renamed from
+QuitSnapshot pre-tag; internal params `quit`→`snapshot`), `StreakEngine.version ==
+"1.0.0"` (test-pinned both sides), platform floor iOS 18/macOS 15, and the public `///`
+surface is consumer-self-contained. Ratified semantics live in Sessions 03–05 "Key
+decisions" in `past-prompts.md` — read them before touching the engine.
+
+**E2.1 (single SwiftData store in the App Group) is red→green complete in code**:
+commit G (09b3a90) red CI-verified (run 28975932867, three canonical failures), commit
+H (ae4d34f) green pushed but **CI-unverified (billing)**. The store: five §3 models
+(CloudKit-checklist-clean, no `.unique`, everything defaulted/optional),
+`PersistentStore` factory at `<App Group>/Library/Application Support/unhooked.store`,
+**`cloudKitDatabase: .none` until Gate G0** (flip is red-test-first per test-suite §4.3;
+never register placeholder IDs).
 
 ## Carried technical items (do not lose)
 
-1. **Reboot high-side sanity cap (ADR-7 gap, deliberate deferral since Session 03):**
-   across a reboot the wall delta is trusted uncapped upward. The principled cap needs a
-   persisted last-known-good wall reading — wire it when the Epic 2 repository lands (red
-   test first: reboot + huge forward jump must NOT read `.normal`). `undoSlip` knowingly
-   inherits the same fallback across reboots (pinned by test).
-2. `StreakCalculating` does not expose sanityCheck / applySlip / undoSlip / adherence —
-   deferred to first consumer need; ship with protocol-extension defaults (non-breaking).
-3. `QuitSnapshot` synthesized Codable requires the `bestStreakSeconds` key — decide the
-   payload-compatibility story when Epic 2 persistence makes it real.
+1. **Reboot high-side sanity cap (ADR-7 gap, since Session 03) — THIS session's E2.2 is
+   where it lands:** the repository provides the persisted last-known-good wall reading
+   the cap needs. Red test first: reboot + huge forward wall jump must NOT read
+   `.normal`/inflate. `undoSlip` inherits the same fallback (pinned by test).
+2. E2.1 acceptance items open by design: protection-class complete-until-first-unlock
+   (device tier), §4.3 CloudKit-option instantiation (Gate G0), widget read-only open
+   (device/E6). §4 indexes (`isArchived+sortIndex`, `at`, `isPendingUndo`) deferred to
+   E2.2 — add them WITH the queries that justify them.
+3. `StreakCalculating` doesn't expose sanityCheck/applySlip/undoSlip/adherence —
+   deferred to first consumer need (protocol-extension defaults). E2.2's repository is
+   likely that first consumer — if so, expose via defaults, red-first, non-breaking.
+4. `StreakSnapshot` synthesized Codable requires the `bestStreakSeconds` key — decide
+   the payload-compat story when persistence makes it real (repository/migration).
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
-1. **Gate G0 rename** — blocks TestFlight/ASC/ASO/marketing only.
-2. **E0.3 device measurement** — `docs/spike-panic-latency.md` on an iPhone 15-class device.
-3. **Content plan** (feasibility condition #2).
-4. **Drift decision:** MVP §7 "<2s 10/10" vs test-suite §1.5 "p90 < 2s".
+1. **GitHub Actions billing** (NEW — blocks all CI; see Step 0).
+2. **Gate G0 rename** — blocks TestFlight/ASC/ASO/marketing + the CloudKit container.
+3. **E0.3 device measurement** — `docs/spike-panic-latency.md` on iPhone 15-class.
+4. **Content plan** (feasibility condition #2).
+5. **Drift decision:** MVP §7 "<2s 10/10" vs test-suite §1.5 "p90 < 2s".
 
 ## Next session objective (one session, definition of done below)
 
-**Epic 1 close-out** (the items the E1 Definition of Done names, deferred by scope guard
-from Session 04):
+**Step 0 above, then E2.2 — QuitRepository** (`implementation-plan.md` E2.2, deps
+E2.1 ✓ + E1.3 ✓), strictly test-first via the macOS CI lane (session-rules mechanics:
+red evidence = the CI run on the red commit):
 
-1. **Edge-case suite as a named CI release gate:** the StreakEngine package lane
-   (`swift test`, Linux) becomes an explicitly named, merge-blocking release-gate job in
-   `ci.yml` (test-suite §5.1; keep macOS lanes lean — repo is private, 10x minutes).
-   Enforce the coverage floor mechanically in that job (llvm-cov ≥98% per test-suite §2;
-   the package currently reads 100%).
-2. **Portfolio API review (architecture §14):** review the whole public surface against
-   Vigil/Vakit/Keeper consumption — no Unhooked-specific types, naming coherent, doc
-   comments accurate. Run it as an adversarial workflow; fix only what findings survive
-   verification (red test first for any behavior change).
-3. **Tag `Packages/StreakEngine` v1.0.0** (annotated tag `streakengine-v1.0.0`) — only
-   after 1–2 are green and pushed.
+1. The implementation plan's named red tests: `test_logSlip_isSynchronous_noAwaitNoNetwork`
+   (type-level + timing), `test_logSlip_persistsBeforeReturning`,
+   `test_activeQuits_excludesArchived`, `test_createQuit_fourthActiveQuit_throwsLimitError`,
+   `test_repositoryWrite_triggersDebouncedWidgetReload` (spy on a `WidgetRefreshing`
+   protocol; single reload for a 3-write burst in 500ms).
+2. **The carried ADR-7 reboot-cap red test** (item 1 above) — the repository persists
+   the last-known-good wall reading and feeds the engine's guard; engine changes, if
+   any, are red-first in the package with the coverage bar held (gate enforces it).
+3. §4 indexes land here with their justifying queries; repository is the sole SwiftData
+   importer outside trivial `@Query` lists (the E2.2 acceptance lint/grep CI check).
 
-**If — and only if —** all three land green with CI verified, enter **E2.1** (single
-CloudKit-mirrored SwiftData store in the App Group, `implementation-plan.md` E2.1,
-strictly test-first; simulator-dependent tests run in the macOS CI lane per the
-session-rules environment note). E2.1 red tests are named in the implementation plan;
-remember the carried reboot-cap red test belongs to the repository work (E2.2-ish) —
-do not start it without its failing test.
-
-Scope guards: no UI, no paywall, no widget work; StreakEngine behavior changes only via
-red→green with the coverage bar held; never weaken a QA assertion.
+Scope guards: no UI, no paywall, no widget rendering; StreakEngine behavior changes
+only red→green with 100% coverage held (the CI gate now enforces the floor
+mechanically); never weaken a QA assertion; `logSlip` stays synchronous-local.
 
 ---
 
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (working title "Unhooked",
-> Gate-G0 rename pending — placeholder IDs stay). Epic 1 (E1.1–E1.4) is done, green,
-> 100%-covered, and adversarially reviewed; local Swift toolchain lives at
-> `~/.local/share/swiftly` (`. ~/.local/share/swiftly/env.sh`). Read
-> `docs/session-rules.md`, `docs/implementation-plan.md` (Epic 1 DoD + E2.1),
-> `docs/architecture.md` §4/§14/ADR-3/ADR-7, `docs/test-suite.md` §2/§5.1/§7, and the
-> Session 03 + 04 entries in `docs/past-prompts.md` (ratified semantics + carried items)
-> before writing anything.
+> Gate-G0 rename pending — placeholder IDs stay). Epic 1 is CLOSED and tagged
+> (`streakengine-v1.0.0`); the StreakEngine CI release gate is live and merge-blocking.
+> E2.1 is red→green complete; **commit H (ae4d34f) is CI-UNVERIFIED because GitHub
+> Actions billing failed — Step 0 in `docs/resume-prompt.md` is mandatory before any
+> new work.** Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`. Read
+> `docs/session-rules.md`, `docs/implementation-plan.md` (E2.2–E2.3),
+> `docs/architecture.md` §3/§4/§5.1/ADR-3/ADR-7, `docs/test-suite.md` §2/§3.1/§7, and
+> the Session 03–05 entries in `docs/past-prompts.md` before writing anything.
 >
-> **This session: close out Epic 1** — (1) make the StreakEngine package lane a named,
-> merge-blocking CI release gate with a mechanical ≥98% coverage floor; (2) run an
-> adversarial portfolio API review of the package surface (Vigil/Vakit/Keeper per
-> architecture §14) and land only verified findings, red-first for behavior; (3) tag
-> `streakengine-v1.0.0`. Only if all three are green and CI-verified, continue into
-> **E2.1** (SwiftData store, test-first, macOS CI lane).
+> **This session: verify E2.1 green on CI (Step 0), then E2.2 QuitRepository** —
+> the implementation plan's five named red tests plus the carried ADR-7 reboot-cap
+> red test (the repository's persisted last-known-good wall reading finally makes the
+> cap implementable); §4 indexes land with their justifying queries; repository is the
+> sole SwiftData importer. Test-first via the macOS CI lane; package changes red-first
+> with the coverage gate held.
 >
-> **At session end:** append the Session 05 entry to `docs/past-prompts.md`, overwrite
-> `docs/resume-prompt.md` with the next objective (Epic 2 continuation per `roadmap.md`),
-> commit, push, and verify GitHub Actions is green (`gh run watch`). Fix small CI issues
-> immediately; document large ones and put them at the top of the next resume prompt.
+> **At session end:** append the Session 06 entry to `docs/past-prompts.md`, overwrite
+> `docs/resume-prompt.md` with the next objective (E2.3 dedupe merge / E2.4 erase per
+> `roadmap.md`), commit, push, and verify GitHub Actions is green (`gh run watch`).
+> Fix small CI issues immediately; document large ones and put them at the top of the
+> next resume prompt.
 
 ## Standing rules reminders (do not relearn these)
 
@@ -106,9 +128,13 @@ red→green with the coverage bar held; never weaken a QA assertion.
 - Panic path stays thin (ADR-6). Single CloudKit-mirrored SwiftData store; no accounts,
   no backend (ADR-2). Never register placeholder IDs with Apple; never weaken a QA
   assertion; TDD red first, always (test-suite §7).
-- StreakEngine ratified semantics (Sessions 03–04): zero-tracked momentum = 1.0;
+- StreakEngine ratified semantics (Sessions 03–05): zero-tracked momentum = 1.0;
   boundary-inclusive milestones; cumulative clean numerators; momentum's denominator —
   and the slip instant — ride the guarded timeline; momentum unchanged in the same tick
   across a slip; one reversible slip at a time; whole-day adherence evaluation with
   half-open membership and re-anchored day boundaries; uptime readings must be
-  sleep-inclusive monotonic.
+  sleep-inclusive monotonic; the input type is `StreakSnapshot` (no consumer-domain
+  nouns in the package surface); package doc comments stay consumer-self-contained.
+- E2.1 store rules: no `@Attribute(.unique)` ever (CloudKit checklist, mechanically
+  tested); `cloudKitDatabase` stays `.none` until Gate G0, and the flip is
+  red-test-first (§4.3); `Date()`/`ProcessInfo` remain banned in production code.

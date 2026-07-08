@@ -279,3 +279,124 @@ E1.4 review-fix red (6ca7318): `(value → Adherence(adherentDays: 3, evaluatedD
 
 Local: 63/63 green, package coverage 100% (all seven source files individually 100%).
 CI: pushed after close-out docs; package lane binding (see resume-prompt).
+
+---
+
+## 2026-07-08 · Session 05 · Epic 1 close-out (CI gate + portfolio API review + v1.0.0 tag) → E2.1 red→green; CI billing outage at the finish line
+
+**Prompted.** Execute the resume prompt with workflows: Epic 1 close-out — (1) StreakEngine
+edge-case suite as a named merge-blocking CI release gate with a mechanical ≥98% coverage
+floor, (2) adversarial portfolio API review (architecture §14), (3) tag
+`streakengine-v1.0.0` — then, all three green and CI-verified, enter E2.1.
+
+**Produced.**
+- **Close-out 1 — CI release gate (commits A 7b729de + fix af5b969):** new named job
+  `Release gate · StreakEngine edge-case suite` (Linux `swift:6.1-noble`, every push/PR);
+  TestFlight lane `needs` it, so a red gate structurally blocks release. Mechanical floors
+  per test-suite §2: line ≥98% package-wide, region ≥95% on StreakCalculator.swift +
+  SlipTransition.swift (Swift emits regions; regions are the branch bar). Fails closed on
+  missing TOTAL row or renamed files. StreakEngine left the generic package matrix (no
+  double spend); macOS lanes untouched. Verified before push inside the real container
+  image (GATE_PASS + 4 synthetic trip cases). One CI fix: the container's step shell is
+  dash — `set -o pipefail` died; `shell: bash` pinned (the gate failed CLOSED, and the
+  red-gate run proved the merge-block: TestFlight lane reported `skipped`). Branch
+  protection is off (direct-push workflow); registering the job name as a required check
+  is recorded in the job comment as an operator option.
+- **Close-out 2 — portfolio API review (ultracode workflow: 5 lenses → 17 raw → 9 merged
+  → 3-verifier refutation-first panels → 6 confirmed, 3 refuted + completeness critic;
+  2 verdicts lost to API errors were re-run):** landed as commits B–F —
+  - red→green **version marker** (B 929f64a red: `(version → "0.0.1-skeleton") ==
+    "1.0.0"` failed; C 73cb3ca green): `StreakEngine.version == "1.0.0"`, enum doc
+    rewritten present-tense; app-side pin updated in the same change.
+  - **platform floor** (D 6b706e5): `.iOS("26.0")/.macOS("15.0")` → `.iOS("18.0")/
+    .macOS("15.0")` — one release train, Swift 6 stdlib pair; a Foundation-only math
+    package must sit below its consumers; lowering later is the non-breaking direction.
+  - **`QuitSnapshot` → `StreakSnapshot`** (E 994f33a, refactor-on-green, upheld 3/3 —
+    code-truth/policy/consumer-impact): the one public identifier carrying the
+    quit-a-habit domain noun through every headline signature, on a surface whose DoD
+    literally gates "no Unhooked-specific types leak" — a prayer-streak consumer (Vakit)
+    cannot sensibly construct a "QuitSnapshot". Renamed in the sanctioned pre-tag window
+    (zero external consumers; zero app call sites, grep-verified). Internal param names
+    `quit`→`snapshot` rode along (declaration-only); architecture §5.1 sketch reconciled.
+    The app-side `PanicSnapshot.quits` DTO (§3) keeps its name — the rename disambiguates.
+  - **doc sweep** (F d725a5a): two stale public claims fixed (applySlip "restarts the
+    counter at `now`" → guarded slip instant; ClockSanity "Always .normal until the guard
+    lands" → present-tense trigger condition) and the public `///` surface made
+    self-contained (E1.x/ADR-n/§-refs/Session-N/MVP-feature-n citations stripped or
+    restated; breadcrumbs live on in non-doc `//` comments).
+  - Refuted (not applied, by design): 'clean' vocabulary as recovery-framing;
+    adherence-as-ceiling inversion for Vakit; Adherence "Reduce mode" doc framing.
+- **Close-out 3 — tag:** annotated `streakengine-v1.0.0` on af5b969, pushed, after CI run
+  28975058859 went fully green (gate floors measured in CI: 100/100/100).
+- **E2.1 (commits G 09b3a90 red → H ae4d34f green):** full architecture §3 model graph
+  (Quit/Slip/UrgeEvent/QuizProfile/AppSettings + typed enums + `QuizAnswer` blob;
+  `monotonicAnchor` persisted as the engine's Codable type), `PersistentStore` factory
+  (schema, `<App Group>/Library/Application Support/unhooked.store`, explicit
+  `cloudKitDatabase: .none` until Gate G0 — `.automatic` would silently mirror the moment
+  an entitlement appears; flip is red-test-first per test-suite §4.3), three
+  doc-canonical simulator-honest tests. A 3-lens pre-red verification workflow (10
+  findings) caught a would-be pass-from-birth sentinel BEFORE commit: omitting
+  relationship-reachable UrgeEvent from the type list can never leave the derived schema
+  (SwiftData builds the reachability closure) — replaced with an injected sixth
+  RedSentinelModel; the red run then empirically confirmed the closure (all six entities
+  appeared). Also from that panel: symlink-resolved URL comparison (simulator
+  /var vs /private/var), §4-indexes deferral note, E12/§4.3/device-tier deferral notes.
+
+### Red (TDD §7.1 evidence)
+
+Version red (local `swift test`, commit B): `✘ Expectation failed: (StreakEngine.version →
+"0.0.1-skeleton") == "1.0.0" · ✘ Test run with 63 tests failed … with 1 issue.`
+E2.1 red (CI run 28975932867 unit lane on commit G, per session-rules app-lane mechanics):
+```
+✘ test_store_mirrorsExpectedModels — (names → [… "RedSentinelModel" …6]) == (5 expected)
+✘ test_allMirroredModelProperties_haveDefaultsOrOptionals —
+  (attribute … name: id, options: [unique] …).isUnique → true
+✘ test_storeLivesInAppGroupContainer — ….../tmp/unhooked.store fails hasPrefix(App Group)
+✘ Test run with 8 tests in 2 suites failed after 1.019 seconds with 3 issues.
+```
+(All pre-existing tests green in the same run; snapshot + UI lanes green.)
+
+### Key decisions (ratified this session)
+
+- **The engine's input type is `StreakSnapshot`** — the package surface carries no
+  consumer-domain nouns; the anchor app's richer DTOs keep their own names app-side.
+- **`StreakEngine.version` is pinned to the release tag** by tests on both sides of the
+  package boundary; WidgetToolkit/PaywallKit stay `0.0.1-skeleton` (not graduated).
+- **Package platform floors sit below the anchor app** (Swift 6 stdlib pair iOS 18 /
+  macOS 15); raising is breaking, lowering is not.
+- **Package `///` doc comments are consumer-self-contained** (no repo-internal
+  citations); planning breadcrumbs belong in `//` comments.
+- **E2.1 store:** no `@Attribute(.unique)` anywhere (§4 CloudKit checklist overrides the
+  §3 sketch's `.unique` on `id`; uniqueness is UUID convention, dedupe is E2.3); the
+  mirrors test asserts on the derived `schema.entities` (reachability closure), so a
+  relationship-smuggled entity fails the same test as a listed one; §4 indexes deferred
+  to the E2.2 queries that justify them; `PanicSource` is a deliberate §3-superset
+  (E3.3 entry-point matrix).
+
+### Known limitations / carried items
+
+1. **CI BILLING OUTAGE (new, operator-owned, blocks next session's first step):** commit
+   H (E2.1 green) is pushed but UNVERIFIED — run 28976762483 (both attempts) never
+   started: "The job was not started because recent account payments have failed or your
+   spending limit needs to be increased." Green-risk is low (the red run empirically
+   proved the introspection APIs, App Group resolution, and on-disk container open) but
+   verification is mandatory before E2.2 work.
+2. E2.1 acceptance items still open, by design: protection-class
+   complete-until-first-unlock (device tier), CloudKit-option schema-validation
+   instantiation (§4.3, blocked on Gate G0), widget-extension read-only open (device/E6);
+   the companion-store test is E12-gated.
+3. Reboot high-side sanity cap (ADR-7 gap, Sessions 03–04): unchanged; the persisted
+   last-known-good wall reading arrives with the **E2.2 repository — red test first**.
+4. `StreakCalculating` still exposes neither the guard nor applySlip/undoSlip/adherence
+   (deferred to first consumer need, protocol-extension defaults).
+5. `StreakSnapshot`'s synthesized Codable requires the `bestStreakSeconds` key — revisit
+   with the repository/migration story (was carried as `QuitSnapshot`).
+6. Operator-owned blockers unchanged: Gate G0 rename; E0.3 device measurement; content
+   plan; MVP §7 vs test-suite §1.5 latency-drift decision.
+
+### Gate status
+
+Epic 1: CLOSED — gate green in CI (floors measured 100/100/100), API review landed, tag
+`streakengine-v1.0.0` on af5b969. Epic 2 entered: E2.1 red CI-verified (28975932867);
+E2.1 green pushed (ae4d34f) awaiting CI once billing clears. Local package state:
+63/63 green, 100% coverage held through all six review commits.
