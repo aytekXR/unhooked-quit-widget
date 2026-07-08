@@ -2,28 +2,36 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v1.1 |
-| Last updated | 2026-07-08 (end of Session 02) |
-| Phase | Phase 0 walking skeleton DONE (agent share) → Phase 1 core build begins |
-| Next session objective | **Epic 1: StreakEngine E1.1 (+E1.2 if E1.1 is fully green)** |
+| Document | Resume Prompt v1.2 |
+| Last updated | 2026-07-08 (end of Session 03) |
+| Phase | Phase 1 core build — Epic 1 in progress (E1.1 + E1.2 DONE) |
+| Next session objective | **E1.3 slip archiving + undo (+E1.4 Reduce adherence if E1.3 is fully green)** |
 
 ---
 
 ## Where we are
 
-**Epic 0 is code-complete and CI is green on `main`** (see `past-prompts.md` Session 02):
-XcodeGen project, app + widget-extension targets (iOS 26, Swift 6 strict concurrency,
-warnings-as-errors), App Group wiring with placeholder IDs (Gate-G0 sweep list in
-`project.yml`), local stub packages `Packages/{StreakEngine,WidgetToolkit,PaywallKit}`,
-inert `AnalyticsService` (uninhabited `AnalyticsEvent`), panic-launch skeleton
-(`OpenPanicIntent` → App Group flag → thin `LaunchRouter` → `PanicPlaceholderView`,
-signposted), E0 test bundle red→green through CI, and the spike harness + runbook in
-`docs/spike-panic-latency.md`.
+**E1.1 and E1.2 are code-complete and green** (see `past-prompts.md` Session 03):
+`Packages/StreakEngine` now holds the pure computation core — `StreakCalculator`
+(streak days/hours, Decimal money-saved, momentum fraction + percent view, milestone
+selection) and the ADR-7 clock-integrity guard (`sanityCheck`/`conservativeElapsedSeconds`
+over one `evaluate()`: monotonic-as-truth within a boot, freeze-not-inflate in both
+directions, quarter-hour ≤14h jumps classify `.timezoneShift`, reboot falls back to
+floored wall clock). Time seam: `MonotonicAnchor` (persisted) + `MonotonicNow`
+(read-time) + injected `now: Date` — the docs' informal "TimeAnchor/ClockProvider"
+names map to these; `ClockProvider` is app/test-side by design, not a package type.
+29/29 tests green locally; llvm-cov 100% regions/functions/lines on the whole package.
+Red→green discipline held throughout (commits A–G, red runs pasted in the Session 03
+log). An ultracode adversarial review (28 verifiers) confirmed-and-fixed one major
+latent bug (momentum denominator was unguarded under rollback) plus hardening.
 
-CI (`.github/workflows/ci.yml`): package `swift test` on Linux, app unit/snapshot/
-UI-smoke lanes on `macos-26`, dormant secrets-gated TestFlight lane. The dev machine
-is Linux — package work iterates locally (`swift test`), app-target work verifies
-through CI (see `docs/session-rules.md`, Environment note).
+## Carried technical item (address in Epic 2, do not lose)
+
+**Reboot high-side sanity cap (ADR-7 gap, deliberate deferral):** across a reboot the
+wall delta is trusted uncapped upward — reboot + forward-set clock can inflate. The
+principled cap needs a persisted last-known-good wall reading; wire it when the Epic 2
+repository lands (red test first: reboot + huge forward jump must NOT read `.normal`).
+Marked in code at `StreakCalculator.evaluate()`'s reboot branch.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
@@ -38,53 +46,63 @@ through CI (see `docs/session-rules.md`, Environment note).
 
 ## Next session objective (one session, definition of done below)
 
-**E1.1 — Streak computation from anchors** (`implementation-plan.md` E1.1), inside
-`Packages/StreakEngine`, strictly test-first. If — and only if — E1.1 is fully green
-with its coverage bar met, continue into **E1.2 — clock-integrity guard**.
+**E1.3 — Slip archiving, momentum preservation, 10-minute undo**
+(`implementation-plan.md` E1.3), inside `Packages/StreakEngine`, strictly test-first.
+If — and only if — E1.3 is fully green with its coverage bar met, continue into
+**E1.4 — Reduce-mode adherence**.
 
-Definition of done (E1.1): the five named failing tests written and committed red
-first (`test_streak_daysAndHours_fromStartAnchor`, `test_moneySaved_weeklySpendProRata`,
-`test_momentum_cleanOverTotal_asPercent`, `test_nextMilestone_selectsFirstUnreached`,
-`test_streak_zeroSecondsAfterFreshStart`); `currentStreak(for:now:)` returning
-days/hours, money saved, momentum %, next milestone — all derived, never stored;
-pure `Sendable` functions; **no `Date()` inside the package** (time injected via a
-`TimeAnchor`/`ClockProvider` seam per test-suite §3.1 — this seam is E1's most
-important design act); 100% branch coverage on the computation file; `swift test`
-green locally AND in the Linux package lane; API keeps Unhooked-specific types out
-of the public surface (architecture §14: Vigil/Vakit must be able to consume it).
+Definition of done (E1.3): the six named failing tests written and committed red first
+(`test_slip_archivesToBest_whenCurrentExceedsBest`, `test_slip_preservesTotalCleanSeconds`,
+`test_momentum_survivesSlip_partialCredit`, `test_undo_within10Minutes_restoresExactPriorState`,
+`test_undo_at10MinutesPlus1Second_returnsNil`, `test_bestStreak_neverDecreases_afterAnySlipSequence`);
+`applySlip` archives current→best, restarts the counter, preserves cumulative totals
+(feeds `priorCleanSeconds`/`trackedSince` — note the guarded-denominator invariant from
+Session 03's momentum fix must survive); `undoSlip` restores the EXACT prior state within
+the window, nil after; append-only invariants asserted (best/totalClean monotonic
+non-decreasing incl. a debug-assertion path test per implementation-plan acceptance);
+pure `Sendable`, no `Date()` (the undo window measures injected time only); 100% branch
+coverage on new computation code; `swift test` green locally AND in the Linux package
+lane; no Unhooked-specific types in the public surface. Design note: slip state likely
+extends `QuitSnapshot` with trailing-defaulted fields (`bestStreakSeconds`, undo bookkeeping)
+— every addition MUST keep the hand-written init's existing parameter order with defaults
+(portfolio non-breaking evolution rule, Session 03 key decision).
 
-E1.2 stretch (same rules): `sanityCheck(anchor:now:)` → freeze-not-inflate semantics,
-the five named tests from implementation-plan E1.2 + the property test
-`test_property_streakMonotonicUnderClockNoise()` with a seeded generator.
+E1.4 stretch (same rules): `adherence(for:in:)` counting allowance-adherent days, the
+four named tests from implementation-plan E1.4 + the DST-transition test
+(`test_reduceMode_dstTransitionDay_countsOnce()`); day boundaries in the quit's timezone
+(this introduces the package's first timezone-aware math — keep it out of
+StreakCalculator.swift's absolute-time core; a separate computation file with its own
+100% bar).
 
-Scope guards: no SwiftData, no UI, no app-target changes beyond (if needed) linking
-new package API behind the existing stub entry point; `Quit`/`Slip` SwiftData models
-are Epic 2 — StreakEngine defines its own I/O-free value types (e.g. `QuitSnapshot`).
+Scope guards: no SwiftData, no UI, no app-target changes. Epic-1 close-out items
+(package v1.0.0 tag, edge-case suite as named CI release gate, Vigil/Vakit API review)
+land in the session that finishes E1.4 — not before.
 
 ---
 
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (working title "Unhooked",
-> Gate-G0 rename pending — placeholder IDs stay). Epic 0 is done and CI is green on
-> `main`. Read `docs/session-rules.md`, `docs/implementation-plan.md` (Epic 1),
-> `docs/architecture.md` §5.1/§9/ADR-7, and `docs/test-suite.md` §1.1/§3.1/§7 before
-> writing code.
+> Gate-G0 rename pending — placeholder IDs stay). E1.1+E1.2 are done, green, and
+> adversarially reviewed; local Swift toolchain lives at `~/.local/share/swiftly`
+> (`. ~/.local/share/swiftly/env.sh`). Read `docs/session-rules.md`,
+> `docs/implementation-plan.md` (E1.3/E1.4), `docs/architecture.md` §5.1/§9/ADR-7,
+> `docs/test-suite.md` §1.1/§3.1/§7, and the Session 03 entry in `docs/past-prompts.md`
+> (key decisions + carried items) before writing code.
 >
-> **This session: implement E1.1 in `Packages/StreakEngine`, strictly TDD-first**
-> (red tests committed and run before any implementation — the dev box has a local
-> Swift toolchain; paste the red `swift test` output under a `## Red` heading in
-> `past-prompts.md`). Design the injected-clock seam (`TimeAnchor`, no `Date()` in
-> package code) as the first act; all math is pure, `Sendable`, Foundation-only.
-> Money-saved uses `Decimal`, never `Double`. Derived values are computed, never
-> stored; monotonic fields never decrease. If E1.1 is fully green with 100% branch
-> coverage on the computation file, proceed to E1.2 (clock-integrity guard,
-> freeze-not-inflate, property test with seeded generator); otherwise stop and
-> document. Keep the package API free of Unhooked-only types (portfolio anchor).
+> **This session: implement E1.3 in `Packages/StreakEngine`, strictly TDD-first**
+> (six named red tests committed and run before any implementation; paste the red
+> `swift test` output under a `## Red` heading in `past-prompts.md`). All slip/undo
+> state is value-in/value-out — the package stays pure, `Sendable`, Foundation-only,
+> zero `Date()`. Monotonic fields (`bestStreakSeconds`, `totalCleanSeconds`) never
+> decrease — assert it in debug and property-test it. Extend `QuitSnapshot` only with
+> trailing-defaulted init parameters. If E1.3 is fully green with 100% branch coverage
+> on its computation code, proceed to E1.4 (Reduce adherence, quit-timezone day
+> boundaries, DST test); otherwise stop and document.
 >
-> **At session end:** append the Session 03 entry to `docs/past-prompts.md`, overwrite
-> `docs/resume-prompt.md` with the next objective (E1.2/E1.3 continuation or Epic 2
-> entry per `roadmap.md`), commit, push, and verify GitHub Actions is green
+> **At session end:** append the Session 04 entry to `docs/past-prompts.md`, overwrite
+> `docs/resume-prompt.md` with the next objective (E1.4 completion / Epic-1 close +
+> Epic 2 entry per `roadmap.md`), commit, push, and verify GitHub Actions is green
 > (`gh run watch`). Fix small CI issues immediately; document large ones and put
 > them at the top of the next resume prompt.
 
@@ -99,3 +117,6 @@ are Epic 2 — StreakEngine defines its own I/O-free value types (e.g. `QuitSnap
 - Single CloudKit-mirrored SwiftData store (Epic 2); no accounts, no backend (ADR-2).
 - Never register placeholder IDs with Apple; never weaken a QA assertion; TDD red
   first, always (test-suite §7).
+- StreakEngine semantics ratified in Session 03: zero-tracked momentum = 1.0;
+  boundary-inclusive milestones; cumulative clean numerators; momentum's denominator
+  rides the guarded timeline; uptime readings must be sleep-inclusive monotonic.

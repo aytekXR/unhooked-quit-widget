@@ -103,3 +103,59 @@ Green: commit 05845b7 (minimal implementation + snapshot reference recorded by t
 ### Gate status
 
 CI green on `main` (packages ×3, build, unit, snapshot, UI smoke; TestFlight gate reports dormant). Epic 0 DoD met except the two operator-owned items above. MVP §7: still 0 checked (release criteria are release-time gates).
+
+---
+
+## 2026-07-08 · Session 03 · Epic 1 — E1.1 streak computation + E1.2 clock-integrity guard, red→green×2
+
+**Prompted.** Execute the resume prompt: E1.1 (streak computation from anchors) in `Packages/StreakEngine`, strictly TDD-first; continue into E1.2 (clock-integrity guard) only if E1.1 fully green with the coverage bar met. Ultracode session: design, expectation-verification, and diff review ran as multi-agent workflows (3-designer judge panel → synthesized API; 3-lens red-test verification; 4-dimension review with 28 adversarial verifiers).
+
+**Produced.**
+- **E1.1 (commits 264e9b1 red → 7281c6a green):** time seam `MonotonicAnchor`/`MonotonicNow`/`ClockSanity` (Clock.swift), domain-neutral `QuitSnapshot` + `Milestone`/`MilestoneTable` (Snapshot.swift), derived-only `StreakValue` (computed `days`/`hours`/`momentumPercent` over stored `elapsedSeconds`; deliberately not Codable), pure static core `StreakCalculator` (the single 100%-branch-coverage file), DI seam `StreakCalculating` + thin forwarders in a separate file. The five named tests plus a guard-branch edge suite; seam-agreement test (instance == static).
+- **E1.2 (commits 1801010 red → 4ea5b36 green):** `sanityCheck(anchor:now:monotonic:tolerance:)` → `normal | clockRolledBack | timezoneShift` and `conservativeElapsedSeconds(...)` over one shared `evaluate()`; within a boot the monotonic uptime delta is ground truth whenever wall disagrees beyond tolerance (60s) — jumps in EITHER direction can neither inflate nor reset; quarter-hour-multiple jumps ≤14h classify `.timezoneShift`; reboot (bootID mismatch) falls back to wall clock floored at 0. `currentStreak` signature unchanged — guard activates only when both anchor and reading are present. Five named tests + `test_property_streakMonotonicUnderClockNoise` (SplitMix64, pinned seed, 300 steps, property |display − truth| ≤ tolerance).
+- **Review fixes (commits 890f8a7 red → 657b99b green → 92174c1 hardening):** see CI-fix-log analogue below.
+- Final state: 29/29 package tests green locally; llvm-cov 100% regions/functions/lines on StreakCalculator.swift AND the whole package (§2 floor 98% exceeded).
+
+### Red (TDD §7.1 evidence — local `swift test`, Linux toolchain, per session-rules environment note)
+
+E1.1 red run (pre-implementation, commit 264e9b1): all 14 new tests failed, 36 issues; only the E0 skeleton test passed.
+```
+✘ Suite "E1.1 streak computation from anchors" failed with 23 issues.
+✘ Suite "E1.1 computation guard branches" failed with 13 issues.
+  e.g. (value.elapsedSeconds → 1) == 0 · (saved → -1) == 4562.5 ·
+       (next?.afterHours → -1) == 72 · (value.momentumPercent → 0.0) == 75.0
+✘ Test run with 15 tests failed after 0.017 seconds with 36 issues.
+```
+E1.2 red run (commit 1801010): 8 of 9 new tests failed, 329 issues (the ninth — anchored-quit-without-reading — passes by design: it PINS existing E1.1 wall-clock behavior through the guard change).
+```
+✘ "a rolled-back wall clock freezes the streak…" — sanityCheck → .timezoneShift (stub) == .clockRolledBack failed
+✘ "under any seeded wall-clock noise…" — (abs(display - truth) → 27378) <= 60 failed
+✘ Test run with 25 tests failed after 0.035 seconds with 329 issues.
+```
+Review-fix red run (commit 890f8a7): `(rolledBack.momentum → 0.9090…) == (honest.momentum → 0.6666…)` failed — the executable form of the review finding.
+
+### Key decisions
+
+- **API surface (judge-panel synthesis):** architecture §5.1's sketch refined — `nextMilestone(elapsedSeconds:in:)` primitive (the `for quit:table:` shape can be added non-breakingly if a consumer needs it); `now: Date` + optional `MonotonicNow` (no wall clock inside `MonotonicNow` — `now` IS the wall clock); `momentum` primitive returns the §5.1 fraction 0...1, `StreakValue.momentumPercent` is the percent view; money exact/unrounded `Decimal`, multiply-before-divide (divide-first drifts: 4562.4999… vs exact 4562.5), rounding is a presentation/currency concern.
+- **Naming mapping (docs ↔ code):** the docs' informal "TimeAnchor/ClockProvider seam" ships as `MonotonicAnchor` (persisted, matches architecture §3's field) + `MonotonicNow` (read-time evidence). `ClockProvider` is deliberately NOT a package type — it is the app/test-side protocol that PRODUCES readings; the pure core only consumes values.
+- **Ratified semantics** (previously unstated anywhere authoritative): zero-tracked momentum = 1.0 (no-shame: nothing tracked ⇒ nothing wasted); milestone "reached" is boundary-inclusive (at exactly `afterHours` the milestone is earned, next pointer advances); money/momentum numerators use CUMULATIVE clean (priorCleanSeconds + guarded elapsed); non-positive inputs clamp to safe values, never error; `days` = elapsed 24h blocks (TZ-invariant absolute time per ADR-7).
+- **Consumer contract for uptime:** readings must come from a sleep-inclusive monotonic clock (mach_continuous_time / CLOCK_BOOTTIME derived), else device sleep reads as a forward wall jump. Documented on `conservativeElapsedSeconds`.
+- **Forward wall jumps are guarded too** (beyond tolerance, non-TZ-shaped ⇒ `.clockRolledBack` verdict naming an integrity failure, conservative monotonic value displayed) — inflation via clock-forward is blocked within a boot.
+- **Red-commit mechanics:** sentinel-stub bodies (compile-and-fail) matching the E0 precedent; sentinels chosen so no test passes from birth (verified adversarially before commit A).
+
+### Review (ultracode adversarial pass over the full E1 diff)
+
+4 reviewers (correctness / spec-DoD / API-Swift6 / test-quality) → 28 findings → 28 independent refutation-first verifiers → **15 confirmed (net 10 distinct), 13 refuted**. Fixed:
+- **MAJOR (real bug, fixed 890f8a7→657b99b):** momentum's denominator `tracked` came from the raw `now` while the numerator was clock-guarded — a 40-day rollback on a 100-day history inflated momentum 66.7%→90.9%. Latent (needs E1.3-populated fields) but reachable via the public init. Fix: `tracked = guarded elapsed + fixed (startAt − trackedSince) offset`.
+- Hardening (92174c1): overflow-safe milestone predicate; deterministic property-test draws (author-owned SplitMix64 modulo — `Int.random(in:using:)` sequence is not guaranteed stable across toolchains); TZ-shape boundaries pinned exactly (960/961, 840/839, 50460/51300); rewound-uptime ⇒ conservative zero; reading-without-anchor ⇒ guard off; tautological assertion removed; `anchor.wallClock == startAt` expectation documented.
+
+### Known limitations / carried items
+
+1. **Reboot high-side sanity cap deferred (ADR-7 gap, deliberate):** across a reboot the wall delta is trusted uncapped upward — a reboot + forward-set clock can inflate. The principled cap needs a persisted last-known-good wall reading, which arrives with the Epic 2 repository. Carried at the top of resume-prompt.md; the property test covers within-boot noise only.
+2. `StreakCalculating` protocol does not yet expose `sanityCheck`/`conservativeElapsedSeconds` (deferred to first consumer need, will ship with protocol-extension defaults to stay non-breaking).
+3. Epic-1 DoD items that wait for E1.3/E1.4: package v1.0.0 tag, edge-case suite as a named CI release gate, Vigil/Vakit API review.
+4. Operator-owned blockers unchanged from Session 02 (Gate G0 rename; E0.3 device measurement; content plan; MVP §7 vs test-suite §1.5 latency-drift decision).
+
+### Gate status
+
+Local: 29/29 green, package coverage 100%. CI: pushed after close-out docs; package lane is the binding lane for this session's work (see resume-prompt for the verified run).
