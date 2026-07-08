@@ -159,3 +159,123 @@ Review-fix red run (commit 890f8a7): `(rolledBack.momentum → 0.9090…) == (ho
 ### Gate status
 
 Local: 29/29 green, package coverage 100%. CI: pushed after close-out docs; package lane is the binding lane for this session's work (see resume-prompt for the verified run).
+
+---
+
+## 2026-07-08 · Session 04 · Epic 1 — E1.3 slip archiving + undo, E1.4 Reduce adherence, red→green×2 (+2 review cycles)
+
+**Prompted.** Execute the resume prompt with workflows: E1.3 (slip archiving, momentum
+preservation, 10-minute undo) in `Packages/StreakEngine`, strictly TDD-first; continue
+into E1.4 (Reduce-mode adherence) only if E1.3 fully green with the coverage bar met.
+Multi-agent workflows ran at three gates: 3-lens red-test verification before commit A,
+then a 4-dimension adversarial review of the E1.3 diff (14 agents) and a 3-dimension
+review of the E1.4 diff (10 agents), every finding refutation-first verified.
+
+**Produced.**
+- **E1.3 (e31b7b2 red → e029149 green → e0702b5 refactor):** `QuitSnapshot` gained
+  trailing-defaulted `bestStreakSeconds` + `pendingUndo` (init order preserved — the
+  portfolio non-breaking rule); new `PendingSlipUndo` records exactly the overwritten
+  fields. `applySlip(to:at:monotonic:)` banks the GUARDED elapsed into
+  `priorCleanSeconds` (negative banks heal to 0), archives `max` into best, restarts the
+  counter, re-anchors from the reading (clears a stale anchor without one).
+  `undoSlip(on:at:monotonic:)` restores the exact prior state within a
+  boundary-inclusive 600s window measured on the guarded timeline (rollback can't
+  stretch it, forward-set can't burn it, reboot falls back to floored wall); nil after,
+  nil with nothing pending; a newer slip finalizes the older undo. Append-only
+  invariant: pure `appendOnlyViolations` detector asserted (message-less `assert` —
+  probed llvm-cov first: a message autoclosure costs a region, message-less is clean).
+- **E1.3 review fix (f071664 red → 25907ea green):** see review section — MAJOR.
+- **E1.4 (ff08443 red → 624b0e2 green):** `Adherence` readout (adherent/evaluated days)
+  + `adherence(for:in:allowancePerDay:timezone:)` in AdherenceCalculator.swift — the
+  package's first timezone-aware math, kept out of the absolute-time core, own 100%
+  bar. Whole-day evaluation (the window selects days; end-at-midnight exclusive;
+  zero-duration windows evaluate their single day), at-or-under inclusive, negative
+  allowance clamps to 0, fixed Gregorian calendar over an injected `TimeZone`.
+- **E1.4 review fix (6ca7318 red → 6b1b009 green) + hardening (079ebb7):** see below.
+- Final state: 63/63 package tests green locally; llvm-cov 100% regions/functions/lines
+  on the whole package. Zero app-target/SwiftData/UI changes (scope guards held).
+
+### Red (TDD §7.1 evidence — local `swift test`, Linux toolchain)
+
+E1.3 red run (pre-implementation, commit e31b7b2): all 21 new tests failed (204 issues),
+29/29 pre-existing green; sentinels verified pass-from-birth-proof (an early empty-list
+detector sentinel let one test pass from birth — flipped to a cries-wolf sentinel before
+committing):
+```
+✘ Suite "E1.3 append-only invariant detector" failed after 0.026 seconds with 6 issues.
+✘ Suite "E1.3 slip and undo boundaries" failed after 0.026 seconds with 22 issues.
+✘ Suite "E1.3 slip archiving and 10-minute undo" failed after 0.045 seconds with 182 issues.
+✘ Test run with 50 tests failed after 0.046 seconds with 210 issues.
+```
+E1.3 review-fix red (f071664): `(atTick.momentum → 1.0) == (before.momentum → 0.9565…)`
+and `(corrected.clockSanity → .clockRolledBack) == .normal` — the executable finding.
+E1.4 red run (ff08443): all 9 new tests failed against the (-1,-1) sentinel
+(`✘ Test run with 60 tests failed after 0.026 seconds with 14 issues.`), 51/51 prior green.
+E1.4 review-fix red (6ca7318): `(value → Adherence(adherentDays: 3, evaluatedDays: 4))
+== Adherence(adherentDays: 4, evaluatedDays: 4)` — the Santiago drift, reproduced.
+
+### Key decisions (ratified this session)
+
+- **Slip semantics:** the slip instant is `quit.startAt + guardedElapsed` — the quit's
+  own guarded timeline, never the raw wall `now` (never moves the start backward); the
+  new anchor's `wallClock` rides the same instant (preserves `anchor.wallClock ==
+  startAt`). Momentum is UNCHANGED in the same tick across a slip (the ended streak
+  banks whole; "partial credit" = the partial value survives, it is not reset).
+- **Undo semantics:** boundary-inclusive 600s (`undoWindowSeconds`), measured on the
+  guarded timeline; one reversible slip at a time — a newer slip finalizes the older
+  undo, so a post-undo state never chains restorations; without monotonic evidence a
+  wall clock behind the slip reads zero elapsed (window stays open — freeze-not-inflate
+  favors the user; accepted asymmetry). Undo is the ONE sanctioned decrease of
+  best/priorClean (§9 rule 3); the append-only assert is applySlip-scoped by design and
+  a test pins that the detector WOULD flag undo (the exemption is load-bearing).
+- **Adherence semantics:** day-based primitive `adherence(for:in:allowancePerDay:timezone:)`
+  (implementation-plan naming) — architecture §5.1's weekly `adherence(slipsThisWeek:
+  allowance:)` sketch maps consumer-side, addable non-breakingly at first need, same
+  policy as the deferred `StreakCalculating` exposure of sanityCheck/applySlip/undoSlip.
+  Whole-day evaluation; half-open day membership; day boundaries re-anchor to
+  `startOfDay` every step (midnight DST transitions).
+- **Docs reconciled:** test-suite §1.1 item 7 rewritten — the "slips/undos" monotonicity
+  property was unpinnable as written (undo lowers stored fields by design); its
+  invariant citation now points at architecture §8's sync rule, with §9 rule 3 named as
+  the undo exemption. StreakCalculator's momentum comment no longer promises a
+  slip-caused gap.
+
+### Review (workflow gates; every finding refutation-first verified)
+
+- **Red verification (3 lenses, pre-commit-A):** red-mechanics PASS; 6 minor findings →
+  2 verifier-suggested edge tests folded into the red commit (undo across reboot,
+  negative-bank healing), sanctioned-undo exemption pinned, citation fixed.
+- **E1.3 diff review (4 dims → 9 findings → 14 agents): 2 confirmed (1 distinct MAJOR),
+  7 refuted.** MAJOR (3 dimensions converged; fixed f071664 → 25907ea): `applySlip`
+  stamped `startAt = now` (raw wall) while banking guarded elapsed — a slip under a
+  rolled-back clock collapsed the momentum denominator's span (`startAt − trackedSince`
+  46d → 16d), momentum clamped to 1.0 permanently, and the mispinned anchor kept the
+  verdict at `.clockRolledBack` after the clock healed. Session 03's inflation class,
+  reintroduced at the slip boundary.
+- **E1.4 diff review (3 dims → 7 findings → 10 agents): 4 confirmed, 3 refuted.**
+  MAJOR (fixed 6ca7318 → 6b1b009): chaining `byAdding .day` without re-anchoring
+  drifted every day boundary to 01:00 after a spring-forward AT local midnight
+  (America/Santiago) — verified by probe, adherence read 3/4 for 4 clean days. Plus two
+  confirmed mutant-survival gaps (whole-day evaluation vs window-clamped counting;
+  half-open midnight membership) — killed by hardening tests (079ebb7).
+
+### Known limitations / carried items
+
+1. **Reboot high-side sanity cap still deferred (ADR-7 gap, Session 03):** unchanged;
+   lands with the Epic 2 repository (red test first). `undoSlip` inherits it knowingly:
+   across a reboot the undo window is floored-wall-measured (test pins the asymmetry).
+2. `StreakCalculating` still exposes neither the E1.2 guard nor applySlip/undoSlip/
+   adherence — deferred to first consumer need with protocol-extension defaults.
+3. `QuitSnapshot`'s synthesized Codable now requires the `bestStreakSeconds` key —
+   irrelevant until something persists (Epic 2); revisit with the repository's
+   migration story (review finding, refuted as premature but worth carrying).
+4. Epic-1 close-out items NOT done here by scope guard ("one session, one objective"):
+   package v1.0.0 tag, edge-case suite as named CI release gate, Vigil/Vakit API
+   review — they are the next session's objective.
+5. Operator-owned blockers unchanged (Gate G0 rename; E0.3 device measurement; content
+   plan; MVP §7 vs test-suite §1.5 latency-drift decision).
+
+### Gate status
+
+Local: 63/63 green, package coverage 100% (all seven source files individually 100%).
+CI: pushed after close-out docs; package lane binding (see resume-prompt).
