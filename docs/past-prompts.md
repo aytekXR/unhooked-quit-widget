@@ -400,3 +400,41 @@ Epic 1: CLOSED — gate green in CI (floors measured 100/100/100), API review la
 `streakengine-v1.0.0` on af5b969. Epic 2 entered: E2.1 red CI-verified (28975932867);
 E2.1 green pushed (ae4d34f) awaiting CI once billing clears. Local package state:
 63/63 green, 100% coverage held through all six review commits.
+
+---
+
+## 2026-07-09 · Interlude (operator + agent, not a coding session) · billing cleared, E2.1 CI-verified, TestFlight bootstrap chain
+
+**Operator:** fixed GitHub Actions billing; completed operator-checklist Phases 0–2+4
+(Gate G0 → **Ballast** / `com.beyondkaira`, IDs registered, placeholder sweep committed
+1d21da3; ASC app + API key; 5 CI secrets; content drafts); later fixed the match PAT's
+repository grant (fine-grained, Contents read/write on the certs repo).
+
+**Agent verification + fixes:**
+- **E2.1 VERIFIED:** billing-blocked run 28979808466 rerun (attempt 3) — ALL test lanes
+  green on HEAD 1d21da3: commit H's three store tests, the Ballast sweep on the Apple
+  toolchain, the release gate (floors measured 100/100/100). Step 0 closed; E2.1 DONE.
+- **TestFlight bootstrap chain (upload lane only, three distinct failures):**
+  (1) certs repo had been created as `aytekXR-ballast-match-certs` while the secret/docs
+  said `ballast-match-certs` → clone 404 → agent renamed the repo (GitHub redirects).
+  (2) match PAT had NO grant on the repo (API probe: 404 with valid token) → operator
+  re-granted (verified 200 + push:true).
+  (3) attempt 6: match cloned fine and MINTED the distribution cert ("creating one for
+  you now"), but **gym archive failed**: `No profiles for 'com.beyondkaira.ballast'
+  were found … Automatic signing is disabled and unable to generate a profile` — the
+  Fastfile never maps the `match AppStore` profiles onto the two targets for the
+  archive (project.yml is CODE_SIGN_STYLE: Automatic; CI has no Xcode-managed account).
+  Carried to Session 06 per operator instruction.
+- `MATCH_BOOTSTRAP=true` set (stays until the first green upload).
+
+**Caveats recorded for Session 06:**
+1. Match's cert push never landed in the certs repo (sole commit predates the runs) —
+   the portal now likely holds a distribution cert whose private key died with the
+   runner. Next bootstrap either mints a second cert (Apple allows two) or the stale
+   one needs revoking from the portal.
+2. **Hygiene (operator call):** the certs repo contains the RAW ASC API key
+   (`AuthKey_QL8L4UKHW5.p8`, committed manually). It already lives base64 in the GitHub
+   secret and in the operator's local mirror — recommend deleting it from the repo
+   (and its history) so the match repo holds only match-encrypted material.
+3. Resume prompt updated v1.6 → v1.7 in this interlude; secret.yml (repo root) is
+   operator-local and correctly gitignored (verified with check-ignore).

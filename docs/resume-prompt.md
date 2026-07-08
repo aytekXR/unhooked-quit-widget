@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v1.6 |
-| Last updated | 2026-07-09 (billing cleared; E2.1 VERIFIED green on CI; TestFlight bootstrap pending one PAT fix) |
+| Document | Resume Prompt v1.7 |
+| Last updated | 2026-07-09 (E2.1 CI-verified; TestFlight bootstrap 2 of 3 fixed — signing mapping carried) |
 | Phase | Phase 1 core build — Epic 1 CLOSED (tagged streakengine-v1.0.0); E2.1 DONE and CI-verified |
-| Next session objective | **E2.2 QuitRepository (incl. the carried ADR-7 reboot-cap red test)** |
+| Next session objective | **Small first: TestFlight signing fix (Fastfile↔match profile mapping). Main: E2.2 QuitRepository (incl. the carried ADR-7 reboot-cap red test)** |
 
 > **What changed since v1.4 (operator-checklist work, not a coding session):** **Gate G0
 > is CLEARED** — app name **Ballast**, org **`com.beyondkaira`** (owned domain
@@ -18,25 +18,30 @@
 
 ---
 
-## ✅ Step 0 — RESOLVED 2026-07-09 (billing fixed, E2.1 verified)
+## ✅ Step 0 RESOLVED (billing + E2.1) · ⚙️ carried: TestFlight signing fix (small, agent work)
 
-Billing was fixed and **run 28979808466 attempt 3 verified everything on HEAD
-(1d21da3): all test lanes green** — commit H's three E2.1 store tests pass on the
-simulator, the Ballast identifier sweep compiles/signs/passes, release gate floors
-measured green. **E2.1 is DONE and CI-verified.**
+Billing fixed 2026-07-09; **run 28979808466 attempt 3 verified everything on HEAD
+(1d21da3): all test lanes green** — commit H's three E2.1 store tests, the Ballast
+sweep, release-gate floors. **E2.1 is DONE and CI-verified.**
 
-**One operator item remains, NON-blocking for E2.2 — TestFlight bootstrap:** the
-upload lane fails cloning the certs repo with 403 *"Write access to repository not
-granted"* — the fine-grained PAT inside `MATCH_GIT_URL` lacks access. Already done
-agent-side: certs repo renamed to `aytekXR/ballast-match-certs` (matching the secret's
-URL; the doubled-prefix name was the first failure), `MATCH_BOOTSTRAP=true` variable
-set. Operator fix: github.com → Settings → Developer settings → fine-grained tokens →
-the match token → Repository access must include `ballast-match-certs`, Permissions →
-Contents: **Read and write** (or mint a new PAT so scoped and re-set the secret:
-`gh secret set MATCH_GIT_URL -R aytekXR/unhooked-quit-widget -b
-"https://<PAT>@github.com/aytekXR/ballast-match-certs.git"`). Then
-`gh run rerun 28979808466 --failed`; after the FIRST green upload, DELETE the
-`MATCH_BOOTSTRAP` variable so CI match stays read-only.
+**TestFlight bootstrap — 2 of 3 failures fixed, third carried (agent work, ~1–2
+commits, do it FIRST next session):** clone-404 fixed (repo renamed to
+`aytekXR/ballast-match-certs`), PAT grant fixed by operator (verified push:true).
+Attempt 6 then got through match (distribution cert minted) but **gym archive fails**:
+`No profiles for 'com.beyondkaira.ballast'/'.widgets' were found … Automatic signing
+is disabled and unable to generate a profile`. Root cause: the Fastfile never maps the
+`match AppStore com.beyondkaira.ballast(.widgets)` profiles onto the targets —
+project.yml is `CODE_SIGN_STYLE: Automatic` and CI has no Xcode-managed account. Fix in
+`fastlane/Fastfile`: after match, force manual signing for the archive (e.g.
+`update_code_signing_settings(use_automatic_signing: false, team_id, code_sign_identity:
+"Apple Distribution", profile_name: ENV["sigh_com.beyondkaira.ballast_appstore_profile-name"])`
+per target — widget too — plus gym `export_options.provisioningProfiles` mapping).
+Then rerun the upload lane. Notes: `MATCH_BOOTSTRAP=true` stays set until the first
+green upload, THEN delete it; attempt 6's cert push never landed in the certs repo
+(sole commit predates the runs), so the portal may hold a distribution cert whose key
+is lost — match will mint a second (Apple allows two) or the stale one needs revoking;
+hygiene (operator call): the certs repo contains the raw ASC `AuthKey_QL8L4UKHW5.p8` —
+recommend removing it (it lives in the GitHub secret + operator mirror).
 
 ## Where we are
 
@@ -144,7 +149,10 @@ mechanically); never weaken a QA assertion; `logSlip` stays synchronous-local.
 > `docs/architecture.md` §3/§4/§5.1/ADR-3/ADR-7, `docs/test-suite.md` §2/§3.1/§7, and
 > the Session 03–05 entries in `docs/past-prompts.md` before writing anything.
 >
-> **This session: E2.2 QuitRepository** —
+> **This session: FIRST the bounded TestFlight signing fix** (Step 0 note in
+> `docs/resume-prompt.md`: Fastfile maps the match AppStore profiles onto both targets
+> for the archive; rerun the upload lane; on the first green upload delete the
+> `MATCH_BOOTSTRAP` variable). **Then the main objective: E2.2 QuitRepository** —
 > the implementation plan's five named red tests plus the carried ADR-7 reboot-cap
 > red test (the repository's persisted last-known-good wall reading finally makes the
 > cap implementable); §4 indexes land with their justifying queries; repository is the
