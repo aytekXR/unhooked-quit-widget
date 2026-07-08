@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v1.5 |
-| Last updated | 2026-07-09 (operator-checklist interlude — Gate G0 + content, no engine code changed) |
-| Phase | Phase 1 core build — Epic 1 CLOSED (tagged streakengine-v1.0.0); E2.1 green pushed, CI-blocked on billing |
-| Next session objective | **FIRST verify commit H (E2.1 green) on CI once billing clears, then E2.2 QuitRepository (incl. the carried ADR-7 reboot-cap red test)** |
+| Document | Resume Prompt v1.6 |
+| Last updated | 2026-07-09 (billing cleared; E2.1 VERIFIED green on CI; TestFlight bootstrap pending one PAT fix) |
+| Phase | Phase 1 core build — Epic 1 CLOSED (tagged streakengine-v1.0.0); E2.1 DONE and CI-verified |
+| Next session objective | **E2.2 QuitRepository (incl. the carried ADR-7 reboot-cap red test)** |
 
 > **What changed since v1.4 (operator-checklist work, not a coding session):** **Gate G0
 > is CLEARED** — app name **Ballast**, org **`com.beyondkaira`** (owned domain
@@ -18,20 +18,25 @@
 
 ---
 
-## ⚠️ Step 0 — blocked on operator, do this before ANY new work
+## ✅ Step 0 — RESOLVED 2026-07-09 (billing fixed, E2.1 verified)
 
-**GitHub Actions is down for this repo: billing.** Run 28976762483 (commit H, ae4d34f —
-E2.1 green) never started, both attempts: *"The job was not started because recent
-account payments have failed or your spending limit needs to be increased."* The
-operator must fix Billing & plans (payment method or Actions spending limit — note
-macOS minutes bill at 10x on this private repo; this session ran three macOS lanes).
+Billing was fixed and **run 28979808466 attempt 3 verified everything on HEAD
+(1d21da3): all test lanes green** — commit H's three E2.1 store tests pass on the
+simulator, the Ballast identifier sweep compiles/signs/passes, release gate floors
+measured green. **E2.1 is DONE and CI-verified.**
 
-Once billing clears, the agent's first action is: `gh run rerun 28976762483` (or push
-an empty commit) and verify the E2.1 green run — expected all-green; the red run
-(28975932867) already empirically proved the risky parts (schema introspection API,
-App Group resolution, on-disk container open at a custom URL). If the app lane is NOT
-green, fixing it red-first IS the session until it is. Do not start E2.2 on top of an
-unverified E2.1.
+**One operator item remains, NON-blocking for E2.2 — TestFlight bootstrap:** the
+upload lane fails cloning the certs repo with 403 *"Write access to repository not
+granted"* — the fine-grained PAT inside `MATCH_GIT_URL` lacks access. Already done
+agent-side: certs repo renamed to `aytekXR/ballast-match-certs` (matching the secret's
+URL; the doubled-prefix name was the first failure), `MATCH_BOOTSTRAP=true` variable
+set. Operator fix: github.com → Settings → Developer settings → fine-grained tokens →
+the match token → Repository access must include `ballast-match-certs`, Permissions →
+Contents: **Read and write** (or mint a new PAT so scoped and re-set the secret:
+`gh secret set MATCH_GIT_URL -R aytekXR/unhooked-quit-widget -b
+"https://<PAT>@github.com/aytekXR/ballast-match-certs.git"`). Then
+`gh run rerun 28979808466 --failed`; after the FIRST green upload, DELETE the
+`MATCH_BOOTSTRAP` variable so CI match stays read-only.
 
 ## Where we are
 
@@ -47,9 +52,9 @@ QuitSnapshot pre-tag; internal params `quit`→`snapshot`), `StreakEngine.versio
 surface is consumer-self-contained. Ratified semantics live in Sessions 03–05 "Key
 decisions" in `past-prompts.md` — read them before touching the engine.
 
-**E2.1 (single SwiftData store in the App Group) is red→green complete in code**:
-commit G (09b3a90) red CI-verified (run 28975932867, three canonical failures), commit
-H (ae4d34f) green pushed but **CI-unverified (billing)**. The store: five §3 models
+**E2.1 (single SwiftData store in the App Group) is DONE**: commit G (09b3a90) red
+CI-verified (run 28975932867, three canonical failures), commit H (ae4d34f) green
+**CI-verified** (run 28979808466 attempt 3, on HEAD 1d21da3). The store: five §3 models
 (CloudKit-checklist-clean, no `.unique`, everything defaulted/optional),
 `PersistentStore` factory at `<App Group>/Library/Application Support/unhooked.store`
 (the App Group now resolves to `group.com.beyondkaira.ballast.shared`),
@@ -75,7 +80,10 @@ per test-suite §4.3 when a session takes it on.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
-1. **GitHub Actions billing** (blocks ALL CI — including the first TestFlight bootstrap; see Step 0).
+1. ~~**GitHub Actions billing**~~ — ✅ **CLEARED 2026-07-09**; CI fully operational (verified live).
+   Follow-on: **`MATCH_GIT_URL` PAT needs Contents read/write on `ballast-match-certs`**
+   (see Step 0) — the only thing between here and the first TestFlight build; does NOT
+   block E2.2.
 2. ~~**Gate G0 rename**~~ — ✅ **CLEARED 2026-07-08.** Name **Ballast**, org **`com.beyondkaira`**;
    registered `com.beyondkaira.ballast`, `.widgets`, `group.com.beyondkaira.ballast.shared`,
    `iCloud.com.beyondkaira.ballast`; Team ID `UH7MXG7Z94`. Sweep done in `project.yml`
@@ -101,7 +109,7 @@ per test-suite §4.3 when a session takes it on.
 
 ## Next session objective (one session, definition of done below)
 
-**Step 0 above, then E2.2 — QuitRepository** (`implementation-plan.md` E2.2, deps
+**E2.2 — QuitRepository** (`implementation-plan.md` E2.2, deps
 E2.1 ✓ + E1.3 ✓), strictly test-first via the macOS CI lane (session-rules mechanics:
 red evidence = the CI run on the red commit):
 
@@ -128,14 +136,15 @@ mechanically); never weaken a QA assertion; `logSlip` stays synchronous-local.
 > `com.beyondkaira` — Gate G0 CLEARED 2026-07-08; real IDs registered, placeholders
 > swept, `DEVELOPMENT_TEAM` set). Epic 1 is CLOSED and tagged
 > (`streakengine-v1.0.0`); the StreakEngine CI release gate is live and merge-blocking.
-> E2.1 is red→green complete; **commit H (ae4d34f) is CI-UNVERIFIED because GitHub
-> Actions billing failed — Step 0 in `docs/resume-prompt.md` is mandatory before any
-> new work.** Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`. Read
+> E2.1 is DONE and CI-verified (run 28979808466 attempt 3 — commit H's tests + the
+> Ballast sweep, all lanes green). Only the TestFlight bootstrap awaits an operator
+> PAT fix (Step 0 note; non-blocking). Local Swift toolchain:
+> `. ~/.local/share/swiftly/env.sh`. Read
 > `docs/session-rules.md`, `docs/implementation-plan.md` (E2.2–E2.3),
 > `docs/architecture.md` §3/§4/§5.1/ADR-3/ADR-7, `docs/test-suite.md` §2/§3.1/§7, and
 > the Session 03–05 entries in `docs/past-prompts.md` before writing anything.
 >
-> **This session: verify E2.1 green on CI (Step 0), then E2.2 QuitRepository** —
+> **This session: E2.2 QuitRepository** —
 > the implementation plan's five named red tests plus the carried ADR-7 reboot-cap
 > red test (the repository's persisted last-known-good wall reading finally makes the
 > cap implementable); §4 indexes land with their justifying queries; repository is the
