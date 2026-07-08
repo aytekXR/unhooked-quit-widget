@@ -21,19 +21,52 @@ public struct QuitSnapshot: Sendable, Equatable, Hashable, Codable {
     /// Captured at the CURRENT streak's start: its `wallClock` is expected to equal
     /// `startAt` (the guard measures elapsed from the anchor, not from `startAt`).
     public var monotonicAnchor: MonotonicAnchor?
+    /// Longest COMPLETED (archived) streak, in seconds — populated by `applySlip` (E1.3).
+    /// Append-only (architecture §9 rule 3): no engine operation except a sanctioned undo
+    /// may lower it. The live current streak can exceed it; it is archived on the next slip.
+    public var bestStreakSeconds: Int
+    /// Bookkeeping for the 10-minute slip undo (E1.3). Non-nil while the most recent slip
+    /// is still reversible; `undoSlip` consumes it, a newer slip replaces (finalizes) it.
+    public var pendingUndo: PendingSlipUndo?
 
     public init(
         startAt: Date,
         trackedSince: Date? = nil,
         weeklySpend: Decimal = 0,
         priorCleanSeconds: Int = 0,
-        monotonicAnchor: MonotonicAnchor? = nil
+        monotonicAnchor: MonotonicAnchor? = nil,
+        bestStreakSeconds: Int = 0,
+        pendingUndo: PendingSlipUndo? = nil
     ) {
         self.startAt = startAt
         self.trackedSince = trackedSince ?? startAt
         self.weeklySpend = weeklySpend
         self.priorCleanSeconds = priorCleanSeconds
         self.monotonicAnchor = monotonicAnchor
+        self.bestStreakSeconds = bestStreakSeconds
+        self.pendingUndo = pendingUndo
+    }
+}
+
+/// The exact pre-slip values `applySlip` overwrites, kept so `undoSlip` can restore them
+/// deterministically within the window (architecture §9: "undo, not delete-then-restore").
+/// Only fields the slip mutates are recorded — `trackedSince`/`weeklySpend` never change.
+public struct PendingSlipUndo: Sendable, Equatable, Hashable, Codable {
+    public var priorStartAt: Date
+    public var priorCleanSeconds: Int
+    public var priorBestStreakSeconds: Int
+    public var priorMonotonicAnchor: MonotonicAnchor?
+
+    public init(
+        priorStartAt: Date,
+        priorCleanSeconds: Int,
+        priorBestStreakSeconds: Int,
+        priorMonotonicAnchor: MonotonicAnchor? = nil
+    ) {
+        self.priorStartAt = priorStartAt
+        self.priorCleanSeconds = priorCleanSeconds
+        self.priorBestStreakSeconds = priorBestStreakSeconds
+        self.priorMonotonicAnchor = priorMonotonicAnchor
     }
 }
 
