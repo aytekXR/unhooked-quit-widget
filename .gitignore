@@ -24,3 +24,6 @@ secrets.yml
 *.p8
 AuthKey_*.p8
 *-secrets.md
+
+# CodeGraph index — machine-local, never committed
+.codegraph/
