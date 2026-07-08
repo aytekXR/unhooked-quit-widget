@@ -41,7 +41,7 @@ struct WalkingSkeletonTests {
     /// All three portfolio stub packages link into the app target and expose their
     /// entry points (E0.2).
     @Test func test_packages_linkAndExposeEntryPoints() {
-        #expect(StreakEngine.version == "0.0.1-skeleton")
+        #expect(StreakEngine.version == "1.0.0") // graduated with the streakengine-v1.0.0 tag
         #expect(WidgetToolkit.version == "0.0.1-skeleton")
         #expect(PaywallKit.version == "0.0.1-skeleton")
     }
