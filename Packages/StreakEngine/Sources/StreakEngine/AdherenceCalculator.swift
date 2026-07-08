@@ -22,7 +22,26 @@ extension StreakCalculator {
         allowancePerDay: Int,
         timezone: TimeZone
     ) -> Adherence {
-        // Sentinel (red): a readout no real window can produce.
-        Adherence(adherentDays: -1, evaluatedDays: -1)
+        // A fixed Gregorian calendar in the quit's timezone — never `.current` or
+        // `.autoupdatingCurrent`, which would smuggle device state into pure math.
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timezone
+
+        let allowance = max(0, allowancePerDay)
+        var adherent = 0
+        var evaluated = 0
+        var dayStart = calendar.startOfDay(for: window.start)
+        repeat {
+            // Foundation owns the day length here: byAdding handles 23h/25h DST days,
+            // so the repeated fall-back hour folds into one evaluated day by construction.
+            // Unwrap is total: adding one day on a fixed Gregorian calendar cannot fail,
+            // and crashing would still beat silently mis-measuring an adherence day.
+            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+            let units = occurrences.count { $0 >= dayStart && $0 < dayEnd }
+            if units <= allowance { adherent += 1 }
+            evaluated += 1
+            dayStart = dayEnd
+        } while dayStart < window.end
+        return Adherence(adherentDays: adherent, evaluatedDays: evaluated)
     }
 }
