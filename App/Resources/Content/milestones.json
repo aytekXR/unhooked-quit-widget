@@ -1,0 +1,80 @@
+{
+  "_meta": {
+    "version": 1,
+    "audit": "Every `body` uses a 'commonly reported' framing marker and avoids clinical-outcome vocabulary and physiological guarantees. Milestones describe what people commonly report noticing, never a clinical promise. Boundary-inclusive: a milestone at afterHours=24 unlocks the instant the streak reaches 24h (StreakEngine ratified semantics).",
+    "framing_token": "Bodies are experiential and category-neutral in tone; the app renders money-saved and the user's own motivations alongside these, so copy here stays about the felt experience."
+  },
+  "vape": {
+    "category": "vape",
+    "milestones": [
+      { "afterHours": 12,  "title": "First stretch done", "body": "The first few hours are the steepest. You're through them. Commonly reported around now: cravings arrive in waves and each one passes." },
+      { "afterHours": 24,  "title": "One full day", "body": "A whole day. Commonly reported by the one-day mark: taste and smell start feeling a little sharper." },
+      { "afterHours": 72,  "title": "Three days", "body": "Three days in. This is commonly reported as the toughest window — and you're standing in it, not around it." },
+      { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: steadier energy through the afternoon and fewer automatic reaches for it." },
+      { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: the habit loops that used to feel automatic are getting quieter." },
+      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: easier breathing during everyday effort and better sleep." },
+      { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: cravings are occasional rather than daily, and easier to let pass." },
+      { "afterHours": 8760, "title": "One year", "body": "A full year. Commonly reported at a year: the pull is rare, and this feels like who you are now, not something you're fighting." }
+    ]
+  },
+  "alcohol": {
+    "category": "alcohol",
+    "milestones": [
+      { "afterHours": 24,  "title": "One day", "body": "One day. Commonly reported early on: sleep can be uneven at first — that's a common experience and it usually settles." },
+      { "afterHours": 72,  "title": "Three days", "body": "Three days. Commonly reported around now: mornings start feeling clearer." },
+      { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: deeper sleep and more steady mornings." },
+      { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: more even energy and mood across the day." },
+      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: better sleep, clearer focus, and money kept that used to go elsewhere." },
+      { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: social situations feel more manageable without it." },
+      { "afterHours": 8760, "title": "One year", "body": "A year. Commonly reported at a year: this is simply how you live now." }
+    ]
+  },
+  "porn": {
+    "category": "porn",
+    "milestones": [
+      { "afterHours": 24,  "title": "One day", "body": "One day. Commonly reported early on: urges come in waves — noticing one is not the same as acting on it." },
+      { "afterHours": 72,  "title": "Three days", "body": "Three days. Commonly reported around now: more presence and attention through the day." },
+      { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: fewer automatic urges and more time reclaimed." },
+      { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: steadier focus and mood." },
+      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: more energy for the relationships and work you care about." },
+      { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: urges are occasional and easier to let pass." },
+      { "afterHours": 8760, "title": "One year", "body": "A year. Commonly reported at a year: this feels like your normal, not a daily effort." }
+    ]
+  },
+  "weed": {
+    "category": "weed",
+    "milestones": [
+      { "afterHours": 24,  "title": "One day", "body": "One day. Commonly reported early on: sleep and appetite can shift for a bit — a common experience that usually settles." },
+      { "afterHours": 72,  "title": "Three days", "body": "Three days. Commonly reported around now: dreams get vivid and mornings feel clearer." },
+      { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: steadier focus and more even energy." },
+      { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: memory and motivation feel a little sharper." },
+      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: clearer thinking and money kept." },
+      { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: the routine no longer organizes your day." },
+      { "afterHours": 8760, "title": "One year", "body": "A year. Commonly reported at a year: this is just how you live now." }
+    ]
+  },
+  "doomscroll": {
+    "category": "doomscroll",
+    "milestones": [
+      { "afterHours": 24,  "title": "One day", "body": "One day. Commonly reported early on: the reach-for-the-phone reflex is loud at first, then quieter." },
+      { "afterHours": 72,  "title": "Three days", "body": "Three days. Commonly reported around now: calmer evenings and easier focus." },
+      { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: more time back and a steadier mood." },
+      { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: less restlessness and better sleep." },
+      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: hours reclaimed for the things you actually wanted to do." },
+      { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: reaching for the feed is the exception, not the default." },
+      { "afterHours": 8760, "title": "One year", "body": "A year. Commonly reported at a year: your attention feels like yours again." }
+    ]
+  },
+  "custom": {
+    "category": "custom",
+    "milestones": [
+      { "afterHours": 24,  "title": "One day", "body": "One day. Commonly reported early on: the first cravings are the strongest and each one passes." },
+      { "afterHours": 72,  "title": "Three days", "body": "Three days. Commonly reported around now: the early push starts to ease." },
+      { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: steadier days and more time back." },
+      { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: the old routine feels less automatic." },
+      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: more energy for what matters to you." },
+      { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: urges are occasional and easier to ride out." },
+      { "afterHours": 8760, "title": "One year", "body": "A year. Commonly reported at a year: this feels like who you are now." }
+    ]
+  }
+}

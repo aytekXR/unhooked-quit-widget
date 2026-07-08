@@ -26,9 +26,14 @@ platform :ios do
       is_key_content_base64: true
     )
 
+    # One-shot bootstrap: set repo Variable MATCH_BOOTSTRAP=true for the FIRST run only,
+    # so match CREATES the distribution cert + App Store profiles and pushes them
+    # (encrypted) to MATCH_GIT_URL. Delete that Variable afterwards — CI must stay
+    # read-only so a routine build never mutates the signing repo.
     match(
       type: "appstore",
-      readonly: true,
+      readonly: ENV["MATCH_BOOTSTRAP"] != "true",
+      app_identifier: ["com.beyondkaira.ballast", "com.beyondkaira.ballast.widgets"],
       git_url: ENV.fetch("MATCH_GIT_URL"),
       api_key: api_key
     )

@@ -253,4 +253,7 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          # One-shot signing bootstrap flag (repo Variable, not a secret). Set to "true"
+          # for the first TestFlight run so match generates+pushes certs, then delete it.
+          MATCH_BOOTSTRAP: ${{ vars.MATCH_BOOTSTRAP }}
         run: fastlane beta

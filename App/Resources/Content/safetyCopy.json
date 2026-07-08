@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "version": 1,
+    "audit": "Safety copy is the one place a calm caution is allowed — but it still makes NO medical claim, diagnosis, or promise. It points to professional help; it does not advise how to withdraw. Shown once, calmly, never repeated (MVP §6.7). ⚠️ REQUIRES licensed medical + legal review before ship — wording below is a drafting placeholder, not cleared copy.",
+    "review_status": "DRAFT — needs clinician + counsel sign-off"
+  },
+  "alcoholWithdrawalNotice": {
+    "shownOnce": true,
+    "context": "Displayed once when an alcohol quit/reduce goal is created.",
+    "title": "One thing worth knowing",
+    "body": "For some people who drink heavily or daily, stopping suddenly can be physically risky. If that might be you, it's worth talking to a doctor or a helpline about the safest way to cut down. This app tracks your progress — it isn't medical care.",
+    "primaryActionLabel": "See resources",
+    "dismissLabel": "Got it"
+  },
+  "resourcesScreen": {
+    "title": "Support, whenever you want it",
+    "intro": "These are free, confidential lines. You don't have to be in crisis to call.",
+    "footerDisclaimer": "Ballast tracks habits and streaks. It is not a substitute for professional medical or mental-health care. If you're in immediate danger, call your local emergency number.",
+    "regionPickerLabel": "Region"
+  },
+  "notMedicalCareDisclaimer": "Ballast is a self-tracking tool, not medical or mental-health treatment. Milestones describe what people commonly report, not clinical outcomes."
+}

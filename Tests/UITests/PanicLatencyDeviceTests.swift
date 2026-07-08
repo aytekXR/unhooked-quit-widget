@@ -12,7 +12,7 @@ import XCTest
 /// with the panic route forced, which is the app-owned share of the ADR-6 budget.
 /// The full lock-to-intervention number (including the OS's intent→launch phase)
 /// is measured manually with Instruments signposts (subsystem
-/// "dev.placeholder.quitwidget", category "PanicLaunch", interval "PanicColdLaunch").
+/// "com.beyondkaira.ballast", category "PanicLaunch", interval "PanicColdLaunch").
 @MainActor
 final class PanicLatencyDeviceTests: XCTestCase {
     func test_panicColdLaunch_signpost_under2000ms() throws {

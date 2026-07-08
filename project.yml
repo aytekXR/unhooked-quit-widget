@@ -37,7 +37,7 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     SWIFT_TREAT_WARNINGS_AS_ERRORS: "YES"
     CODE_SIGN_STYLE: Automatic
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: "UH7MXG7Z94"
     CURRENT_PROJECT_VERSION: "1"
     MARKETING_VERSION: "0.1.0"
     TARGETED_DEVICE_FAMILY: "1"          # iPhone only, v1 (architecture header)
@@ -59,7 +59,7 @@ targets:
     info:
       path: App/Info.plist
       properties:
-        CFBundleDisplayName: Unhooked            # working title — swept at Gate G0
+        CFBundleDisplayName: Ballast
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         ITSAppUsesNonExemptEncryption: false
@@ -67,10 +67,10 @@ targets:
       path: App/Unhooked.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.dev.placeholder.quitwidget.shared   # PLACEHOLDER — Gate G0 sweep
+          - group.com.beyondkaira.ballast.shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.quitwidget   # PLACEHOLDER — Gate G0 sweep
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyondkaira.ballast
 
   UnhookedWidgets:
     type: app-extension
@@ -81,17 +81,17 @@ targets:
     info:
       path: Widgets/Info.plist
       properties:
-        CFBundleDisplayName: Unhooked Widgets    # working title — swept at Gate G0
+        CFBundleDisplayName: Ballast Widgets
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
       path: Widgets/UnhookedWidgets.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.dev.placeholder.quitwidget.shared   # PLACEHOLDER — Gate G0 sweep
+          - group.com.beyondkaira.ballast.shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.quitwidget.widgets   # PLACEHOLDER — Gate G0 sweep
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyondkaira.ballast.widgets
 
   UnhookedTests:
     type: bundle.unit-test

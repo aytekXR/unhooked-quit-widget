@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "version": 1,
+    "audit": "No shame lexicon and no verdict language. No medical or withdrawal advice. Physical, time-boxed, urge-surfing framing. Steps map to PanicStep enum: breath, timer, reasons, redirect. Every step is skippable. The `reasons` step renders the user's own motivations verbatim ({{motivations}}) — our copy frames, theirs stars (brand kit §1.2). Discreet mode overrides: the intent is titled 'Reset' and strings carry zero habit context.",
+    "duration_target_seconds": 90
+  },
+  "entryTitle": "Let's take this one wave at a time.",
+  "entryTitleDiscreet": "Take a moment.",
+  "steps": [
+    {
+      "step": "breath",
+      "title": "Breathe with me",
+      "instruction": "Follow the circle. In for 4, hold for 7, out for 8. Three rounds.",
+      "pacer": { "inhaleSeconds": 4, "holdSeconds": 7, "exhaleSeconds": 8, "cycles": 3, "hapticGuided": true },
+      "hapticOnlyLabel": "Feel the taps — in, hold, out.",
+      "skipLabel": "Skip breathing"
+    },
+    {
+      "step": "timer",
+      "title": "This will pass",
+      "instruction": "Urges crest and pass — usually within about 15 minutes. You don't have to win forever right now. Just this wave.",
+      "subtext": "Stay here as long as you like. Nothing is counting down against you.",
+      "skipLabel": "I'm ready to keep going"
+    },
+    {
+      "step": "reasons",
+      "title": "Why you started",
+      "instruction": "In your own words:",
+      "motivationsToken": "{{motivations}}",
+      "emptyFallback": "You chose this for your own reasons. They still count right now.",
+      "skipLabel": "Skip"
+    },
+    {
+      "step": "redirect",
+      "title": "What now?",
+      "instruction": "Pick something small for the next few minutes.",
+      "options": [
+        { "id": "water",   "label": "Get a glass of water" },
+        { "id": "walk",    "label": "Step outside for two minutes" },
+        { "id": "message", "label": "Message someone you trust" },
+        { "id": "breathe", "label": "One more round of breathing" }
+      ],
+      "skipLabel": "Skip"
+    }
+  ],
+  "exits": [
+    {
+      "id": "averted",
+      "label": "The urge passed",
+      "labelDiscreet": "Done",
+      "confirmation": "That one passed. That's the whole skill — surfing the wave instead of fighting it.",
+      "analytics": "urge_averted"
+    },
+    {
+      "id": "slipped",
+      "label": "I slipped",
+      "labelDiscreet": "Log it",
+      "routesTo": "slipFlow",
+      "note": "Routes to the slip flow. No shame copy anywhere on this path.",
+      "analytics": "slip_logged"
+    }
+  ]
+}

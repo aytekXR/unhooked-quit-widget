@@ -1,0 +1,132 @@
+{
+  "_meta": {
+    "version": 1,
+    "audit": "Region-aware helpline directory. Numbers verified against official / government / reputable-nonprofit sources (2026) — NONE invented. `dialString` is what a tel: link dials; short codes (TR) are domestic-only and flagged. Reachable in one tap from Settings and from every slip/panic flow (MVP §6.7). No shame or medical-claim copy.",
+    "MUST_VERIFY_BEFORE_SHIP": [
+      "TR mentalHealth ALO 182: only third-party-verified this session; confirm on an official Sağlık Bakanlığı page. 112 is the confirmed fallback and is included.",
+      "TR alcohol YEDAM 115: operating hours not stated on official page.",
+      "US compulsive-behavior: NO verified dedicated national hotline exists; the circulating 1-800-837-9041 is unverified/likely defunct and was deliberately excluded. NAMI + 988 used as the neutral, non-shaming fallback."
+    ],
+    "sources": {
+      "us_quit": "https://www.cdc.gov/tobacco/campaign/tips/quit-smoking/quitline/",
+      "us_alcohol": "https://www.samhsa.gov/find-help/helplines/national-helpline",
+      "us_crisis": "https://988lifeline.org/",
+      "us_nami": "https://www.nami.org/help",
+      "tr_quit": "https://alo171.saglik.gov.tr/",
+      "tr_alcohol": "https://www.yedam.org.tr/telefon-ile-danismanlik",
+      "tr_crisis": "https://findahelpline.com/tr-TR"
+    }
+  },
+  "regions": {
+    "US": {
+      "displayName": "United States",
+      "emergencyNote": "In immediate danger? Call 911.",
+      "resources": [
+        {
+          "id": "us_quit",
+          "appliesTo": ["vape"],
+          "name": "1-800-QUIT-NOW",
+          "descr": "Free, confidential quitline — routes to your state program. Multiple languages.",
+          "phoneDisplay": "1-800-784-8669",
+          "dialString": "+18007848669",
+          "altPhoneDisplay": "En español: 1-855-335-3569",
+          "altDialString": "+18553353569",
+          "hours": "Hours vary by state",
+          "url": "https://www.cdc.gov/tobacco/campaign/tips/quit-smoking/quitline/",
+          "verified": true
+        },
+        {
+          "id": "us_alcohol",
+          "appliesTo": ["alcohol", "weed", "custom"],
+          "name": "SAMHSA National Helpline",
+          "descr": "Free, confidential treatment referral & information. Not a counseling line.",
+          "phoneDisplay": "1-800-662-4357",
+          "dialString": "+18006624357",
+          "hours": "24/7, every day",
+          "url": "https://www.samhsa.gov/find-help/helplines/national-helpline",
+          "verified": true
+        },
+        {
+          "id": "us_crisis",
+          "appliesTo": ["all"],
+          "name": "988 Suicide & Crisis Lifeline",
+          "descr": "Call or text, free and confidential. Call, text, chat, or ASL video.",
+          "phoneDisplay": "988",
+          "dialString": "988",
+          "textNote": "Text 988",
+          "hours": "24/7, every day",
+          "url": "https://988lifeline.org/",
+          "verified": true
+        },
+        {
+          "id": "us_nami",
+          "appliesTo": ["porn", "custom"],
+          "name": "NAMI HelpLine",
+          "descr": "Non-judgmental information and referrals, including for compulsive behaviors. For crisis, use 988.",
+          "phoneDisplay": "1-800-950-6264",
+          "dialString": "+18009506264",
+          "textNote": "Text \"HelpLine\" to 62640",
+          "hours": "Mon–Fri, 10am–10pm ET",
+          "url": "https://www.nami.org/help",
+          "verified": true
+        }
+      ]
+    },
+    "TR": {
+      "displayName": "Türkiye",
+      "emergencyNote": "Acil bir tehlike varsa 112'yi arayın.",
+      "resources": [
+        {
+          "id": "tr_quit",
+          "appliesTo": ["vape"],
+          "name": "ALO 171 — Sigara Bırakma Danışma Hattı",
+          "descr": "Sağlık Bakanlığı sigarayı bırakma danışma hattı. Ücretsiz ve gizli.",
+          "phoneDisplay": "171",
+          "dialString": "171",
+          "domesticOnly": true,
+          "hours": "7/24",
+          "url": "https://alo171.saglik.gov.tr/",
+          "verified": true
+        },
+        {
+          "id": "tr_alcohol",
+          "appliesTo": ["alcohol", "weed", "porn", "custom"],
+          "name": "YEDAM — 115 Danışma Hattı",
+          "descr": "Yeşilay danışma hattı: alkol, madde, kumar ve internet bağımlılığı. Uzman psikologlar, ücretsiz ve gizli.",
+          "phoneDisplay": "115",
+          "dialString": "115",
+          "domesticOnly": true,
+          "hours": "Bilinmiyor — yayına almadan doğrulayın",
+          "url": "https://www.yedam.org.tr/telefon-ile-danismanlik",
+          "verified": true,
+          "hoursVerified": false
+        },
+        {
+          "id": "tr_crisis",
+          "appliesTo": ["all"],
+          "name": "ALO 182 — Yaşam Hattı",
+          "descr": "Ruhsal kriz, yoğun kaygı ve intihar düşünceleri için psikolog/sosyal çalışmacı desteği.",
+          "phoneDisplay": "182",
+          "dialString": "182",
+          "domesticOnly": true,
+          "hours": "7/24",
+          "url": "https://findahelpline.com/tr-TR",
+          "verified": false,
+          "verifyNote": "Resmî Sağlık Bakanlığı sayfasında doğrulayın; doğrulanana kadar 112 birincil güvenli seçenektir."
+        },
+        {
+          "id": "tr_emergency",
+          "appliesTo": ["all"],
+          "name": "112 — Acil Çağrı",
+          "descr": "Hayati tehlike (intihar girişimi, aşırı doz) durumunda ulusal acil numara.",
+          "phoneDisplay": "112",
+          "dialString": "112",
+          "domesticOnly": true,
+          "hours": "7/24",
+          "url": "https://www.saglik.gov.tr/",
+          "verified": true
+        }
+      ]
+    }
+  }
+}

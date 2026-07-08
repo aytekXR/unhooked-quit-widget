@@ -2,10 +2,19 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v1.4 |
-| Last updated | 2026-07-08 (end of Session 05) |
+| Document | Resume Prompt v1.5 |
+| Last updated | 2026-07-09 (operator-checklist interlude — Gate G0 + content, no engine code changed) |
 | Phase | Phase 1 core build — Epic 1 CLOSED (tagged streakengine-v1.0.0); E2.1 green pushed, CI-blocked on billing |
 | Next session objective | **FIRST verify commit H (E2.1 green) on CI once billing clears, then E2.2 QuitRepository (incl. the carried ADR-7 reboot-cap red test)** |
+
+> **What changed since v1.4 (operator-checklist work, not a coding session):** **Gate G0
+> is CLEARED** — app name **Ballast**, org **`com.beyondkaira`** (owned domain
+> beyondkaira.com); real App/widget/App-Group/CloudKit IDs registered, Team ID
+> `UH7MXG7Z94`; `project.yml` + `AppIdentifiers.swift` swept (no `dev.placeholder.quitwidget`
+> anywhere). TestFlight signing wired (Fastfile now mints app+widget App Store profiles;
+> one-shot `MATCH_BOOTSTRAP` var flips match writable). **Phase 4 content drafted** under
+> `App/Resources/Content/` (inert, not bundled). See the updated blockers + standing
+> rules below — notably the **CloudKit flip is now unblocked**.
 
 ---
 
@@ -42,9 +51,11 @@ decisions" in `past-prompts.md` — read them before touching the engine.
 commit G (09b3a90) red CI-verified (run 28975932867, three canonical failures), commit
 H (ae4d34f) green pushed but **CI-unverified (billing)**. The store: five §3 models
 (CloudKit-checklist-clean, no `.unique`, everything defaulted/optional),
-`PersistentStore` factory at `<App Group>/Library/Application Support/unhooked.store`,
-**`cloudKitDatabase: .none` until Gate G0** (flip is red-test-first per test-suite §4.3;
-never register placeholder IDs).
+`PersistentStore` factory at `<App Group>/Library/Application Support/unhooked.store`
+(the App Group now resolves to `group.com.beyondkaira.ballast.shared`),
+**`cloudKitDatabase: .none` today. Gate G0 is now CLEARED (2026-07-08), so the CloudKit
+flip to container `iCloud.com.beyondkaira.ballast` is UNBLOCKED** — do it red-test-first
+per test-suite §4.3 when a session takes it on.
 
 ## Carried technical items (do not lose)
 
@@ -64,11 +75,29 @@ never register placeholder IDs).
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
-1. **GitHub Actions billing** (NEW — blocks all CI; see Step 0).
-2. **Gate G0 rename** — blocks TestFlight/ASC/ASO/marketing + the CloudKit container.
-3. **E0.3 device measurement** — `docs/spike-panic-latency.md` on iPhone 15-class.
-4. **Content plan** (feasibility condition #2).
-5. **Drift decision:** MVP §7 "<2s 10/10" vs test-suite §1.5 "p90 < 2s".
+1. **GitHub Actions billing** (blocks ALL CI — including the first TestFlight bootstrap; see Step 0).
+2. ~~**Gate G0 rename**~~ — ✅ **CLEARED 2026-07-08.** Name **Ballast**, org **`com.beyondkaira`**;
+   registered `com.beyondkaira.ballast`, `.widgets`, `group.com.beyondkaira.ballast.shared`,
+   `iCloud.com.beyondkaira.ballast`; Team ID `UH7MXG7Z94`. Sweep done in `project.yml`
+   (bundle IDs, App-Group entitlements, display names → "Ballast", `DEVELOPMENT_TEAM`) +
+   `Shared/Sources/AppIdentifiers.swift`. Unblocks TestFlight/ASC/marketing + the CloudKit flip.
+3. **Phase 2 — App Store Connect + CI secrets** (PARTIAL): ASC app record + API key created
+   (Key ID `QL8L4UKHW5`, Issuer `c7e2168e-…`); operator to confirm the 5 GitHub secrets
+   (`ASC_API_KEY_P8_BASE64`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `MATCH_GIT_URL`, `MATCH_PASSWORD`)
+   + the one-shot repo Variable `MATCH_BOOTSTRAP=true` are set on `aytekXR/unhooked-quit-widget`.
+   Fastfile mints app+widget App Store profiles via match (repo `aytekXR/ballast-match-certs`).
+   **First bootstrap TestFlight run is pending billing (#1); after the first green run, DELETE
+   the `MATCH_BOOTSTRAP` variable** so CI stays read-only. Secrets stored operator-side in
+   `~/ballast-secrets.md` (machine-local, not in repo).
+4. **E0.3 device measurement** — still open; `docs/spike-panic-latency.md` on iPhone 15-class.
+   Needs full Xcode (operator machine is Command-Line-Tools-only).
+5. ~~**Content plan**~~ — ✅ **DRAFTED (agent) 2026-07-08**, `App/Resources/Content/`
+   (`milestones.json` ×6 categories, `panicScript.json`, `slipCopy.json`, `safetyCopy.json`,
+   `helplines.json` + `REVIEW.md`). Passes the local no-shame / no-medical-claims scan; **inert
+   (not bundled, no `project.yml` ref, audit tests 12–13 not yet added)**. STILL OPEN before
+   ship: clinician + legal sign-off on `safetyCopy.json`; 3 helpline verify-flags (TR ALO 182,
+   YEDAM 115 hours, US CSB line); TR L10n pass. See `App/Resources/Content/REVIEW.md`.
+6. **Drift decision:** MVP §7 "<2s 10/10" vs test-suite §1.5 "p90 < 2s".
 
 ## Next session objective (one session, definition of done below)
 
@@ -95,8 +124,9 @@ mechanically); never weaken a QA assertion; `logSlip` stays synchronous-local.
 
 ## Resume prompt (copy-paste for next session)
 
-> You are the lead build agent for **unhooked-quit-widget** (working title "Unhooked",
-> Gate-G0 rename pending — placeholder IDs stay). Epic 1 is CLOSED and tagged
+> You are the lead build agent for **unhooked-quit-widget** (app name **Ballast**, org
+> `com.beyondkaira` — Gate G0 CLEARED 2026-07-08; real IDs registered, placeholders
+> swept, `DEVELOPMENT_TEAM` set). Epic 1 is CLOSED and tagged
 > (`streakengine-v1.0.0`); the StreakEngine CI release gate is live and merge-blocking.
 > E2.1 is red→green complete; **commit H (ae4d34f) is CI-UNVERIFIED because GitHub
 > Actions billing failed — Step 0 in `docs/resume-prompt.md` is mandatory before any
@@ -126,8 +156,9 @@ mechanically); never weaken a QA assertion; `logSlip` stays synchronous-local.
 - Monotonic fields (`bestStreakSeconds`, `totalCleanSeconds`) never decrease — undo is
   the ONE sanctioned exemption (§9 rule 3); streaks freeze, never inflate (ADR-7).
 - Panic path stays thin (ADR-6). Single CloudKit-mirrored SwiftData store; no accounts,
-  no backend (ADR-2). Never register placeholder IDs with Apple; never weaken a QA
-  assertion; TDD red first, always (test-suite §7).
+  no backend (ADR-2). Gate G0 is CLEARED — the real IDs are `com.beyondkaira.ballast`
+  (+`.widgets`); never re-introduce the `dev.placeholder.quitwidget` strings. Never
+  weaken a QA assertion; TDD red first, always (test-suite §7).
 - StreakEngine ratified semantics (Sessions 03–05): zero-tracked momentum = 1.0;
   boundary-inclusive milestones; cumulative clean numerators; momentum's denominator —
   and the slip instant — ride the guarded timeline; momentum unchanged in the same tick
@@ -136,5 +167,6 @@ mechanically); never weaken a QA assertion; `logSlip` stays synchronous-local.
   sleep-inclusive monotonic; the input type is `StreakSnapshot` (no consumer-domain
   nouns in the package surface); package doc comments stay consumer-self-contained.
 - E2.1 store rules: no `@Attribute(.unique)` ever (CloudKit checklist, mechanically
-  tested); `cloudKitDatabase` stays `.none` until Gate G0, and the flip is
-  red-test-first (§4.3); `Date()`/`ProcessInfo` remain banned in production code.
+  tested); `cloudKitDatabase` is `.none` today, but Gate G0 is now CLEARED so the flip
+  to `iCloud.com.beyondkaira.ballast` is UNBLOCKED — do it red-test-first (§4.3);
+  `Date()`/`ProcessInfo` remain banned in production code.
