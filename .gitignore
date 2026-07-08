@@ -17,3 +17,10 @@ xcuserdata/
 # fastlane transient output
 fastlane/report.xml
 fastlane/README.md
+
+# Secrets — NEVER commit. Mirrors the GitHub Actions secrets/variables.
+secret.yml
+secrets.yml
+*.p8
+AuthKey_*.p8
+*-secrets.md
