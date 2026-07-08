@@ -160,6 +160,32 @@ struct StreakClockIntegrityEdgeTests {
         #expect(value.elapsedSeconds == day)
         #expect(value.clockSanity == .normal)
     }
+
+    @Test("momentum's denominator rides the guarded timeline — a rolled-back clock cannot inflate momentum")
+    func test_momentum_doesNotInflate_underClockRollback() {
+        // Review finding (Session 03): `tracked` derived from the raw `now` shrinks under a
+        // rollback while the guarded numerator stays frozen, inflating clean ÷ tracked.
+        // 100 tracked days of history (50 banked clean), 50 days of guarded current streak:
+        // honest momentum = (50d + 50d) ÷ 150d = 2/3 — and it must read 2/3 even when the
+        // wall clock is dragged 40 days backward.
+        let history = QuitSnapshot(
+            startAt: epoch,
+            trackedSince: epoch - TimeInterval(100 * day),
+            priorCleanSeconds: 50 * day,
+            monotonicAnchor: anchor
+        )
+        let truth = 50 * day
+        let honest = StreakCalculator.currentStreak(
+            for: history, now: epoch + TimeInterval(truth), monotonic: monoAfter(truth)
+        )
+        #expect(honest.momentum == 2.0 / 3.0)
+
+        let rolledBack = StreakCalculator.currentStreak(
+            for: history, now: epoch + TimeInterval(10 * day), monotonic: monoAfter(truth)
+        )
+        #expect(rolledBack.clockSanity == .clockRolledBack)
+        #expect(rolledBack.momentum == honest.momentum) // frozen, not inflated
+    }
 }
 
 // MARK: - E1.2 property test (implementation-plan: seeded generator, no external dependency)
