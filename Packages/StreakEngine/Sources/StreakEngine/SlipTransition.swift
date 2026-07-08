@@ -20,16 +20,24 @@ extension StreakCalculator {
         monotonic: MonotonicNow? = nil
     ) -> QuitSnapshot {
         let ended = guardedElapsedSeconds(of: quit, at: now, monotonic: monotonic)
+        // The slip instant on the quit's OWN guarded timeline: under a rolled-back wall
+        // clock the raw `now` is a lie — stamping it into startAt would shrink the
+        // momentum denominator's historical span (startAt − trackedSince) and inflate
+        // momentum for the life of the new streak (Session 04 review finding; same class
+        // as Session 03's denominator fix). Old start + guarded elapsed is honest in
+        // every branch, and never moves the start backward.
+        let slipInstant = quit.startAt + TimeInterval(ended)
         var next = quit
-        next.startAt = now
+        next.startAt = slipInstant
         // Banked history heals to zero on the way in: a malformed negative bank must not
         // survive an archive (the detector below still holds — max(0, x) + ended >= x).
         next.priorCleanSeconds = max(0, quit.priorCleanSeconds) + ended
         next.bestStreakSeconds = max(quit.bestStreakSeconds, ended)
-        // Re-anchor the NEW streak from the reading; with no reading there is no honest
-        // anchor for it — the stale one would make the guard measure from the old start.
+        // Re-anchor the NEW streak from the reading — wallClock rides the guarded instant
+        // (the documented anchor.wallClock == startAt expectation). With no reading there
+        // is no honest anchor: the stale one would measure from the old start.
         next.monotonicAnchor = monotonic.map {
-            MonotonicAnchor(bootID: $0.bootID, uptime: $0.uptime, wallClock: now)
+            MonotonicAnchor(bootID: $0.bootID, uptime: $0.uptime, wallClock: slipInstant)
         }
         // A newer slip replaces (finalizes) any still-open undo: one reversible slip at a
         // time (architecture §9 rule 3), so only the overwritten values are recorded.
