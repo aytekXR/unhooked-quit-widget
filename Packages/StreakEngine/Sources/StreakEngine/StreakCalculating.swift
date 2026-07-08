@@ -1,9 +1,9 @@
 import Foundation
 
-/// The DI/mock seam (test-suite §3 names `StreakCalculating`): view-model tests depend on
-/// `any StreakCalculating` and inject a fake; production injects `StreakCalculator()`.
-/// Thin forwarders live here, in a separate file from the computation core, so
-/// straight-line forwarding does not dilute the computation file's coverage number.
+/// The injection/mock seam: consumer tests depend on `any StreakCalculating` and inject
+/// a fake; production injects `StreakCalculator()`.
+// Thin forwarders live here, in a separate file from the computation core, so
+// straight-line forwarding does not dilute the computation file's coverage number.
 public protocol StreakCalculating: Sendable {
     func currentStreak(
         for snapshot: StreakSnapshot,

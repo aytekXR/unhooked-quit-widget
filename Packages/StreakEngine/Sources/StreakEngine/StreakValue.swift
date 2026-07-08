@@ -1,11 +1,11 @@
 import Foundation
 
-/// A fully-derived Reduce-mode readout (E1.4, ADR-10): how many of the evaluated calendar
-/// days stayed at or under the allowance. Derived on demand, never stored — same rule as
+/// A fully-derived allowance-adherence readout: how many of the evaluated calendar days
+/// stayed at or under the allowance. Derived on demand, never stored — same rule as
 /// `StreakValue`, so deliberately not Codable either.
 public struct Adherence: Sendable, Equatable, Hashable {
     /// Days whose logged occurrences were at or under the allowance (adherent ≠ abstinent:
-    /// a day WITH occurrences still counts — the Reduce-mode framing, MVP feature #4).
+    /// a day WITH occurrences still counts — allowance framing, not abstinence framing).
     public let adherentDays: Int
     /// Calendar days evaluated in the window (a DST-transition day counts exactly once).
     public let evaluatedDays: Int
@@ -17,7 +17,7 @@ public struct Adherence: Sendable, Equatable, Hashable {
 }
 
 /// A fully-derived streak readout — computed on demand, never stored (deliberately not
-/// Codable: persisting derived values is the failure mode the DoD forbids).
+/// Codable: a persisted derived readout could drift from the inputs it was derived from).
 /// `elapsedSeconds` is the single ground truth; `days`/`hours`/`momentumPercent` are
 /// computed views so they can never drift from it.
 public struct StreakValue: Sendable, Equatable, Hashable {
@@ -26,14 +26,14 @@ public struct StreakValue: Sendable, Equatable, Hashable {
     /// Exact, unrounded, >= 0. Rounding scale is currency-specific (USD 2, JPY 0, BHD 3),
     /// so rounding is a presentation concern — the engine stays currency-agnostic.
     public let moneySaved: Decimal
-    /// Momentum as a fraction 0...1 (architecture §5.1).
+    /// Momentum as a fraction 0...1; see `momentumPercent` for the 0...100 view.
     public let momentum: Double
     public let nextMilestone: Milestone?
-    /// Always `.normal` in E1.1; populated by the E1.2 clock guard.
+    /// The clock-integrity verdict for this read; `.normal` whenever no guard ran.
     public let clockSanity: ClockSanity
 
-    /// Elapsed whole 24-hour blocks (timezone-invariant absolute time, per ADR-7:
-    /// timezone/DST changes affect display formatting only, never elapsed seconds).
+    /// Elapsed whole 24-hour blocks (timezone-invariant absolute time: timezone/DST
+    /// changes affect display formatting only, never elapsed seconds).
     public var days: Int { elapsedSeconds / 86_400 }
     /// Whole-hour remainder after `days`, 0...23.
     public var hours: Int { (elapsedSeconds % 86_400) / 3_600 }

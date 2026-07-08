@@ -1,17 +1,18 @@
 import Foundation
 
-/// Stateless pure-function computation core. Time is ALWAYS a parameter; this file holds
-/// no clock and never reads `Date()`/`ProcessInfo`. This is the file the E1.1 coverage bar
-/// measures (100% branch coverage) — keep forwarders and types out of it.
+/// Stateless pure-function computation core. Time is ALWAYS a parameter; this type holds
+/// no clock and never reads `Date()`/`ProcessInfo`.
+// This is the file the strictest coverage bar measures (100% regions) — keep forwarders
+// and types out of it.
 public struct StreakCalculator: Sendable {
     public init() {}
 
     private static let secondsPerHour = 3_600
     private static let secondsPerWeek: Decimal = 604_800
 
-    /// Momentum as a fraction 0...1 = cumulative clean ÷ total tracked (architecture §5.1).
+    /// Momentum as a fraction 0...1 = cumulative clean ÷ total tracked.
     /// Zero tracked time ⇒ 1.0: nothing tracked yet means nothing wasted (the no-shame
-    /// reading). An E1.3 slip leaves it unchanged in the same tick — the ended streak is
+    /// reading). A slip leaves it unchanged in the same tick — the ended streak is
     /// banked whole (the forgiveness differentiator); gaps only enter through consumer
     /// state where tracked history exceeds banked clean time. Negative clean reads as 0;
     /// the ratio is clamped so inconsistent inputs can never leave 0...1.
@@ -44,7 +45,7 @@ public struct StreakCalculator: Sendable {
             .first { $0.afterHours > max(0, elapsedSeconds) / secondsPerHour }
     }
 
-    // MARK: Clock-integrity guard (E1.2 — ADR-7)
+    // MARK: Clock-integrity guard
 
     /// Disagreement between wall clock and monotonic evidence below this is treated as
     /// normal scheduling/rounding noise, not tampering.
@@ -63,7 +64,7 @@ public struct StreakCalculator: Sendable {
         evaluate(anchor: anchor, now: now, monotonic: monotonic, tolerance: tolerance).sanity
     }
 
-    /// The freeze-not-inflate elapsed value (ADR-7): within a boot the monotonic uptime
+    /// The freeze-not-inflate elapsed value: within a boot the monotonic uptime
     /// delta is ground truth whenever the wall clock disagrees beyond tolerance — a wall
     /// jump in either direction can neither inflate nor reset the streak. Across a reboot
     /// (bootID mismatch) uptimes are incomparable, so it falls back to the wall clock,
@@ -112,12 +113,12 @@ public struct StreakCalculator: Sendable {
         return (timezoneShaped ? .timezoneShift : .clockRolledBack, Int(monoDelta))
     }
 
-    /// The E1.1 headline: a fully-derived readout from the snapshot and an injected `now`.
-    /// Money and momentum use CUMULATIVE clean time (`priorCleanSeconds` + current elapsed),
-    /// which equals the current streak for a never-slipped goal and stays correct when E1.3
-    /// slip archiving populates the prior bank. When both an anchor and a monotonic reading
-    /// are present, elapsed time and the verdict come from the E1.2 guard (freeze-not-
-    /// inflate); otherwise the pure wall-clock path runs, exactly as in E1.1.
+    /// The headline readout, fully derived from the snapshot and an injected `now`.
+    /// Money and momentum use CUMULATIVE clean time (`priorCleanSeconds` + current
+    /// elapsed), which equals the current streak for a never-slipped goal and stays
+    /// correct once `applySlip` populates the prior bank. When both an anchor and a
+    /// monotonic reading are present, elapsed time and the verdict come from the
+    /// clock-integrity guard (freeze-not-inflate); otherwise the pure wall-clock path runs.
     public static func currentStreak(
         for snapshot: StreakSnapshot,
         now: Date,

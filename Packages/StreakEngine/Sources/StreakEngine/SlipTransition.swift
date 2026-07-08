@@ -6,14 +6,16 @@ import Foundation
 // file carries its own 100%-branch bar.
 extension StreakCalculator {
 
-    /// The undo window (implementation-plan E1.3 / MVP feature #6): a slip is reversible
-    /// for exactly this many seconds after it is applied, boundary-inclusive.
+    /// The undo window: a slip stays reversible for exactly this many seconds after it
+    /// is applied, boundary-inclusive.
     public static let undoWindowSeconds = 600
 
     /// Archives the current streak into `bestStreakSeconds`, banks its clean time into
     /// `priorCleanSeconds` (cumulative totals are preserved — the momentum numerator and
     /// denominator both carry across the slip unchanged in the same tick), restarts the
-    /// counter at `now`, and records the undo bookkeeping.
+    /// counter at the guarded slip instant (`startAt` + guarded elapsed — equal to `now`
+    /// under an honest clock, never a rolled-back or forward-set wall reading), and
+    /// records the undo bookkeeping.
     public static func applySlip(
         to snapshot: StreakSnapshot,
         at now: Date,
@@ -80,10 +82,10 @@ extension StreakCalculator {
         )
     }
 
-    /// Pure detector behind the append-only debug assertion (test-suite §1.1 item 7:
-    /// "any code path that would decrease them asserts in debug"): names every invariant
-    /// a slip transition would violate. `applySlip` asserts it returns empty; `undoSlip`
-    /// is the sanctioned exemption (§9 rule 3) and never runs it.
+    /// Pure detector behind the append-only debug assertion ("any code path that would
+    /// decrease them asserts in debug"): names every invariant a slip transition would
+    /// violate. `applySlip` asserts it returns empty; `undoSlip` is the one sanctioned
+    /// exemption and never runs it.
     static func appendOnlyViolations(from old: StreakSnapshot, to new: StreakSnapshot) -> [String] {
         var violations: [String] = []
         if new.bestStreakSeconds < old.bestStreakSeconds {
@@ -98,7 +100,7 @@ extension StreakCalculator {
         return violations
     }
 
-    /// One elapsed-seconds rule for both transitions: the E1.2 guard whenever an anchor
+    /// One elapsed-seconds rule for both transitions: the clock guard whenever an anchor
     /// and a reading are both present, the zero-floored wall clock otherwise — the same
     /// timeline `currentStreak` displays, so archives and windows can never disagree
     /// with what the user sees.
