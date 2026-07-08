@@ -1,0 +1,137 @@
+import Foundation
+import StreakEngine
+import SwiftData
+
+// E2.1 — the single SwiftData store's model graph (architecture §3/§4). Every model
+// obeys the CloudKit-mirroring checklist from day one, BEFORE any mirror exists
+// (Gate G0 must clear before an iCloud container may even be registered):
+//   - no @Attribute(.unique) anywhere — uniqueness is by UUID convention (§4; the
+//     dedupe merge pass is E2.3),
+//   - every attribute optional or defaulted (a bare init() must produce a valid row),
+//   - every relationship optional, inverse declared on exactly one side.
+// The checklist is enforced mechanically by PersistenceStoreTests, not by convention.
+// No Date()/ProcessInfo reads here (banned in production code): "unset" dates default
+// to .distantPast and are stamped by the E2.2 service layer at write time.
+// The four §4 indexes (#Index<Quit>([\.isArchived, \.sortIndex]), #Index<Slip>([\.at]),
+// #Index<Slip>([\.isPendingUndo]), #Index<UrgeEvent>([\.at])) are DEFERRED to E2.2:
+// no E2.1 red test exercises them, and the queries that justify them (activeQuits,
+// the undo sweep, at-ordering) land with the repository — green means minimal.
+
+/// Habit category for a tracked goal. String-backed and Codable so SwiftData stores it
+/// as a plain encoded value (CloudKit-safe).
+enum HabitCategory: String, Codable, Sendable, CaseIterable {
+    case vape, porn, alcohol, weed, doomscroll, custom
+}
+
+/// Quit vs Reduce goal mode (ADR-10: Reduce is a first-class mode, not a variant).
+enum GoalMode: String, Codable, Sendable, CaseIterable {
+    case quit, reduce
+}
+
+/// Where a panic session was launched from. Deliberate superset of the architecture §3
+/// sketch's three cases: E3.3's entry-point matrix names all four widget/system sources
+/// (lock screen, Control Center, Action button) plus in-app.
+enum PanicSource: String, Codable, Sendable, CaseIterable {
+    case lockscreenWidget, homeWidget, controlCenter, actionButton, inApp
+}
+
+/// How a panic session ended.
+enum UrgeOutcome: String, Codable, Sendable, CaseIterable {
+    case averted, slipped, abandoned
+}
+
+/// Panic-flow steps a session reached (order recorded, not enforced here).
+enum PanicStep: String, Codable, Sendable, CaseIterable {
+    case breath, timer, reasons, redirect
+}
+
+/// One quiz answer — a Codable blob inside QuizProfile (answers never leave the device).
+struct QuizAnswer: Codable, Sendable, Equatable {
+    var stepID: String = ""
+    var choiceIDs: [String] = []
+    var freeText: String?
+}
+
+/// The central entity. Max 3 active at once — enforced by the E2.2 service layer,
+/// never by schema (CloudKit has no server-side uniqueness/limits).
+@Model
+final class Quit {
+    var id: UUID = UUID()
+    var habitCategory: HabitCategory = HabitCategory.custom
+    var customLabel: String?
+    var goalMode: GoalMode = GoalMode.quit
+    var weeklyAllowance: Int?
+    var weeklySpend: Decimal = Decimal.zero
+    var currencyCode: String = "USD"
+    var startAt: Date = Date.distantPast
+    var createdAt: Date = Date.distantPast
+    /// Persisted clock-integrity anchor (the engine's Codable value; ADR-7).
+    var monotonicAnchor: MonotonicAnchor?
+    var bestStreakSeconds: Int = 0
+    var totalCleanSeconds: Int = 0
+    var avertedUrgeCount: Int = 0
+    var triggers: [String] = []
+    var motivations: [String] = []
+    var discreetMode: Bool = false
+    var isArchived: Bool = false
+    var sortIndex: Int = 0
+    @Relationship(deleteRule: .cascade, inverse: \Slip.quit)
+    var slips: [Slip]?
+    @Relationship(deleteRule: .cascade, inverse: \UrgeEvent.quit)
+    var urgeEvents: [UrgeEvent]?
+
+    init() {}
+}
+
+@Model
+final class Slip {
+    // E2.1 red sentinel — @Attribute(.unique) is the exact CloudKit-checklist violation
+    // test-suite §4.3 warns an agent will someday add; the green commit removes it.
+    @Attribute(.unique) var id: UUID = UUID()
+    var at: Date = Date.distantPast
+    /// Optional reflection note — NEVER leaves the device beyond the user's own iCloud.
+    var note: String?
+    var streakSecondsAtSlip: Int = 0
+    var countsAgainstAllowance: Bool = false
+    var isPendingUndo: Bool = false
+    var quit: Quit?
+
+    init() {}
+}
+
+@Model
+final class UrgeEvent {
+    var id: UUID = UUID()
+    var at: Date = Date.distantPast
+    var source: PanicSource = PanicSource.inApp
+    var outcome: UrgeOutcome = UrgeOutcome.abandoned
+    var stepsReached: [PanicStep] = []
+    var quit: Quit?
+
+    init() {}
+}
+
+@Model
+final class QuizProfile {
+    var id: UUID = UUID()
+    var completedAt: Date?
+    var answers: [QuizAnswer] = []
+    var projectedAnnualSavings: Decimal = Decimal.zero
+    var predictedRiskWindow: String?
+    var quit: Quit?
+
+    init() {}
+}
+
+/// Singleton row (fetched-or-created by the E2.2 service layer).
+@Model
+final class AppSettings {
+    /// Default FALSE until answered in the quiz — zero events before consent (ADR-8).
+    var analyticsOptIn: Bool = false
+    var discreetIconId: String?
+    var hapticOnlyBreathPacer: Bool = false
+    var onboardingVariant: String = ""
+    var teaserExpiresAt: Date?
+
+    init() {}
+}
