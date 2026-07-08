@@ -48,6 +48,8 @@ jobs:
         run: swift test --package-path Packages/StreakEngine --enable-code-coverage
       - name: Coverage floor (lines ≥98% package-wide; regions ≥95% on guard + slip/undo)
         working-directory: Packages/StreakEngine
+        # The container's default step shell is dash (`sh -e`); pipefail is a bashism.
+        shell: bash
         run: |
           set -euo pipefail
           LLVM_COV="$(dirname "$(readlink -f "$(command -v swift)")")/llvm-cov"
