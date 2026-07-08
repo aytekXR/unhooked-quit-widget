@@ -1,5 +1,21 @@
 import Foundation
 
+/// A fully-derived Reduce-mode readout (E1.4, ADR-10): how many of the evaluated calendar
+/// days stayed at or under the allowance. Derived on demand, never stored — same rule as
+/// `StreakValue`, so deliberately not Codable either.
+public struct Adherence: Sendable, Equatable, Hashable {
+    /// Days whose logged occurrences were at or under the allowance (adherent ≠ abstinent:
+    /// a day WITH occurrences still counts — the Reduce-mode framing, MVP feature #4).
+    public let adherentDays: Int
+    /// Calendar days evaluated in the window (a DST-transition day counts exactly once).
+    public let evaluatedDays: Int
+
+    public init(adherentDays: Int, evaluatedDays: Int) {
+        self.adherentDays = adherentDays
+        self.evaluatedDays = evaluatedDays
+    }
+}
+
 /// A fully-derived streak readout — computed on demand, never stored (deliberately not
 /// Codable: persisting derived values is the failure mode the DoD forbids).
 /// `elapsedSeconds` is the single ground truth; `days`/`hours`/`momentumPercent` are
