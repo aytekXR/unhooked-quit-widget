@@ -114,6 +114,35 @@ struct AdherenceTests {
     }
 }
 
+// MARK: - E1.4 midnight DST transitions (review finding)
+
+@Suite("E1.4 midnight-transition day boundaries")
+struct AdherenceMidnightTransitionTests {
+
+    @Test("a spring-forward AT midnight never drifts later day boundaries — each day stays a real calendar day")
+    func test_adherence_midnightSpringForward_doesNotDriftLaterDays() {
+        // Review finding (Session 04): advancing by `byAdding .day` from a skipped local
+        // midnight (America/Santiago springs forward AT 00:00) snapped to 01:00 and never
+        // re-anchored, so every later "day" was a 01:00-shifted slice: two occurrences on
+        // two real days (Sep 12 23:30, Sep 13 00:30 local) fell into one drifted bucket
+        // and broke adherence for the rest of the window.
+        let santiago = TimeZone(identifier: "America/Santiago")!
+        let window = DateInterval(
+            start: Date(timeIntervalSince1970: 1_662_782_400), // 2022-09-10 00:00 CLT
+            end: Date(timeIntervalSince1970: 1_663_124_400)    // 2022-09-14 00:00 CLST
+        )
+        let occurrences = [
+            Date(timeIntervalSince1970: 1_663_036_200), // 2022-09-12 23:30 CLST
+            Date(timeIntervalSince1970: 1_663_039_800), // 2022-09-13 00:30 CLST — the NEXT local day
+        ]
+        let value = StreakCalculator.adherence(
+            for: occurrences, in: window, allowancePerDay: 1, timezone: santiago
+        )
+        // Sep 10 (24h), Sep 11 (23h, starts 01:00), Sep 12, Sep 13 — one unit at most each.
+        #expect(value == Adherence(adherentDays: 4, evaluatedDays: 4))
+    }
+}
+
 // MARK: - E1.4 adherence boundaries
 
 @Suite("E1.4 adherence boundaries")
