@@ -37,7 +37,7 @@ struct StreakComputationTests {
         ]
     )
     func test_streak_daysAndHours_fromStartAnchor(elapsed: Int, days: Int, hours: Int) {
-        let quit = QuitSnapshot(startAt: epoch)
+        let quit = StreakSnapshot(startAt: epoch)
         let value = StreakCalculator.currentStreak(for: quit, now: epoch + TimeInterval(elapsed))
         #expect(value.elapsedSeconds == elapsed)
         #expect(value.days == days)
@@ -71,7 +71,7 @@ struct StreakComputationTests {
         // Through currentStreak: 100 tracked days, 45 banked clean days + 30-day current
         // streak = 75 clean days → 75%.
         let now = epoch + TimeInterval(100 * day)
-        let quit = QuitSnapshot(
+        let quit = StreakSnapshot(
             startAt: epoch + TimeInterval(70 * day),
             trackedSince: epoch,
             priorCleanSeconds: 45 * day
@@ -98,7 +98,7 @@ struct StreakComputationTests {
 
     @Test("a fresh start reads zero seconds, zero money, full momentum, no milestone")
     func test_streak_zeroSecondsAfterFreshStart() {
-        let quit = QuitSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
+        let quit = StreakSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
         let value = StreakCalculator.currentStreak(for: quit, now: epoch)
         #expect(value.elapsedSeconds == 0)
         #expect(value.days == 0)
@@ -158,7 +158,7 @@ struct StreakComputationEdgeTests {
 
     @Test("a now before the start anchor clamps to a zero streak, never negative")
     func test_currentStreak_nowBeforeStart_clampsToZero() {
-        let quit = QuitSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
+        let quit = StreakSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
         let value = StreakCalculator.currentStreak(for: quit, now: epoch - 3_600)
         #expect(value.elapsedSeconds == 0)
         #expect(value.moneySaved == 0)
@@ -167,7 +167,7 @@ struct StreakComputationEdgeTests {
 
     @Test("currentStreak carries the next milestone when a table is supplied")
     func test_currentStreak_withTable_carriesNextMilestone() {
-        let quit = QuitSnapshot(startAt: epoch)
+        let quit = StreakSnapshot(startAt: epoch)
         let value = StreakCalculator.currentStreak(
             for: quit,
             now: epoch + TimeInterval(30 * hour),
@@ -179,7 +179,7 @@ struct StreakComputationEdgeTests {
     @Test("currentStreak money uses cumulative clean seconds, not just the current streak")
     func test_currentStreak_moneyUsesCumulativeCleanSeconds() {
         // One banked clean week + one current-streak week at $26/wk ⇒ $52.
-        let quit = QuitSnapshot(
+        let quit = StreakSnapshot(
             startAt: epoch,
             trackedSince: epoch - TimeInterval(3 * week), // slips happened before startAt
             weeklySpend: Decimal(string: "26")!,
@@ -198,7 +198,7 @@ struct StreakCalculatingSeamTests {
     @Test("the injected instance seam agrees with the static computation core")
     func test_instanceSeam_agreesWithStaticCore() {
         let calculator: any StreakCalculating = StreakCalculator()
-        let quit = QuitSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
+        let quit = StreakSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
         let now = epoch + TimeInterval(30 * hour)
 
         #expect(calculator.currentStreak(for: quit, now: now)

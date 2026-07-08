@@ -20,7 +20,7 @@ private func monoAfter(_ truth: Int) -> MonotonicNow {
 /// Test-suite §1.1 fixture 4's shape: a 34-day current streak on top of banked history —
 /// 10 clean days archived out of 12 tracked before this streak began (a 2-day gap, so
 /// momentum is genuinely partial and any accidental reset to 0% or 100% is visible).
-private let jakeDay34 = QuitSnapshot(
+private let jakeDay34 = StreakSnapshot(
     startAt: epoch,
     trackedSince: epoch - TimeInterval(12 * day),
     weeklySpend: Decimal(string: "26")!,
@@ -114,7 +114,7 @@ struct SlipTransitionTests {
     @Test("best streak and banked clean time never decrease across any slip sequence")
     func test_bestStreak_neverDecreases_afterAnySlipSequence() {
         var rng = SplitMix64(seed: 0x5EED_0E13_2026_0708) // pinned; add failing seeds per test-suite §6.1.5
-        var quit = QuitSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
+        var quit = StreakSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!)
         var now = epoch
 
         for step in 0..<200 {
@@ -206,7 +206,7 @@ struct SlipTransitionEdgeTests {
 
     @Test("a slip timed before the streak start (no evidence) banks zero, never negative")
     func test_slip_nowBeforeStart_noEvidence_banksZero() {
-        let quit = QuitSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!, priorCleanSeconds: 3 * day)
+        let quit = StreakSnapshot(startAt: epoch, weeklySpend: Decimal(string: "26")!, priorCleanSeconds: 3 * day)
         let after = StreakCalculator.applySlip(to: quit, at: epoch - TimeInterval(hour))
         #expect(after.priorCleanSeconds == 3 * day)           // +0, not −3600
         #expect(after.bestStreakSeconds == 0)
@@ -225,7 +225,7 @@ struct SlipTransitionEdgeTests {
         arguments: [(600, true), (601, false)]
     )
     func test_undo_wallClockWindow_boundaryExact(elapsed: Int, restores: Bool) {
-        let noAnchor = QuitSnapshot(
+        let noAnchor = StreakSnapshot(
             startAt: epoch,
             trackedSince: epoch - TimeInterval(12 * day),
             weeklySpend: Decimal(string: "26")!,
@@ -282,7 +282,7 @@ struct SlipTransitionEdgeTests {
     func test_slip_negativePriorClean_healsToZeroBeforeBanking() {
         // Representable via the public init (malformed consumer state); the slip banks
         // max(0, prior) + elapsed so corruption cannot survive an archive.
-        let corrupt = QuitSnapshot(startAt: epoch, priorCleanSeconds: -3_600)
+        let corrupt = StreakSnapshot(startAt: epoch, priorCleanSeconds: -3_600)
         let after = StreakCalculator.applySlip(to: corrupt, at: epoch + TimeInterval(2 * hour))
         #expect(after.priorCleanSeconds == 2 * hour)
         #expect(after.bestStreakSeconds == 2 * hour)

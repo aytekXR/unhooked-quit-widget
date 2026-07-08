@@ -207,11 +207,11 @@ All services are small, `Sendable`, protocol-fronted for testing, and owned by t
 
 ```swift
 protocol StreakEngineProtocol {           // pure functions — the TDD core (shared pkg)
-    func currentStreak(for quit: QuitSnapshot, now: Date, monotonic: MonotonicNow) -> StreakValue
+    func currentStreak(for snapshot: StreakSnapshot, now: Date, monotonic: MonotonicNow) -> StreakValue
     func momentum(cleanSeconds: Int, totalSeconds: Int) -> Double        // 0...1
     func moneySaved(weeklySpend: Decimal, cleanSeconds: Int) -> Decimal
     func adherence(slipsThisWeek: Int, allowance: Int) -> Adherence      // Reduce mode
-    func nextMilestone(for quit: QuitSnapshot, table: MilestoneTable) -> Milestone?
+    func nextMilestone(for snapshot: StreakSnapshot, table: MilestoneTable) -> Milestone?
     func validate(anchor: MonotonicAnchor, wallClock: Date) -> ClockSanity // .ok/.clockRolledBack/...
 }
 

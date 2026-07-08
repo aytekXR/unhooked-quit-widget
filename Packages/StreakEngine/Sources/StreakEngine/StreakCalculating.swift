@@ -6,7 +6,7 @@ import Foundation
 /// straight-line forwarding does not dilute the computation file's coverage number.
 public protocol StreakCalculating: Sendable {
     func currentStreak(
-        for quit: QuitSnapshot,
+        for snapshot: StreakSnapshot,
         now: Date,
         monotonic: MonotonicNow?,
         milestones: MilestoneTable?
@@ -18,19 +18,19 @@ public protocol StreakCalculating: Sendable {
 
 public extension StreakCalculating {
     /// The canonical two-argument form (protocol requirements cannot carry default args).
-    func currentStreak(for quit: QuitSnapshot, now: Date) -> StreakValue {
-        currentStreak(for: quit, now: now, monotonic: nil, milestones: nil)
+    func currentStreak(for snapshot: StreakSnapshot, now: Date) -> StreakValue {
+        currentStreak(for: snapshot, now: now, monotonic: nil, milestones: nil)
     }
 }
 
 extension StreakCalculator: StreakCalculating {
     public func currentStreak(
-        for quit: QuitSnapshot,
+        for snapshot: StreakSnapshot,
         now: Date,
         monotonic: MonotonicNow?,
         milestones: MilestoneTable?
     ) -> StreakValue {
-        Self.currentStreak(for: quit, now: now, monotonic: monotonic, milestones: milestones)
+        Self.currentStreak(for: snapshot, now: now, monotonic: monotonic, milestones: milestones)
     }
 
     public func momentum(cleanSeconds: Int, totalSeconds: Int) -> Double {

@@ -1,7 +1,7 @@
 import Foundation
 
 // E1.3 — slip archiving, momentum preservation, 10-minute undo. Pure value-in/value-out
-// transitions over `QuitSnapshot`; time is always injected (`at:` + optional monotonic
+// transitions over `StreakSnapshot`; time is always injected (`at:` + optional monotonic
 // evidence), never read. Separate file from StreakCalculator.swift so each computation
 // file carries its own 100%-branch bar.
 extension StreakCalculator {
@@ -15,24 +15,24 @@ extension StreakCalculator {
     /// denominator both carry across the slip unchanged in the same tick), restarts the
     /// counter at `now`, and records the undo bookkeeping.
     public static func applySlip(
-        to quit: QuitSnapshot,
+        to snapshot: StreakSnapshot,
         at now: Date,
         monotonic: MonotonicNow? = nil
-    ) -> QuitSnapshot {
-        let ended = guardedElapsedSeconds(of: quit, at: now, monotonic: monotonic)
-        // The slip instant on the quit's OWN guarded timeline: under a rolled-back wall
+    ) -> StreakSnapshot {
+        let ended = guardedElapsedSeconds(of: snapshot, at: now, monotonic: monotonic)
+        // The slip instant on the goal's OWN guarded timeline: under a rolled-back wall
         // clock the raw `now` is a lie — stamping it into startAt would shrink the
         // momentum denominator's historical span (startAt − trackedSince) and inflate
         // momentum for the life of the new streak (Session 04 review finding; same class
         // as Session 03's denominator fix). Old start + guarded elapsed is honest in
         // every branch, and never moves the start backward.
-        let slipInstant = quit.startAt + TimeInterval(ended)
-        var next = quit
+        let slipInstant = snapshot.startAt + TimeInterval(ended)
+        var next = snapshot
         next.startAt = slipInstant
         // Banked history heals to zero on the way in: a malformed negative bank must not
         // survive an archive (the detector below still holds — max(0, x) + ended >= x).
-        next.priorCleanSeconds = max(0, quit.priorCleanSeconds) + ended
-        next.bestStreakSeconds = max(quit.bestStreakSeconds, ended)
+        next.priorCleanSeconds = max(0, snapshot.priorCleanSeconds) + ended
+        next.bestStreakSeconds = max(snapshot.bestStreakSeconds, ended)
         // Re-anchor the NEW streak from the reading — wallClock rides the guarded instant
         // (the documented anchor.wallClock == startAt expectation). With no reading there
         // is no honest anchor: the stale one would measure from the old start.
@@ -42,37 +42,37 @@ extension StreakCalculator {
         // A newer slip replaces (finalizes) any still-open undo: one reversible slip at a
         // time (architecture §9 rule 3), so only the overwritten values are recorded.
         next.pendingUndo = PendingSlipUndo(
-            priorStartAt: quit.startAt,
-            priorCleanSeconds: quit.priorCleanSeconds,
-            priorBestStreakSeconds: quit.bestStreakSeconds,
-            priorMonotonicAnchor: quit.monotonicAnchor
+            priorStartAt: snapshot.startAt,
+            priorCleanSeconds: snapshot.priorCleanSeconds,
+            priorBestStreakSeconds: snapshot.bestStreakSeconds,
+            priorMonotonicAnchor: snapshot.monotonicAnchor
         )
-        assert(Self.appendOnlyViolations(from: quit, to: next).isEmpty)
+        assert(Self.appendOnlyViolations(from: snapshot, to: next).isEmpty)
         return next
     }
 
     /// Restores the exact pre-slip state while the undo window is open; `nil` once it has
     /// closed (or when there is no slip pending). The window measures injected time only.
     public static func undoSlip(
-        on quit: QuitSnapshot,
+        on snapshot: StreakSnapshot,
         at now: Date,
         monotonic: MonotonicNow? = nil
-    ) -> QuitSnapshot? {
-        guard let undo = quit.pendingUndo else { return nil }
+    ) -> StreakSnapshot? {
+        guard let undo = snapshot.pendingUndo else { return nil }
         // `startAt`/`monotonicAnchor` were re-set at the slip instant, so elapsed-since-
-        // slip IS the quit's own guarded elapsed: clock fiddling can neither stretch nor
+        // slip IS the goal's own guarded elapsed: clock fiddling can neither stretch nor
         // burn the window when evidence is present. Without evidence a rollback reads as
         // zero (window stays open) — freeze-not-inflate favors the user's streak.
-        guard guardedElapsedSeconds(of: quit, at: now, monotonic: monotonic) <= undoWindowSeconds else {
+        guard guardedElapsedSeconds(of: snapshot, at: now, monotonic: monotonic) <= undoWindowSeconds else {
             return nil
         }
         // Debug tripwire: the bookkeeping can only record values a slip later raised.
-        assert(undo.priorBestStreakSeconds <= quit.bestStreakSeconds)
-        assert(undo.priorCleanSeconds <= quit.priorCleanSeconds)
-        return QuitSnapshot(
+        assert(undo.priorBestStreakSeconds <= snapshot.bestStreakSeconds)
+        assert(undo.priorCleanSeconds <= snapshot.priorCleanSeconds)
+        return StreakSnapshot(
             startAt: undo.priorStartAt,
-            trackedSince: quit.trackedSince,
-            weeklySpend: quit.weeklySpend,
+            trackedSince: snapshot.trackedSince,
+            weeklySpend: snapshot.weeklySpend,
             priorCleanSeconds: undo.priorCleanSeconds,
             monotonicAnchor: undo.priorMonotonicAnchor,
             bestStreakSeconds: undo.priorBestStreakSeconds,
@@ -84,7 +84,7 @@ extension StreakCalculator {
     /// "any code path that would decrease them asserts in debug"): names every invariant
     /// a slip transition would violate. `applySlip` asserts it returns empty; `undoSlip`
     /// is the sanctioned exemption (§9 rule 3) and never runs it.
-    static func appendOnlyViolations(from old: QuitSnapshot, to new: QuitSnapshot) -> [String] {
+    static func appendOnlyViolations(from old: StreakSnapshot, to new: StreakSnapshot) -> [String] {
         var violations: [String] = []
         if new.bestStreakSeconds < old.bestStreakSeconds {
             violations.append("bestStreakSeconds decreased \(old.bestStreakSeconds) → \(new.bestStreakSeconds)")
@@ -103,13 +103,13 @@ extension StreakCalculator {
     /// timeline `currentStreak` displays, so archives and windows can never disagree
     /// with what the user sees.
     private static func guardedElapsedSeconds(
-        of quit: QuitSnapshot,
+        of snapshot: StreakSnapshot,
         at now: Date,
         monotonic: MonotonicNow?
     ) -> Int {
-        if let anchor = quit.monotonicAnchor, let reading = monotonic {
+        if let anchor = snapshot.monotonicAnchor, let reading = monotonic {
             return conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: reading)
         }
-        return max(0, Int(now.timeIntervalSince(quit.startAt)))
+        return max(0, Int(now.timeIntervalSince(snapshot.startAt)))
     }
 }

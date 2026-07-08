@@ -3,7 +3,7 @@ import Foundation
 // E1.4 — Reduce-mode adherence (ADR-10: a first-class engine mode, not a variant).
 // This is the package's FIRST timezone-aware math, so it lives in its own file with its
 // own 100%-branch bar, away from StreakCalculator.swift's absolute-time core: day
-// boundaries are computed in the quit's timezone, absolute time is never re-derived.
+// boundaries are computed in the goal's timezone, absolute time is never re-derived.
 // Time stays injected — occurrences, window, and timezone are all values; no clock reads.
 extension StreakCalculator {
 
@@ -22,7 +22,7 @@ extension StreakCalculator {
         allowancePerDay: Int,
         timezone: TimeZone
     ) -> Adherence {
-        // A fixed Gregorian calendar in the quit's timezone — never `.current` or
+        // A fixed Gregorian calendar in the goal's timezone — never `.current` or
         // `.autoupdatingCurrent`, which would smuggle device state into pure math.
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = timezone

@@ -14,7 +14,7 @@ private let bootB = UUID(uuidString: "0B00071D-B000-4000-8000-000000000002")!
 
 /// Anchor captured at streak start: uptime 50 000 s into boot A, wall clock at the epoch.
 private let anchor = MonotonicAnchor(bootID: bootA, uptime: 50_000, wallClock: epoch)
-private let quit = QuitSnapshot(startAt: epoch, monotonicAnchor: anchor)
+private let quit = StreakSnapshot(startAt: epoch, monotonicAnchor: anchor)
 
 /// Monotonic evidence after `truth` seconds of real time within boot A.
 private func monoAfter(_ truth: Int) -> MonotonicNow {
@@ -185,7 +185,7 @@ struct StreakClockIntegrityEdgeTests {
 
     @Test("a monotonic reading without a stored anchor leaves the guard off")
     func test_currentStreak_readingWithoutAnchor_usesWallClock() {
-        let unanchored = QuitSnapshot(startAt: epoch)
+        let unanchored = StreakSnapshot(startAt: epoch)
         let value = StreakCalculator.currentStreak(
             for: unanchored, now: epoch + TimeInterval(day), monotonic: monoAfter(day)
         )
@@ -207,7 +207,7 @@ struct StreakClockIntegrityEdgeTests {
         // 100 tracked days of history (50 banked clean), 50 days of guarded current streak:
         // honest momentum = (50d + 50d) ÷ 150d = 2/3 — and it must read 2/3 even when the
         // wall clock is dragged 40 days backward.
-        let history = QuitSnapshot(
+        let history = StreakSnapshot(
             startAt: epoch,
             trackedSince: epoch - TimeInterval(100 * day),
             priorCleanSeconds: 50 * day,

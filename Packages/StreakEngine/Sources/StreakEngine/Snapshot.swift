@@ -5,7 +5,7 @@ import Foundation
 /// this at the call site; architecture §14: Vigil/Vakit/Keeper consume this unchanged).
 /// Hand-written public init with every non-essential field defaulted, so later epics can
 /// add trailing defaulted fields without breaking any call site.
-public struct QuitSnapshot: Sendable, Equatable, Hashable, Codable {
+public struct StreakSnapshot: Sendable, Equatable, Hashable, Codable {
     /// Wall-clock start of the CURRENT streak; basis for elapsed days/hours.
     public var startAt: Date
     /// Wall-clock start of ALL tracking (never reset by a slip); the momentum denominator.

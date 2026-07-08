@@ -119,30 +119,30 @@ public struct StreakCalculator: Sendable {
     /// are present, elapsed time and the verdict come from the E1.2 guard (freeze-not-
     /// inflate); otherwise the pure wall-clock path runs, exactly as in E1.1.
     public static func currentStreak(
-        for quit: QuitSnapshot,
+        for snapshot: StreakSnapshot,
         now: Date,
         monotonic: MonotonicNow? = nil,
         milestones: MilestoneTable? = nil
     ) -> StreakValue {
         let sanity: ClockSanity
         let elapsed: Int
-        if let anchor = quit.monotonicAnchor, let reading = monotonic {
+        if let anchor = snapshot.monotonicAnchor, let reading = monotonic {
             (sanity, elapsed) = evaluate(
                 anchor: anchor, now: now, monotonic: reading, tolerance: defaultClockTolerance
             )
         } else {
             sanity = .normal
-            elapsed = max(0, Int(now.timeIntervalSince(quit.startAt)))
+            elapsed = max(0, Int(now.timeIntervalSince(snapshot.startAt)))
         }
-        let clean = max(0, quit.priorCleanSeconds) + elapsed
+        let clean = max(0, snapshot.priorCleanSeconds) + elapsed
         // The denominator rides the same guarded timeline as the numerator: the historical
         // span (startAt − trackedSince) is a fixed constant immune to `now`, and the live
         // span IS the guarded elapsed. Deriving tracked from the raw `now` would let a
         // rolled-back clock shrink the denominator and inflate momentum (Session 03 review).
-        let tracked = max(0, elapsed + Int(quit.startAt.timeIntervalSince(quit.trackedSince)))
+        let tracked = max(0, elapsed + Int(snapshot.startAt.timeIntervalSince(snapshot.trackedSince)))
         return StreakValue(
             elapsedSeconds: elapsed,
-            moneySaved: moneySaved(weeklySpend: quit.weeklySpend, cleanSeconds: clean),
+            moneySaved: moneySaved(weeklySpend: snapshot.weeklySpend, cleanSeconds: clean),
             momentum: momentum(cleanSeconds: clean, totalSeconds: tracked),
             nextMilestone: milestones.flatMap { nextMilestone(elapsedSeconds: elapsed, in: $0) },
             clockSanity: sanity
