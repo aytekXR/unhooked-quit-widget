@@ -181,6 +181,41 @@ struct AdherenceEdgeTests {
         #expect(value == Adherence(adherentDays: 1, evaluatedDays: 1))
     }
 
+    @Test("days are evaluated WHOLE — an occurrence inside the day but outside a partial-day window still counts")
+    func test_adherence_partialDayWindow_weighsTheWholeDay() {
+        // The ratified semantic the review found unpinned: the window selects WHICH days,
+        // never which occurrences — a day's verdict must not depend on where a query
+        // window happens to cut it (a window-clamped count mutant survived the suite).
+        let value = StreakCalculator.adherence(
+            for: [jul7StartPT + TimeInterval(9 * hour)],          // 09:00, before the window
+            in: DateInterval(
+                start: jul7StartPT + TimeInterval(12 * hour),
+                end: jul7StartPT + TimeInterval(18 * hour)
+            ),
+            allowancePerDay: 0,
+            timezone: pacific
+        )
+        #expect(value == Adherence(adherentDays: 0, evaluatedDays: 1))
+    }
+
+    @Test("day membership is half-open — a midnight occurrence opens its own day and never double-counts")
+    func test_adherence_midnightOccurrence_belongsToTheOpeningDay() {
+        let midnight = [jul8StartPT] // exactly 2026-07-08 00:00 PDT
+        // Counted once, in Jul 8 (>= dayStart)...
+        let jul8 = StreakCalculator.adherence(
+            for: midnight, in: localDay(startingAt: jul8StartPT),
+            allowancePerDay: 0, timezone: pacific
+        )
+        #expect(jul8 == Adherence(adherentDays: 0, evaluatedDays: 1))
+        // ...and never leaks into Jul 7 (< dayEnd): over a two-day window exactly one
+        // day is broken (a <= dayEnd mutant would double-count and break both).
+        let bothDays = StreakCalculator.adherence(
+            for: midnight, in: DateInterval(start: jul7StartPT, duration: TimeInterval(2 * day)),
+            allowancePerDay: 0, timezone: pacific
+        )
+        #expect(bothDays == Adherence(adherentDays: 1, evaluatedDays: 2))
+    }
+
     @Test("an allowance-zero window is the Quit-mode degenerate case — adherence IS abstinence")
     func test_adherence_zeroAllowance_matchesAbstinence() {
         let value = StreakCalculator.adherence(
