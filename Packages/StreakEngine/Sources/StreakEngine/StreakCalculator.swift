@@ -126,7 +126,11 @@ public struct StreakCalculator: Sendable {
             elapsed = max(0, Int(now.timeIntervalSince(quit.startAt)))
         }
         let clean = max(0, quit.priorCleanSeconds) + elapsed
-        let tracked = max(0, Int(now.timeIntervalSince(quit.trackedSince)))
+        // The denominator rides the same guarded timeline as the numerator: the historical
+        // span (startAt − trackedSince) is a fixed constant immune to `now`, and the live
+        // span IS the guarded elapsed. Deriving tracked from the raw `now` would let a
+        // rolled-back clock shrink the denominator and inflate momentum (Session 03 review).
+        let tracked = max(0, elapsed + Int(quit.startAt.timeIntervalSince(quit.trackedSince)))
         return StreakValue(
             elapsedSeconds: elapsed,
             moneySaved: moneySaved(weeklySpend: quit.weeklySpend, cleanSeconds: clean),
