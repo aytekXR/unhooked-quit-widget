@@ -34,9 +34,12 @@ public struct StreakCalculator: Sendable {
     /// smallest `afterHours` strictly beyond the elapsed time. Sorted defensively — bundled
     /// JSON carries no ordering guarantee. Empty table or all reached ⇒ nil.
     public static func nextMilestone(elapsedSeconds: Int, in table: MilestoneTable) -> Milestone? {
+        // Compared in floored hours (equivalent to seconds for the >-boundary, since
+        // afterHours is whole): division cannot overflow where `afterHours * 3600` on an
+        // untrusted decoded value could trap.
         table.milestones
             .sorted { $0.afterHours < $1.afterHours }
-            .first { $0.afterHours * secondsPerHour > max(0, elapsedSeconds) }
+            .first { $0.afterHours > max(0, elapsedSeconds) / secondsPerHour }
     }
 
     // MARK: Clock-integrity guard (E1.2 — ADR-7)
@@ -86,6 +89,10 @@ public struct StreakCalculator: Sendable {
         let wallDelta = now.timeIntervalSince(anchor.wallClock)
 
         guard monotonic.bootID == anchor.bootID else {
+            // Across a reboot the wall delta is trusted UNCAPPED on the high side: the
+            // principled cap ADR-7 names needs a persisted last-known-good wall reading,
+            // which arrives with the Epic 2 repository (deferral recorded in the Session 03
+            // log and carried in resume-prompt.md).
             if wallDelta < -tolerance { return (.clockRolledBack, 0) }
             return (.normal, max(0, Int(wallDelta)))
         }

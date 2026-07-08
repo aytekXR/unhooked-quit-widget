@@ -39,7 +39,6 @@ struct StreakClockIntegrityTests {
 
         let frozen = StreakCalculator.conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: mono)
         #expect(frozen == truth)          // exactly the pre-rollback value: frozen, not reset
-        #expect(frozen <= truth)          // and never inflated beyond the monotonic truth
 
         let value = StreakCalculator.currentStreak(for: quit, now: now, monotonic: mono)
         #expect(value.elapsedSeconds == truth)
@@ -154,6 +153,46 @@ struct StreakClockIntegrityEdgeTests {
         #expect(StreakCalculator.conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: monoAfter(truth)) == truth)
     }
 
+    @Test(
+        "timezone-shape classification is exact at its three boundaries (remainder low/high, 14h cap)",
+        arguments: [
+            // (setback seconds, expected verdict) — every case beyond tolerance; elapsed
+            // always freezes at the monotonic truth regardless of the classification.
+            (960, ClockSanity.timezoneShift),     // remainder 60 == tolerance: shaped
+            (961, ClockSanity.clockRolledBack),   // remainder 61: one second past shaped
+            (840, ClockSanity.timezoneShift),     // 900 − 840 == tolerance: shaped
+            (839, ClockSanity.clockRolledBack),   // 900 − 839 == 61: one second past
+            (50_460, ClockSanity.timezoneShift),  // exactly at the 14h + tolerance cap
+            (51_300, ClockSanity.clockRolledBack) // quarter-hour multiple BEYOND the cap
+        ]
+    )
+    func test_timezoneShapeBoundaries_areExact(setback: Int, verdict: ClockSanity) {
+        let truth = 5 * day
+        let now = epoch + TimeInterval(truth - setback)
+        #expect(StreakCalculator.sanityCheck(anchor: anchor, now: now, monotonic: monoAfter(truth)) == verdict)
+        #expect(StreakCalculator.conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: monoAfter(truth)) == truth)
+    }
+
+    @Test("a same-boot uptime that rewound (corrupt reading) reads conservative zero, flagged")
+    func test_rewoundUptimeReading_readsConservativeZero() {
+        // Uptime below the anchor's is impossible for a real monotonic clock; garbage in ⇒
+        // the guard clamps the truth floor to 0 and flags the read rather than trusting it.
+        let mono = MonotonicNow(bootID: bootA, uptime: 49_000)
+        let now = epoch + TimeInterval(5 * day)
+        #expect(StreakCalculator.sanityCheck(anchor: anchor, now: now, monotonic: mono) == .clockRolledBack)
+        #expect(StreakCalculator.conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: mono) == 0)
+    }
+
+    @Test("a monotonic reading without a stored anchor leaves the guard off")
+    func test_currentStreak_readingWithoutAnchor_usesWallClock() {
+        let unanchored = QuitSnapshot(startAt: epoch)
+        let value = StreakCalculator.currentStreak(
+            for: unanchored, now: epoch + TimeInterval(day), monotonic: monoAfter(day)
+        )
+        #expect(value.elapsedSeconds == day)
+        #expect(value.clockSanity == .normal)
+    }
+
     @Test("an anchored quit read without monotonic evidence falls back to the plain wall clock")
     func test_currentStreak_anchoredQuitWithoutReading_usesWallClock() {
         let value = StreakCalculator.currentStreak(for: quit, now: epoch + TimeInterval(day))
@@ -192,7 +231,10 @@ struct StreakClockIntegrityEdgeTests {
 
 /// Deterministic SplitMix64 so every run replays the identical perturbation sequence
 /// (test-suite §1.1: "seeded randomized TimeAnchor sequences"; §6.1.5: pinned seeds).
-private struct SplitMix64: RandomNumberGenerator {
+/// Values are drawn with author-owned modulo arithmetic, NOT Int.random(in:using:),
+/// whose draw algorithm is not guaranteed stable across Swift versions/platforms —
+/// the pinned seed must replay identically on Linux CI and any future toolchain.
+private struct SplitMix64 {
     var state: UInt64
     init(seed: UInt64) { state = seed }
     mutating func next() -> UInt64 {
@@ -201,6 +243,11 @@ private struct SplitMix64: RandomNumberGenerator {
         z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
         z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
         return z ^ (z >> 31)
+    }
+
+    /// Uniform-enough draw in 0...bound (modulo bias is immaterial for a fuzz corpus).
+    mutating func draw(upTo bound: Int) -> Int {
+        Int(next() % UInt64(bound + 1))
     }
 }
 
@@ -213,8 +260,8 @@ struct StreakClockNoisePropertyTests {
         var truth = 0
 
         for step in 0..<300 {
-            truth += Int.random(in: 0...86_400, using: &rng)
-            let noise = Int.random(in: -259_200...259_200, using: &rng)
+            truth += rng.draw(upTo: 86_400)
+            let noise = rng.draw(upTo: 518_400) - 259_200
             let mono = monoAfter(truth)
             let now = epoch + TimeInterval(truth + noise)
 

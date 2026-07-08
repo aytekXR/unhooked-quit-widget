@@ -18,6 +18,8 @@ public struct QuitSnapshot: Sendable, Equatable, Hashable, Codable {
     /// base for momentum/money. 0 for a fresh goal; E1.3 populates it on slip archiving.
     public var priorCleanSeconds: Int
     /// Persisted anchor for the E1.2 clock guard. `nil` ⇒ guard disabled ⇒ pure wall-clock.
+    /// Captured at the CURRENT streak's start: its `wallClock` is expected to equal
+    /// `startAt` (the guard measures elapsed from the anchor, not from `startAt`).
     public var monotonicAnchor: MonotonicAnchor?
 
     public init(
