@@ -32,11 +32,15 @@ extension StreakCalculator {
         var evaluated = 0
         var dayStart = calendar.startOfDay(for: window.start)
         repeat {
-            // Foundation owns the day length here: byAdding handles 23h/25h DST days,
-            // so the repeated fall-back hour folds into one evaluated day by construction.
-            // Unwrap is total: adding one day on a fixed Gregorian calendar cannot fail,
-            // and crashing would still beat silently mis-measuring an adherence day.
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+            // Foundation owns the day length here: byAdding handles 23h/25h DST days, so
+            // the repeated fall-back hour folds into one evaluated day by construction —
+            // but its result must be re-anchored to startOfDay: a spring-forward AT local
+            // midnight (America/Santiago) skips 00:00, byAdding snaps to 01:00, and an
+            // unanchored chain would keep that 01:00 wall time for every later boundary
+            // (Session 04 review finding). Unwrap is total: adding one day on a fixed
+            // Gregorian calendar cannot fail, and crashing would still beat silently
+            // mis-measuring an adherence day.
+            let dayEnd = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: dayStart)!)
             let units = occurrences.count { $0 >= dayStart && $0 < dayEnd }
             if units <= allowance { adherent += 1 }
             evaluated += 1
