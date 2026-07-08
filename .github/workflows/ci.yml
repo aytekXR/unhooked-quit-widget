@@ -27,6 +27,53 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  # ── StreakEngine release gate (Epic 1 DoD; test-suite §5.1/§2) ──────────────
+  # The E1.1–E1.4 edge-case suite (streak math, clock-integrity guard, slip/undo,
+  # Reduce adherence) as an explicitly NAMED, merge-blocking release gate: it runs on
+  # every push/PR, and the TestFlight lane refuses to upload without it (`needs`).
+  # If branch protection is ever enabled (operator call — it would block the documented
+  # direct-push-to-main session workflow for non-admins), register the job name
+  # "Release gate · StreakEngine edge-case suite" as the required status check.
+  # Coverage floors are enforced mechanically per test-suite §2: line coverage ≥98%
+  # package-wide, region (branch-arm) coverage ≥95% on the clock-guard and slip/undo
+  # files — Swift emits region coverage, not classic branch pairs, so regions are the
+  # branch bar. Linux container: 1x minutes; StreakEngine is Foundation-only by rule.
+  streakengine-release-gate:
+    name: "Release gate · StreakEngine edge-case suite"
+    runs-on: ubuntu-latest
+    container: swift:6.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: swift test (coverage-instrumented)
+        run: swift test --package-path Packages/StreakEngine --enable-code-coverage
+      - name: Coverage floor (lines ≥98% package-wide; regions ≥95% on guard + slip/undo)
+        working-directory: Packages/StreakEngine
+        run: |
+          set -euo pipefail
+          LLVM_COV="$(dirname "$(readlink -f "$(command -v swift)")")/llvm-cov"
+          "$LLVM_COV" report .build/debug/StreakEnginePackageTests.xctest \
+            -instr-profile=.build/debug/codecov/default.profdata \
+            Sources/ | tee coverage-report.txt
+          awk '
+            $1 == "TOTAL" {
+              seenTotal = 1
+              lineCov = ($8 - $9) / $8 * 100
+              printf "package line coverage: %.2f%% (floor 98)\n", lineCov
+              if (lineCov < 98) { print "::error::StreakEngine package line coverage fell below the 98% floor (test-suite §2)"; fail = 1 }
+            }
+            $1 == "StreakCalculator.swift" || $1 == "SlipTransition.swift" {
+              seenFiles += 1
+              regionCov = ($2 - $3) / $2 * 100
+              printf "%s region coverage: %.2f%% (floor 95)\n", $1, regionCov
+              if (regionCov < 95) { printf "::error::%s region coverage fell below the 95%% floor (test-suite §2)\n", $1; fail = 1 }
+            }
+            END {
+              if (!seenTotal) { print "::error::coverage report had no TOTAL row — gate cannot measure, failing closed"; exit 2 }
+              if (seenFiles != 2) { print "::error::expected StreakCalculator.swift AND SlipTransition.swift in the report — a rename must update this gate"; exit 2 }
+              exit fail
+            }
+          ' coverage-report.txt
+
   package-units:
     name: "Package units · ${{ matrix.package }}"
     runs-on: ubuntu-latest
@@ -34,7 +81,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [StreakEngine, WidgetToolkit, PaywallKit]
+        # StreakEngine runs in its own named release-gate job above (with coverage floors),
+        # not here — one lane per package, no double spend.
+        package: [WidgetToolkit, PaywallKit]
     steps:
       - uses: actions/checkout@v4
       - name: swift test
@@ -180,7 +229,7 @@ jobs:
 
   testflight:
     name: TestFlight upload (fastlane beta)
-    needs: [package-units, app, testflight-gate]
+    needs: [streakengine-release-gate, package-units, app, testflight-gate]
     if: needs.testflight-gate.outputs.enabled == 'true'
     runs-on: macos-26
     timeout-minutes: 45
