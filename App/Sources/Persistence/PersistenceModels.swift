@@ -85,9 +85,7 @@ final class Quit {
 
 @Model
 final class Slip {
-    // E2.1 red sentinel — @Attribute(.unique) is the exact CloudKit-checklist violation
-    // test-suite §4.3 warns an agent will someday add; the green commit removes it.
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
     var at: Date = Date.distantPast
     /// Optional reflection note — NEVER leaves the device beyond the user's own iCloud.
     var note: String?
