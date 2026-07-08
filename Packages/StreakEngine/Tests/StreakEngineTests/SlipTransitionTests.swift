@@ -160,6 +160,35 @@ struct SlipTransitionEdgeTests {
         #expect(after.priorCleanSeconds == 44 * day)
     }
 
+    @Test("momentum is unchanged across a slip even under a rolled-back wall clock — the new start rides the guarded timeline")
+    func test_momentum_unchangedAcrossSlip_underClockRollback() {
+        // Review finding (Session 04): applySlip stamped startAt with the raw wall `now`
+        // while banking the GUARDED elapsed — a rollback at slip time collapsed the
+        // denominator's historical span (startAt − trackedSince) and pinned momentum at
+        // 100% forever: the Session 03 inflation class, reintroduced at the slip boundary.
+        let wallNow = epoch + TimeInterval(4 * day) // dragged back; monotonic truth is 34d
+        let before = StreakCalculator.currentStreak(for: jakeDay34, now: wallNow, monotonic: monoAfter(34 * day))
+        #expect(before.momentum == Double(44 * day) / Double(46 * day))
+
+        let after = StreakCalculator.applySlip(to: jakeDay34, at: wallNow, monotonic: monoAfter(34 * day))
+        // The new streak starts at the HONEST slip instant (old start + guarded elapsed),
+        // not the lied wall reading — and the anchor rides the same timeline, keeping the
+        // documented anchor.wallClock == startAt expectation.
+        #expect(after.startAt == epoch + TimeInterval(34 * day))
+        #expect(after.monotonicAnchor?.wallClock == after.startAt)
+
+        let atTick = StreakCalculator.currentStreak(for: after, now: wallNow, monotonic: monoAfter(34 * day))
+        #expect(atTick.momentum == before.momentum) // 44/46, not a clamped 1.0
+
+        // Six honest days after the user fixes the clock: 50 clean of 52 tracked days —
+        // the denominator was never corrupted, so the readout heals with the clock.
+        let corrected = StreakCalculator.currentStreak(
+            for: after, now: epoch + TimeInterval(40 * day), monotonic: monoAfter(40 * day)
+        )
+        #expect(corrected.clockSanity == .normal)
+        #expect(corrected.momentum == Double(50 * day) / Double(52 * day))
+    }
+
     @Test("a slip re-anchors from the reading when present, and clears a stale anchor when not")
     func test_slip_reanchorsFromReading_clearsAnchorWithoutOne() {
         let slipAt = epoch + TimeInterval(34 * day)
@@ -181,6 +210,7 @@ struct SlipTransitionEdgeTests {
         let after = StreakCalculator.applySlip(to: quit, at: epoch - TimeInterval(hour))
         #expect(after.priorCleanSeconds == 3 * day)           // +0, not −3600
         #expect(after.bestStreakSeconds == 0)
+        #expect(after.startAt == quit.startAt)                // the start never moves backward
         #expect(after.weeklySpend == quit.weeklySpend)
         #expect(after.trackedSince == quit.trackedSince)
     }
