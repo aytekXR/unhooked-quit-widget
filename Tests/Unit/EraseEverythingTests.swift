@@ -156,8 +156,7 @@ struct EraseEverythingTests {
 
         #expect(
             h.storeFileSet() == [],
-            "erase must remove the store's whole file set (was: \(before)) — a leftover \
-            sidecar can resurrect rows on the next open"
+            "erase must remove the store's whole file set (was: \(before)) — a leftover sidecar can resurrect rows on the next open"
         )
     }
 
@@ -195,8 +194,7 @@ struct EraseEverythingTests {
         #expect(h.appGroupDefaults.object(forKey: "e31.panic.precache.sentinel") == nil,
                 "pre-cached panic content is user data — erased")
         #expect(h.lkgStore.load() == nil,
-                "the clock WITNESS is erased state: a fresh install has none, and a stale \
-                one would poison the next tracking era's cap baseline (Session 07 discipline)")
+                "the clock WITNESS is erased state: a fresh install has none, and a stale one would poison the next tracking era's cap baseline (Session 07 discipline)")
     }
 
     @Test func test_iCloudUnavailable_appFunctionsFullyLocal() async throws {
@@ -272,8 +270,7 @@ struct EraseEverythingTests {
         }
         #expect(h.cloud.zoneDeletionRequests == 1, "the purge was attempted before failing")
         #expect(h.storeFileSet() == [],
-                "LOCAL erase completes before the fallible cloud step — a transient \
-                CloudKit error may never strand sensitive data on-device")
+                "LOCAL erase completes before the fallible cloud step — a transient CloudKit error may never strand sensitive data on-device")
         #expect(h.appGroupDefaults.object(forKey: "e31.panic.precache.sentinel") == nil)
         #expect(h.lkgStore.load() == nil)
 

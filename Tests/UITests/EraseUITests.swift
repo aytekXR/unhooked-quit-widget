@@ -30,8 +30,7 @@ final class EraseUITests: XCTestCase {
             .firstMatch
         XCTAssertTrue(
             root.waitForExistence(timeout: 15),
-            "Erased state must land on the fresh-install root — a surviving panic flag \
-            means erase did not clear App Group state (E2.4)"
+            "Erased state must land on the fresh-install root — a surviving panic flag means erase did not clear App Group state (E2.4)"
         )
         app.terminate()
 
