@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Document | Resume Prompt v1.8 |
-| Last updated | 2026-07-09 (Session 06 close: E2.2 DONE + ADR-7 cap closed + engine v1.1.0; TestFlight signing proven, upload waits on the ASC app record) |
+| Last updated | 2026-07-09 (Session 06 close: E2.2 DONE + ADR-7 cap closed + engine v1.1.0; TestFlight lane LIVE — build 20 uploaded) |
 | Phase | Phase 1 core build — Epics 0–1 CLOSED; E2.1 + E2.2 DONE and CI-verified |
 | Next session objective | **E2.3 — CloudKit dedupe merge pass + `recomputeDerivedState()` (incl. the carried ADR-7 re-anchor healing)** |
 
@@ -12,9 +12,11 @@
 > b9080ab, all test lanes + the new sole-SwiftData-importer lint green). The ADR-7
 > reboot sanity cap carried since Session 03 is CLOSED — StreakEngine is **1.1.0**
 > (tagged `streakengine-v1.1.0`): `lastKnownGood` reboot guard, 14d gap cap, same-boot
-> bridge, all coverage floors held at 100%. The TestFlight **signing** chain is proven
-> end-to-end (gym exports a signed IPA); the upload now fails ONLY on the missing
-> App Store Connect app record (operator, see blockers). CodeGraph is now a permanent
+> bridge, all coverage floors held at 100%. **The TestFlight lane is LIVE**: after the
+> operator created the ASC app record and the agent fixed the two bundle-validation
+> errors (brandkit app icon catalog; UIRequiresFullScreen), run 28990551123 went fully
+> green — build 20 uploaded, MATCH_BOOTSTRAP deleted, CI signing read-only. Every
+> green merge to main now ships a TestFlight build. CodeGraph is now a permanent
 > session rule (see below and `session-rules.md`).
 
 ---
@@ -42,8 +44,10 @@ commit, run `codegraph sync` and confirm `codegraph status` is clean.**
   `LastKnownGoodStore` = App Group defaults, device-local BY DESIGN (never the
   mirrored store); advancement gated on `.normal` verdict AND continuity with the
   previous reading (Session 06 review MAJOR — do not weaken either gate).
-- **TestFlight:** match → manual signing → gym all green. `MATCH_BOOTSTRAP=true`
-  stays set until the first green upload, THEN delete it.
+- **TestFlight: LIVE.** match → manual signing → gym → pilot all green (build 20,
+  run 28990551123). `MATCH_BOOTSTRAP` is deleted — CI signing is READ-ONLY; never
+  re-enable it without an operator decision. The upload lane runs on every merge to
+  main behind all test gates, so a red test structurally blocks shipping.
 - **Brand kit landed (operator, Session 06, `brandkit/`):** read
   `brandkit/branding-assets/BRAND-GUIDELINES.md` (+ `brand-guidelines-full.md`,
   design tokens in `tokens.json`) BEFORE any UI, copy, icon, or widget-rendering
