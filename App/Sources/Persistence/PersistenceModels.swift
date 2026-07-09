@@ -96,6 +96,15 @@ final class Slip {
     var streakSecondsAtSlip: Int = 0
     var countsAgainstAllowance: Bool = false
     var isPendingUndo: Bool = false
+    /// E4.1 — the persisted undo payload: the exact pre-slip values the engine's
+    /// `PendingSlipUndo` recorded, kept on the row while the 10-minute window is open
+    /// so `undoSlip` restores RECORDED values, never reconstructions (§9 rule 3 —
+    /// prior best and the prior anchor are NOT derivable from the row alone). All
+    /// optional (CloudKit checklist) and nil'd by the finalize sweep.
+    var priorStartAt: Date?
+    var priorCleanSeconds: Int?
+    var priorBestStreakSeconds: Int?
+    var priorMonotonicAnchor: MonotonicAnchor?
     var quit: Quit?
 
     init() {}

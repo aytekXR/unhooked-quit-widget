@@ -252,6 +252,37 @@ final class QuitRepository {
         return slip
     }
 
+    // MARK: - E4.1 · undo lifecycle (red-commit surface; behavior lands green)
+
+    /// Undoes a still-pending slip: restores the EXACT recorded pre-slip values via
+    /// the engine (the ONE sanctioned monotonic decrease, §9 rule 3) and removes the
+    /// undone row. Returns false — a calm no-op, never an error — when the window has
+    /// closed or nothing is pending (the tap raced the sweep at most one render).
+    @discardableResult
+    func undoSlip(slipID: UUID) throws -> Bool {
+        false
+    }
+
+    /// The undo-window finalize sweep (architecture §7: scene-phase driven, never a
+    /// background timer). Idempotent; returns how many pending slips it finalized.
+    /// E8's post-window `slip_logged` trigger attaches here when the enum exists.
+    @discardableResult
+    func finalizePendingSlips() -> Int {
+        0
+    }
+
+    /// Reflection-note autosave target (store-backed slips only — §10: notes live
+    /// ONLY in the store, never in any App Group file).
+    func updateSlipNote(slipID: UUID, note: String?) throws {
+    }
+
+    /// The normal route's undo-banner source: the one still-pending slip, if any
+    /// (one reversible slip at a time — §9 rule 3). Backed by the E4.1
+    /// `#Index<Slip>([\.isPendingUndo])`.
+    func pendingUndoSlip() throws -> Slip? {
+        nil
+    }
+
     /// Records a panic-flow outcome (architecture §5.1 `recordUrgeOutcome`).
     @discardableResult
     func logUrgeEvent(

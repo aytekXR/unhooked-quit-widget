@@ -352,4 +352,52 @@ struct EraseEverythingTests {
 
         #expect(h.spy.reloadCount == 1, "erase schedules the standard debounced reload")
     }
+
+    // MARK: - E4.1 · erase sweeps the new cold-slip record shapes (same-session rule)
+
+    @Test func test_erase_removesSlippedDraftAndRevocationRecords() async throws {
+        // DECLARED green-from-birth guard (test-suite §7.1 exemption by declaration).
+        // The panic-outcomes.ndjson buffer is ALREADY in erase's owned file set (E3.2 —
+        // test_erase_removesPanicOutcomeBuffer_unownedSiblingSurvives), and erase removes
+        // the FILE regardless of its contents, so this passes at red. Its value is the
+        // standing same-session sentinel rule (decision record: "Erase sentinel extended:
+        // .slipped draft + revocation record shapes swept by erase (file already in owned
+        // set — no new file)"): E4.1 introduces two NEW record shapes in that file — a
+        // .slipped cold draft carrying the captured evidence tuple, and a revocation
+        // carrying revokesDraftID — so the sweep is pinned against those exact shapes the
+        // session they are born, never a new file.
+        let h = try Harness()
+        _ = try h.repository.createQuit(habitCategory: .vape)
+
+        // The repository derives the buffer location from the pre-cache directory, so a
+        // buffer built at the same directory IS the file eraseEverything() sweeps.
+        let buffer = PanicOutcomeBuffer(directoryURL: h.snapshotDirectory)
+        let slipID = UUID()
+        let slipped = PanicOutcomeDraft(
+            id: slipID, quitID: UUID(), source: .inApp, outcome: .slipped,
+            stepsReached: [.breath, .timer], at: epoch,
+            capturedUptime: 50_000, capturedBootID: bootA,
+            capturedWitnessBootID: bootA, capturedWitnessUptime: 40_000,
+            capturedWitnessWallClock: epoch - 1_000, revokesDraftID: nil
+        )
+        let revocation = PanicOutcomeDraft(
+            id: UUID(), quitID: slipped.quitID, source: .inApp, outcome: .slipped,
+            stepsReached: [], at: epoch + 5, revokesDraftID: slipID
+        )
+        // Seeded DIRECTLY as NDJSON (independent of the append path — the sibling erase
+        // pins seed the buffer the same way), so this asserts the SWEEP, not the writer.
+        let encoder = JSONEncoder()
+        let lines = try encoder.encode(slipped) + Data("\n".utf8)
+            + encoder.encode(revocation) + Data("\n".utf8)
+        try lines.write(to: buffer.fileURL)
+        #expect(buffer.drafts() == [slipped, revocation], "both new record shapes seeded, in order")
+
+        try await h.repository.eraseEverything()
+
+        #expect(
+            !FileManager.default.fileExists(atPath: buffer.fileURL.path),
+            "a slipped cold draft + its revocation are §10 on-device behavioral data — one-tap erase removes the buffer file that holds them"
+        )
+        #expect(buffer.drafts().isEmpty, "erased means gone: the reader sees no surviving records")
+    }
 }

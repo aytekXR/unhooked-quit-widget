@@ -14,6 +14,28 @@ struct PanicOutcomeDraft: Codable, Equatable, Sendable {
     var outcome: UrgeOutcome
     var stepsReached: [PanicStep]
     var at: Date
+
+    // E4.1 additive fields (all optional: pre-E4.1 lines decode with them nil, and
+    // the buffer stays a pure-Foundation file — raw scalars, not engine types).
+
+    /// The monotonic reading AT SLIP TIME (the flow's injected clock). A deferred
+    /// slip must apply with the evidence its instant had — pairing `at` with the
+    /// FLUSH-time reading misclassifies the guard (post-slip time would read as
+    /// clean, or a rollback verdict would fire against an honest instant).
+    var capturedUptime: TimeInterval?
+    var capturedBootID: UUID?
+    /// The clock witness AT SLIP TIME. Feeding the flush-time witness instead can
+    /// select a FUTURE baseline in the reboot-cap arm and bank a streak that never
+    /// existed; the slip-time witness makes the deferred transition byte-for-byte
+    /// what a live `logSlip` at the slip instant would have produced.
+    var capturedWitnessBootID: UUID?
+    var capturedWitnessUptime: TimeInterval?
+    var capturedWitnessWallClock: Date?
+    /// Non-nil marks this record a REVOCATION of an earlier draft (the in-session
+    /// cold undo): the referenced slip draft never reaches the store. Same Codable
+    /// type as ordinary drafts on purpose — the torn-tail-tolerant reader would
+    /// silently drop a sibling type's lines.
+    var revokesDraftID: UUID?
 }
 
 /// The §9-rule-2 panic write buffer: an append-only NDJSON file in the App Group —

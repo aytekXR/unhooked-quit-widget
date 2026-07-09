@@ -15,6 +15,18 @@ struct QuitSnapshot: Codable, Sendable, Equatable {
     /// The user's own words, VERBATIM and in user order (they render unedited in the
     /// panic flow; the dedupe merge already preserves this order end to end).
     var motivations: [String]
+
+    // E4.1 additive streak fields (architecture §3's PanicSnapshot sketch names them;
+    // their first consumer is the cold slip flow's forgiveness framing). All optional
+    // under the SAME schemaVersion: a pre-E4.1 cache decodes with them nil and the
+    // framing degrades to the no-numbers copy — never a stale or invented number.
+    // Raw scalars, not engine types (Shared stays dependency-free for the widget
+    // target); the anchor's wallClock == startAt by the engine's documented invariant.
+    var startAt: Date?
+    var anchorBootID: UUID?
+    var anchorUptime: TimeInterval?
+    var bestStreakSeconds: Int?
+    var momentumPercent: Int?
 }
 
 /// The panic pre-cache (architecture §4/ADR-6): plain Codable JSON in the App Group,

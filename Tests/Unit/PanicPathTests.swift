@@ -585,4 +585,78 @@ struct PanicPathTests {
             "now is the actual current wall clock (the ONE sanctioned production Date() read)"
         )
     }
+
+    // MARK: - E4.1 · pre-cache carries the streak fields the cold slip flow frames on
+
+    @Test func test_panicPreCache_carriesStreakFields_forSlipFraming() throws {
+        // E4.1: the cold slip flow computes its forgiveness framing from the pre-cache
+        // card's new additive streak fields (Shared/PanicSnapshot; decision record §UI),
+        // because the store NEVER opens on that route (E3.1 zero-store pin). So every
+        // mutating rebuild must carry startAt + the clock-integrity anchor scalars +
+        // the archived best + momentum% as store truth.
+        // RED: the stub rebuildPanicSnapshot builds each card with only
+        // id/label/discreet/motivations, so all five fields below read nil.
+        let h = try Harness()
+        let quit = try h.repository.createQuit(habitCategory: .vape)
+        h.clock.advance(by: TimeInterval(3 * day))
+        _ = try h.repository.logSlip(quitID: quit.id, note: nil)
+
+        let cached = try #require(h.panicSnapshotStore.read())
+        let slipCard = try #require(cached.quits.first { $0.id == quit.id })
+
+        // startAt = the post-slip current-streak start (the guarded slip instant, equal
+        // to the anchor's wallClock by the engine's documented invariant).
+        #expect(slipCard.startAt == epoch + TimeInterval(3 * day))
+        // The anchor scalars the cold framing guards its elapsed with (raw, not the
+        // engine type — Shared stays dependency-free for the widget target).
+        #expect(slipCard.anchorBootID == bootA)
+        #expect(slipCard.anchorUptime == TimeInterval(50_000 + 3 * day))
+        // Archived best: the 3-day streak the slip just banked ("Your best is safe").
+        #expect(slipCard.bestStreakSeconds == 3 * day)
+        // Momentum is UNCHANGED across a slip in the same tick (ratified S04). A quit
+        // that never slipped banks its WHOLE streak on archiving, so clean == tracked
+        // ⇒ momentum 1.0 ⇒ 100% — the number the forgiveness screen shows unchanged.
+        #expect(
+            slipCard.momentumPercent == 100,
+            "a fresh quit's momentum stays 100% across the archive (clean days over total days, whole streak banked)"
+        )
+    }
+
+    @Test func test_panicPreCache_stillExcludesNotesAndFreeText() throws {
+        // DECLARED green-from-birth guard (test-suite §7.1 exemption by declaration):
+        // extends the §10 note-exclusion pin (test_panicPreCache_excludesSlipNotes) to
+        // the E4.1 card SHAPE, which now carries streak SCALARS (startAt/anchor/best/
+        // momentum) — all numeric/UUID, never free text. The note still lives ONLY in
+        // the store; the sole free text the card may carry stays label + verbatim
+        // motivations. Both halves already hold at red (the stub rebuild omits the note
+        // and adds no free-text field), so this passes from birth — its value is
+        // locking the pre-unlock-readable boundary as the card grows in E4.1.
+        let h = try Harness()
+        let quit = try h.repository.createQuit(habitCategory: .alcohol, customLabel: "Late-night wine")
+        quit.motivations = ["be present with my kids", "sleep through the night"]
+        h.clock.advance(by: TimeInterval(2 * day))
+        _ = try h.repository.logSlip(quitID: quit.id, note: "midnight kitchen slip, talked to J about it")
+
+        // Raw bytes so no decoding step can hide a leak (mirrors the §10 pin's method).
+        let data = try #require(
+            try? Data(contentsOf: h.panicSnapshotStore.fileURL),
+            "the pre-cache file must exist after a slip write (rebuilt on every write)"
+        )
+        let raw = try #require(String(data: data, encoding: .utf8))
+        #expect(!raw.contains("midnight kitchen"), "the slip note stays physically absent even as the card gains streak fields (§10)")
+        #expect(!raw.contains("talked to J"), "no fragment of the note may reach the pre-unlock-readable file")
+        // The allowed free text still rides the card verbatim — proves the absence
+        // checks above are not vacuous and that the streak-carrying card kept the
+        // panic-flow render source intact.
+        #expect(raw.contains("be present with my kids"))
+        #expect(raw.contains("Late-night wine"))
+
+        let decoded = try #require(h.panicSnapshotStore.read())
+        let slipCard = try #require(decoded.quits.first { $0.id == quit.id })
+        #expect(
+            slipCard.motivations == ["be present with my kids", "sleep through the night"],
+            "label + motivations remain the ONLY free-text fields on the card — every E4.1 addition is a scalar"
+        )
+        #expect(slipCard.label == "Late-night wine")
+    }
 }
