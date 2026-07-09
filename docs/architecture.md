@@ -274,6 +274,15 @@ protocol AnalyticsServiceProtocol {       // TelemetryDeck wrapper with the priv
     func fire(_ event: FunnelEvent)       // no-op unless analyticsOptIn == true;
                                           // closed enum makes forbidden properties unrepresentable
 }
+
+// Landed with E3.2 (test-suite §3.1's named haptics seam; §7 rule 8 — doubles
+// conform to an architecture protocol, never a subclassed SDK type). The pacer's
+// rhythm is pure data (BreathPacerPattern, built from the shipping panicScript.json),
+// so the fake records pattern-play calls and real CoreHaptics stays device-tier.
+protocol HapticsPlaying {                 // @MainActor; FakeHapticsEngine in tests
+    func playBreathPattern(_ pattern: BreathPacerPattern)  // the pacer's full 4-7-8 rhythm
+    func playCelebrationTap()             // the ONE soft celebration haptic (brandkit §7)
+}
 ```
 
 ```swift

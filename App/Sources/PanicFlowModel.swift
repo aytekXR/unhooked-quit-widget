@@ -46,6 +46,13 @@ final class PanicFlowModel {
     /// celebration renders regardless (it confirms the URGE passed — true whatever
     /// the disk did; §9 silent-recover class, same as a pre-cache write failure).
     private(set) var outcomeRecorded = false
+    /// The slipped exit's handoff, surfaced as state so the scene can show the
+    /// placeholder destination (E4.1 replaces that placeholder, not this seam).
+    private(set) var slipHandoff: PanicSlipHandoff?
+    /// When the pacer's current run began (the flow clock's domain) — the view's
+    /// TimelineView measures elapsed time against this; nil until the first frame's
+    /// `.task` marks it, so the initial render is always phase zero.
+    private(set) var pacerStartedAt: Date?
 
     init(
         quit: QuitSnapshot?,
@@ -65,7 +72,7 @@ final class PanicFlowModel {
         self.haptics = haptics
         self.buffer = buffer
         self.onSlipRoute = onSlipRoute
-        // red skeleton: entering .breath neither records the step nor starts the pacer
+        enterStep(.breath)
     }
 
     /// The pacer pattern from the shipping script (4-7-8 × 3).
@@ -75,27 +82,101 @@ final class PanicFlowModel {
 
     /// The reasons step's render source: the user's own words, VERBATIM, user order.
     var reasons: [String] {
-        ["red-skeleton"] // red skeleton — must be the quit card's motivations, unedited
+        quit?.motivations ?? []
+    }
+
+    /// The flow's opening title: the discreet variant carries zero habit context.
+    var entryTitle: String {
+        quit?.discreet == true ? script.entryTitleDiscreet : script.entryTitle
+    }
+
+    /// An exit's button label, discreet-aware ("Done" / "Log it").
+    func exitLabel(_ id: String) -> String? {
+        guard let exit = script.exit(id) else { return nil }
+        return quit?.discreet == true ? exit.labelDiscreet : exit.label
     }
 
     /// Advances one stage (every step is skippable, PRD §6.4).
     func skip() {
-        // red skeleton
+        switch stage {
+        case .breath: enterStep(.timer)
+        case .timer: enterStep(.reasons)
+        case .reasons: enterStep(.redirect)
+        case .redirect: stage = .exits
+        case .exits, .celebration: break
+        }
     }
 
-    /// A redirect-menu choice: "breathe" re-enters the pacer, everything else has
-    /// served its purpose and lands on the exits.
+    /// A redirect-menu choice (option ids are the shipping script's contract):
+    /// "breathe" re-enters the pacer; everything else has served its purpose —
+    /// the user committed to a small physical redirect — and lands on the exits.
     func selectRedirect(_ optionID: String) {
-        // red skeleton
+        guard stage == .redirect else { return }
+        if optionID == "breathe" {
+            enterStep(.breath)
+        } else {
+            stage = .exits
+        }
+    }
+
+    /// The pacer run begins when its first frame is actually on screen (the view's
+    /// `.task`), so elapsed-time math never counts pre-frame construction time.
+    func markPacerStarted() {
+        guard pacerStartedAt == nil else { return }
+        pacerStartedAt = clock.now
     }
 
     /// "Urge passed" — buffers the averted outcome (§9 rule 2) and celebrates quietly.
     func exitUrgePassed() {
-        // red skeleton
+        guard stage != .celebration else { return }
+        let draft = PanicOutcomeDraft(
+            quitID: quit?.id,
+            source: source,
+            outcome: .averted,
+            stepsReached: stepsReached,
+            at: clock.now
+        )
+        outcomeRecorded = record(draft)
+        haptics.playCelebrationTap()
+        stage = .celebration
     }
 
-    /// "I slipped" — the named routing seam. Zero writes from the panic scene.
+    /// "I slipped" — the named routing seam. Zero writes from the panic scene:
+    /// E4.1 owns the slip flow and its writes (undo lifecycle included) as one unit.
     func exitSlipped() {
-        // red skeleton
+        guard stage != .celebration else { return }
+        let handoff = PanicSlipHandoff(
+            quitID: quit?.id, source: source, stepsReached: stepsReached
+        )
+        slipHandoff = handoff
+        onSlipRoute(handoff)
+    }
+
+    // MARK: - Private
+
+    private func enterStep(_ step: PanicStep) {
+        if !stepsReached.contains(step) {
+            stepsReached.append(step)
+        }
+        switch step {
+        case .breath:
+            stage = .breath
+            pacerStartedAt = nil // a (re-)entered pacer starts its run fresh
+            if let pattern = pacerPattern, script.step(.breath)?.pacer?.hapticGuided == true {
+                haptics.playBreathPattern(pattern)
+            }
+        case .timer: stage = .timer
+        case .reasons: stage = .reasons
+        case .redirect: stage = .redirect
+        }
+    }
+
+    /// One retry: a transient file-system hiccup must not cost the outcome. A miss
+    /// is the §9 silent-recover class — the celebration still renders (it confirms
+    /// the urge passed, not the disk), and `outcomeRecorded` keeps the truth testable.
+    private func record(_ draft: PanicOutcomeDraft) -> Bool {
+        guard let buffer else { return false }
+        if (try? buffer.append(draft)) != nil { return true }
+        return (try? buffer.append(draft)) != nil
     }
 }

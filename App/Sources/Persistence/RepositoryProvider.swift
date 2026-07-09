@@ -40,10 +40,13 @@ final class RepositoryProvider {
             let container = try storeOpener() // the launch's FIRST store work — post-frame
             let repository = makeRepository(container)
             // The launch-time derived-state pass (E2.3, architecture §8): dedupe
-            // merge, ADR-7 heal, bounded witness restart — then a pre-cache refresh
-            // from store truth (heals a failed best-effort write; prunes pre-erase
-            // residue the moment a new tracking era begins).
+            // merge, ADR-7 heal, bounded witness restart — then the §9-rule-2 panic
+            // write-buffer flush (E3.2; non-throwing silent-recover, so a flush
+            // failure can never strand the launch or skip the publish below), then
+            // a pre-cache refresh from store truth (heals a failed best-effort
+            // write; prunes pre-erase residue; folds just-flushed outcomes in).
             try repository.recomputeDerivedState()
+            repository.flushPanicOutcomes()
             repository.refreshPanicSnapshot()
             self.repository = repository
         } catch {

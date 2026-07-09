@@ -68,10 +68,60 @@ final class QuitRepository {
 
     /// Replays the panic flow's buffered outcomes into the store — the "flushed into
     /// SwiftData as soon as the context is ready" half of §9 rule 2. Returns how many
-    /// outcomes landed. E3.2 red skeleton: not implemented.
+    /// outcomes landed.
+    ///
+    /// Non-throwing by design (Session 10 design-panel ruling): a flush failure is
+    /// the §9 silent-recover class — the buffer stays intact for the next launch and
+    /// the launch sequence continues; only a store that cannot OPEN is blocking.
+    /// Idempotent under replay: the flushed `UrgeEvent` ADOPTS the draft's id, so a
+    /// crash between save and clear re-runs as a no-op instead of double-counting.
+    /// `at` is the draft's TRUE exit instant, never the flush clock (§12.4 insights
+    /// aggregate on urge timing). A draft whose quit no longer exists is DROPPED —
+    /// erased means erased, nothing may resurrect behavioral data about that quit —
+    /// while a nil-quit draft (zero-quit panic) lands honestly unattributed. The
+    /// launch's witness work stays with `recomputeDerivedState()`, which runs first
+    /// in the same sequence — replaying historical events earns no fresh wall trust.
     @discardableResult
     func flushPanicOutcomes() -> Int {
-        0 // red skeleton — the green commit lands the dedupe-by-id replay
+        let drafts = panicOutcomeBuffer.drafts()
+        guard !drafts.isEmpty else { return 0 }
+        do {
+            let existing = Set(try context.fetch(FetchDescriptor<UrgeEvent>()).map(\.id))
+            var landed = 0
+            for draft in drafts where !existing.contains(draft.id) {
+                let quit: Quit?
+                if let quitID = draft.quitID {
+                    guard let found = try? fetchQuit(quitID) else { continue }
+                    quit = found
+                } else {
+                    quit = nil
+                }
+                let event = UrgeEvent()
+                event.id = draft.id
+                event.at = draft.at
+                event.source = draft.source
+                event.outcome = draft.outcome
+                event.stepsReached = draft.stepsReached
+                event.quit = quit
+                context.insert(event)
+                if draft.outcome == .averted, let quit {
+                    quit.avertedUrgeCount += 1
+                }
+                landed += 1
+            }
+            if landed > 0 {
+                try context.save()
+                rebuildPanicSnapshot()
+                scheduleWidgetReload()
+            }
+            // Consume only after the commit point — a crash before this line replays
+            // safely (the id dedupe above), a crash after it has nothing left to lose.
+            try? panicOutcomeBuffer.clear()
+            return landed
+        } catch {
+            context.rollback() // no half-flushed rows may ride a later unrelated save
+            return 0
+        }
     }
 
     // MARK: - Reads
@@ -260,10 +310,12 @@ final class QuitRepository {
         // 3. Defaults sweep (infallible) + owned App Group files + store file set
         //    (the fallible local steps) — shared verbatim with the launch-time smoke
         //    hook. The panic pre-cache is IN the owned file set (E3.1): its verbatim
-        //    motivations are exactly what one-tap erase promises to destroy.
+        //    motivations are exactly what one-tap erase promises to destroy. The
+        //    panic write buffer joined in ITS landing session (E3.2, the standing
+        //    rule): buffered urge outcomes are §10 "never leaves the device" data.
         try Self.eraseLocalArtifacts(
             storeURLs: container.configurations.compactMap { $0.isStoredInMemoryOnly ? nil : $0.url },
-            appGroupFileURLs: [panicSnapshotStore.fileURL],
+            appGroupFileURLs: [panicSnapshotStore.fileURL, panicOutcomeBuffer.fileURL],
             appGroupDefaults: appGroupDefaults
         )
 

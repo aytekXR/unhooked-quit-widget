@@ -54,8 +54,12 @@ struct PanicScript: Codable, Equatable, Sendable {
     }
 
     /// Decodes the shipping file from the app bundle. `nil` when the resource is
-    /// missing or undecodable — the caller degrades, never crashes the panic path.
+    /// missing or undecodable — the caller degrades to the bare breathe frame,
+    /// never a crash or a dead end on the panic path (§9).
     static func loadShipping(bundle: Bundle = .main) -> PanicScript? {
-        nil // red skeleton — bundling + decode land with the green commit
+        guard let url = bundle.url(forResource: "panicScript", withExtension: "json"),
+              let data = try? Data(contentsOf: url)
+        else { return nil }
+        return try? JSONDecoder().decode(PanicScript.self, from: data)
     }
 }

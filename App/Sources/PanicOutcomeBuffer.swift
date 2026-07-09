@@ -41,21 +41,50 @@ struct PanicOutcomeBuffer: Sendable {
         AppIdentifiers.appGroupContainerURL.map(PanicOutcomeBuffer.init(directoryURL:))
     }
 
-    /// Appends one outcome as a single NDJSON line. E3.2 red skeleton: not implemented.
+    /// Appends one outcome as a single NDJSON line, then fsyncs: the buffer is the
+    /// durable record between panic exit and the next normal launch, so "loses
+    /// nothing" should survive power loss, not just an app crash. The sync runs at
+    /// EXIT time — the user is already breathing; the ≤200ms launch budget is long
+    /// past. The file is created with `.completeUntilFirstUnlock` protection: unlike
+    /// the pre-unlock-readable snapshot files (§10), the buffer is written and read
+    /// by the app alone, always post-unlock, so it can carry the stricter class.
     func append(_ draft: PanicOutcomeDraft) throws {
-        // red skeleton — the durable append lands with the green commit
+        var line = try JSONEncoder().encode(draft)
+        line.append(0x0A)
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: fileURL.path) {
+            try fileManager.createDirectory(
+                at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true
+            )
+            guard fileManager.createFile(
+                atPath: fileURL.path,
+                contents: nil,
+                attributes: [.protectionKey: FileProtectionType.completeUntilFirstUnlock]
+            ) else { throw CocoaError(.fileWriteUnknown) }
+        }
+        let handle = try FileHandle(forWritingTo: fileURL)
+        defer { try? handle.close() }
+        try handle.seekToEnd()
+        try handle.write(contentsOf: line)
+        try handle.synchronize()
     }
 
     /// Every decodable buffered outcome, in append order. A torn tail line (crash
     /// mid-append) or foreign bytes decode as nothing and are skipped — earlier
     /// outcomes must never be hostage to the newest write.
     func drafts() -> [PanicOutcomeDraft] {
-        [] // red skeleton
+        guard let data = try? Data(contentsOf: fileURL) else { return [] }
+        let decoder = JSONDecoder()
+        return data.split(separator: 0x0A).compactMap {
+            try? decoder.decode(PanicOutcomeDraft.self, from: Data($0))
+        }
     }
 
     /// Removes the buffer file. Missing file = nothing to do (erase and post-flush
     /// consume share this).
     func clear() throws {
-        // red skeleton
+        let fileManager = FileManager.default
+        guard fileManager.fileExists(atPath: fileURL.path) else { return }
+        try fileManager.removeItem(at: fileURL)
     }
 }

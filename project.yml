@@ -56,8 +56,13 @@ targets:
     sources:
       - App/Sources
       - Shared/Sources
-      # The asset catalog ONLY — App/Resources/Content stays deliberately unbundled
-      # (Phase 4 drafts, inert until clinician/legal sign-off; see Content/REVIEW.md).
+      # App/Resources/Content stays unbundled (Phase 4 drafts, inert until
+      # clinician/legal sign-off; see Content/REVIEW.md) — EXCEPT panicScript.json:
+      # E3.2 is its named consuming epic (the flow renders the shipping file, never
+      # copies — test-suite §3.2), so it ships from here on; its tone review moves
+      # up the operator's sign-off queue accordingly.
+      - path: App/Resources/Content/panicScript.json
+        buildPhase: resources
       # AppIcon is the brandkit single-size set (light + dark + tinted 1024): actool
       # generates every size, incl. the iPad 152/167 App Store validation requires
       # even for an iPhone-only app (upload error 90023 without it). The light 1024

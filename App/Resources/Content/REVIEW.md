@@ -4,7 +4,7 @@
 |---|---|
 | Status | **DRAFT — awaiting operator line-by-line review + medical/legal sign-off** |
 | Author | Agent-drafted 2026-07-08 for review (operator chose "agent drafts") |
-| Wired into app? | **No.** Inert JSON at the eventual bundle path. Not referenced in `project.yml`; the audit tests (test-suite §1 tests 12–13 + helpline-region) get added with the UI epic that consumes these. |
+| Wired into app? | **Partially (E3.2).** `panicScript.json` is bundled and rendered by the panic flow since Session 10 — its tone review (item 3 below) now gates TestFlight-visible copy, not just ship. The other four files stay inert and unbundled; their audit tests (test-suite §1 tests 12–13 + helpline-region) arrive with their consuming epics. |
 | Audit self-check | Passed a local scan: 0 medical-claim tokens, 0 shame-lexicon tokens, all 43 milestones carry a "commonly reported" marker, all JSON valid. |
 
 ## Files

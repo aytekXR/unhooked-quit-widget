@@ -1,17 +1,23 @@
 import SwiftUI
 
-/// The panic route's root (E3.1): renders EXCLUSIVELY from the presentation the app
+/// The panic route's root: renders EXCLUSIVELY from the presentation the app
 /// resolved pre-frame out of the App Group pre-cache — zero store queries, zero
 /// network, zero decorative animation (brandkit §8: breath, not bounce; the <2s
-/// budget spends nothing on transitions). Content is placeholder-grade: the real
-/// breath pacer / 90s flow is E3.2. The container keeps the `root.panicPlaceholder`
-/// anchor whatever it shows, so every route-level smoke (walking skeleton, erase,
-/// E0.3 latency harness) discriminates on the ROUTE, not on this epic's content.
+/// budget spends nothing on transitions). Since E3.2 the content is the REAL ~90s
+/// flow (PanicFlowView); the type keeps its historic name and the container keeps
+/// the content-stable `root.panicPlaceholder` anchor whatever it shows, so every
+/// route-level smoke (walking skeleton, erase, E0.3 latency harness) discriminates
+/// on the ROUTE, not on any epic's content.
 struct PanicPlaceholderView: View {
     let presentation: PanicPresentation
 
-    /// Picker choice — in-memory only. Selecting routes to that quit's frame; the
-    /// real flow (and any UrgeEvent write) is E3.2's. No store is touched.
+    /// The shipping flow copy, decoded once per scene (a few-KB bundled read, same
+    /// class as the pre-cache read). `nil` — a missing/corrupt bundle resource —
+    /// degrades to the E0.3 breathe frame: the panic path never dead-ends (§9).
+    private let script = PanicScript.loadShipping()
+
+    /// Picker choice — in-memory only. Selecting a quit ENTERS its flow (E3.2);
+    /// no store is touched anywhere on this path.
     @State private var chosen: QuitSnapshot?
 
     var body: some View {
@@ -31,10 +37,21 @@ struct PanicPlaceholderView: View {
     @ViewBuilder
     private var content: some View {
         switch effectivePresentation {
-        case .breathe, .empty:
-            BreatheFrame()
+        case .breathe(let quit):
+            flowOrFallback(quit: quit)
+        case .empty:
+            flowOrFallback(quit: nil)
         case .picker(let quits):
             PanicQuitPickerView(quits: quits) { chosen = $0 }
+        }
+    }
+
+    @ViewBuilder
+    private func flowOrFallback(quit: QuitSnapshot?) -> some View {
+        if let script {
+            PanicFlowView(quit: quit, script: script)
+        } else {
+            BreatheFrame()
         }
     }
 

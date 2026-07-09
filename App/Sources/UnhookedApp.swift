@@ -27,7 +27,10 @@ struct UnhookedApp: App {
             PanicLaunchFlag.set()
             try? QuitRepository.eraseLocalArtifacts(
                 storeURLs: (try? PersistentStore.storeURL()).map { [$0] } ?? [],
-                appGroupFileURLs: PanicSnapshotStore.appGroup().map { [$0.fileURL] } ?? [],
+                appGroupFileURLs: [
+                    PanicSnapshotStore.appGroup()?.fileURL,
+                    PanicOutcomeBuffer.appGroup()?.fileURL, // E3.2: mirrors eraseEverything's owned set
+                ].compactMap { $0 },
                 appGroupDefaults: groupDefaults
             )
         }
