@@ -51,6 +51,13 @@ targets:
     sources:
       - App/Sources
       - Shared/Sources
+      # The asset catalog ONLY — App/Resources/Content stays deliberately unbundled
+      # (Phase 4 drafts, inert until clinician/legal sign-off; see Content/REVIEW.md).
+      # AppIcon is the brandkit single-size set (light + dark + tinted 1024): actool
+      # generates every size, incl. the iPad 152/167 App Store validation requires
+      # even for an iPhone-only app (upload error 90023 without it). The light 1024
+      # is alpha-stripped — the marketing icon must not carry an alpha channel.
+      - App/Resources/Assets.xcassets
     dependencies:
       - target: UnhookedWidgets
       - package: StreakEngine
@@ -71,6 +78,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.beyondkaira.ballast
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   UnhookedWidgets:
     type: app-extension
