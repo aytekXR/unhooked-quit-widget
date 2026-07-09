@@ -31,13 +31,36 @@ before writing code. Documentation always overrides assumptions.
   green; never weaken a QA assertion; safety-critical paths acceptance-test-first
   with zero disabled tests).
 
+## CodeGraph (permanent, added 2026-07-09 Session 06)
+
+The repository is indexed by CodeGraph (`.codegraph/` at the repo root — gitignored,
+machine-local). Rules for every session and every spawned agent:
+
+1. **Query it first.** For any "how does X work / where is X / what depends on X"
+   question, use the `codegraph_explore` MCP tool (shell fallback:
+   `codegraph explore "<symbols or question>"`) BEFORE grep/find or manual file
+   reading — one call returns the verbatim line-numbered source plus call paths and
+   blast radius. Pass this instruction into subagent/workflow prompts explicitly.
+2. **Check blast radius before editing.** When changing a public symbol, consult the
+   explore output's dependents/callers list (or `codegraph callers <symbol>`) before
+   the edit, not after CI fails.
+3. **Update it before session end.** Run `codegraph sync` (or `codegraph init` if the
+   index is missing) as a mandatory session-end step, BEFORE the final commit/push, so
+   the next session starts on a fresh index. Verify with `codegraph status`.
+4. The index is a cache, not a source of truth — on any suspicion of staleness (mass
+   renames, generated files), re-run `codegraph sync` and re-query.
+
 ## Documentation updates at session end
 
 1. **`docs/past-prompts.md`** — append (never rewrite) a dated entry: completed
    objective, major decisions, important notes, known limitations.
 2. **`docs/resume-prompt.md`** — overwrite with the NEXT session's objective, derived
    from `docs/roadmap.md` and the current repo state. The next prompt must be small,
-   independently executable, one-session-sized, with a clear definition of done.
+   independently executable, one-session-sized, with a clear definition of done. The
+   resume prompt must carry the CodeGraph rules forward (use `codegraph_explore` first;
+   `codegraph sync` before session end).
+3. **CodeGraph index** — run `codegraph sync` and confirm `codegraph status` is clean
+   (see the CodeGraph section below).
 
 ## Git & CI verification
 
