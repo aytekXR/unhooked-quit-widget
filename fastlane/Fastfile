@@ -38,6 +38,31 @@ platform :ios do
       api_key: api_key
     )
 
+    # Map the match-minted App Store profiles onto BOTH targets for the archive.
+    # project.yml ships CODE_SIGN_STYLE: Automatic and CI has no Xcode-managed Apple ID,
+    # so without this gym fails with "No profiles for 'com.beyondkaira.ballast' were
+    # found … Automatic signing is disabled" (Session 06 fix; see resume-prompt Step 0).
+    # match exposes each minted profile's name as sigh_<bundle_id>_appstore_profile-name.
+    app_profile = ENV.fetch("sigh_com.beyondkaira.ballast_appstore_profile-name")
+    widget_profile = ENV.fetch("sigh_com.beyondkaira.ballast.widgets_appstore_profile-name")
+
+    update_code_signing_settings(
+      path: "Unhooked.xcodeproj",
+      targets: ["Unhooked"],
+      use_automatic_signing: false,
+      team_id: "UH7MXG7Z94",
+      code_sign_identity: "Apple Distribution",
+      profile_name: app_profile
+    )
+    update_code_signing_settings(
+      path: "Unhooked.xcodeproj",
+      targets: ["UnhookedWidgets"],
+      use_automatic_signing: false,
+      team_id: "UH7MXG7Z94",
+      code_sign_identity: "Apple Distribution",
+      profile_name: widget_profile
+    )
+
     # E0.1 acceptance: build number auto-increments — monotonic per CI run.
     build_number = ENV.fetch("GITHUB_RUN_NUMBER")
 
@@ -45,6 +70,13 @@ platform :ios do
       project: "Unhooked.xcodeproj",
       scheme: "Unhooked",
       export_method: "app-store",
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "com.beyondkaira.ballast" => app_profile,
+          "com.beyondkaira.ballast.widgets" => widget_profile,
+        },
+      },
       xcargs: "CURRENT_PROJECT_VERSION=#{build_number}"
     )
 
