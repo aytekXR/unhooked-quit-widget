@@ -676,6 +676,42 @@ struct RecomputeHealTests {
                 "a foreign-anchor quit reads its capped-arm bound, nothing more")
     }
 
+    @Test func test_recompute_witnessRestart_grantsOncePerBoot_notPerCall() throws {
+        // Session 07 review (confirmed 2/3, probe-verified): the restart's ≤ cap
+        // grant is a PER-REBOOT bound, but recomputeDerivedState can run many times
+        // inside one boot (remote-change wiring, E3.1+). Without binding the grant to
+        // an actual boot change, every same-boot pass that heals a late-arriving
+        // over-cap quit re-grants another cap — k·cap of witness inflation with zero
+        // reboots, exceeding the ratified bound. The witness's own bootID is the
+        // binding: it flips to the current boot on the first grant.
+        let h = try Harness()
+        let quit = try h.repository.createQuit(habitCategory: .vape)
+        h.clock.advance(by: TimeInterval(5 * day))
+        _ = try h.repository.streakValue(for: quit.id) // honest witness at day 5
+
+        h.clock.reboot(bootID: bootB, uptime: 5_000)
+        h.clock.setWallClock(epoch + TimeInterval(905 * day))
+        try h.repository.recomputeDerivedState() // heal #1: the one grant this boot
+        let afterFirst = h.lkgStore.load()
+        #expect(afterFirst?.wallClock == epoch + TimeInterval(5 * day) + StreakCalculator.defaultRebootGapCap)
+
+        // A late-arriving CloudKit duplicate with its own over-cap anchor makes a
+        // SECOND same-boot pass heal again — but the witness must NOT re-grant.
+        try insertRow(
+            id: UUID(), into: h.container.mainContext,
+            createdAt: epoch + TimeInterval(30 * day), startAt: epoch + TimeInterval(30 * day),
+            anchor: MonotonicAnchor(
+                bootID: alienBoot, uptime: 0, wallClock: epoch + TimeInterval(30 * day)
+            )
+        )
+        let secondPass = try h.repository.recomputeDerivedState()
+        #expect(secondPass == true, "the foreign quit heals — the pass itself still mutates")
+        #expect(
+            h.lkgStore.load()?.wallClock == afterFirst?.wallClock,
+            "a same-boot pass must not stack another cap onto the witness"
+        )
+    }
+
     @Test func test_witness_stackedHeals_matchInWindowChannelBound() throws {
         // The sanctioned bound, pinned: k cheat reboots grant AT MOST k·cap — the
         // exact rate the ratified in-window channel (gap ≤ cap ⇒ .normal, gates pass,
