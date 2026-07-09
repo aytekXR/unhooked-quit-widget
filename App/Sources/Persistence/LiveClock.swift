@@ -46,10 +46,13 @@ struct LiveClock: ClockProviding {
         guard sysctlbyname("kern.bootsessionuuid", nil, &size, nil, 0) == 0, size > 0 else {
             return UUID()
         }
-        var buffer = [CChar](repeating: 0, count: size)
-        guard sysctlbyname("kern.bootsessionuuid", &buffer, &size, nil, 0) == 0,
-              let uuid = UUID(uuidString: String(cString: buffer))
-        else { return UUID() }
-        return uuid
+        var buffer = [UInt8](repeating: 0, count: size)
+        guard sysctlbyname("kern.bootsessionuuid", &buffer, &size, nil, 0) == 0 else {
+            return UUID()
+        }
+        // The sysctl returns a NUL-terminated C string; decode up to the terminator
+        // (String(cString:) is deprecated under the current SDK's warnings-as-errors).
+        let text = String(decoding: buffer.prefix(while: { $0 != 0 }), as: UTF8.self)
+        return UUID(uuidString: text) ?? UUID()
     }
 }
