@@ -340,12 +340,16 @@ final class QuitRepository {
             healedAny = true
             didMutate = true
         }
-        if healedAny, let previous = witness {
+        if healedAny, let previous = witness, previous.bootID != reading.bootID {
             // Witness restart (path 2): grant exactly what the capped arm granted the
             // healed quits — min(gap, cap) — NEVER the raw wall, which the bridge arm
             // would trust uncapped for any older (incl. CloudKit-delivered) anchor.
             // Per-reboot unverifiable optimism stays ≤ cap, the Session-06 bound; the
-            // in-window channel has always granted the same per-reboot credit.
+            // in-window channel has always granted the same per-reboot credit. The
+            // bootID gate is what makes the bound PER-REBOOT: the first grant stamps
+            // the current boot onto the witness, so later same-boot passes (remote-
+            // change wiring fires many per boot) can heal but never re-grant —
+            // within a boot, path 3's uptime accrual is the only witness movement.
             let gap = now.timeIntervalSince(previous.wallClock)
             lastKnownGoodStore.save(MonotonicAnchor(
                 bootID: reading.bootID,

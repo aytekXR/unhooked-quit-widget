@@ -98,12 +98,27 @@ private func insertRow(
     motivations: [String] = [],
     archived: Bool = false,
     sortIndex: Int = 0,
+    habitCategory: HabitCategory = .vape,
+    goalMode: GoalMode = .quit,
+    customLabel: String? = nil,
+    currencyCode: String = "USD",
+    weeklySpend: Decimal = 0,
+    weeklyAllowance: Int? = nil,
+    triggers: [String] = [],
+    discreet: Bool = false,
     slips: [(id: UUID, at: Date)] = [],
     urges: [(id: UUID, outcome: UrgeOutcome)] = []
 ) throws -> Quit {
     let quit = Quit()
     quit.id = id
-    quit.habitCategory = .vape
+    quit.habitCategory = habitCategory
+    quit.goalMode = goalMode
+    quit.customLabel = customLabel
+    quit.currencyCode = currencyCode
+    quit.weeklySpend = weeklySpend
+    quit.weeklyAllowance = weeklyAllowance
+    quit.triggers = triggers
+    quit.discreetMode = discreet
     quit.createdAt = createdAt
     quit.startAt = startAt
     quit.monotonicAnchor = anchor
@@ -413,6 +428,125 @@ struct DedupeMergeTests {
             let rows = try fetchQuits(h.container, id: id)
             #expect(rows.count == 1)
             #expect(rows.first?.motivations == expected, "identical result in both insertion orders")
+        }
+    }
+
+    // MARK: Session 07 review pins (mutant killers — each pins a rule the original
+    // suite never diverged on, so a min/max/AND/guard flip survived it)
+
+    @Test func test_merge_recountsAvertedAcrossUnionedEvents_floorsAtStoredMax() throws {
+        let h = try Harness()
+        // Two devices each hold a DISTINCT averted event: max-of-counters says 1,
+        // the union recount says 2 — the recount is the truth.
+        let recounted = UUID()
+        try insertRow(
+            id: recounted, into: h.container.mainContext,
+            createdAt: epoch, startAt: epoch, anchor: coherentAnchor(startAt: epoch),
+            averted: 1, urges: [(UUID(), .averted)]
+        )
+        try insertRow(
+            id: recounted, into: h.container.mainContext,
+            createdAt: epoch, startAt: epoch, anchor: coherentAnchor(startAt: epoch),
+            averted: 1, urges: [(UUID(), .averted)]
+        )
+        // A stored counter can legitimately exceed the recount (events predating the
+        // union) — the floor keeps the counter monotonic.
+        let floored = UUID()
+        try insertRow(
+            id: floored, into: h.container.mainContext,
+            createdAt: epoch, startAt: epoch, anchor: coherentAnchor(startAt: epoch),
+            averted: 5
+        )
+        try insertRow(
+            id: floored, into: h.container.mainContext,
+            createdAt: epoch, startAt: epoch, anchor: coherentAnchor(startAt: epoch),
+            averted: 1, urges: [(UUID(), .averted)]
+        )
+
+        try h.repository.recomputeDerivedState()
+
+        #expect(try fetchQuits(h.container, id: recounted).first?.avertedUrgeCount == 2)
+        #expect(try fetchQuits(h.container, id: floored).first?.avertedUrgeCount == 5)
+    }
+
+    @Test func test_merge_discreetOnAnyDevice_staysDiscreet() throws {
+        // Privacy analog of the archived pin: the user turned discretion ON for a
+        // sensitive quit; a stale un-synced copy must not strip it from the widgets.
+        let h = try Harness()
+        let id = UUID()
+        try insertRow(
+            id: id, into: h.container.mainContext,
+            createdAt: epoch, startAt: epoch, anchor: coherentAnchor(startAt: epoch),
+            discreet: true
+        )
+        try insertRow(
+            id: id, into: h.container.mainContext,
+            createdAt: epoch, startAt: epoch, anchor: coherentAnchor(startAt: epoch),
+            discreet: false
+        )
+
+        try h.repository.recomputeDerivedState()
+
+        let rows = try fetchQuits(h.container, id: id)
+        #expect(rows.count == 1)
+        #expect(rows.first?.discreetMode == true, "discretion fails toward privacy")
+    }
+
+    @Test func test_merge_resolvesScalarFields_absolutely() throws {
+        // Absolute oracle for every scalar rule the other tests never diverge on —
+        // without it, min↔max / prefer-nil flips pass the whole suite.
+        let h = try Harness()
+        let id = UUID()
+        try insertRow(
+            id: id, into: h.container.mainContext,
+            createdAt: epoch, startAt: epoch, anchor: coherentAnchor(startAt: epoch),
+            habitCategory: .porn, goalMode: .reduce,
+            customLabel: nil, currencyCode: "USD",
+            weeklySpend: 10, weeklyAllowance: nil,
+            triggers: ["stress", "boredom"]
+        )
+        try insertRow(
+            id: id, into: h.container.mainContext,
+            createdAt: epoch, startAt: epoch, anchor: coherentAnchor(startAt: epoch),
+            habitCategory: .alcohol, goalMode: .quit,
+            customLabel: "late nights", currencyCode: "TRY",
+            weeklySpend: 50, weeklyAllowance: 4,
+            triggers: ["boredom", "parties"]
+        )
+
+        try h.repository.recomputeDerivedState()
+
+        let merged = try #require(try fetchQuits(h.container, id: id).first)
+        #expect(merged.weeklySpend == 50, "max")
+        #expect(merged.weeklyAllowance == 4, "prefer non-nil, then max")
+        #expect(merged.habitCategory == .alcohol, "min by rawValue")
+        #expect(merged.goalMode == .quit, "min by rawValue")
+        #expect(merged.customLabel == "late nights", "prefer non-nil, then min")
+        #expect(merged.currencyCode == "TRY", "min by string")
+        // Equal counts ⇒ ascending element-wise tie-break: "boredom" < "stress" ⇒
+        // base = the second list, then the first list's unseen items in its order.
+        #expect(merged.triggers == ["boredom", "parties", "stress"])
+    }
+
+    @Test func test_merge_startAtTie_anchoredRecordWins() throws {
+        // On a startAt tie the anchored record supplies the anchor: a nil-anchor
+        // winner would drop the merged quit to the uncapped no-guard wall fallback.
+        let tied = epoch + TimeInterval(2 * day)
+        for anchoredFirst in [true, false] {
+            let h = try Harness()
+            let id = UUID()
+            let anchored: MonotonicAnchor? = coherentAnchor(startAt: tied)
+            let order: [MonotonicAnchor?] = anchoredFirst ? [anchored, nil] : [nil, anchored]
+            for anchor in order {
+                try insertRow(
+                    id: id, into: h.container.mainContext,
+                    createdAt: epoch, startAt: tied, anchor: anchor
+                )
+            }
+            try h.repository.recomputeDerivedState()
+            let rows = try fetchQuits(h.container, id: id)
+            #expect(rows.count == 1)
+            #expect(rows.first?.monotonicAnchor == anchored, "non-nil wins the tie, either insertion order")
         }
     }
 
@@ -768,6 +902,27 @@ struct RecomputeHealTests {
         let witness = h.lkgStore.load()
         #expect(witness?.wallClock == epoch + TimeInterval(day) + 3_600)
         #expect(witness?.uptime == 50_000 + TimeInterval(day) + 3_600)
+    }
+
+    @Test func test_lastKnownGood_accrualNeverCrossesBoots_evenWithLargerUptime() throws {
+        // The accrual arm's bootID gate, pinned (review mutant): uptimes from
+        // different boots are incomparable, and the uptime-advanced co-guard blocks
+        // the cross-boot case only INCIDENTALLY in the other tests (their reboots
+        // land on small uptimes). A new boot whose uptime happens to exceed the
+        // witness's must still never accrue.
+        let h = try Harness()
+        let quit = try h.repository.createQuit(habitCategory: .vape)
+        h.clock.advance(by: TimeInterval(day))
+        _ = try h.repository.streakValue(for: quit.id)
+        let witnessed = h.lkgStore.load()
+        #expect(witnessed?.uptime == 50_000 + TimeInterval(day))
+
+        // Reboot onto a LARGER uptime than the witness carries; over-cap wall so the
+        // gated path declines too. Nothing may move.
+        h.clock.reboot(bootID: bootB, uptime: 300_000)
+        h.clock.setWallClock(epoch + TimeInterval(20 * day))
+        _ = try h.repository.streakValue(for: quit.id)
+        #expect(h.lkgStore.load() == witnessed, "cross-boot uptimes are incomparable — no accrual, no advance")
     }
 
     @Test func test_lastKnownGood_chainReconverges_afterHealLagDecaysBelowCap() throws {
