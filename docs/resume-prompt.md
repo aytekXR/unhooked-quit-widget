@@ -44,6 +44,15 @@ commit, run `codegraph sync` and confirm `codegraph status` is clean.**
   previous reading (Session 06 review MAJOR — do not weaken either gate).
 - **TestFlight:** match → manual signing → gym all green. `MATCH_BOOTSTRAP=true`
   stays set until the first green upload, THEN delete it.
+- **Brand kit landed (operator, Session 06, `brandkit/`):** read
+  `brandkit/branding-assets/BRAND-GUIDELINES.md` (+ `brand-guidelines-full.md`,
+  design tokens in `tokens.json`) BEFORE any UI, copy, icon, or widget-rendering
+  work. A complete AppIcon set (light/dark/tinted, every size incl. 1024) sits in
+  `brandkit/branding-assets/icons/` — wire it into the asset catalog when the first
+  UI epic starts (E3.2/E5/E6), and reconcile with `docs/frontend-brandkit.md` then.
+  Brand rules that are ALSO engineering rules: no red anywhere (cautions are amber),
+  ember is reserved for the streak glyph, SF Pro/system fonts only, "a slip — never
+  a relapse" voice.
 
 ## Next session objective (one session, definition of done below)
 
@@ -83,6 +92,9 @@ sanctioned exemption); no `Date()`/`ProcessInfo` outside the sanctioned seam.
 > `docs/implementation-plan.md` (E2.3–E2.4), `docs/architecture.md` §4/§8/ADR-3/ADR-7,
 > `docs/test-suite.md` §1.2/§4.3/§7, and the Session 03–06 entries in
 > `docs/past-prompts.md` before writing anything.
+>
+> The operator's Ballast brand kit lives in `brandkit/` (guidelines, tokens.json, full
+> AppIcon set) — consult it before any UI/copy/icon work; E2.3 itself has no UI.
 >
 > **This session: E2.3 — the CloudKit dedupe merge pass + `recomputeDerivedState()`**:
 > the five named red tests (fieldwise-max merge, slip union, no-op, commutative+

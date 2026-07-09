@@ -591,6 +591,14 @@ annotation in architecture.md.
 3. E0.3 device measurement; content sign-off items; MVP §7 vs test-suite §1.5 drift —
    unchanged.
 
+### Operator additions during the session
+
+- `brandkit/` (commit a075b9b): Ballast brand guidelines (summary + full),
+  `tokens.json` design tokens, and the complete AppIcon set (light/dark/tinted, all
+  sizes). Recorded as a standing pointer in resume-prompt v1.8 — read before any
+  UI/copy/icon work; icons wire into the asset catalog at the first UI epic.
+- Slack CI notifications (rewritten as abd60e9, see above).
+
 ### Gate status
 
 E2.2 DONE: red 28986772423 → green 28987307905 (all test lanes + new lint job) →
