@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Ballast — Brand Kit</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #121417; }
+  a { color: #4CC8B9; text-decoration: none; }
+  a:hover { color: #6ADACB; text-decoration: underline; }
+  @keyframes breathe { 0% { transform: scale(0.92); opacity: 0.75; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.92); opacity: 0.75; } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: #121417; color: #F2F1EE; font-family: -apple-system, 'SF Pro Text', system-ui, 'Helvetica Neue', sans-serif; padding: 64px 24px 96px;">
+  <div style="max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 72px;">
+
+    <!-- ============ HEADER ============ -->
+    <header data-screen-label="Brand essence" style="display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <img src="icons/AppIcon-light-120.png" alt="Ballast app icon" style="width: 56px; height: 56px; border-radius: 13px;" />
+        <div style="font-family: ui-rounded, 'SF Pro Rounded', -apple-system, system-ui, sans-serif; font-size: 40px; font-weight: 700; letter-spacing: -0.5px;">Ballast</div>
+      </div>
+      <div style="font-size: 22px; font-weight: 400; color: #A8AFB8; max-width: 560px; line-height: 1.4; text-wrap: pretty;">The weight that keeps you steady. Your streak on your lock screen; your panic button one tap away.</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <span style="border: 1px solid #2B3036; border-radius: 999px; padding: 6px 14px; font-size: 14px; color: #A8AFB8;">Steady</span>
+        <span style="border: 1px solid #2B3036; border-radius: 999px; padding: 6px 14px; font-size: 14px; color: #A8AFB8;">Discreet</span>
+        <span style="border: 1px solid #2B3036; border-radius: 999px; padding: 6px 14px; font-size: 14px; color: #A8AFB8;">Forgiving</span>
+        <span style="border: 1px solid #2B3036; border-radius: 999px; padding: 6px 14px; font-size: 14px; color: #A8AFB8;">Honest</span>
+        <span style="border: 1px solid #2B3036; border-radius: 999px; padding: 6px 14px; font-size: 14px; color: #A8AFB8;">Quietly proud</span>
+      </div>
+      <div style="font-size: 13px; color: #6E757E; border-top: 1px solid #2B3036; padding-top: 16px;">Brand kit v1 · iOS 26+ · dark-first · no red anywhere in the product</div>
+    </header>
+
+    <!-- ============ APP ICON ============ -->
+    <section data-screen-label="App icon" style="display: flex; flex-direction: column; gap: 28px;">
+      <div>
+        <h2 style="margin: 0 0 6px; font-size: 26px; font-weight: 700;">App icon — “the surfaced breath”</h2>
+        <p style="margin: 0; font-size: 15px; color: #A8AFB8; max-width: 620px; line-height: 1.5; text-wrap: pretty;">One shape, one line, two tonal zones. Reads as a sun rising, a head above water, or a breath bubble surfacing. Habit-neutral, no letterforms, survives any lock screen a family member can see.</p>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start;">
+        <!-- hero -->
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+          <img src="icons/AppIcon-light-1024.png" ref="{{ heroRef }}" alt="Ballast icon, large" style="width: 240px; height: 240px; border-radius: 54px; box-shadow: 0 8px 24px rgba(0,0,0,0.35);" />
+          <div style="font-size: 13px; color: #6E757E; font-family: ui-monospace, monospace;">1024 × 1024 · {{ heroVariantLabel }}</div>
+        </div>
+
+        <!-- size ladder -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600;">Legibility ladder</div>
+          <div style="display: flex; align-items: flex-end; gap: 20px; min-height: 140px;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <img src="icons/AppIcon-light-180.png" alt="icon at 180 px" style="width: 120px; height: 120px; border-radius: 27px;" />
+              <div style="font-size: 11px; color: #6E757E; font-family: ui-monospace, monospace;">180</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <img src="icons/AppIcon-light-120.png" alt="icon at 120 px" style="width: 90px; height: 90px; border-radius: 20px;" />
+              <div style="font-size: 11px; color: #6E757E; font-family: ui-monospace, monospace;">120</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <img src="icons/AppIcon-light-87.png" alt="icon at 87 px" style="width: 66px; height: 66px; border-radius: 15px;" />
+              <div style="font-size: 11px; color: #6E757E; font-family: ui-monospace, monospace;">87</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <img src="icons/AppIcon-light-60.png" alt="icon at 60 px" style="width: 48px; height: 48px; border-radius: 11px;" />
+              <div style="font-size: 11px; color: #6E757E; font-family: ui-monospace, monospace;">60</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <img src="icons/AppIcon-light-40.png" alt="icon at 40 px" style="width: 34px; height: 34px; border-radius: 8px;" />
+              <div style="font-size: 11px; color: #6E757E; font-family: ui-monospace, monospace;">40</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <img src="icons/AppIcon-light-29.png" alt="icon at 29 px" style="width: 29px; height: 29px; border-radius: 7px;" />
+              <div style="font-size: 11px; color: #6E757E; font-family: ui-monospace, monospace;">29</div>
+            </div>
+          </div>
+          <div style="font-size: 13px; color: #A8AFB8; max-width: 420px; line-height: 1.5;">Passes the 29 pt test: the crest and horizon survive at settings-list size, in grayscale, on light and dark home screens.</div>
+
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600; margin-top: 8px;">iOS 26 appearances</div>
+          <div style="display: flex; gap: 16px;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+              <img src="icons/AppIcon-light-120.png" alt="light appearance" style="width: 72px; height: 72px; border-radius: 16px;" />
+              <div style="font-size: 11px; color: #6E757E;">Light</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+              <img src="icons/AppIcon-dark-120.png" alt="dark appearance" style="width: 72px; height: 72px; border-radius: 16px;" />
+              <div style="font-size: 11px; color: #6E757E;">Dark</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+              <img src="icons/AppIcon-tinted-120.png" alt="tinted appearance" style="width: 72px; height: 72px; border-radius: 16px;" />
+              <div style="font-size: 11px; color: #6E757E;">Tinted</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- discreet alternates -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600;">Discreet alternates (P0)</div>
+          <div style="display: flex; gap: 20px;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <div style="width: 96px; height: 96px; border-radius: 22px; background: linear-gradient(180deg, #FBFAF8, #ECEAE5); display: grid; grid-template-columns: repeat(4, 10px); grid-template-rows: repeat(4, 10px); gap: 8px; place-content: center;">
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span>
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #3D6C9E;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span>
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span>
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #C9CDD3;"></span>
+              </div>
+              <div style="font-size: 11px; color: #6E757E;">“Calendar style”</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <div style="width: 96px; height: 96px; border-radius: 22px; background: #23262B; display: grid; place-items: center;">
+                <div style="width: 58px; height: 58px; border-radius: 50%; border: 2.5px solid #8A9097; position: relative;">
+                  <span style="position: absolute; top: -1px; left: 50%; width: 2.5px; height: 12px; background: #C9CDD3; transform: translateX(-50%);"></span>
+                </div>
+              </div>
+              <div style="font-size: 11px; color: #6E757E;">“Timer style”</div>
+            </div>
+          </div>
+          <div style="font-size: 13px; color: #A8AFB8; max-width: 260px; line-height: 1.5;">Zero brand color, zero crest — deliberately unlinkable to the app’s category.</div>
+        </div>
+      </div>
+
+      <!-- resolution table -->
+      <div style="background: #1C1F24; border: 1px solid #2B3036; border-radius: 16px; padding: 20px 24px;">
+        <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600; margin-bottom: 12px;">Exported resolutions (PNG, square — iOS applies the mask)</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 24px; font-family: ui-monospace, monospace; font-size: 13px; color: #A8AFB8;">
+          <sc-for list="{{ exports }}" as="row" hint-placeholder-count="6">
+            <div style="display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #22262C; padding: 6px 0;">
+              <span style="color: #F2F1EE;">{{ row.px }} px</span>
+              <span>{{ row.use }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size: 13px; color: #6E757E; margin-top: 12px;">Dark + tinted variants exported at 1024 / 180 / 120. All files live in <span style="font-family: ui-monospace, monospace; color: #A8AFB8;">icons/</span>.</div>
+      </div>
+    </section>
+
+    <!-- ============ COLOR ============ -->
+    <section data-screen-label="Color system" style="display: flex; flex-direction: column; gap: 24px;">
+      <div>
+        <h2 style="margin: 0 0 6px; font-size: 26px; font-weight: 700;">Color — cool water, one ember</h2>
+        <p style="margin: 0; font-size: 15px; color: #A8AFB8; max-width: 620px; line-height: 1.5; text-wrap: pretty;">A low-arousal palette that down-regulates during an urge spike. The single hot color is reserved for the streak flame — never buttons, never alarms. No red anywhere; cautions are amber.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 16px;">
+        <sc-for list="{{ swatches }}" as="sw" hint-placeholder-count="8">
+          <div style="background: #1C1F24; border: 1px solid #2B3036; border-radius: 16px; overflow: hidden;">
+            <div style="height: 64px; display: flex;">
+              <div style="flex: 1; background: {{ sw.light }};"></div>
+              <div style="flex: 1; background: {{ sw.dark }};"></div>
+            </div>
+            <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;">
+              <div style="font-size: 14px; font-weight: 600; font-family: ui-monospace, monospace;">{{ sw.token }}</div>
+              <div style="font-size: 12px; color: #6E757E; font-family: ui-monospace, monospace;">{{ sw.light }} · {{ sw.dark }}</div>
+              <div style="font-size: 12px; color: #A8AFB8;">{{ sw.role }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ============ TYPOGRAPHY ============ -->
+    <section data-screen-label="Typography" style="display: flex; flex-direction: column; gap: 24px;">
+      <div>
+        <h2 style="margin: 0 0 6px; font-size: 26px; font-weight: 700;">Typography — platform-native</h2>
+        <p style="margin: 0; font-size: 15px; color: #A8AFB8; max-width: 620px; line-height: 1.5; text-wrap: pretty;">SF Pro throughout, SF Pro Rounded for streak numerals only. No custom fonts, no light weights, monospaced digits wherever numbers tick.</p>
+      </div>
+      <div style="background: #1C1F24; border: 1px solid #2B3036; border-radius: 16px; padding: 28px 32px; display: flex; flex-direction: column; gap: 22px;">
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap;">
+          <div style="font-family: ui-rounded, 'SF Pro Rounded', -apple-system, sans-serif; font-size: 64px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1;">34</div>
+          <div style="font-size: 12px; color: #6E757E; font-family: ui-monospace, monospace;">type/streakHero · 64 pt Bold Rounded, mono digits</div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap;">
+          <div style="font-size: 40px; font-weight: 600; line-height: 1.15; max-width: 560px;">I want my energy back.</div>
+          <div style="font-size: 12px; color: #6E757E; font-family: ui-monospace, monospace;">type/panicReason · 40 pt Semibold — the user’s words, largest text in the app</div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap;">
+          <div style="font-size: 22px; font-weight: 600;">Card title</div>
+          <div style="font-size: 12px; color: #6E757E; font-family: ui-monospace, monospace;">type/title · 22 pt Semibold</div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap;">
+          <div style="font-size: 17px; max-width: 480px; line-height: 1.45;">Urges crest and pass — usually within about 15 minutes.</div>
+          <div style="font-size: 12px; color: #6E757E; font-family: ui-monospace, monospace;">type/body · 17 pt Regular · ≤34ch lines</div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap;">
+          <div style="font-size: 12px; font-weight: 500; letter-spacing: 0.3px; text-transform: uppercase; color: #A8AFB8;">Days · Saved</div>
+          <div style="font-size: 12px; color: #6E757E; font-family: ui-monospace, monospace;">type/widgetLabel · 12 pt Medium, +0.3 tracking</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WIDGETS ============ -->
+    <section data-screen-label="Widgets" style="display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div>
+          <h2 style="margin: 0 0 6px; font-size: 26px; font-weight: 700;">Widget graphics</h2>
+          <p style="margin: 0; font-size: 15px; color: #A8AFB8; max-width: 560px; line-height: 1.5; text-wrap: pretty;">Lock-screen families are pure luminance — the system tints them. Meaning lives in glyph + text, never hue. Every family ships a discreet variant.</p>
+        </div>
+        <button onClick="{{ toggleDiscreet }}" style="background: none; border: 1px solid #2B3036; border-radius: 999px; color: #4CC8B9; font-size: 14px; font-weight: 600; padding: 10px 18px; cursor: pointer; font-family: inherit;" style-hover="border-color: #4CC8B9;">{{ discreetButtonLabel }}</button>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start;">
+        <!-- lock screen rectangular -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600;">accessoryRectangular</div>
+          <div style="width: 300px; border-radius: 40px; background: linear-gradient(160deg, #2A3140, #1A2029); padding: 28px 22px; display: flex; flex-direction: column; gap: 14px;">
+            <div style="text-align: center; color: rgba(255,255,255,0.65); font-size: 13px;">Tue 9 July</div>
+            <div style="text-align: center; color: #FFFFFF; font-size: 44px; font-weight: 300; letter-spacing: -1px; font-variant-numeric: tabular-nums;">23:41</div>
+            <div style="background: rgba(255,255,255,0.14); border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(4px);">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                <div style="color: #FFFFFF; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums;">{{ rectLine1 }}</div>
+                <div style="color: rgba(255,255,255,0.7); font-size: 11px; font-weight: 500; letter-spacing: 0.3px;">{{ rectLine2 }}</div>
+              </div>
+              <div style="background: rgba(255,255,255,0.22); border-radius: 999px; padding: 8px 14px; color: #FFFFFF; font-size: 13px; font-weight: 700;">{{ panicLabel }}</div>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #6E757E; max-width: 300px;">Panic button = full tappable region · AppIntents, &lt;2 s to intervention</div>
+        </div>
+
+        <!-- circular -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600;">accessoryCircular</div>
+          <div style="width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.12); display: grid; place-items: center; position: relative;">
+            <div style="position: absolute; inset: 8px; border-radius: 50%; border: 5px solid rgba(255,255,255,0.25); border-top-color: rgba(255,255,255,0.95); border-right-color: rgba(255,255,255,0.95); transform: rotate(-45deg);"></div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
+              <div style="color: #FFFFFF; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1;">34</div>
+              <div style="color: rgba(255,255,255,0.65); font-size: 9px; font-weight: 500; letter-spacing: 0.5px;">DAYS</div>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #6E757E; max-width: 160px;">Luminance-only ring; survives StandBy red-shift</div>
+        </div>
+
+        <!-- home systemSmall -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600;">systemSmall (home)</div>
+          <div style="width: 158px; height: 158px; border-radius: 34px; background: #1C1F24; border: 1px solid #2B3036; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.3px; color: #A8AFB8;">{{ smallHabitLabel }}</div>
+              <sc-if value="{{ showFlame }}" hint-placeholder-val="{{ true }}">
+                <div style="width: 10px; height: 12px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #F29D5C;"></div>
+              </sc-if>
+            </div>
+            <div>
+              <div style="font-family: ui-rounded, 'SF Pro Rounded', -apple-system, sans-serif; font-size: 44px; font-weight: 700; color: #F2F1EE; line-height: 1; font-variant-numeric: tabular-nums;">34</div>
+              <div style="font-size: 11px; font-weight: 500; letter-spacing: 0.3px; color: #A8AFB8; margin-top: 2px;">DAYS</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <div style="height: 5px; border-radius: 999px; background: #0B0D0F; overflow: hidden;">
+                <div style="width: 82%; height: 100%; border-radius: 999px; background: #93A0E8;"></div>
+              </div>
+              <div style="font-size: 10px; color: #6E757E;">Momentum 82%</div>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #6E757E; max-width: 160px;">Streak teal-family, momentum indigo — never confused</div>
+        </div>
+
+        <!-- breath pacer -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600;">Breath pacer bloom</div>
+          <div style="width: 158px; height: 158px; border-radius: 34px; background: #0B0D0F; display: grid; place-items: center;">{{ pacerBloom }}</div>
+          <div style="font-size: 12px; color: #6E757E; max-width: 160px;">4-7-8 rhythm, haptic-guided; first frame of the panic flow</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VOICE ============ -->
+    <section data-screen-label="Voice" style="display: flex; flex-direction: column; gap: 24px;">
+      <div>
+        <h2 style="margin: 0 0 6px; font-size: 26px; font-weight: 700;">Voice — coach, never judge</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div style="background: #1C1F24; border: 1px solid #2B3036; border-radius: 16px; padding: 22px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600; margin-bottom: 12px;">Slip logged</div>
+          <div style="font-size: 17px; line-height: 1.5; text-wrap: pretty;">“Logged. Your best — 34 days — is safe, and your momentum is still 82%. When you’re ready, the next hour starts now.”</div>
+        </div>
+        <div style="background: #1C1F24; border: 1px solid #2B3036; border-radius: 16px; padding: 22px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600; margin-bottom: 12px;">Panic flow</div>
+          <div style="font-size: 17px; line-height: 1.5; text-wrap: pretty;">“Urges crest and pass — usually within about 15 minutes. You don’t have to win forever right now. Just this wave.”</div>
+        </div>
+        <div style="background: #1C1F24; border: 1px solid #2B3036; border-radius: 16px; padding: 22px;">
+          <div style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E757E; font-weight: 600; margin-bottom: 12px;">Quiet celebration</div>
+          <div style="font-size: 17px; line-height: 1.5; text-wrap: pretty;">“That one passed. 12 urges surfed and counting.”</div>
+        </div>
+      </div>
+      <div style="font-size: 13px; color: #6E757E; border-top: 1px solid #2B3036; padding-top: 16px;">Icon PNGs: <span style="font-family: ui-monospace, monospace; color: #A8AFB8;">icons/AppIcon-{light|dark|tinted}-{size}.png</span> · square, mask applied by iOS.</div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;iconVariant&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;light&quot;, &quot;dark&quot;, &quot;tinted&quot;], &quot;default&quot;: &quot;light&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;App icon&quot; }
+}">
+class Component extends DCLogic {
+  state = { discreet: false };
+
+  renderVals() {
+    const variant = this.props.iconVariant ?? 'light';
+    const discreet = this.state.discreet;
+
+    const ladderSizes = [
+      { px: 180, css: 120 }, { px: 120, css: 90 }, { px: 87, css: 66 },
+      { px: 60, css: 48 }, { px: 40, css: 34 }, { px: 29, css: 29 }
+    ];
+
+    const pacer = React.createElement('div', {
+      style: {
+        width: 84, height: 84, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(76,200,185,0.9) 0%, rgba(76,200,185,0.25) 60%, rgba(76,200,185,0) 75%)',
+        animation: 'breathe 8s ease-in-out infinite'
+      }
+    });
+
+    return {
+      heroRef: (el) => { if (el) el.src = `icons/AppIcon-${variant}-1024.png`; },
+      heroVariantLabel: variant + ' appearance',
+      exports: [
+        { px: 1024, use: 'App Store' },
+        { px: 180, use: 'iPhone app @3x' },
+        { px: 167, use: 'iPad Pro @2x' },
+        { px: 152, use: 'iPad @2x' },
+        { px: 120, use: 'iPhone @2x / Spotlight @3x' },
+        { px: 87, use: 'Settings @3x' },
+        { px: 80, use: 'Spotlight @2x' },
+        { px: 76, use: 'iPad @1x' },
+        { px: 60, use: 'iPhone @1x base' },
+        { px: 58, use: 'Settings @2x' },
+        { px: 40, use: 'Spotlight base' },
+        { px: 29, use: 'Settings base' }
+      ],
+      swatches: [
+        { token: 'brand/primary', light: '#0E7A6F', dark: '#4CC8B9', role: 'Primary actions, breath pacer' },
+        { token: 'brand/secondary', light: '#5B6ABF', dark: '#93A0E8', role: 'Momentum %, progress fills' },
+        { token: 'brand/accentFlame', light: '#E8833A', dark: '#F29D5C', role: 'Streak flame only — never buttons' },
+        { token: 'semantic/positive', light: '#2E7D4F', dark: '#6FCE97', role: 'Urge averted, trial active' },
+        { token: 'semantic/caution', light: '#9A6B00', dark: '#E5B84B', role: 'All warnings AND errors — no red' },
+        { token: 'semantic/paused', light: '#6E7681', dark: '#9AA3AD', role: 'Frozen streak — not a problem state' },
+        { token: 'surface/base', light: '#F7F6F3', dark: '#121417', role: 'Warm off-white / cool near-black' },
+        { token: 'content/primary', light: '#1A1D21', dark: '#F2F1EE', role: 'Body text, 15:1+ contrast' }
+      ],
+      toggleDiscreet: () => this.setState(s => ({ discreet: !s.discreet })),
+      discreetButtonLabel: discreet ? 'Discreet mode: on' : 'Discreet mode: off',
+      rectLine1: discreet ? 'Day 34' : '34 days · $412 saved',
+      rectLine2: discreet ? '' : 'VAPE-FREE',
+      panicLabel: discreet ? 'Reset' : 'Panic',
+      smallHabitLabel: discreet ? '' : 'VAPE',
+      showFlame: !discreet,
+      pacerBloom: pacer
+    };
+  }
+}
+</script>
+</body>
+</html>
