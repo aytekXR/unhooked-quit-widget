@@ -41,9 +41,9 @@ struct WalkingSkeletonTests {
     /// All three portfolio stub packages link into the app target and expose their
     /// entry points (E0.2).
     @Test func test_packages_linkAndExposeEntryPoints() {
-        // 1.1.0 = the E2.2 reboot-cap addition (lastKnownGood params), semver-minor,
-        // tagged streakengine-v1.1.0.
-        #expect(StreakEngine.version == "1.1.0")
+        // 1.2.0 = the E2.3 healing re-anchor (healFrozenStreak), semver-minor,
+        // tagged streakengine-v1.2.0.
+        #expect(StreakEngine.version == "1.2.0")
         #expect(WidgetToolkit.version == "0.0.1-skeleton")
         #expect(PaywallKit.version == "0.0.1-skeleton")
     }

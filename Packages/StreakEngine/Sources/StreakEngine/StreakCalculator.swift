@@ -205,4 +205,41 @@ public struct StreakCalculator: Sendable {
             clockSanity: sanity
         )
     }
+
+    /// The healing re-anchor for a streak frozen by the reboot sanity cap
+    /// (freeze-then-resume). When a device returns from a long power-off, the
+    /// unverifiable wall gap beyond `defaultRebootGapCap` is withheld and every read
+    /// stays frozen and flagged; this transition — meant for a consumer's deliberate,
+    /// launch-time recompute pass, never a read — re-bases the streak so counting
+    /// RESUMES from the frozen value on the current boot session.
+    ///
+    /// Heals exactly one state: an across-reboot reading whose gap since the trusted
+    /// baseline exceeds `defaultRebootGapCap`. Every other verdict returns `nil`:
+    /// within-boot disagreements are monotonic ground truth, timezone shapes are
+    /// display concerns, a same-boot trusted capture bridges with uptime proof, an
+    /// in-window reboot gap is already fully credited, a rollback below the verified
+    /// span recovers once the wall catches up, and without a trusted reading there is
+    /// nothing verified to resume from.
+    ///
+    /// The healed snapshot moves ONLY `startAt` (to `now − frozen`) and
+    /// `monotonicAnchor` (to the current boot, back-dated so the guard reads exactly
+    /// `frozen` at `now`, with `wallClock == startAt` preserved). The tracking origin
+    /// (`trackedSince`), banked history (`priorCleanSeconds`, `bestStreakSeconds`),
+    /// spend, and undo bookkeeping pass through untouched — so post-heal momentum is
+    /// conservative: the withheld gap remains tracked time that was never credited
+    /// as clean.
+    public static func healFrozenStreak(
+        on snapshot: StreakSnapshot,
+        at now: Date,
+        monotonic: MonotonicNow? = nil,
+        lastKnownGood: MonotonicAnchor? = nil
+    ) -> StreakSnapshot? {
+        // E2.3 red sentinel (cries-wolf: a corrupted non-nil snapshot for EVERY
+        // input, so no red test can pass from birth). Green replaces this body.
+        var corrupted = snapshot
+        corrupted.startAt = .distantPast
+        corrupted.trackedSince = .distantFuture
+        corrupted.priorCleanSeconds = -1
+        return corrupted
+    }
 }
