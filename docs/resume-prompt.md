@@ -2,168 +2,117 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v1.7 |
-| Last updated | 2026-07-09 (E2.1 CI-verified; TestFlight bootstrap 2 of 3 fixed — signing mapping carried) |
-| Phase | Phase 1 core build — Epic 1 CLOSED (tagged streakengine-v1.0.0); E2.1 DONE and CI-verified |
-| Next session objective | **Small first: TestFlight signing fix (Fastfile↔match profile mapping). Main: E2.2 QuitRepository (incl. the carried ADR-7 reboot-cap red test)** |
+| Document | Resume Prompt v1.8 |
+| Last updated | 2026-07-09 (Session 06 close: E2.2 DONE + ADR-7 cap closed + engine v1.1.0; TestFlight signing proven, upload waits on the ASC app record) |
+| Phase | Phase 1 core build — Epics 0–1 CLOSED; E2.1 + E2.2 DONE and CI-verified |
+| Next session objective | **E2.3 — CloudKit dedupe merge pass + `recomputeDerivedState()` (incl. the carried ADR-7 re-anchor healing)** |
 
-> **What changed since v1.4 (operator-checklist work, not a coding session):** **Gate G0
-> is CLEARED** — app name **Ballast**, org **`com.beyondkaira`** (owned domain
-> beyondkaira.com); real App/widget/App-Group/CloudKit IDs registered, Team ID
-> `UH7MXG7Z94`; `project.yml` + `AppIdentifiers.swift` swept (no `dev.placeholder.quitwidget`
-> anywhere). TestFlight signing wired (Fastfile now mints app+widget App Store profiles;
-> one-shot `MATCH_BOOTSTRAP` var flips match writable). **Phase 4 content drafted** under
-> `App/Resources/Content/` (inert, not bundled). See the updated blockers + standing
-> rules below — notably the **CloudKit flip is now unblocked**.
+> **What changed in Session 06:** E2.2 QuitRepository is DONE and CI-verified
+> (red 28986772423 → green 28987307905 → review-red 28988559874 → review-green on
+> b9080ab, all test lanes + the new sole-SwiftData-importer lint green). The ADR-7
+> reboot sanity cap carried since Session 03 is CLOSED — StreakEngine is **1.1.0**
+> (tagged `streakengine-v1.1.0`): `lastKnownGood` reboot guard, 14d gap cap, same-boot
+> bridge, all coverage floors held at 100%. The TestFlight **signing** chain is proven
+> end-to-end (gym exports a signed IPA); the upload now fails ONLY on the missing
+> App Store Connect app record (operator, see blockers). CodeGraph is now a permanent
+> session rule (see below and `session-rules.md`).
 
 ---
 
-## ✅ Step 0 RESOLVED (billing + E2.1) · ⚙️ carried: TestFlight signing fix (small, agent work)
+## Standing tooling rule — CodeGraph (permanent, applies to every agent)
 
-Billing fixed 2026-07-09; **run 28979808466 attempt 3 verified everything on HEAD
-(1d21da3): all test lanes green** — commit H's three E2.1 store tests, the Ballast
-sweep, release-gate floors. **E2.1 is DONE and CI-verified.**
-
-**TestFlight bootstrap — 2 of 3 failures fixed, third carried (agent work, ~1–2
-commits, do it FIRST next session):** clone-404 fixed (repo renamed to
-`aytekXR/ballast-match-certs`), PAT grant fixed by operator (verified push:true).
-Attempt 6 then got through match (distribution cert minted) but **gym archive fails**:
-`No profiles for 'com.beyondkaira.ballast'/'.widgets' were found … Automatic signing
-is disabled and unable to generate a profile`. Root cause: the Fastfile never maps the
-`match AppStore com.beyondkaira.ballast(.widgets)` profiles onto the targets —
-project.yml is `CODE_SIGN_STYLE: Automatic` and CI has no Xcode-managed account. Fix in
-`fastlane/Fastfile`: after match, force manual signing for the archive (e.g.
-`update_code_signing_settings(use_automatic_signing: false, team_id, code_sign_identity:
-"Apple Distribution", profile_name: ENV["sigh_com.beyondkaira.ballast_appstore_profile-name"])`
-per target — widget too — plus gym `export_options.provisioningProfiles` mapping).
-Then rerun the upload lane. Notes: `MATCH_BOOTSTRAP=true` stays set until the first
-green upload, THEN delete it; attempt 6's cert push never landed in the certs repo
-(sole commit predates the runs), so the portal may hold a distribution cert whose key
-is lost — match will mint a second (Apple allows two) or the stale one needs revoking;
-hygiene (operator call): the certs repo contains the raw ASC `AuthKey_QL8L4UKHW5.p8` —
-recommend removing it (it lives in the GitHub secret + operator mirror).
+The repo is CodeGraph-indexed (`.codegraph/`, machine-local). **Query it first**: use
+the `codegraph_explore` MCP tool (shell: `codegraph explore "<symbols or question>"`)
+BEFORE grep/find or manual file reading — one call returns verbatim line-numbered
+source + call paths + blast radius. Pass this instruction into every subagent/workflow
+prompt. Check dependents before editing public symbols. **Before the session-end
+commit, run `codegraph sync` and confirm `codegraph status` is clean.**
 
 ## Where we are
 
-**Epic 1 is closed**: `Packages/StreakEngine` is tagged **streakengine-v1.0.0**
-(annotated, on af5b969) with 63/63 tests green and llvm-cov 100% regions/functions/
-lines; the E1 edge-case suite is a **named merge-blocking CI release gate**
-(`Release gate · StreakEngine edge-case suite`, Linux, mechanical floors: lines ≥98%
-package-wide, regions ≥95% on StreakCalculator.swift + SlipTransition.swift; TestFlight
-lane `needs` it). The adversarial portfolio API review (architecture §14) landed six
-verified findings — headline: the input type is now **`StreakSnapshot`** (renamed from
-QuitSnapshot pre-tag; internal params `quit`→`snapshot`), `StreakEngine.version ==
-"1.0.0"` (test-pinned both sides), platform floor iOS 18/macOS 15, and the public `///`
-surface is consumer-self-contained. Ratified semantics live in Sessions 03–05 "Key
-decisions" in `past-prompts.md` — read them before touching the engine.
-
-**E2.1 (single SwiftData store in the App Group) is DONE**: commit G (09b3a90) red
-CI-verified (run 28975932867, three canonical failures), commit H (ae4d34f) green
-**CI-verified** (run 28979808466 attempt 3, on HEAD 1d21da3). The store: five §3 models
-(CloudKit-checklist-clean, no `.unique`, everything defaulted/optional),
-`PersistentStore` factory at `<App Group>/Library/Application Support/unhooked.store`
-(the App Group now resolves to `group.com.beyondkaira.ballast.shared`),
-**`cloudKitDatabase: .none` today. Gate G0 is now CLEARED (2026-07-08), so the CloudKit
-flip to container `iCloud.com.beyondkaira.ballast` is UNBLOCKED** — do it red-test-first
-per test-suite §4.3 when a session takes it on.
-
-## Carried technical items (do not lose)
-
-1. **Reboot high-side sanity cap (ADR-7 gap, since Session 03) — THIS session's E2.2 is
-   where it lands:** the repository provides the persisted last-known-good wall reading
-   the cap needs. Red test first: reboot + huge forward wall jump must NOT read
-   `.normal`/inflate. `undoSlip` inherits the same fallback (pinned by test).
-2. E2.1 acceptance items open by design: protection-class complete-until-first-unlock
-   (device tier), §4.3 CloudKit-option instantiation (Gate G0), widget read-only open
-   (device/E6). §4 indexes (`isArchived+sortIndex`, `at`, `isPendingUndo`) deferred to
-   E2.2 — add them WITH the queries that justify them.
-3. `StreakCalculating` doesn't expose sanityCheck/applySlip/undoSlip/adherence —
-   deferred to first consumer need (protocol-extension defaults). E2.2's repository is
-   likely that first consumer — if so, expose via defaults, red-first, non-breaking.
-4. `StreakSnapshot` synthesized Codable requires the `bestStreakSeconds` key — decide
-   the payload-compat story when persistence makes it real (repository/migration).
-
-## Operator-owned blockers (not agent work; carry until closed)
-
-1. ~~**GitHub Actions billing**~~ — ✅ **CLEARED 2026-07-09**; CI fully operational (verified live).
-   Follow-on: **`MATCH_GIT_URL` PAT needs Contents read/write on `ballast-match-certs`**
-   (see Step 0) — the only thing between here and the first TestFlight build; does NOT
-   block E2.2.
-2. ~~**Gate G0 rename**~~ — ✅ **CLEARED 2026-07-08.** Name **Ballast**, org **`com.beyondkaira`**;
-   registered `com.beyondkaira.ballast`, `.widgets`, `group.com.beyondkaira.ballast.shared`,
-   `iCloud.com.beyondkaira.ballast`; Team ID `UH7MXG7Z94`. Sweep done in `project.yml`
-   (bundle IDs, App-Group entitlements, display names → "Ballast", `DEVELOPMENT_TEAM`) +
-   `Shared/Sources/AppIdentifiers.swift`. Unblocks TestFlight/ASC/marketing + the CloudKit flip.
-3. **Phase 2 — App Store Connect + CI secrets** (PARTIAL): ASC app record + API key created
-   (Key ID `QL8L4UKHW5`, Issuer `c7e2168e-…`); operator to confirm the 5 GitHub secrets
-   (`ASC_API_KEY_P8_BASE64`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `MATCH_GIT_URL`, `MATCH_PASSWORD`)
-   + the one-shot repo Variable `MATCH_BOOTSTRAP=true` are set on `aytekXR/unhooked-quit-widget`.
-   Fastfile mints app+widget App Store profiles via match (repo `aytekXR/ballast-match-certs`).
-   **First bootstrap TestFlight run is pending billing (#1); after the first green run, DELETE
-   the `MATCH_BOOTSTRAP` variable** so CI stays read-only. Secrets stored operator-side in
-   `~/ballast-secrets.md` (machine-local, not in repo).
-4. **E0.3 device measurement** — still open; `docs/spike-panic-latency.md` on iPhone 15-class.
-   Needs full Xcode (operator machine is Command-Line-Tools-only).
-5. ~~**Content plan**~~ — ✅ **DRAFTED (agent) 2026-07-08**, `App/Resources/Content/`
-   (`milestones.json` ×6 categories, `panicScript.json`, `slipCopy.json`, `safetyCopy.json`,
-   `helplines.json` + `REVIEW.md`). Passes the local no-shame / no-medical-claims scan; **inert
-   (not bundled, no `project.yml` ref, audit tests 12–13 not yet added)**. STILL OPEN before
-   ship: clinician + legal sign-off on `safetyCopy.json`; 3 helpline verify-flags (TR ALO 182,
-   YEDAM 115 hours, US CSB line); TR L10n pass. See `App/Resources/Content/REVIEW.md`.
-6. **Drift decision:** MVP §7 "<2s 10/10" vs test-suite §1.5 "p90 < 2s".
+- **StreakEngine 1.1.0** (tagged, 77/77, llvm-cov 100/100/100, merge-blocking gate
+  live): full guard incl. the reboot cap — semantics ratified in Sessions 03–06 "Key
+  decisions" in `past-prompts.md`; READ THEM before touching the engine.
+- **E2.2 QuitRepository** (`App/Sources/Persistence/QuitRepository.swift`, @MainActor,
+  the sole SwiftData importer — CI grep enforces): createQuit (max-3), synchronous
+  logSlip (save-before-return; banks BANKED-only totalCleanSeconds; guarded slip
+  instant), logUrgeEvent, activeQuits (justifies the landed
+  `#Index<Quit>([\.isArchived,\.sortIndex])`), streakValue (LKG-fed reboot cap
+  end-to-end), debounced widget reload (500 ms trailing, injected sleep).
+  `LastKnownGoodStore` = App Group defaults, device-local BY DESIGN (never the
+  mirrored store); advancement gated on `.normal` verdict AND continuity with the
+  previous reading (Session 06 review MAJOR — do not weaken either gate).
+- **TestFlight:** match → manual signing → gym all green. `MATCH_BOOTSTRAP=true`
+  stays set until the first green upload, THEN delete it.
 
 ## Next session objective (one session, definition of done below)
 
-**E2.2 — QuitRepository** (`implementation-plan.md` E2.2, deps
-E2.1 ✓ + E1.3 ✓), strictly test-first via the macOS CI lane (session-rules mechanics:
-red evidence = the CI run on the red commit):
+**E2.3 — CloudKit dedupe merge pass** (`implementation-plan.md` E2.3, deps E2.1 ✓),
+strictly test-first (session-rules mechanics: package/app red evidence as usual):
 
-1. The implementation plan's named red tests: `test_logSlip_isSynchronous_noAwaitNoNetwork`
-   (type-level + timing), `test_logSlip_persistsBeforeReturning`,
-   `test_activeQuits_excludesArchived`, `test_createQuit_fourthActiveQuit_throwsLimitError`,
-   `test_repositoryWrite_triggersDebouncedWidgetReload` (spy on a `WidgetRefreshing`
-   protocol; single reload for a 3-write burst in 500ms).
-2. **The carried ADR-7 reboot-cap red test** (item 1 above) — the repository persists
-   the last-known-good wall reading and feeds the engine's guard; engine changes, if
-   any, are red-first in the package with the coverage bar held (gate enforces it).
-3. §4 indexes land here with their justifying queries; repository is the sole SwiftData
-   importer outside trivial `@Query` lists (the E2.2 acceptance lint/grep CI check).
+1. The plan's named red tests: `test_mergeDuplicateQuits_keepsMaxTotalTrackedSeconds`,
+   `test_merge_takesFieldwiseMax_bestStreak_totalClean`,
+   `test_merge_unionsSlipsWithoutDuplicates`, `test_merge_noDuplicates_isNoOp`, plus
+   the property test `test_property_mergeIsCommutativeAndIdempotent`.
+2. **The carried ADR-7 healing half:** a `recomputeDerivedState()` pass (architecture
+   §8) that runs the launch-time merge AND re-anchors a frozen/flagged quit
+   deterministically (freeze-then-resume for the innocent long-power-off user; the
+   Session 06 design panel deferred exactly this here as the only sync-safe place for
+   a corrective write). Red-first; engine changes, if any, red-first with the 100%
+   coverage bar held.
+3. Merge is repository/service-layer work — the sole-importer lint must stay green;
+   simulated duplicate records only (real CloudKit is contract-tier/nightly, and the
+   §4.3 CloudKit-option flip to `iCloud.com.beyondkaira.ballast` remains a separate
+   red-test-first decision a session may take on deliberately, not incidentally).
 
-Scope guards: no UI, no paywall, no widget rendering; StreakEngine behavior changes
-only red→green with 100% coverage held (the CI gate now enforces the floor
-mechanically); never weaken a QA assertion; `logSlip` stays synchronous-local.
+Scope guards: no UI, no paywall, no widget rendering; never weaken a QA assertion;
+`logSlip` stays synchronous-local; monotonic fields never decrease (undo is the one
+sanctioned exemption); no `Date()`/`ProcessInfo` outside the sanctioned seam.
 
 ---
 
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app name **Ballast**, org
-> `com.beyondkaira` — Gate G0 CLEARED 2026-07-08; real IDs registered, placeholders
-> swept, `DEVELOPMENT_TEAM` set). Epic 1 is CLOSED and tagged
-> (`streakengine-v1.0.0`); the StreakEngine CI release gate is live and merge-blocking.
-> E2.1 is DONE and CI-verified (run 28979808466 attempt 3 — commit H's tests + the
-> Ballast sweep, all lanes green). Only the TestFlight bootstrap awaits an operator
-> PAT fix (Step 0 note; non-blocking). Local Swift toolchain:
-> `. ~/.local/share/swiftly/env.sh`. Read
-> `docs/session-rules.md`, `docs/implementation-plan.md` (E2.2–E2.3),
-> `docs/architecture.md` §3/§4/§5.1/ADR-3/ADR-7, `docs/test-suite.md` §2/§3.1/§7, and
-> the Session 03–05 entries in `docs/past-prompts.md` before writing anything.
+> `com.beyondkaira`). Epics 0–1 CLOSED; E2.1 + E2.2 DONE and CI-verified; StreakEngine
+> is 1.1.0 (tagged) with the ADR-7 reboot cap live and all coverage floors at 100%.
+> Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`. **CodeGraph is a standing
+> rule:** `codegraph_explore` first for any code question (pass the rule to every
+> subagent), blast-radius before edits, and `codegraph sync` + `codegraph status`
+> before the session-end commit. Read `docs/session-rules.md`,
+> `docs/implementation-plan.md` (E2.3–E2.4), `docs/architecture.md` §4/§8/ADR-3/ADR-7,
+> `docs/test-suite.md` §1.2/§4.3/§7, and the Session 03–06 entries in
+> `docs/past-prompts.md` before writing anything.
 >
-> **This session: FIRST the bounded TestFlight signing fix** (Step 0 note in
-> `docs/resume-prompt.md`: Fastfile maps the match AppStore profiles onto both targets
-> for the archive; rerun the upload lane; on the first green upload delete the
-> `MATCH_BOOTSTRAP` variable). **Then the main objective: E2.2 QuitRepository** —
-> the implementation plan's five named red tests plus the carried ADR-7 reboot-cap
-> red test (the repository's persisted last-known-good wall reading finally makes the
-> cap implementable); §4 indexes land with their justifying queries; repository is the
-> sole SwiftData importer. Test-first via the macOS CI lane; package changes red-first
-> with the coverage gate held.
+> **This session: E2.3 — the CloudKit dedupe merge pass + `recomputeDerivedState()`**:
+> the five named red tests (fieldwise-max merge, slip union, no-op, commutative+
+> idempotent property) plus the carried ADR-7 re-anchor healing (freeze-then-resume)
+> which the Session 06 panel deferred to exactly this pass. Test-first; repository
+> stays the sole SwiftData importer (CI-linted); package changes red-first with the
+> coverage gate held.
 >
-> **At session end:** append the Session 06 entry to `docs/past-prompts.md`, overwrite
-> `docs/resume-prompt.md` with the next objective (E2.3 dedupe merge / E2.4 erase per
-> `roadmap.md`), commit, push, and verify GitHub Actions is green (`gh run watch`).
-> Fix small CI issues immediately; document large ones and put them at the top of the
-> next resume prompt.
+> **At session end:** append the Session 07 entry to `docs/past-prompts.md`, overwrite
+> `docs/resume-prompt.md` with the next objective (E2.4 one-tap erase per
+> `roadmap.md`), run `codegraph sync`, commit, push, and verify GitHub Actions is
+> green (`gh run watch`). Fix small CI issues immediately; document large ones at the
+> top of the next resume prompt.
+
+## Operator-owned blockers (not agent work; carry until closed)
+
+1. **App Store Connect app record missing** — `pilot` fails with "Couldn't find app
+   'com.beyondkaira.ballast'"; verified via ASC API (bundle IDs + distribution cert
+   visible, zero apps). Create the app record (My Apps → ＋ New App: iOS, name
+   **Ballast**, bundle `com.beyondkaira.ballast`, SKU e.g. `ballast-ios`), rerun the
+   TestFlight lane, and **after the first green upload DELETE the `MATCH_BOOTSTRAP`
+   repo variable**. Signing/gym proven green (run 28984577954 onward). Does NOT block
+   E2.3.
+2. Slack webhook hygiene (optional): rotate the incoming-webhook URL that briefly sat
+   in local git history; CI reads `secrets.SLACK_WEBHOOK_URL` now.
+3. E0.3 device measurement (`docs/spike-panic-latency.md`, iPhone 15-class, full
+   Xcode needed) — unchanged.
+4. Content sign-off before ship: clinician/legal pass on `safetyCopy.json`, 3 helpline
+   verify-flags, TR L10n (see `App/Resources/Content/REVIEW.md`) — unchanged.
+5. Drift decision: MVP §7 "<2s 10/10" vs test-suite §1.5 "p90 < 2s" — unchanged.
 
 ## Standing rules reminders (do not relearn these)
 
@@ -171,19 +120,20 @@ mechanically); never weaken a QA assertion; `logSlip` stays synchronous-local.
 - Analytics via the closed `AnalyticsEvent` enum only; zero events before opt-in;
   `logSlip` stays synchronous-local.
 - Monotonic fields (`bestStreakSeconds`, `totalCleanSeconds`) never decrease — undo is
-  the ONE sanctioned exemption (§9 rule 3); streaks freeze, never inflate (ADR-7).
+  the ONE sanctioned exemption; streaks freeze, never inflate (ADR-7).
+  `Quit.totalCleanSeconds` is BANKED-only (== engine `priorCleanSeconds`; the live
+  streak is added at read time — anything else double-counts momentum).
+- LKG discipline (Session 06): the last-known-good reading is device-local (App Group
+  defaults, NEVER the mirrored store); it advances ONLY on a `.normal` verdict against
+  a pre-existing anchor AND continuity with the previous reading; createQuit never
+  refreshes it. The bridge inherits the within-boot verdict — never hardcode `.normal`.
+- Undo lifecycle (flag=true, finalize sweep, undoSlip, isPendingUndo index) is E4.1's,
+  as ONE unit. `#Index<Slip>([\.at])` → first time-ordered query; UrgeEvent.at → E12.4.
 - Panic path stays thin (ADR-6). Single CloudKit-mirrored SwiftData store; no accounts,
-  no backend (ADR-2). Gate G0 is CLEARED — the real IDs are `com.beyondkaira.ballast`
-  (+`.widgets`); never re-introduce the `dev.placeholder.quitwidget` strings. Never
-  weaken a QA assertion; TDD red first, always (test-suite §7).
-- StreakEngine ratified semantics (Sessions 03–05): zero-tracked momentum = 1.0;
-  boundary-inclusive milestones; cumulative clean numerators; momentum's denominator —
-  and the slip instant — ride the guarded timeline; momentum unchanged in the same tick
-  across a slip; one reversible slip at a time; whole-day adherence evaluation with
-  half-open membership and re-anchored day boundaries; uptime readings must be
-  sleep-inclusive monotonic; the input type is `StreakSnapshot` (no consumer-domain
-  nouns in the package surface); package doc comments stay consumer-self-contained.
-- E2.1 store rules: no `@Attribute(.unique)` ever (CloudKit checklist, mechanically
-  tested); `cloudKitDatabase` is `.none` today, but Gate G0 is now CLEARED so the flip
-  to `iCloud.com.beyondkaira.ballast` is UNBLOCKED — do it red-test-first (§4.3);
-  `Date()`/`ProcessInfo` remain banned in production code.
+  no backend (ADR-2). Never re-introduce `dev.placeholder.quitwidget`. Never weaken a
+  QA assertion; TDD red first, always (test-suite §7); red evidence = local swift test
+  for packages, the CI run on the red commit for app lanes.
+- StreakEngine ratified semantics: Sessions 03–06 "Key decisions" in `past-prompts.md`
+  — the engine's input type is `StreakSnapshot`; package `///` docs stay
+  consumer-self-contained; no `@Attribute(.unique)` ever; `cloudKitDatabase` is
+  `.none` until the §4.3 red-test-first flip is deliberately taken.

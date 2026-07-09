@@ -438,3 +438,164 @@ repository grant (fine-grained, Contents read/write on the certs repo).
    (and its history) so the match repo holds only match-encrypted material.
 3. Resume prompt updated v1.6 → v1.7 in this interlude; secret.yml (repo root) is
    operator-local and correctly gitignored (verified with check-ignore).
+
+---
+
+## 2026-07-09 · Session 06 · TestFlight signing fix + E2.2 QuitRepository + ADR-7 reboot cap, red→green×2 (+1 review cycle) — engine v1.1.0
+
+**Prompted.** Execute resume prompt v1.7 with workflows; NEW standing instruction from
+the operator: adopt CodeGraph in every session (query-first, sync before session end)
+and carry the rule into all future prompts.
+
+**Produced.**
+- **CodeGraph adoption (operator ask):** permanent rules added to `session-rules.md`
+  (§CodeGraph: `codegraph_explore` before grep/read, blast-radius check before edits,
+  `codegraph sync` as a mandatory session-end step) + session-end checklist extended;
+  the resume prompt now carries the rule forward. Used throughout this session by the
+  main agent and all workflow agents.
+- **TestFlight signing fix (cd986f9, CI-verified run 28984577954):** Fastfile now
+  forces manual signing per target after match (`update_code_signing_settings` ×2:
+  Apple Distribution, team UH7MXG7Z94, profile from `sigh_*_appstore_profile-name`)
+  + gym `export_options.provisioningProfiles` mapping. **gym exported a signed IPA**
+  (54 s) — the Session-05 signing blocker is closed. The lane now fails one step
+  later: `pilot` — **no App Store Connect app record exists** for
+  `com.beyondkaira.ballast` (diagnosed READ-ONLY via the ASC API with the operator's
+  key: bundle IDs + the single distribution cert visible, `/v1/apps` empty — the
+  portal App IDs were mistaken for an app record in the interlude). Operator-owned;
+  see blockers. Cert hygiene resolved itself: exactly one distribution cert exists
+  and match served it from the repo in 2 s (no second mint).
+- **Slack notify commit secret-ified:** an operator-local commit (316ef70) hardcoding
+  a live Slack webhook URL was blocked by GitHub push protection; rewritten as
+  abd60e9 (authorship preserved) reading `secrets.SLACK_WEBHOOK_URL`, secret
+  provisioned via `gh secret set`. Note: the webhook value sat in local history —
+  rotating it is a cheap operator hygiene option.
+- **E2.2 (commits A 55014d9 red → B 83c2f2c green → C fa956bd review-red → D b9080ab
+  review-green):**
+  - **Engine (StreakEngine → 1.1.0, tagged streakengine-v1.1.0):** the ADR-7 reboot
+    high-side sanity cap, carried since Session 03, is CLOSED. One trailing defaulted
+    param `lastKnownGood: MonotonicAnchor? = nil` on sanityCheck /
+    conservativeElapsedSeconds / currentStreak / applySlip / undoSlip (+ public
+    `defaultRebootGapCap = 14d`); `StreakCalculating` protocol untouched; nil
+    reproduces the old bytes exactly (pinned). Reboot branch with a reading: same-boot
+    capture BRIDGES (re-enters the within-boot guard, verdict inherited, remainder
+    uptime-verified, uncapped); otherwise baseline = max(anchor, reading) wall,
+    rollback freezes at the verified span (not zero), gap > cap freezes at
+    verified+cap flagged `.clockRolledBack`, in-window gap credits fully as `.normal`.
+    14 engine tests incl. a pinned-seed never-inflates property; 77/77 green,
+    llvm-cov 100% regions/functions/lines held (gate measured it in CI).
+  - **Repository (App/Sources/Persistence/QuitRepository.swift, @MainActor, sole
+    SwiftData importer):** activeQuits (justifies the landed
+    `#Index<Quit>([\.isArchived,\.sortIndex])` — the other three §4 indexes stay
+    deferred to their justifying queries), createQuit (max-3 → `.activeQuitLimitReached`,
+    anchor minted wallClock==startAt, sortIndex=max+1), synchronous logSlip (save()
+    before return; `Slip.at` = guarded slip instant; banks BANKED-only
+    `totalCleanSeconds` == engine `priorCleanSeconds`; `isPendingUndo` stays false —
+    the whole undo lifecycle defers to E4.1 as one unit), logUrgeEvent, streakValue
+    (engine + LKG end-to-end). Seams: `ClockProviding` + `WidgetRefreshing`
+    (@MainActor protocols; production conformances land with first app wiring, E3.1),
+    `LastKnownGoodStore` (JSON blob in App Group defaults — device-local BY DESIGN,
+    never the CloudKit-mirrored store). Debounced widget reload: trailing 500 ms
+    cancel-prior Task with injected sleep — tests drive the real cancellation path in
+    zero wall time. New merge-blocking CI job `E2.2 lint · repository is the sole
+    SwiftData importer` (grep allowlist: App/Sources/Persistence/ + Tests/);
+    TestFlight lane `needs` it.
+  - The five implementation-plan names landed verbatim + reboot-cap/LKG repo tests.
+
+### Red (TDD §7.1 evidence)
+
+E2.2 red (commit A): local `swift test` — 76 tests, 10 failed, 327 issues (4 documented
+pass-by-design pins); CI run 28986772423: release gate red on the engine cap tests,
+unit lane red on all nine repository tests, each on its designed assertion, e.g.:
+```
+✘ test_logSlip_persistsBeforeReturning — (storedSlip.count → 0) == 1
+✘ test_streakValue_rebootForwardJump_beyondCap_freezesNotInflates —
+  (value.clockSanity → .normal) == .clockRolledBack · (value.elapsedSeconds → 86400000) == 1641600
+✘ versionMatchesReleasedTag — (StreakEngine.version → "1.0.0") == "1.1.0"
+```
+Review-fix red (commit C, CI run 28988559874):
+```
+✘ test_lastKnownGood_freshAnchorCannotBlessTheWall_siblingQuitStaysCapped —
+  (lkgStore.load()?.wallClock → 2029-04-02) == (epoch + 100d → 2026-10-15)
+  · (value.clockSanity → .normal) == .clockRolledBack · (86400000) == 9849600
+```
+Green: B CI run 28987307905 (ALL test lanes green incl. the new lint job; only the
+operator-blocked TestFlight upload red at pilot), D CI run (see gate status).
+
+### Key decisions (ratified this session — 3-designer/3-judge panel + review)
+
+- **Reboot-cap semantics** as shipped (above). The per-reboot ≤ cap unverifiable
+  credit is a documented, accepted ADR-7 limitation; threat model is self-cheating
+  (no external reward), persona is widget-primary (weeks between app opens), hence
+  14d over 72h/7d.
+- **The bridge must inherit the within-boot verdict** (never hardcode `.normal`) and
+  **the trusted reading advances only on `.normal` — now ALSO gated on continuity
+  with the previous reading** (review MAJOR: a freshly-minted anchor agrees with the
+  reading it was minted from for ANY wall value, so anchor-verdict gating alone lets a
+  fresh quit launder a forward-set wall into the device-global baseline; the
+  continuity gate re-runs the old reading through the guard as its own anchor+baseline,
+  which refuses the jump within-boot via uptime and bounds it by the cap across
+  reboot). createQuit never refreshes the reading (self-blessing).
+- **`Quit.totalCleanSeconds` is pinned BANKED-only** (== engine `priorCleanSeconds`,
+  excludes the live streak — added at read time; anything else double-counts momentum).
+- **Engine version 1.1.0** (semver-minor: additive public API), pinned by tests on
+  both sides; annotated tag `streakengine-v1.1.0`.
+- **Undo lifecycle defers WHOLE to E4.1** (flag=true + finalize sweep + undoSlip +
+  isPendingUndo index) — no partial stored state; `logSlip` writes `isPendingUndo=false`.
+- **ADR-7's "re-anchor" healing half → E2.3's `recomputeDerivedState()`** (a write
+  during a read is a sync hazard; freeze-not-inflate now, freeze-then-resume there).
+
+### Review (ultracode workflows at three gates)
+
+Design: 3 designers (clock-purist / API-minimalist / product-honesty) × 3 judges —
+synthesis caught D1's LKG-poison-via-hardcoded-bridge-verdict before any code existed.
+Pre-red verification: 3 lenses (red mechanics / spec fidelity / compile risk), PASS ×3
+zero findings — the app lane then compiled first try under strict concurrency.
+Diff review: 4 dimensions → 10 deduped findings → 30 refutation-first verifiers →
+**7 confirmed (1 major bug + 1 major test gap + 3 minor + 2 notes), 3 refuted.** The
+major (fresh-anchor LKG poison) became commit C red → commit D fix; the test gaps
+became pins in D (tz-shift no-refresh, quitNotFound, logUrgeEvent behavior, sortIndex
+max+1 after archive, bridge equal-wall boundary); the doc note became the §5.1
+annotation in architecture.md.
+
+### Known limitations / carried items
+
+1. **ADR-7 reboot cap: CLOSED** (was item 1 since Session 03). What remains of it:
+   the **healing re-anchor** (freeze-then-resume for the innocent long-power-off user)
+   lands with **E2.3 `recomputeDerivedState()`**; until then a >14d unverifiable gap
+   stays frozen at verified+cap, flagged — deliberate, documented.
+2. **E4.1 owns the whole undo lifecycle** as one unit: Slip.isPendingUndo=true,
+   finalize-prior-slip, `undoSlip(slipID:)`, `finalizePendingSlips(now:)`, and the
+   `#Index<Slip>([\.isPendingUndo])`. `#Index<Slip>([\.at])` → first time-ordered slip
+   query (E4/E6); `#Index<UrgeEvent>([\.at])` → E12.4.
+3. `ClockProviding`/`WidgetRefreshing` production conformances (mach_continuous_time +
+   kern boot-session UUID; WidgetCenter) + app-launch repository wiring land with the
+   first consumer (E3.1 pre-cache hook / dashboard) — no test forces them yet.
+4. `StreakCalculating` still exposes neither the guard nor applySlip/undoSlip/adherence
+   (deferred to first consumer need, protocol-extension defaults).
+5. `StreakSnapshot`'s synthesized Codable requires the `bestStreakSeconds` key —
+   revisit with the repository/migration story when snapshots persist (E3.1/E2.3).
+6. E2.1 acceptance items open by design: protection-class (device tier), §4.3
+   CloudKit-option instantiation (now unblocked, red-test-first when taken), widget
+   read-only open (device/E6).
+
+### Operator-owned blockers
+
+1. **NEW — App Store Connect app record** for `com.beyondkaira.ballast` does not
+   exist (pilot: "Couldn't find app"; ASC API confirms zero apps visible). Create it
+   in ASC (My Apps → ＋ → New App: iOS, name **Ballast**, bundle
+   `com.beyondkaira.ballast`, SKU e.g. `ballast-ios`), then rerun the TestFlight lane
+   (`gh run rerun <id> --job <testflight>` or next push). **After the first green
+   upload, DELETE the `MATCH_BOOTSTRAP` repo variable.** Signing itself is proven.
+2. Slack webhook hygiene (optional): rotate the webhook that sat in local git history;
+   the workflow now reads `secrets.SLACK_WEBHOOK_URL`.
+3. E0.3 device measurement; content sign-off items; MVP §7 vs test-suite §1.5 drift —
+   unchanged.
+
+### Gate status
+
+E2.2 DONE: red 28986772423 → green 28987307905 (all test lanes + new lint job) →
+review-red 28988559874 → review-green 28989112856 (all test lanes green;
+only the operator-blocked upload red). Engine tagged
+streakengine-v1.1.0; package 77/77, coverage 100/100/100 measured by the CI gate.
+TestFlight: signing green end-to-end, upload blocked only on the missing ASC app
+record (operator). CodeGraph index synced at session end.

@@ -215,6 +215,15 @@ protocol StreakEngineProtocol {           // pure functions — the TDD core (sh
     func validate(anchor: MonotonicAnchor, wallClock: Date) -> ClockSanity // .ok/.clockRolledBack/...
 }
 
+// Landed (E2.2, Session 06) as the concrete @MainActor `QuitRepository` — the sole
+// SwiftData importer (CI-linted). Shipped subset: primitive-parameter createQuit
+// (quiz's `from profile:` form arrives with E5), synchronous logSlip (banks BANKED-only
+// totalCleanSeconds; the undo lifecycle incl. isPendingUndo=true defers to E4.1 as one
+// unit), logUrgeEvent (≈ recordUrgeOutcome), activeQuits, and streakValue — the read
+// that feeds the ADR-7 reboot cap from a device-local last-known-good reading (App
+// Group defaults, never the mirrored store; advancement gated on a .normal verdict
+// AND continuity with the previous reading). undoSlip/finalizePendingSlips → E4.1;
+// eraseEverything → E2.4; snapshot rebuild hook → E3.1.
 protocol QuitServiceProtocol {            // the only writer of Quit/Slip/UrgeEvent
     func createQuit(from profile: QuizProfile) throws -> Quit            // enforces ≤3
     func logSlip(quitID: UUID, note: String?) throws -> Slip             // archive→best, new streak,
