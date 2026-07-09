@@ -24,10 +24,13 @@ final class QuitRepository {
     /// the ≤60 s widget-staleness acceptance).
     static let widgetReloadDebounce: Duration = .milliseconds(500)
 
+    private let container: ModelContainer
     private let context: ModelContext
     private let clock: any ClockProviding
     private let widgetRefresher: any WidgetRefreshing
     private let lastKnownGoodStore: LastKnownGoodStore
+    private let cloud: any CloudSyncControlling
+    private let appGroupDefaults: UserDefaults
     private let debounceSleep: @Sendable (Duration) async -> Void
     private var pendingReload: Task<Void, Never>?
 
@@ -36,12 +39,17 @@ final class QuitRepository {
         clock: any ClockProviding,
         widgetRefresher: any WidgetRefreshing,
         lastKnownGoodStore: LastKnownGoodStore,
+        cloud: any CloudSyncControlling,
+        appGroupDefaults: UserDefaults,
         debounceSleep: @escaping @Sendable (Duration) async -> Void = { try? await Task.sleep(for: $0) }
     ) {
+        self.container = container
         self.context = container.mainContext
         self.clock = clock
         self.widgetRefresher = widgetRefresher
         self.lastKnownGoodStore = lastKnownGoodStore
+        self.cloud = cloud
+        self.appGroupDefaults = appGroupDefaults
         self.debounceSleep = debounceSleep
     }
 
@@ -196,6 +204,28 @@ final class QuitRepository {
         )
         scheduleWidgetReload()
         return event
+    }
+
+    // MARK: - E2.4 · one-tap erase
+
+    /// One-tap erase (architecture §5.1 `eraseEverything`, §10 scope, §6 — the
+    /// complement of no-accounts): every SwiftData entity, the store's file set, the
+    /// App Group defaults (panic pre-caches, launch flag), the clock witness, and the
+    /// CloudKit private-zone mirror. LOCAL erase runs first and completes even when
+    /// the cloud purge fails (Session 08 ruling: the on-device copy — verbatim
+    /// motivations, readable by a person holding the phone — is the more sensitive
+    /// one; the cloud step is the only fallible remote dependency, so it goes last
+    /// and its failure surfaces for retry). Post-erase the app's relaunch state is a
+    /// fresh install; this repository (and its container) are dead by design afterwards.
+    func eraseEverything() async throws {
+        // E2.4 red sentinel — the green commit implements the local-first sequence.
+    }
+
+    /// The device-local half of erase (store file set + App Group defaults), static so
+    /// the app's launch-time smoke hook shares the identical implementation with
+    /// `eraseEverything()`.
+    static func eraseLocalArtifacts(storeURLs: [URL], appGroupDefaults: UserDefaults) throws {
+        // E2.4 red sentinel — the green commit implements the removal sweep.
     }
 
     // MARK: - Widget reload debounce

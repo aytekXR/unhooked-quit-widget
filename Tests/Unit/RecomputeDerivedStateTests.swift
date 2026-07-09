@@ -53,6 +53,15 @@ private final class SpyWidgetRefresher: WidgetRefreshing {
     func reloadAllTimelines() { reloadCount += 1 }
 }
 
+/// Inert CloudKit-seam stub (E2.4 init plumbing): nothing in this suite erases, so no
+/// test here may ever observe a call on it. Erase behavior is pinned in
+/// EraseEverythingTests with a scriptable mock.
+@MainActor
+private final class StubCloudSync: CloudSyncControlling {
+    func accountStatus() async -> CloudAccountStatus { .available }
+    func deleteAllPrivateZones() async throws {}
+}
+
 /// One in-memory store + repository per test — the E2.1 schema, zero cross-test state.
 @MainActor
 private struct Harness {
@@ -77,6 +86,8 @@ private struct Harness {
             clock: clock,
             widgetRefresher: spy,
             lastKnownGoodStore: lkgStore,
+            cloud: StubCloudSync(),
+            appGroupDefaults: UserDefaults(suiteName: "e23-group-\(UUID().uuidString)")!,
             debounceSleep: { _ in }
         )
     }

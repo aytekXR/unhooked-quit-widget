@@ -31,4 +31,12 @@ final class LastKnownGoodStore {
         guard let data = try? JSONEncoder().encode(reading) else { return }
         defaults.set(data, forKey: Self.defaultsKey)
     }
+
+    /// Removes the witness entirely — one-tap erase only (E2.4). A fresh install has
+    /// no witness, and a stale one would poison the NEXT tracking era: after an erase
+    /// the first created quit re-anchors at the current wall, and the witness chain
+    /// re-establishes through the ordinary Session 06/07 advance paths.
+    func clear() {
+        defaults.removeObject(forKey: Self.defaultsKey)
+    }
 }
