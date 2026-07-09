@@ -504,6 +504,11 @@ struct PanicFlowTests {
         #expect(events.first?.outcome == .averted)
         #expect(events.first?.id == buffered.id, "the UrgeEvent adopts the draft's id — the dedupe key end to end")
         #expect(events.first?.quit?.id == quit.id)
+        // Session 10 review pins: the flush's field mapping is the ONLY way this
+        // data reaches the store — a dropped copy would silently blind §12.4.
+        #expect(events.first?.stepsReached == [.breath, .timer], "the flushed event carries the draft's reached steps")
+        #expect(events.first?.source == .lockscreenWidget, "the flushed event carries the draft's source")
+        #expect(events.first?.at == epoch + 3_600)
         #expect(quit.avertedUrgeCount == 1, "averted increments the quit's counter exactly once")
         #expect(flowBuffer.drafts().isEmpty, "a successful flush consumes the buffer")
         #expect(h.panicSnapshotStore.read() != nil, "a flush is a mutating write — it rebuilds the pre-cache like every other write (ADR-6)")
@@ -607,6 +612,43 @@ struct PanicFlowTests {
         #expect(h.outcomeBuffer.drafts().isEmpty)
     }
 
+    @Test func test_redirectBreatheOption_restartsThePacerRun() throws {
+        // Session 10 review pin: the shipping "One more round of breathing" option
+        // must start a FRESH pacer run — a stale start instant leaves the bloom
+        // frozen past the 57s pattern, guiding nothing.
+        let f = try FlowFixture(quit: card("Vaping"))
+        f.model.markPacerStarted()
+        let firstRun = f.model.pacerStartedAt
+        #expect(firstRun != nil)
+
+        f.clock.advance(by: 120) // long past the 57s pattern
+        f.model.skip()
+        f.model.skip()
+        f.model.skip() // → redirect
+        f.model.selectRedirect("breathe")
+
+        #expect(f.model.pacerStartedAt == nil, "re-entering the pacer clears the run — the view's .task stamps a fresh start")
+        f.model.markPacerStarted()
+        #expect(f.model.pacerStartedAt == f.clock.now)
+        #expect(f.model.pacerStartedAt != firstRun)
+        #expect(f.haptics.patterns.count == 2, "the re-entered pacer replays its haptic rhythm")
+    }
+
+    @Test func test_flush_duplicateDraftIdsInOneBuffer_landOnce() throws {
+        // Session 10 review pin: the exit-time append RETRY can double-write one
+        // draft (the first write's bytes land but its fsync error surfaces late) —
+        // the flush must land it once, not once per line.
+        let h = try Harness()
+        let quit = try h.repository.createQuit(habitCategory: .vape)
+        let d = draft(quitID: quit.id)
+        try h.outcomeBuffer.append(d)
+        try h.outcomeBuffer.append(d)
+
+        #expect(h.repository.flushPanicOutcomes() == 1, "one outcome, twice on disk, lands ONCE")
+        #expect(try h.urgeEvents().count == 1)
+        #expect(quit.avertedUrgeCount == 1, "monotonic counters never inflate through a duplicated buffer line")
+    }
+
     @Test func test_flush_emptyBuffer_isNoOp() async throws {
         // DECLARED green-from-birth regression guard (test-suite §7.1 exemption by
         // declaration): an empty flush is indistinguishable from the red skeleton by
@@ -628,7 +670,7 @@ struct PanicFlowTests {
         )
     }
 
-    @Test func test_launch_normalRoute_flushesBuffer_panicRouteNever() throws {
+    @Test func test_launch_normalRoute_flushesBuffer_panicRouteNever() async throws {
         let doubles = try RepoDoubles()
         let container = try ModelContainer(
             for: PersistentStore.schema,
@@ -661,6 +703,14 @@ struct PanicFlowTests {
         let events = try container.mainContext.fetch(FetchDescriptor<UrgeEvent>())
         #expect(events.count == 1)
         #expect(events.first?.quit?.id == quit.id)
+
+        // Session 10 review pin: a LANDING flush reloads widget timelines like every
+        // other mutating write. This launch is otherwise non-mutating (single clean
+        // quit — recompute merges/heals nothing; the refresh schedules no reload),
+        // so only the flush's own schedule can produce this.
+        let repository = try #require(provider.repository)
+        await repository.drainPendingWidgetReload()
+        #expect(doubles.spy.reloadCount == 1, "the flushed outcome must reach the widget without waiting for the next user write")
     }
 
     // MARK: - Erase coverage (same-session rule for every new App Group file)

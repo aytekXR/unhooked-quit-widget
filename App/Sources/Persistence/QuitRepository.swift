@@ -86,7 +86,11 @@ final class QuitRepository {
         let drafts = panicOutcomeBuffer.drafts()
         guard !drafts.isEmpty else { return 0 }
         do {
-            let existing = Set(try context.fetch(FetchDescriptor<UrgeEvent>()).map(\.id))
+            // A var, extended per insert: the buffer itself can hold the SAME draft
+            // twice (the exit-time append retry re-writes when the first write's
+            // fsync error surfaced after the bytes landed), and the store-side set
+            // alone would land both copies.
+            var existing = Set(try context.fetch(FetchDescriptor<UrgeEvent>()).map(\.id))
             var landed = 0
             for draft in drafts where !existing.contains(draft.id) {
                 let quit: Quit?
@@ -107,6 +111,7 @@ final class QuitRepository {
                 if draft.outcome == .averted, let quit {
                     quit.avertedUrgeCount += 1
                 }
+                existing.insert(draft.id)
                 landed += 1
             }
             if landed > 0 {

@@ -79,6 +79,11 @@ private struct StepScaffold<Content: View>: View {
                 Text(title)
                     .font(.title.weight(.semibold))
                     .multilineTextAlignment(.center)
+                    // On the TEXT, not just the container: XCUITest reliably exposes
+                    // real elements' identifiers, while nested `.contain` container
+                    // ids may never surface (the Session 09 UI-smoke lesson, relearned
+                    // once more in Session 10 on this very screen).
+                    .accessibilityIdentifier("\(identifier).title")
                 Text(instruction)
                     .font(.body)
                     .multilineTextAlignment(.center)
@@ -394,6 +399,7 @@ private struct CelebrationView: View {
             Text(model.script.exit("averted")?.confirmation ?? "")
                 .font(.title2.weight(.semibold))
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier("panic.flow.celebration.copy") // real element for the smoke
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

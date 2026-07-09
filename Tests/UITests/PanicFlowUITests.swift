@@ -5,6 +5,11 @@ import XCTest
 /// celebration. One smoke, real wiring (seed hook → resolver → flow model → exit);
 /// step/exit semantics are pinned at the unit tier (PanicFlowTests), the visuals in
 /// the snapshot lane.
+///
+/// Assertions target REAL elements only (buttons, static texts) — nested
+/// `.contain` container identifiers are not reliably exposed to XCUITest (the
+/// Session 09 lesson; run 29043512846 re-proved it on this exact screen: the skip
+/// BUTTON was found while the step CONTAINER id never surfaced).
 @MainActor
 final class PanicFlowUITests: XCTestCase {
     func test_panicFlow_skipThroughSteps_exitUrgePassed_celebrates() {
@@ -25,8 +30,7 @@ final class PanicFlowUITests: XCTestCase {
 
         // The flow opens ON the pacer (PRD §6.4: the first frame is the pacer).
         XCTAssertTrue(
-            app.descendants(matching: .any).matching(identifier: "panic.flow.step.breath")
-                .firstMatch.waitForExistence(timeout: 15),
+            app.staticTexts["panic.flow.step.breath.title"].waitForExistence(timeout: 15),
             "choosing a quit must open the real E3.2 flow at the breath step"
         )
 
@@ -36,8 +40,7 @@ final class PanicFlowUITests: XCTestCase {
             XCTAssertTrue(skip.waitForExistence(timeout: 10), "each step offers its skip affordance")
             skip.tap()
             XCTAssertTrue(
-                app.descendants(matching: .any).matching(identifier: "panic.flow.step.\(step)")
-                    .firstMatch.waitForExistence(timeout: 10),
+                app.staticTexts["panic.flow.step.\(step).title"].waitForExistence(timeout: 10),
                 "skip must advance to the \(step) step"
             )
         }
@@ -51,9 +54,8 @@ final class PanicFlowUITests: XCTestCase {
         averted.tap()
 
         XCTAssertTrue(
-            app.descendants(matching: .any).matching(identifier: "panic.flow.celebration")
-                .firstMatch.waitForExistence(timeout: 10),
-            "urge passed must land on the quiet celebration"
+            app.staticTexts["panic.flow.celebration.copy"].waitForExistence(timeout: 10),
+            "urge passed must land on the quiet celebration (the averted confirmation copy)"
         )
         XCTAssertFalse(
             app.descendants(matching: .any)
