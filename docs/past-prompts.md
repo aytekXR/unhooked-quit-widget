@@ -599,11 +599,32 @@ annotation in architecture.md.
   UI/copy/icon work; icons wire into the asset catalog at the first UI epic.
 - Slack CI notifications (rewritten as abd60e9, see above).
 
+### Addendum (same session, after close-out): FIRST TESTFLIGHT BUILD UPLOADED ✅
+
+Operator created the ASC app record ("Ballast - Quit" / `com.beyondkaira.ballast` /
+SKU `ballast-ios` — verified via ASC API). The rerun then surfaced two walking-skeleton
+bundle-validation errors, fixed agent-side:
+1. **90023 (no app icon):** new `App/Resources/Assets.xcassets/AppIcon.appiconset`
+   wired from the operator's brandkit — single-size 1024 light/dark/tinted (actool
+   generates all slots incl. the iPad-compat 152/167); the light 1024's alpha channel
+   stripped losslessly (all-255 alpha verified pixel-exact; the marketing icon must be
+   opaque). Only the xcassets path is bundled — `Content/` stays inert. (69ddf88)
+2. **90474 (iPad multitasking orientations):** `UIRequiresFullScreen: true` — the
+   sanctioned opt-out for a deliberately portrait-only app. (0e772f4)
+
+**Run 28990551123: FULLY GREEN — "Successfully uploaded package to App Store
+Connect", build number 20 (run-number monotonic, E0.1 acceptance).** The one-shot
+`MATCH_BOOTSTRAP` variable was deleted immediately after (CI signing is read-only from
+now on). E0.1's last open acceptance — signed TestFlight build on merge to main — is
+now REAL. Remaining TestFlight operator steps are ASC-side only (export-compliance
+answer if prompted, add internal testers).
+
 ### Gate status
 
 E2.2 DONE: red 28986772423 → green 28987307905 (all test lanes + new lint job) →
 review-red 28988559874 → review-green 28989112856 (all test lanes green;
-only the operator-blocked upload red). Engine tagged
+only the operator-blocked upload red). **TestFlight lane LIVE: run 28990551123 fully
+green end-to-end, build 20 uploaded, MATCH_BOOTSTRAP deleted.** Engine tagged
 streakengine-v1.1.0; package 77/77, coverage 100/100/100 measured by the CI gate.
 TestFlight: signing green end-to-end, upload blocked only on the missing ASC app
 record (operator). CodeGraph index synced at session end.

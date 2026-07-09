@@ -111,13 +111,14 @@ sanctioned exemption); no `Date()`/`ProcessInfo` outside the sanctioned seam.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
-1. **App Store Connect app record missing** — `pilot` fails with "Couldn't find app
-   'com.beyondkaira.ballast'"; verified via ASC API (bundle IDs + distribution cert
-   visible, zero apps). Create the app record (My Apps → ＋ New App: iOS, name
-   **Ballast**, bundle `com.beyondkaira.ballast`, SKU e.g. `ballast-ios`), rerun the
-   TestFlight lane, and **after the first green upload DELETE the `MATCH_BOOTSTRAP`
-   repo variable**. Signing/gym proven green (run 28984577954 onward). Does NOT block
-   E2.3.
+1. ~~**ASC app record / first TestFlight upload**~~ — ✅ **CLOSED 2026-07-09, same
+   session**: operator created "Ballast - Quit" (`com.beyondkaira.ballast`, SKU
+   `ballast-ios`); agent fixed the two bundle-validation errors (brandkit app icon
+   wired as a single-size light/dark/tinted catalog; `UIRequiresFullScreen` for the
+   portrait-only posture). **Run 28990551123 fully green — build 20 uploaded;
+   `MATCH_BOOTSTRAP` deleted (CI signing read-only).** The TestFlight lane is LIVE on
+   every merge to main. Remaining ASC-side: export-compliance prompt if ASC asks
+   (ITSAppUsesNonExemptEncryption already declared false), add internal testers.
 2. Slack webhook hygiene (optional): rotate the incoming-webhook URL that briefly sat
    in local git history; CI reads `secrets.SLACK_WEBHOOK_URL` now.
 3. E0.3 device measurement (`docs/spike-panic-latency.md`, iPhone 15-class, full
