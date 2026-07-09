@@ -99,6 +99,22 @@ exemption):
    enum/const member spellings get verified against docs — two sessions have each
    lost a billed run to this class (String(cString:), FileProtectionType member).**
 
+6. **One-time Session 11 close-out task (operator request, Session 10): the
+   markdown audit.** Before ending the session, inventory every `*.md` in the repo
+   and make each one LIVE, UPDATED, and REQUIRED: informative docs belong under
+   `docs/`; deprecated/duplicate files get DELETED (git history preserves them).
+   Known candidates from the Session 10 inventory: `brandkit/uploads/{prd,
+   frontend-brandkit,spike-panic-latency}.md` duplicate `docs/` copies
+   (frontend-brandkit was verified byte-identical; `brandkit/branding-assets/
+   brand-guidelines-full.md` likewise duplicates it) — keep the `docs/` copies,
+   delete the duplicates; reconcile `docs/operator-checklist.md` with the new
+   `docs/operator-expected.md` (merge still-relevant items, then delete or clearly
+   re-scope the old file); the root `OPERATOR-TODO.md` stays as an untracked
+   pointer; `README.md` and `App/Resources/Content/REVIEW.md` stay where they are.
+   Anything moved/deleted: update every doc that references the old path, and
+   record the sweep in the Session 11 ledger. Docs-only changes ship `[skip ci]`
+   and MUST NOT trigger workflows or billed runs.
+
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app name **Ballast**,
@@ -125,13 +141,17 @@ exemption):
 > undoSlip, `#Index<Slip>([\.isPendingUndo])`), snapshots per the real lane's
 > conventions.
 >
-> **At session end:** append the Session 11 entry to `docs/past-prompts.md`,
-> overwrite `docs/resume-prompt.md` with the next objective (per `roadmap.md` —
-> E3.3 entry-point matrix or E5.1 quiz are the natural successors; pick by what
-> E4.1 actually closed), update the untracked `OPERATOR-TODO.md`, run
-> `codegraph sync`, commit, push, and verify GitHub Actions is green
-> (`gh run watch`). Fix small CI issues immediately; document large ones at the
-> top of the next resume prompt.
+> **At session end:** run the ONE-TIME markdown audit (§objective point 6 —
+> informative docs into `docs/`, deprecated/duplicate files deleted, references
+> updated), append the Session 11 entry to `docs/past-prompts.md`, overwrite
+> `docs/resume-prompt.md` with the next objective (per `roadmap.md` — E3.3
+> entry-point matrix or E5.1 quiz are the natural successors; pick by what E4.1
+> actually closed), update **`docs/operator-expected.md`** (the TRACKED operator
+> checklist — canonical since Session 10; the root `OPERATOR-TODO.md` is only a
+> pointer), run `codegraph sync`, commit, push, and verify GitHub Actions is
+> green (`gh run watch`). Docs-only commits carry `[skip ci]` and never trigger
+> workflows. Fix small CI issues immediately; document large ones at the top of
+> the next resume prompt.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
