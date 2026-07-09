@@ -12,6 +12,44 @@ Conventions: tasks are ordered within epics and epics are roughly ordered; `Deps
 
 ---
 
+## Delivery status (added Session 08 close, 2026-07-09; maintained at every session close)
+
+The plan below is UNCHANGED as the definition of the work; this table is the running
+truth of what landed, with every deliberate scope deferral named (details in the
+matching `past-prompts.md` session entries — deviations are recorded there, never
+silent). Epic/task text stays as originally planned unless a session ledger says a
+semantic was corrected (so far only one: E2.4's erase ORDER — architecture §10 now
+specifies local-first, cloud purge last; Session 08 ruling).
+
+| Task | Status | Evidence / deferrals (all deliberate, tracked) |
+|---|---|---|
+| E0.1 CI pipeline → TestFlight | ✅ DONE | Session 02; upload lane truly live Session 06; per-run bundle versioning fixed Session 07 |
+| E0.2 targets + App Group + packages | ✅ DONE | Session 02 |
+| E0.3 panic-latency spike | ◐ scaffolded | Harness + docs shipped; the DEVICE MEASUREMENT is operator-owned and now load-bearing (sets E3.1's permanent gate threshold) |
+| E1.1–E1.4 StreakEngine | ✅ DONE | Sessions 03–05; engine v1.0.0 → 1.2.0 (heal, Session 07); 100/100/100 coverage behind a merge-blocking CI gate |
+| E2.1 single store (App Group) | ✅ DONE | Session 05 (+interlude verify); protection-class → device tier; CloudKit-option instantiation → §4.3 flip; companion store → E12 |
+| E2.2 QuitRepository | ✅ DONE | Session 06; undo lifecycle WHOLE → E4.1; production Clock/Widget conformances → E3.1; sole-importer CI lint live |
+| E2.3 dedupe merge + recompute | ✅ DONE | Session 07; launch/remote-change wiring → E3.1/§4.3; real-CloudKit dedupe → contract tier; LKG witness discipline ratified |
+| E2.4 one-tap erase | ✅ DONE | Session 08; LOCAL-FIRST order (the one plan correction — §10 updated); CloudKit purge behind `CloudSyncControlling` (real purge → §4.3/contract); RevenueCat clear → E7 seam; `erase_all_completed` → E8 seam; panic-snapshot FILES join the sweep in E3.1 (review-pinned carry) |
+| E3.1 panic productionizing | ▶ NEXT | Session 09 objective — `resume-prompt.md` v2.0 |
+| E3.2–E10.2 | ☐ not started | Per plan; no scope changes |
+
+**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 11 done + 1 half-scaffolded ≈
+**~35%** of build tasks; milestones: M0 ✅, M1 in progress (engine + persistence done;
+panic/slip/quiz flows pending), M2 not started. **Calendar:** roadmap targets
+store-approval by week 5–6 with a mid-December 2026 hard window; Sessions 02–08 ran
+2026-07-07 → 07-09, so the build is comfortably inside the window (≈4 months of slack
+— per roadmap discipline, slack goes to distribution content, not scope creep).
+
+**Production-readiness level:** foundation-complete / feature-incomplete (pre-alpha).
+Shipping-quality: CI gates (engine floors, sole-importer lint, snapshot/UI lanes),
+signed TestFlight uploads on every green merge, clock-integrity + erase semantics
+adversarially reviewed and pinned. Not yet product: no onboarding/quiz, no real panic
+flow UI, no widget suite, no paywall, no analytics — Epics 3–9 are the remaining
+distance to the MVP §7 release gates.
+
+---
+
 ## Epic 0 — Walking Skeleton & De-risk Spike (Week 0)
 
 Goal: an empty app that boots, builds, tests, and ships to TestFlight automatically — plus the measured verdict on the product's headline claim. Nothing else starts until E0.1–E0.3 are green.
