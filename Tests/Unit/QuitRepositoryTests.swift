@@ -247,6 +247,43 @@ struct QuitRepositoryTests {
         )
     }
 
+    @Test func test_lastKnownGood_freshAnchorCannotBlessTheWall_siblingQuitStaysCapped() throws {
+        // Session 06 adversarial-review MAJOR (confirmed 3/3): a just-minted anchor
+        // trivially reads .normal against the reading it was minted from — for ANY
+        // absolute wall value — so reading a fresh quit under a forward-set wall must
+        // not launder that wall into the device-global trusted reading. If it did, a
+        // sibling quit's capped arm would trust the poisoned baseline and inflate,
+        // UNFLAGGED, across the next reboot (the exact failure this whole diff exists
+        // to prevent).
+        let h = try Harness()
+        let honest = try h.repository.createQuit(habitCategory: .vape)
+
+        // 100 honest days: the trusted reading sits at day 100.
+        h.clock.advance(by: TimeInterval(100 * day))
+        _ = try h.repository.streakValue(for: honest.id)
+        #expect(h.lkgStore.load()?.wallClock == epoch + TimeInterval(100 * day))
+
+        // Same boot, wall set forward to day 1000; a NEW quit is created at the lying
+        // wall and read. Its fresh anchor agrees with the lie by construction — the
+        // read must NOT advance the trusted reading (continuity with the previous
+        // reading fails: wall says +900d, uptime says +0).
+        h.clock.setWallClock(epoch + TimeInterval(1_000 * day))
+        let planted = try h.repository.createQuit(habitCategory: .doomscroll)
+        _ = try h.repository.streakValue(for: planted.id)
+        _ = try h.repository.logUrgeEvent(quitID: planted.id, source: .inApp, outcome: .abandoned)
+        #expect(
+            h.lkgStore.load()?.wallClock == epoch + TimeInterval(100 * day),
+            "a fresh anchor must not bless the wall it was minted from"
+        )
+
+        // Across a reboot the honest quit must still read capped-and-flagged from the
+        // day-100 baseline — not the planted day-1000 wall as .normal.
+        h.clock.reboot(bootID: bootB, uptime: 5_000)
+        let value = try h.repository.streakValue(for: honest.id)
+        #expect(value.clockSanity == .clockRolledBack)
+        #expect(value.elapsedSeconds == 100 * day + cap)
+    }
+
     @Test func test_lastKnownGood_isDeviceLocal_notInSwiftDataStore() throws {
         let h = try Harness()
         let reading = MonotonicAnchor(bootID: bootA, uptime: 51_000, wallClock: epoch + 1_000)
