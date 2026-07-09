@@ -218,14 +218,82 @@ final class QuitRepository {
     /// and its failure surfaces for retry). Post-erase the app's relaunch state is a
     /// fresh install; this repository (and its container) are dead by design afterwards.
     func eraseEverything() async throws {
-        // E2.4 red sentinel — the green commit implements the local-first sequence.
+        // 1. Every entity row, children first — plain fetch-and-delete (no reliance
+        //    on cascade ordering; identical behavior on in-memory and on-disk
+        //    stores), one save as the local commit point.
+        try deleteAllRows(Slip.self)
+        try deleteAllRows(UrgeEvent.self)
+        try deleteAllRows(QuizProfile.self)
+        try deleteAllRows(Quit.self)
+        try deleteAllRows(AppSettings.self)
+        try context.save()
+
+        // 2. Infallible local clears before anything that can throw: the witness is
+        //    erased state (a stale one would poison the next tracking era's cap
+        //    baseline), and it may never outlive a partially-failed erase.
+        lastKnownGoodStore.clear()
+
+        // 3. Defaults sweep (infallible) + store file set (the one fallible local
+        //    step) — shared verbatim with the launch-time smoke hook.
+        try Self.eraseLocalArtifacts(
+            storeURLs: container.configurations.compactMap { $0.isStoredInMemoryOnly ? nil : $0.url },
+            appGroupDefaults: appGroupDefaults
+        )
+
+        // E7 seam (named TODO, not a stub): RevenueCat anonymous-ID reset + SDK cache
+        // clear wires here once the SDK exists — after the local erase, with restore
+        // still one StoreKit call away (architecture §3).
+        // E8 seam (named TODO, not a stub): the final `erase_all_completed` fires here
+        // IF opted in, once the closed AnalyticsEvent enum exists (E8.1) — zero events
+        // before consent, and none after erase in the same process lifetime.
+
+        // 4. Widgets must drop their streaks regardless of the cloud outcome.
+        scheduleWidgetReload()
+
+        // 5. The one fallible REMOTE step goes last (Session 08 spec-review ruling —
+        //    inverts the architecture §10 sketch, corrected there): iCloud OFF is
+        //    first-class, skip and never fail (architecture §8); an available
+        //    account's purge failure SURFACES after local completion, so the caller
+        //    can offer retry (erase is re-runnable) and never silently claims the
+        //    mirror is gone.
+        if await cloud.accountStatus() == .available {
+            try await cloud.deleteAllPrivateZones()
+        }
     }
 
     /// The device-local half of erase (store file set + App Group defaults), static so
     /// the app's launch-time smoke hook shares the identical implementation with
     /// `eraseEverything()`.
     static func eraseLocalArtifacts(storeURLs: [URL], appGroupDefaults: UserDefaults) throws {
-        // E2.4 red sentinel — the green commit implements the removal sweep.
+        // Infallible first: sweep every key we own out of the App Group defaults —
+        // the panic launch flag today, every E3.1+ pre-cache key tomorrow, no key
+        // registry to rot. `removeObject` is a no-op on the global-domain keys that
+        // `dictionaryRepresentation()` merges in, so the sweep cannot overreach.
+        for key in appGroupDefaults.dictionaryRepresentation().keys {
+            appGroupDefaults.removeObject(forKey: key)
+        }
+        // Then the store file set: base file + SQLite sidecars (`-shm`/`-wal`/
+        // `-journal`) + hidden support artifacts. Unlinking an open store is safe
+        // (POSIX semantics — the inode lives until the container closes); the
+        // container is dead by design after an erase, relaunch = fresh install.
+        let fileManager = FileManager.default
+        for url in storeURLs {
+            let directory = url.deletingLastPathComponent()
+            let base = url.lastPathComponent
+            let names = (try? fileManager.contentsOfDirectory(atPath: directory.path)) ?? []
+            for name in names where name == base || name.hasPrefix(base + "-") || name.hasPrefix("." + base) {
+                try fileManager.removeItem(at: directory.appendingPathComponent(name))
+            }
+        }
+    }
+
+    /// Fetch-and-delete every row of one model type (erase step 1). Deliberately not
+    /// the batch-delete API: row-level deletes behave identically across in-memory
+    /// and on-disk stores and stay idempotent under the Quit cascade.
+    private func deleteAllRows<T: PersistentModel>(_ type: T.Type) throws {
+        for row in try context.fetch(FetchDescriptor<T>()) {
+            context.delete(row)
+        }
     }
 
     // MARK: - Widget reload debounce

@@ -226,7 +226,11 @@ protocol StreakEngineProtocol {           // pure functions — the TDD core (sh
 // ≤ cap, same-boot uptime accrual). recomputeDerivedState (E2.3, §8) landed with the
 // dedupe merge + the ADR-7 healing re-anchor (engine healFrozenStreak, 1.2.0);
 // launch/remote-change wiring → E3.1/§4.3. undoSlip/finalizePendingSlips → E4.1;
-// eraseEverything → E2.4; snapshot rebuild hook → E3.1.
+// eraseEverything LANDED (E2.4): local-first erase — entities, witness, App Group
+// defaults sweep, store file set, debounced reload, THEN the CloudKit purge behind
+// the CloudSyncControlling seam below (Session 08 ruling: the fallible remote step
+// goes last; its failure surfaces for retry after local completion; iCloud
+// unavailable ⇒ skip, fully-local is first-class). Snapshot rebuild hook → E3.1.
 protocol QuitServiceProtocol {            // the only writer of Quit/Slip/UrgeEvent
     func createQuit(from profile: QuizProfile) throws -> Quit            // enforces ≤3
     func logSlip(quitID: UUID, note: String?) throws -> Slip             // archive→best, new streak,
@@ -234,7 +238,17 @@ protocol QuitServiceProtocol {            // the only writer of Quit/Slip/UrgeEv
     func undoSlip(slipID: UUID) throws                                   // valid ≤10 min
     func finalizePendingSlips(now: Date)                                 // undo-window sweep on foreground
     func recordUrgeOutcome(_ e: UrgeEventDraft) throws
-    func eraseEverything() async throws                                  // local + CloudKit purge, §10
+    func eraseEverything() async throws                                  // local first, then CloudKit purge — §10
+}
+
+// Landed (E2.4): the CloudKit seam erase consumes (test-suite §3.1/§7.8 — doubles
+// conform to architecture protocols, CKContainer is never stubbed). Production
+// conformance (CKContainer accountStatus mapped to the two-valued domain status +
+// record-zone deletion) arrives with the §4.3 flip; until then the store is
+// `cloudKitDatabase: .none` and tests inject mocks.
+protocol CloudSyncControlling {           // account status + private-zone purge
+    func accountStatus() async -> CloudAccountStatus     // .available | .unavailable
+    func deleteAllPrivateZones() async throws            // the erase purge (§10)
 }
 
 protocol SnapshotServiceProtocol {        // App Group JSON writer; called after EVERY mutating op
@@ -377,7 +391,7 @@ Maps directly to PRD §7 and feasibility Risk #8 ("privacy incident is existenti
 | In transit | TLS everywhere (SDK defaults); P1 Worker is HTTPS + App Attest. No certificate-pinning theater — there is no first-party v1 API to pin. |
 | Keys | **Zero secrets ship in the client.** RevenueCat/Superwall/TelemetryDeck publishable SDK keys are non-secret by design. The Anthropic key lives only in the Worker's secret store. |
 | Consent | Analytics opt-in inside the quiz's early steps, plain language, **default off, zero events before the answer** (release-gated by proxy inspection). iCloud sync is user-controlled at the OS level and surfaced in Settings. AI companion (P1) is opt-in, labeled AI, with a first-use explanation of exactly what is sent (messages + habit category, nothing else). |
-| Erase | One-tap erase: delete all SwiftData entities → purge CloudKit zone → clear App Group files + UserDefaults → RevenueCat anonymous-ID reset → final `erase_all_completed` (if opted in) → relaunch state = fresh install. Verified across two synced devices (release criterion). |
+| Erase | One-tap erase, LOCAL FIRST (order corrected Session 08 — the on-device copy is the more sensitive one and every local step is cloud-independent, so the one fallible remote step goes last and its failure surfaces for retry): delete all SwiftData entities → clear the clock witness + App Group files + UserDefaults → RevenueCat anonymous-ID reset (E7) → final `erase_all_completed` if opted in (E8) → purge CloudKit private zone LAST (skipped, never failed, when iCloud is unavailable — fully-local is first-class) → relaunch state = fresh install. Verified across two synced devices (release criterion). |
 | Legal posture | Habit category is sensitive-class data (GDPR / WA MHMD) even at category level — disclosed in privacy policy + App Privacy labels. 17+ rating; clinical copy; no explicit terms in metadata. |
 | Duty of care | Helpline directory in-bundle (region-aware via Locale, no geolocation permission); alcohol-withdrawal notice hardcoded into the alcohol module; P1 crisis template server-enforced with client-side pattern matching as defense in depth. |
 | Supply chain | Three SDKs total (RC, Superwall, TelemetryDeck), versions pinned; the proxy-inspection release gate re-runs on every SDK bump to verify network behavior. |
