@@ -221,8 +221,11 @@ protocol StreakEngineProtocol {           // pure functions — the TDD core (sh
 // totalCleanSeconds; the undo lifecycle incl. isPendingUndo=true defers to E4.1 as one
 // unit), logUrgeEvent (≈ recordUrgeOutcome), activeQuits, and streakValue — the read
 // that feeds the ADR-7 reboot cap from a device-local last-known-good reading (App
-// Group defaults, never the mirrored store; advancement gated on a .normal verdict
-// AND continuity with the previous reading). undoSlip/finalizePendingSlips → E4.1;
+// Group defaults, never the mirrored store; Session 07 redefined it as a conservative
+// WITNESS with three advance paths — two-gate real-wall, once-per-boot heal restart
+// ≤ cap, same-boot uptime accrual). recomputeDerivedState (E2.3, §8) landed with the
+// dedupe merge + the ADR-7 healing re-anchor (engine healFrozenStreak, 1.2.0);
+// launch/remote-change wiring → E3.1/§4.3. undoSlip/finalizePendingSlips → E4.1;
 // eraseEverything → E2.4; snapshot rebuild hook → E3.1.
 protocol QuitServiceProtocol {            // the only writer of Quit/Slip/UrgeEvent
     func createQuit(from profile: QuizProfile) throws -> Quit            // enforces ≤3

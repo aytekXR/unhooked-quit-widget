@@ -628,3 +628,163 @@ green end-to-end, build 20 uploaded, MATCH_BOOTSTRAP deleted.** Engine tagged
 streakengine-v1.1.0; package 77/77, coverage 100/100/100 measured by the CI gate.
 TestFlight: signing green end-to-end, upload blocked only on the missing ASC app
 record (operator). CodeGraph index synced at session end.
+
+---
+
+## 2026-07-09 · Session 07 · E2.3 — CloudKit dedupe merge + recomputeDerivedState + ADR-7 healing re-anchor + LKG witness, red→green×2 (+1 review cycle) — engine v1.2.0; TestFlight bundle-version fix
+
+**Prompted.** Execute resume prompt v1.8 with workflows (ultracode): E2.3 — the
+CloudKit dedupe merge pass + `recomputeDerivedState()` including the carried ADR-7
+re-anchor healing (freeze-then-resume), strictly test-first. Workflows ran at four
+gates: 3-designer/3-judge design panel; 3-adversary red team over the synthesized
+spec (with EXECUTABLE probes against the real engine in a disposable worktree);
+3-lens pre-red verification; 4-dimension adversarial diff review (34 agents:
+10 findings → 30 refutation-first verifiers → 7 confirmed, 3 refuted).
+
+**Produced.**
+- **Engine (StreakEngine → 1.2.0, tagged streakengine-v1.2.0):**
+  `healFrozenStreak(on:at:monotonic:lastKnownGood:) -> StreakSnapshot?` — the ADR-7
+  healing half deferred from Session 06. Heals EXACTLY the across-reboot over-cap
+  freeze (the one state that never recovers on its own); every other arm returns nil.
+  Mint ("option iii"): `startAt' = now − frozen`, anchor re-based onto the current
+  boot `(reading.bootID, reading.uptime − frozen, wallClock == startAt')`;
+  trackedSince/banked fields/undo pass through untouched — no new append-only
+  exemption, `createdAt` "never resets" stays literally true. In-function tripwire
+  re-evaluates the minted anchor to `(.normal, frozen)`. The private `evaluate()`
+  gained a `healable` arm tag (single arm inventory preserved; the two public faces
+  byte-identical, `currentStreak` destructure widened). 84/84 local, llvm-cov
+  100/100/100 package-wide held.
+- **Repository — `recomputeDerivedState()` (QuitRepository.swift; the red-commit
+  sentinel file folded in for private-member access):** capture (now, reading,
+  witness) once → **dedupe merge** per same-id group → **heal pass** → **witness
+  restart** (once per BOOT — see review fix) → single gated save + debounced reload;
+  the no-op pass touches nothing (`didMutate` Bool returned). Launch/remote-change
+  wiring deliberately defers to E3.1.
+- **Merge semantics (ratified):** fold over the record multiset, survivor-independent:
+  `createdAt` min (= max total tracked span, the named test-1 meaning);
+  `startAt` max (latest slip-terminated) with its anchor taken AS A COHERENT TUPLE
+  from the same record (anchor.wallClock == startAt; guard measures from the anchor,
+  so a grafted older anchor would inflate unflagged — pinned) with a deterministic
+  content tie-break (anchored beats nil, then min by (wallClock, uptime, bootID));
+  `best`/`totalClean` fieldwise max; `avertedUrgeCount` = max(stored counters,
+  recount of .averted over the UNIONED events) — plain max undercounts when devices
+  hold different averted events; scalar fields by value-symmetric reductions (spend
+  max, category/goal min-by-rawValue, label prefer-non-nil-min, currency min,
+  allowance non-nil-max); triggers/motivations = order-preserving GLOBAL union
+  (candidates ordered count-desc then ASCENDING element-wise lexicographic — the
+  direction is contractual; base list's user order survives — motivations render
+  verbatim in the panic flow); `discreetMode` OR and `isArchived` OR (both fail
+  toward privacy; a stale un-synced copy can neither un-hide nor resurrect a quit,
+  and the max-3 invariant cannot be broken by a merge); `sortIndex` min with a new
+  deterministic id tiebreak in `activeQuits()` (widget order stays total).
+  Children union by id, re-parented BEFORE loser deletes with an interim save
+  (.cascade belt-and-suspenders); same-id child rows dedupe to one; QuizProfile
+  (no inverse ⇒ dangle risk) re-pointed to the survivor, never deleted.
+- **LKG → conservative WITNESS (the discipline EXTENSION, ratified):** the
+  device-local reading is redefined from "last trusted wall reading" to a provable
+  lower bound on elapsed real time. Three advance paths, priority order:
+  (1) the Session-06 two-gate real-wall advance — UNCHANGED and preferred;
+  (2) heal-time restart `+= min(gap, cap)`, ONCE PER BOOT (bootID-gated);
+  (3) same-boot uptime accrual (pure monotonic arithmetic — no wall claim is ever
+  consulted, so a lying wall cannot launder in). Paths 2+3 never write a raw wall;
+  per-reboot unverifiable optimism stays ≤ cap, CUMULATIVE across reboots — exactly
+  the rate, verdict character, and cumulativity of the already-ratified in-window
+  channel (gap ≤ cap ⇒ .normal ⇒ two-gate advance onto the claimed wall, pinned
+  since Session 06). This EXTENDS the gates; it does not weaken them.
+- **Why the witness exists (main-agent correction of the judge panel):** all three
+  judges ruled "never advance the LKG on heal" and called the cost a "rare
+  double-power-off shrink" — WRONG. Traced and then probe-CONFIRMED (red-team P1):
+  with a dead chain, EVERY subsequent normal reboot re-caps all streaks from the
+  healed anchor's wall (verified = 0), so a 54-day streak surviving a 5-minute iOS
+  update reboot would display 14d, flagged, forever — heal without chain restoration
+  is not freeze-then-RESUME. The witness restores the chain conservatively and
+  SELF-CONVERGES: the lag decays by (cap − true gap) per reboot cycle until the
+  ordinary two-gate advance re-certifies the REAL wall (probe P5 + repo-level
+  `test_lastKnownGood_chainReconverges…` pin the full numeric script).
+- **TestFlight bundle-version fix (2a46abc, run 28997716868 FULLY green):** XcodeGen
+  hardcodes `CFBundleVersion "1"` in generated Info.plists, silently swallowing
+  gym's `CURRENT_PROJECT_VERSION` xcargs — **correction to the Session 06 record:
+  "build 20" actually uploaded as bundle version '1'** (first upload, nothing to
+  collide with), and this session's upload failed DUPLICATE against it. Both
+  targets now route `CFBundleVersion`/`CFBundleShortVersionString` through
+  `$(CURRENT_PROJECT_VERSION)`/`$(MARKETING_VERSION)`; **build 23 (0.1.0) uploaded —
+  ASC accepting it proves the routing** ("build number auto-increments" is now true
+  bundle-side, closing that E0.1 acceptance for real).
+
+### Red (TDD §7.1 evidence)
+
+E2.3 red (commit A 6e4ee61): local `swift test` — 84 tests, 7 new heal tests + the
+1.2.0 version pin failed on designed assertions (cries-wolf sentinel: corrupted
+non-nil snapshot), 76 pre-existing green:
+```
+✘ (healed?.startAt → 0000-12-30) == (now - TimeInterval(frozen) → 2026-07-23)
+✘ (atHeal.momentum → 1.0) == (Double(frozen) / Double(35 * day) → 0.5428…)
+✘ Test run with 84 tests failed after 0.103 seconds with 646 issues.
+```
+CI run 28996554955: release gate red on the same; unit lane red on ALL 14 new app
+tests, each on its designed assertion, e.g.:
+```
+✘ test_mergeDuplicateQuits_keepsMaxTotalTrackedSeconds — (rows.count → 2) == 1
+✘ test_recompute_witnessRestart… — (witness?.wallClock → 2026-07-12) == (… 2026-07-26)
+✘ test_activeQuits_ordersDeterministically… — map(\.id) == [low, high]  (SQLite tie
+  order follows insertion — the one riskily-red test, confirmed genuinely red)
+```
+Review-fix red (commit C 51569df, CI run 28999392466, sole failure = the designed
+assertion): `(h.lkgStore.load()?.wallClock → 2026-08-09) == (afterFirst → 2026-07-26)`
+— a second same-boot pass stacked another cap.
+
+### Review (ultracode workflows at four gates)
+
+- **Design panel** (3 designers × 3 judges): unanimous winner sync-determinism;
+  judges killed both losers' advance-LKG-to-raw-wall heal (bridge-arm poison for
+  foreign anchors — verified against `evaluate()`), and judges 1+2 killed the
+  winner's anchor-only mint (post-slip permanent false-flag). Main agent then
+  corrected the judges' never-advance ruling (see witness above) — the red team
+  probe-confirmed both the correction and the mint ruling.
+- **Red team** (3 adversaries, executable probes): confirmed the ratchet (P1),
+  option-A flag (P2), convergence numbers (P5), momentum continuity (P7); found the
+  witness-stacking bound had been MIS-STATED in the spec (fixed: the honest claim is
+  cap-per-reboot cumulative = in-window channel parity, and a pin test asserts that
+  exact bound); constraint audit found the createdAt "never resets" conflict →
+  option (iii) adopted (also sync-stable: min-createdAt merge would have reverted
+  option C's move on the first stale duplicate); determinism attack broke the
+  original joined-string union tie-break (not injective over free text) → structural
+  element-wise order, and flipped isArchived AND → OR.
+- **Pre-red verification** (3 lenses): caught 1 blocker before commit A — the
+  cascade test passed from birth (same-id loser makes re-parenting unobservable
+  without the fold-to-one assertion) — plus the union tie-break direction ambiguity.
+  Zero compile findings; the app lane compiled first try under strict concurrency.
+- **Diff review** (4 dims → 10 findings → 30 verifiers): **7 confirmed, 3 refuted.**
+  The one behavior fix: witness restart granted per heal-CALL, not per boot
+  (probe: 5 same-boot passes → 5 grants) → red C → green D (`previous.bootID !=
+  reading.bootID` gate). Five mutant-survival pins landed in D: averted recount,
+  discreet OR, absolute scalar oracle, accrual bootID veto, anchor tie-break.
+  Documented-not-fixed (2/3): the gated re-certification can carry ≤ tolerance
+  (60 s) past the cap in the heal reboot — the guard's designed ±60 s noise
+  envelope, bounded per reboot, deliberately not special-cased.
+
+### Known limitations / carried items
+
+1. **Witness tolerance slop (documented, deliberate):** ≤ 60 s/reboot of extra
+   credit when a reboot gap lands in (cap, cap+tolerance] — noise-envelope grade
+   vs the sanctioned 14d/reboot channel; revisit only if tolerance semantics change.
+2. **Merge property test has no absolute oracle** — by design it proves
+   order-invariance; the absolute rules are pinned by the named tests + the five
+   review pins. Extending DupSpec (discreet/scalar divergence) is optional hardening.
+3. **recomputeDerivedState wiring** (app launch; remote-change notification) → E3.1
+   / the §4.3 CloudKit flip respectively. Real-CloudKit dedupe (test-suite item 21's
+   `_streakHistoryNeverShrinks` integration variant) stays contract-tier/nightly.
+4. Undo lifecycle whole in E4.1; `ClockProviding`/`WidgetRefreshing` production
+   conformances with E3.1; `StreakCalculating` still not exposing the guard/heal
+   (first-consumer-need policy); §4.3 flip red-test-first when deliberately taken.
+5. Operator-owned blockers unchanged (E0.3 device measurement; content sign-off;
+   MVP §7 vs test-suite §1.5 drift; optional Slack webhook rotation). ASC-side:
+   TestFlight now shows 0.1.0 build 23 — export-compliance/internal testers as before.
+
+### Gate status
+
+E2.3 DONE: red 28996554955 → green 28997109088 (ALL test lanes; coverage
+100/100/100 measured by the gate) → bundle-version fix 28997716868 (FULLY green,
+build 23 uploaded) → review-red 28999392466 → review-green 29000350889 (FULLY
+green end-to-end incl. the TestFlight upload — build 24). Engine tagged
+streakengine-v1.2.0 on aaf36fe. CodeGraph synced at session end.
