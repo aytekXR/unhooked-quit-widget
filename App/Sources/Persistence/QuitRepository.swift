@@ -32,6 +32,11 @@ final class QuitRepository {
     private let cloud: any CloudSyncControlling
     private let appGroupDefaults: UserDefaults
     private let panicSnapshotStore: PanicSnapshotStore
+    /// The §9-rule-2 panic write buffer, derived from the pre-cache's directory: both
+    /// files live in the App Group container root by design (architecture §4), so the
+    /// injected pre-cache location places the buffer too — tests land in the same
+    /// temp directory, production in the real container, with zero extra wiring.
+    private let panicOutcomeBuffer: PanicOutcomeBuffer
     private let debounceSleep: @Sendable (Duration) async -> Void
     private var pendingReload: Task<Void, Never>?
 
@@ -53,7 +58,20 @@ final class QuitRepository {
         self.cloud = cloud
         self.appGroupDefaults = appGroupDefaults
         self.panicSnapshotStore = panicSnapshotStore
+        self.panicOutcomeBuffer = PanicOutcomeBuffer(
+            directoryURL: panicSnapshotStore.fileURL.deletingLastPathComponent()
+        )
         self.debounceSleep = debounceSleep
+    }
+
+    // MARK: - E3.2 · panic write-buffer flush (§9 rule 2)
+
+    /// Replays the panic flow's buffered outcomes into the store — the "flushed into
+    /// SwiftData as soon as the context is ready" half of §9 rule 2. Returns how many
+    /// outcomes landed. E3.2 red skeleton: not implemented.
+    @discardableResult
+    func flushPanicOutcomes() -> Int {
+        0 // red skeleton — the green commit lands the dedupe-by-id replay
     }
 
     // MARK: - Reads

@@ -29,7 +29,12 @@ packages:
     path: Packages/PaywallKit
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    from: "1.18.0"
+    # EXACT pin (E3.2): no Package.resolved is committed (the .xcodeproj is
+    # generated), so a `from:` range re-resolves on every CI run — and 1.18.x vs
+    # 1.19.x is a behavioral cliff (the swift-testing `.snapshots(record:)` trait is
+    # a silent no-op in 1.18, functional from 1.19). Version bumps are deliberate
+    # commits per test-suite §3.3's re-record discipline.
+    exactVersion: "1.19.3"
 
 settings:
   base:
@@ -142,6 +147,9 @@ targets:
     dependencies:
       - target: Unhooked
       - package: SnapshotTesting
+      # E3.2: the panic-flow snapshot fixtures conform to ClockProviding, whose
+      # MonotonicNow value type lives in StreakEngine.
+      - package: StreakEngine
 
   UnhookedUITests:
     type: bundle.ui-testing

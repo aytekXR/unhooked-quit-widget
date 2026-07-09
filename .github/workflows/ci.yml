@@ -142,22 +142,30 @@ jobs:
           key: spm-${{ runner.os }}-${{ hashFiles('project.yml') }}
           restore-keys: spm-${{ runner.os }}-
 
+      # Deterministic pick (E3.2, test-suite §3.3 "one pinned simulator runtime +
+      # device model"): highest-versioned iOS runtime, then the preferred device
+      # order below — the same runner image always yields the same simulator, and an
+      # image bump that changes the pick is visible in this step's log next to any
+      # snapshot drift it causes. (Snapshot geometry is additionally pinned in-test
+      # via ViewImageConfig, so the booted device model only supplies the runtime.)
       - name: Pick iPhone simulator
         id: sim
         run: |
           UDID=$(xcrun simctl list devices available --json | jq -r '
             [.devices | to_entries[]
              | select(.key | contains("iOS"))
-             | .value[]
-             | select(.isAvailable)
-             | select(.name | startswith("iPhone"))
-            ][0].udid // empty')
+             | {runtime: .key, devices: [.value[] | select(.isAvailable) | select(.name | startswith("iPhone"))]}
+            ] | sort_by(.runtime) | reverse
+              | map(.devices | sort_by(. as $d |
+                  [(["iPhone 17 Pro", "iPhone 17", "iPhone 16 Pro", "iPhone 16"]
+                    | index($d.name)) // 99, $d.name]))
+              | flatten | .[0].udid // empty')
           if [ -z "$UDID" ]; then
             echo "::error::No available iPhone simulator on this runner"
             xcrun simctl list devices
             exit 1
           fi
-          echo "Using simulator $UDID"
+          echo "Pinned pick: $(xcrun simctl list devices available | grep "$UDID" || echo "$UDID")"
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
           xcrun simctl boot "$UDID" || true
 
