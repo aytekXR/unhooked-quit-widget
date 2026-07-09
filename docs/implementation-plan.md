@@ -32,23 +32,26 @@ specifies local-first, cloud purge last; Session 08 ruling).
 | E2.3 dedupe merge + recompute | ✅ DONE | Session 07; launch/remote-change wiring → E3.1/§4.3; real-CloudKit dedupe → contract tier; LKG witness discipline ratified |
 | E2.4 one-tap erase | ✅ DONE | Session 08; LOCAL-FIRST order (the one plan correction — §10 updated); CloudKit purge behind `CloudSyncControlling` (real purge → §4.3/contract); RevenueCat clear → E7 seam; `erase_all_completed` → E8 seam; panic-snapshot FILES join the sweep in E3.1 (review-pinned carry) |
 | E3.1 panic productionizing | ✅ DONE | Session 09; pre-cache = panic-snapshot.json FILE (§4/ADR-6 outrank the plan's "defaults" phrasing — recorded adjustment, not drift) + erase coverage in the same session; production Clock/Widget conformances + RepositoryProvider post-frame wiring; panic route provably store-free; quitID channel landed (intent parameter → E3.3); **latency gate still unwired — operator E0.3 measurement pending**; InstantLaunch package extraction → second consumer |
-| E3.2 panic flow UI | ▶ NEXT | Session 10 objective — `resume-prompt.md` v2.1 (adds the §9-rule-2 write buffer as a named deliverable) |
-| E3.3–E10.2 | ☐ not started | Per plan; no scope changes |
+| E3.2 panic flow UI | ✅ DONE | Session 10; §9-rule-2 write buffer (`panic-outcomes.ndjson`, erase-covered same-session, idempotent timestamp-preserving flush in `startIfNeeded`); 4-7-8 pacer behind the `HapticsPlaying` seam (§5.1); reasons VERBATIM at 40pt with vertical paging; slipped exit = ROUTING SEAM ONLY (`PanicSlipHandoff` — E4.1 owns the slip flow + its writes as one unit); `panicScript.json` now BUNDLED (its consuming epic arrived; tone review gates TestFlight-visible copy); first 40 snapshot goldens (light/dark × default/AX5 — AX5 supersedes the plan's "XXL" wording, stricter); deferrals: haptics-only production channel → E5+ settings writer; `panic_step_reached` → E8.1; VoiceOver audit + Live Activity → device tier / P1 |
+| E4.1 slip flow + undo | ▶ NEXT | Session 11 objective — `resume-prompt.md` v2.2 (cold-route slip design point named as the settle-first decision) |
+| E3.3, E4.2–E10.2 | ☐ not started | Per plan; no scope changes |
 
-**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 12 done + 1 half-scaffolded ≈
-**~39%** of build tasks; milestones: M0 ✅, M1 in progress (engine + persistence +
-panic plumbing done; panic flow UI, slip, quiz pending), M2 not started. **Calendar:**
-roadmap targets store-approval by week 5–6 with a mid-December 2026 hard window;
-Sessions 02–09 ran 2026-07-07 → 07-09, so the build is comfortably inside the window
-(≈4 months of slack — per roadmap discipline, slack goes to distribution content,
-not scope creep).
+**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 13 done + 1 half-scaffolded ≈
+**~42%** of build tasks; milestones: M0 ✅, M1 in progress (engine + persistence +
+the full panic flow done; slip/undo + quiz are M1's remaining exit criteria), M2 not
+started. **Calendar:** roadmap targets store-approval by week 5–6 with a mid-December
+2026 hard window; Sessions 02–10 ran 2026-07-07 → 07-09, so the build is comfortably
+inside the window (≈4 months of slack — per roadmap discipline, slack goes to
+distribution content, not scope creep).
 
-**Production-readiness level:** foundation-complete / feature-incomplete (pre-alpha).
-Shipping-quality: CI gates (engine floors, sole-importer lint, snapshot/UI lanes),
-signed TestFlight uploads on every green merge, clock-integrity + erase semantics
-adversarially reviewed and pinned. Not yet product: no onboarding/quiz, no real panic
-flow UI, no widget suite, no paywall, no analytics — Epics 3–9 are the remaining
-distance to the MVP §7 release gates.
+**Production-readiness level:** foundation-complete / core-loop-forming (pre-alpha).
+Shipping-quality: CI gates (engine floors, sole-importer lint, real snapshot goldens,
+UI smokes), signed TestFlight uploads on every green merge, clock-integrity + erase +
+panic write-buffer semantics adversarially reviewed and pinned; the product's soul —
+the ~90s panic flow — is real, brand-audited UI reachable from the lock-screen path.
+Not yet product: the slipped exit parks on a placeholder (E4.1), no onboarding/quiz,
+no widget suite beyond the skeleton, no paywall, no analytics — E3.3–E9 are the
+remaining distance to the MVP §7 release gates.
 
 ---
 

@@ -1071,3 +1071,171 @@ sole-importer lint, app build/unit/snapshot/UI-smoke incl. the hardened picker s
 and both review pins; a fresh build shipped on this run). Billed macOS runs this session: 4 (one
 wasted — see CI incident). No engine changes (StreakEngine stays 1.2.0).
 OPERATOR-TODO.md updated at session start AND close. CodeGraph synced at session end.
+
+## 2026-07-09 · Session 10 · E3.2 — panic flow UI + §9-rule-2 write buffer, red→green (+1 wasted run on a Darwin-only symbol) + refs/pins commit; first real snapshot goldens
+
+**Objective (resume-prompt v2.1): DONE.** The ~90s skippable panic flow is real UI,
+its outcomes ride the §9-rule-2 append-only write buffer, and the snapshot lane has
+its first true image matrix. StreakEngine stays 1.2.0 (no engine change).
+
+### What landed
+
+- **`PanicOutcomeBuffer`** (App/Sources, SwiftData-free by placement): append-only
+  NDJSON `panic-outcomes.ndjson` in the App Group root, derived by the repository
+  from the pre-cache's directory (zero init ripple — tests land in the same temp
+  dir, production in the container). Append = one JSON line + fsync at EXIT time
+  (off the §11 budget), file born with `.completeUntilFirstUserAuthentication`
+  (app-only reader — stricter than the pre-unlock snapshot posture). Reader
+  tolerates a torn tail line (crash mid-append loses at most the newest outcome,
+  never the file). Erase coverage in the SAME session (the standing rule): the file
+  joins `eraseLocalArtifacts` in BOTH call sites + file-shaped sentinel +
+  not-resurrected tests.
+- **`QuitRepository.flushPanicOutcomes()`** — the "flushed as soon as the context is
+  ready" half, wired into `startIfNeeded` between `recomputeDerivedState()` and the
+  pre-cache refresh. NON-throwing silent-recover (design-panel ruling: a flush
+  failure must never strand the launch or skip the repository publish; rollback on
+  save failure, buffer intact for the next launch). Idempotent under replay: the
+  `UrgeEvent` ADOPTS the draft id (crash between save and clear re-runs as a no-op)
+  AND the dedupe set extends per insert (two same-id lines in one file — the append
+  retry's signature — land once; review pin). `at` preserves the TRUE exit instant.
+  Erased-quit drafts DROP (not-resurrected discipline); nil-quit drafts land
+  unattributed (no counter bump). Witness untouched by flush — recompute owns the
+  launch's witness work; replaying history earns no fresh wall trust.
+- **`BreathPacerPattern`** — the 4-7-8×3 pure model, built from the SHIPPING
+  script's pacer spec (never hardcoded): `phases()` / `totalDuration` (57s) /
+  `phase(at:)` (boundary belongs to the phase it starts; negative clamps to first;
+  end → nil) / `phaseProgress(at:)` — the bloom and the haptic curve share one
+  timing source.
+- **`HapticsPlaying` seam** (architecture §5.1, test-suite §3.1): `FakeHapticsEngine`
+  records pattern-play calls in tests; `LiveHapticsEngine` = CoreHaptics behind a
+  Task hop (engine work deferred past the first frame; simulator/no-hardware →
+  silent no-op). The one-soft-haptic rule scopes to the celebration; the pacer
+  carries the full rhythm.
+- **`PanicFlowModel`** (@MainActor @Observable, store-free): stages breath → timer →
+  reasons → redirect → exits → celebration; `stepsReached` records ON ENTRY, in
+  order, no duplicates; redirect option ids are the script contract ("breathe"
+  re-enters the pacer fresh, others land on the exits); `exitUrgePassed()` buffers
+  the averted draft (one retry) + ONE soft haptic + celebration — the celebration
+  confirms the URGE passed, not the disk (documented ruling; `outcomeRecorded`
+  keeps the truth testable); `exitSlipped()` emits `PanicSlipHandoff{quitID, source,
+  stepsReached}` through the named closure seam and writes NOTHING (E4.1 owns the
+  slip flow + its writes as one unit; the model's `slipHandoff` state drives the
+  placeholder destination E4.1 replaces).
+- **`PanicFlowView`** under the content-stable `root.panicPlaceholder` anchor:
+  bloom pacer (TimelineView paused until `.task` marks the start via the injected
+  clock — the initial frame is always phase zero, which is also what makes the
+  goldens deterministic; Reduce Motion → opacity pulse at the SAME rhythm),
+  haptics-only state (static `hapticOnlyLabel` + round ticks, full haptic rhythm
+  still plays), urge timer, reasons at 40pt semibold `@ScaledMetric(.largeTitle)`
+  with one-motivation-per-page vertical paging (verbatim, user order) +
+  `emptyFallback`, redirect menu (56pt rows), exits (teal prominent averted /
+  quiet slipped, discreet labels "Done"/"Log it"), celebration renders the
+  averted `confirmation` copy. Zero invented user-facing strings — every visible
+  string is script- or model-sourced. a11y ids: `panic.flow.*` namespace.
+- **`panicScript.json` is BUNDLED** (project.yml resource): E3.2 is its named
+  consuming epic; the flow renders the shipping file, never copies (§3.2). The
+  rest of Content/ stays unbundled; REVIEW.md updated — the panic script's tone
+  review now gates TestFlight-visible copy (operator queue bumped).
+- **Snapshot lane made real:** 10 suites × light/dark × default/AX5 (AX5 supersedes
+  the plan's looser "XXL" — never weaken) incl. discreet, haptics-only, and
+  empty-fallback variants, `.snapshots(record: .missing)` trait,
+  `.image(perceptualPrecision: 0.98, layout: .device(config: .iPhone13))` — layout
+  pinned in-test so the booted simulator only supplies the runtime. SnapshotTesting
+  pinned `exactVersion: 1.19.3` (no committed Package.resolved; the 1.18→1.19
+  `.snapshots` trait cliff). References recorded ON CI (Linux box can't render),
+  committed from the `test-outputs` artifact. ci.yml simulator pick made
+  deterministic (newest runtime + preferred-device order, choice echoed in the log);
+  full xctestplan pinning + the `snapshots-rerecorded` label gate stay Epic 6 work.
+
+### Red (TDD §7.1 evidence)
+
+Red commit 3f890f8, run **29041600595**: build SUCCEEDED; all 9 pre-existing suites
+green in the same run (incl. the E3.1 zero-store spy pin); 48 designed issues in the
+new "E3.2 · panic flow + write buffer" suite; snapshot suite 10/10 red on the clean
+`#require(loadShipping)`; the new flow smoke red on the designed breath-step
+assertion. Examples:
+```
+✘ test_breathPacer_pattern_478_threeRounds — (phases.count → 0) == 9 · (totalDuration → 0.0) == 57
+✘ test_exitUrgePassed_logsUrgeEventAverted — (model.stage → .breath) == .celebration · (haptics.celebrationTaps → 0) == 1
+✘ test_exitSlipped_routesToSlipFlow — (f.recorder.handoffs → []) == [PanicSlipHandoff(…)]
+✘ test_erase_removesPanicOutcomeBuffer_unownedSiblingSurvives — !fileExists(…panic-outcomes.ndjson) → true
+✘ UI: "choosing a quit must open the real E3.2 flow at the breath step"
+```
+`test_flush_emptyBuffer_isNoOp` passed at red as a DECLARED green-from-birth guard
+(a no-op assertion cannot discriminate against a no-op skeleton — documented in the
+test and the red commit message).
+
+### Green + refs/pins
+
+Green e451dae run **29043154280** DISQUALIFIED (build failure — one token:
+`FileProtectionType.completeUntilFirstUnlock` does not exist; the correct member is
+`.completeUntilFirstUserAuthentication`). Green fix fdc8966 run **29043512846**:
+build + ALL 89 unit tests green (the whole new suite incl. the plan-named six);
+snapshot lane failed-while-recording the first 40 reference images by design
+(`record: .missing`, 10 suites × 4 axes); the NEW flow smoke red on its OWN
+container-id assertions — the flow mounted and worked (skip/averted BUTTONS found
+and tapped), but nested `.contain` container ids never surface to XCUITest: the
+Session 09 lesson recurred on new code and is now hardened at the source (step
+titles + celebration copy carry identifiers on the TEXT elements; the smoke asserts
+real elements only). Refs + pins commit 84c64fa run **29044978442**: FULLY GREEN
+end to end incl. TestFlight upload.
+
+### Key decisions (ratified this session — design panel + 3-verifier review)
+
+- **No PanicSnapshot schema change:** the haptics-only channel to a cold panic
+  launch is DEFERRED until a settings writer exists (E5+) — AppSettings has no
+  fetch-or-create consumer yet, so a snapshot field would be dead plumbing and the
+  1→2 bump would blank every existing cache at the flagship moment (panel: the
+  "additive + bump" pattern is decode-broken for non-optional fields — a v1 file
+  throws keyNotFound before the version gate; when the field DOES land, make it
+  decode-tolerant and do NOT bump). The flow honors an injected `hapticsOnlyPacer`
+  today; the seam is documented in the model.
+- **Flush placement + error policy:** inside the startIfNeeded do-block a thrown
+  flush would have been caught by the §9 BLOCKING catch and stranded the launch —
+  panel-caught; flushPanicOutcomes is therefore non-throwing silent-recover, and
+  runs between recompute and refresh so flushed outcomes fold into the final cache.
+- **Erased-quit drafts DROP; nil-quit drafts land unattributed** (panel split the
+  original insert-with-nil policy: resurrection vs honest zero-quit data).
+- **Cold source attribution = `.lockscreenWidget`** until E3.3 (no home widget
+  exists; `.homeWidget` would have been fabricated data — panel catch).
+- **Slip seam carries source + stepsReached** (panel: quitID alone was lossy for
+  E4.1's eventual UrgeEvent(.slipped)); still zero writes from the panic scene per
+  the resume-prompt scope ruling — the §9 wording's "Slip writes buffer" half is
+  E4.1's to close WITH the slip flow as one unit.
+- **Redirect content = the shipping JSON** (4 options; no journal row): the
+  brandkit's "journal one line" belongs to the slip/journal epics; recorded as the
+  ratified override rather than inventing copy.
+- **entryTitle renders on the breath step** (discreet → `entryTitleDiscreet`);
+  later step titles are already habit-neutral.
+- **Review (4 lenses → dedupe → 3-verifier majority, 25 agents): 7 confirmed /
+  0 refuted.** Three were the SAME flush hole (two same-id lines in one buffer —
+  the exit-time append retry's signature when fsync errors after the bytes land —
+  double-inserted and inflated `avertedUrgeCount`; fixed by extending the dedupe
+  set per insert, pinned by `test_flush_duplicateDraftIdsInOneBuffer_landOnce`);
+  one was the FileProtectionType incident (already fixed). Three test-gap pins
+  landed: the flush's stepsReached/source/at field mapping (end-to-end asserts in
+  `test_exitUrgePassed_logsUrgeEventAverted`), the fresh pacer run on the shipping
+  "breathe" redirect re-entry (`test_redirectBreatheOption_restartsThePacerRun`),
+  and the landing-flush widget reload (isolated in the otherwise-non-mutating
+  launch fixture).
+
+### Cost lesson (the Session 09 class, REPEATED — now a named rule)
+
+A Darwin-only symbol (`FileProtectionType` member name) cannot be type-checked on
+the Linux box; both preflight verifiers "reasoned" over it instead of demanding a
+compile and it burned run 29043154280. Rule going forward: any bare-SDK ENUM/CONST
+MEMBER name a session introduces (not just APIs — member spellings) gets verified
+against Apple docs/headers, not memory. Billed macOS runs this session: 4
+(red 29041600595, wasted 29043154280, green 29043512846, final 29044978442).
+
+### Known limitations / carried forward
+
+- The slipped exit parks on `panic.flow.slipPlaceholder` — a TestFlight user who
+  taps "I slipped" reaches a labeled dead end until E4.1.
+- VoiceOver pacer phase announcements + the accessibility audit are device-tier
+  (E3.2 acceptance's XCUITest-audit half deferred with it); haptics-only inline
+  offer + settings UI are E5+.
+- The E0.3 latency gate stays unwired (operator measurement still pending).
+- Snapshot goldens are runtime-coupled: a macos-26 runner-image runtime bump will
+  churn them — re-record deliberately (§3.3), the deterministic picker logs the
+  runtime per run.
