@@ -69,6 +69,11 @@ targets:
         CFBundleDisplayName: Ballast
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        # Portrait-only is a product decision (lock-screen widget wedge, one-hand
+        # panic path). iPhone-only apps still install on iPad in compatibility mode,
+        # where App Store validation (90474) demands either all four orientations for
+        # multitasking or an explicit fullscreen opt-out — this is the opt-out.
+        UIRequiresFullScreen: true
         ITSAppUsesNonExemptEncryption: false
     entitlements:
       path: App/Unhooked.entitlements
