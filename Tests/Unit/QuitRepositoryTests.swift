@@ -167,6 +167,59 @@ struct QuitRepositoryTests {
         #expect(try h.repository.activeQuits().count == 3, "the failed create leaves no partial row")
     }
 
+    @Test func test_logSlip_unknownQuit_throwsQuitNotFound() throws {
+        // Legitimizes the quitNotFound branch (review: landed without a pinning test).
+        let h = try Harness()
+        let ghost = UUID()
+        #expect(throws: QuitRepository.RepositoryError.quitNotFound(ghost)) {
+            try h.repository.logSlip(quitID: ghost, note: nil)
+        }
+    }
+
+    @Test func test_logUrgeEvent_persistsBeforeReturning_andCountsAvertedOnly() throws {
+        let h = try Harness()
+        let quit = try h.repository.createQuit(habitCategory: .vape)
+        h.clock.advance(by: 3_600)
+
+        let averted = try h.repository.logUrgeEvent(
+            quitID: quit.id, source: .lockscreenWidget, outcome: .averted,
+            stepsReached: [.breath, .timer]
+        )
+        _ = try h.repository.logUrgeEvent(quitID: quit.id, source: .inApp, outcome: .abandoned)
+
+        // Same commit-point rule as logSlip: a fresh context sees the rows.
+        let fresh = ModelContext(h.container)
+        let avertedID = averted.id
+        let stored = try fresh.fetch(
+            FetchDescriptor<UrgeEvent>(predicate: #Predicate { $0.id == avertedID })
+        ).first
+        #expect(stored?.source == .lockscreenWidget)
+        #expect(stored?.outcome == .averted)
+        #expect(stored?.stepsReached == [.breath, .timer])
+        #expect(stored?.at == epoch + 3_600)
+
+        let quitID = quit.id
+        let storedQuit = try fresh.fetch(
+            FetchDescriptor<Quit>(predicate: #Predicate { $0.id == quitID })
+        ).first
+        #expect(storedQuit?.avertedUrgeCount == 1, "only .averted outcomes bump the count")
+    }
+
+    @Test func test_createQuit_afterArchive_assignsUnusedSortIndex() throws {
+        // Review mutant: `sortIndex = active.count` collides after an archive frees a
+        // low index while higher ones stay taken. max(active)+1 must not collide.
+        let h = try Harness()
+        let first = try h.repository.createQuit(habitCategory: .vape)      // 0
+        _ = try h.repository.createQuit(habitCategory: .porn)              // 1
+        _ = try h.repository.createQuit(habitCategory: .alcohol)           // 2
+        first.isArchived = true
+        try h.container.mainContext.save()
+
+        let fourth = try h.repository.createQuit(habitCategory: .doomscroll)
+        #expect(fourth.sortIndex == 3)
+        #expect(try h.repository.activeQuits().map(\.sortIndex) == [1, 2, 3])
+    }
+
     @Test func test_repositoryWrite_triggersDebouncedWidgetReload() async throws {
         let h = try Harness()
         let quit = try h.repository.createQuit(habitCategory: .vape)
@@ -244,6 +297,15 @@ struct QuitRepositoryTests {
         #expect(
             h.lkgStore.load()?.wallClock == epoch + TimeInterval(day),
             "a flagged read must not advance the trusted reading"
+        )
+
+        // A timezone-SHAPED set (−3h exactly): .timezoneShift — still not .normal, so
+        // still no advance (review mutant: a `!= .clockRolledBack` gate would bless it).
+        h.clock.setWallClock(epoch + TimeInterval(day) - 10_800)
+        _ = try h.repository.streakValue(for: quit.id)
+        #expect(
+            h.lkgStore.load()?.wallClock == epoch + TimeInterval(day),
+            "a timezone-shaped set must not advance the trusted reading either"
         )
     }
 

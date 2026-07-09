@@ -239,10 +239,17 @@ final class QuitRepository {
         )
     }
 
-    /// Advances the device's trusted reading ONLY when a guard verdict computed against
-    /// a PRE-EXISTING anchor reads `.normal`. Never on `.clockRolledBack` or
-    /// `.timezoneShift` (persisting a disputed wall would poison every future
-    /// reboot-cap baseline), and never without an anchor (nothing verified the wall).
+    /// Advances the device's trusted reading ONLY when BOTH hold:
+    ///  1. a guard verdict computed against a pre-existing anchor reads `.normal`
+    ///     (never on `.clockRolledBack`/`.timezoneShift` — persisting a disputed wall
+    ///     would poison every future reboot-cap baseline; never without an anchor), and
+    ///  2. the new reading is CONTINUOUS with the previous trusted reading — the old
+    ///     reading itself re-run through the guard as the anchor. A freshly-minted
+    ///     quit anchor agrees with the reading it was minted from for ANY wall value,
+    ///     so gate 1 alone would let a fresh quit launder a forward-set wall into the
+    ///     device-global baseline (Session 06 review MAJOR); the continuity gate
+    ///     refuses it (within a boot the uptime delta disputes the wall jump; across a
+    ///     reboot the advance stays inside the same cap the display honors).
     private func refreshLastKnownGood(
         anchor: MonotonicAnchor?,
         now: Date,
@@ -254,6 +261,12 @@ final class QuitRepository {
             anchor: anchor, now: now, monotonic: reading, lastKnownGood: lastKnownGood
         )
         guard verdict == .normal else { return }
+        if let previous = lastKnownGood {
+            let continuity = StreakCalculator.sanityCheck(
+                anchor: previous, now: now, monotonic: reading, lastKnownGood: previous
+            )
+            guard continuity == .normal else { return }
+        }
         lastKnownGoodStore.save(
             MonotonicAnchor(bootID: reading.bootID, uptime: reading.uptime, wallClock: now)
         )

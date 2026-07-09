@@ -134,6 +134,19 @@ struct RebootCapTests {
         #expect(StreakCalculator.conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: mono, lastKnownGood: lkgB) == 7 * day)
     }
 
+    @Test("a same-boot capture at exactly the anchor's wall instant still bridges (the gate is inclusive)")
+    func test_rebootBridge_captureAtAnchorInstant_bridges() {
+        // Boundary pin (review): the bridge gate is `>=`. A `>` mutant — or a cap
+        // applied to the bridge — would freeze this 20-day uptime-verified remainder
+        // at the 14-day cap instead of crediting it in full.
+        let lkgB = MonotonicAnchor(bootID: bootB, uptime: 1_000, wallClock: epoch)
+        let mono = MonotonicNow(bootID: bootB, uptime: 1_000 + TimeInterval(20 * day))
+        let now = epoch + TimeInterval(20 * day)
+
+        #expect(StreakCalculator.sanityCheck(anchor: anchor, now: now, monotonic: mono, lastKnownGood: lkgB) == .normal)
+        #expect(StreakCalculator.conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: mono, lastKnownGood: lkgB) == 20 * day)
+    }
+
     @Test("a trusted reading older than this streak's anchor cannot bridge — the cap measures from the anchor")
     func test_staleLastKnownGood_predatingAnchor_capsFromAnchor() {
         // Post-slip re-anchor at day 10; the LKG still holds the day-5 capture. The stale
