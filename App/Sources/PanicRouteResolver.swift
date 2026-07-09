@@ -17,8 +17,13 @@ enum PanicPresentation: Equatable {
 /// unchanged (they only change who WRITES the selection).
 enum PanicRouteResolver {
     static func resolve(selectedQuitID: UUID?, snapshot: PanicSnapshot?) -> PanicPresentation {
-        // E3.1 red skeleton: the selection matrix does not exist yet. `.picker([])` is
-        // deliberately wrong for every matrix row so no route test can pass from birth.
-        .picker([])
+        let quits = snapshot?.quits ?? []
+        guard !quits.isEmpty else { return .empty }
+        if let id = selectedQuitID, let selected = quits.first(where: { $0.id == id }) {
+            return .breathe(selected)
+        }
+        // No selection — or a stale/unknown id (the quit was erased or archived):
+        // degrade to the no-selection behavior, never a dead end on the panic path (§9).
+        return quits.count == 1 ? .breathe(quits[0]) : .picker(quits)
     }
 }

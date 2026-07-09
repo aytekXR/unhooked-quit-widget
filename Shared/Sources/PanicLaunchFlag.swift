@@ -25,7 +25,7 @@ enum PanicLaunchFlag {
     }
 
     static func set(quitID: UUID) {
-        // E3.1 red skeleton: the selection channel does not persist yet.
+        groupDefaults?.set(quitID.uuidString, forKey: quitIDKey)
     }
 
     static func isSet() -> Bool {
@@ -33,11 +33,13 @@ enum PanicLaunchFlag {
     }
 
     static func selectedQuitID() -> UUID? {
-        // E3.1 red skeleton: the selection channel does not read yet.
-        nil
+        (groupDefaults?.string(forKey: quitIDKey)).flatMap(UUID.init(uuidString:))
     }
 
+    /// Consumes BOTH keys: a stale selection surviving the flag would hijack the
+    /// next panic launch onto the wrong quit.
     static func clear() {
         groupDefaults?.removeObject(forKey: key)
+        groupDefaults?.removeObject(forKey: quitIDKey)
     }
 }

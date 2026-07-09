@@ -127,6 +127,7 @@ final class QuitRepository {
         // NO last-known-good refresh here: a fresh anchor trivially agrees with the
         // reading it was minted from, so a verdict against it would be self-blessing —
         // a forward-set wall could poison the baseline through quit creation.
+        rebuildPanicSnapshot()
         scheduleWidgetReload()
         return quit
     }
@@ -173,6 +174,7 @@ final class QuitRepository {
         refreshLastKnownGood(
             anchor: before.monotonicAnchor, now: now, reading: reading, lastKnownGood: lastKnownGood
         )
+        rebuildPanicSnapshot()
         scheduleWidgetReload()
         return slip
     }
@@ -205,6 +207,7 @@ final class QuitRepository {
         refreshLastKnownGood(
             anchor: quit.monotonicAnchor, now: now, reading: reading, lastKnownGood: lastKnownGood
         )
+        rebuildPanicSnapshot()
         scheduleWidgetReload()
         return event
     }
@@ -236,10 +239,13 @@ final class QuitRepository {
         //    baseline), and it may never outlive a partially-failed erase.
         lastKnownGoodStore.clear()
 
-        // 3. Defaults sweep (infallible) + store file set (the one fallible local
-        //    step) — shared verbatim with the launch-time smoke hook.
+        // 3. Defaults sweep (infallible) + owned App Group files + store file set
+        //    (the fallible local steps) — shared verbatim with the launch-time smoke
+        //    hook. The panic pre-cache is IN the owned file set (E3.1): its verbatim
+        //    motivations are exactly what one-tap erase promises to destroy.
         try Self.eraseLocalArtifacts(
             storeURLs: container.configurations.compactMap { $0.isStoredInMemoryOnly ? nil : $0.url },
+            appGroupFileURLs: [panicSnapshotStore.fileURL],
             appGroupDefaults: appGroupDefaults
         )
 
@@ -264,27 +270,33 @@ final class QuitRepository {
         }
     }
 
-    /// The device-local half of erase (store file set + App Group defaults), static so
-    /// the app's launch-time smoke hook shares the identical implementation with
-    /// `eraseEverything()`.
-    static func eraseLocalArtifacts(storeURLs: [URL], appGroupDefaults: UserDefaults) throws {
+    /// The device-local half of erase (App Group defaults + owned App Group files +
+    /// store file set), static so the app's launch-time smoke hook shares the
+    /// identical implementation with `eraseEverything()`.
+    static func eraseLocalArtifacts(
+        storeURLs: [URL],
+        appGroupFileURLs: [URL],
+        appGroupDefaults: UserDefaults
+    ) throws {
         // Infallible first: sweep every KEY out of the App Group defaults — the
-        // panic launch flag today, defaults-shaped pre-cache keys tomorrow.
-        // `removeObject` is a no-op on the global-domain keys that
-        // `dictionaryRepresentation()` merges in, so the sweep cannot overreach.
-        // SCOPE (review-pinned, Session 08): this helper covers defaults keys + the
-        // store file set ONLY. E3.1 seam: when the App Group JSON snapshots land
-        // (panic-snapshot.json / widget-state.json, architecture §4 — files, not
-        // keys), their file names JOIN this sweep with a file-shaped sentinel test;
-        // until then no such writer exists (verified in the Session 08 review).
+        // panic launch flag + quitID selection today. `removeObject` is a no-op on
+        // the global-domain keys that `dictionaryRepresentation()` merges in, so the
+        // sweep cannot overreach.
         for key in appGroupDefaults.dictionaryRepresentation().keys {
             appGroupDefaults.removeObject(forKey: key)
+        }
+        // Owned App Group FILES (E3.1 closes the Session-08 carry item):
+        // panic-snapshot.json today; widget-state.json joins with its E6 writer. An
+        // allowlist of exact URLs, never a directory sweep (E2.4 scope pin — the real
+        // container holds unrelated files). Missing file = nothing to do.
+        let fileManager = FileManager.default
+        for url in appGroupFileURLs where fileManager.fileExists(atPath: url.path) {
+            try fileManager.removeItem(at: url)
         }
         // Then the store file set: base file + SQLite sidecars (`-shm`/`-wal`/
         // `-journal`) + hidden support artifacts. Unlinking an open store is safe
         // (POSIX semantics — the inode lives until the container closes); the
         // container is dead by design after an erase, relaunch = fresh install.
-        let fileManager = FileManager.default
         for url in storeURLs {
             let directory = url.deletingLastPathComponent()
             let base = url.lastPathComponent
@@ -466,9 +478,56 @@ final class QuitRepository {
 
         if didMutate {
             try context.save()
+            rebuildPanicSnapshot()
             scheduleWidgetReload()
         }
         return didMutate
+    }
+
+    // MARK: - E3.1 · panic pre-cache (panic-snapshot.json)
+
+    /// ADR-6's dual-representation invariant: every mutating write rebuilds the panic
+    /// pre-cache AFTER the store commit, so the cold panic route always renders the
+    /// user's current quits + verbatim motivations without touching the store.
+    /// Best-effort by design (§9 silent-recover): a failed write leaves the last good
+    /// cache standing — the store stays the source of truth and the next write or
+    /// launch refresh heals the file. NEVER called from `eraseEverything` — erased
+    /// means ABSENT until a new tracking era's first write (the sweep owns the file).
+    private func rebuildPanicSnapshot() {
+        guard let quits = try? activeQuits() else { return }
+        let cards = quits.map { quit in
+            QuitSnapshot(
+                id: quit.id,
+                // §10: discreet mode strips labels from snapshots (readable pre-unlock).
+                label: quit.discreetMode ? nil : Self.displayLabel(for: quit),
+                discreet: quit.discreetMode,
+                motivations: quit.motivations // verbatim, user order — the flow renders these
+            )
+        }
+        try? panicSnapshotStore.write(PanicSnapshot(quits: cards))
+    }
+
+    /// Launch-time refresh (`RepositoryProvider.startIfNeeded`): rewrites the cache
+    /// from store truth — heals a previously failed best-effort write and prunes any
+    /// residue the moment a new tracking era begins.
+    func refreshPanicSnapshot() {
+        rebuildPanicSnapshot()
+    }
+
+    /// Brand-safe display label for the pre-cache: the user's own words when they
+    /// gave any (brandkit: "the user's words outrank ours"), else the category's
+    /// plain clinical noun — in-app surfaces may name habits; only discreet surfaces
+    /// must not, and those take the `nil` branch above.
+    private static func displayLabel(for quit: Quit) -> String {
+        if let custom = quit.customLabel, !custom.isEmpty { return custom }
+        switch quit.habitCategory {
+        case .vape: return "Vaping"
+        case .porn: return "Porn"
+        case .alcohol: return "Alcohol"
+        case .weed: return "Weed"
+        case .doomscroll: return "Doomscrolling"
+        case .custom: return "Your goal"
+        }
     }
 
     /// Folds one duplicate group into its canonical survivor: every field OVERWRITTEN

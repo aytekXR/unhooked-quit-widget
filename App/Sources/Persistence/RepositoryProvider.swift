@@ -7,35 +7,71 @@ import SwiftData
 /// launch-time derived-state pass has run". Lives in App/Sources/Persistence because
 /// it imports SwiftData (the sole-importer lint allowlists exactly this directory);
 /// `UnhookedApp` references the type without the import and calls `startIfNeeded(for:)`
-/// from the root view's post-frame hook — never from `init`.
-///
-/// E3.1 RED SKELETON (pass-from-birth discipline, Session 08): deliberately wrong —
-/// opens the store EAGERLY at init and again on every start call, on every route, and
-/// never builds the repository or runs the launch pass. The init-order pins must fail
-/// against this before the green step inverts it.
+/// from the root view's `.task` — which runs after the first frame commits — never
+/// from `init` (constructing the provider does zero work, pinned by the init-order
+/// spy in PanicPathTests).
 @MainActor
 @Observable
 final class RepositoryProvider {
-    /// Published for future consumers (E3.2 panic flow, E4.1 slip flow) via the
-    /// SwiftUI environment; `nil` until the normal route's deferred start completes.
+    /// Published for consumers (E3.2 panic flow, E4.1 slip flow) via the SwiftUI
+    /// environment; `nil` until the normal route's deferred start completes.
     private(set) var repository: QuitRepository?
 
     private let storeOpener: () throws -> ModelContainer
     private let makeRepository: @MainActor (ModelContainer) -> QuitRepository
+    private var started = false
 
     init(
         storeOpener: @escaping () throws -> ModelContainer = { try PersistentStore.makeContainer() },
-        makeRepository: @escaping @MainActor (ModelContainer) -> QuitRepository
+        makeRepository: @escaping @MainActor (ModelContainer) -> QuitRepository = { RepositoryProvider.liveRepository($0) }
     ) {
         self.storeOpener = storeOpener
         self.makeRepository = makeRepository
-        _ = try? storeOpener() // red: pre-frame store work, the exact thing ADR-6 bans
     }
 
-    /// Idempotent deferred start, called from the root view's `.task` (after the first
-    /// frame is committed). Route-aware by contract: the panic route must do ZERO
-    /// store/repository work here — pre- or post-frame (E3.1 init-order pin).
+    /// Idempotent deferred start. Route-aware by contract, not just by wiring: the
+    /// panic route does ZERO store/repository work here — pre- or post-frame (E3.1
+    /// init-order pin) — so even a mis-attached `.task` on the panic branch could
+    /// never put SwiftData on that path.
     func startIfNeeded(for root: RootKind) {
-        _ = try? storeOpener() // red: re-opens on every call and ignores the route
+        guard root.loadsPersistentGraph, !started else { return }
+        started = true
+        do {
+            let container = try storeOpener() // the launch's FIRST store work — post-frame
+            let repository = makeRepository(container)
+            // The launch-time derived-state pass (E2.3, architecture §8): dedupe
+            // merge, ADR-7 heal, bounded witness restart — then a pre-cache refresh
+            // from store truth (heals a failed best-effort write; prunes pre-erase
+            // residue the moment a new tracking era begins).
+            try repository.recomputeDerivedState()
+            repository.refreshPanicSnapshot()
+            self.repository = repository
+        } catch {
+            // §9 blocking class: a store that cannot open (or recompute) leaves the
+            // repository nil and the placeholder UI standing. The full-screen
+            // recovery flow (CloudKit re-hydration → offer erase-and-restart) is a
+            // later epic's deliberate feature — nothing to silently retry here.
+        }
+    }
+
+    /// Production composition root — the ONE place the real clock, WidgetCenter,
+    /// App Group witness suite, and pre-cache location are constructed (bootstrap
+    /// code, coverage-exempt per test-suite §2). The force-unwraps are provably safe
+    /// in this call sequence: `storeOpener` succeeded first, and
+    /// `PersistentStore.storeURL()` already throws `appGroupUnavailable` when the
+    /// App Group container is broken — and a silent fallback suite would misplace
+    /// the clock WITNESS, which corrupts the cap discipline far worse than a loud
+    /// crash at the composition root would.
+    static func liveRepository(_ container: ModelContainer) -> QuitRepository {
+        let groupDefaults = UserDefaults(suiteName: AppIdentifiers.appGroupID)!
+        return QuitRepository(
+            container: container,
+            clock: LiveClock(),
+            widgetRefresher: LiveWidgetRefresher(),
+            lastKnownGoodStore: LastKnownGoodStore(defaults: groupDefaults),
+            cloud: LocalOnlyCloudSync(),
+            appGroupDefaults: groupDefaults,
+            panicSnapshotStore: PanicSnapshotStore.appGroup()!
+        )
     }
 }

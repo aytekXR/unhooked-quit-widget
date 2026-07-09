@@ -15,3 +15,11 @@ enum LaunchRouter {
         panicFlagIsSet ? .panicPlaceholder : .placeholderTabs
     }
 }
+
+extension RootKind {
+    /// ADR-6 gate (E3.1): only the normal root may ever load the persistent graph —
+    /// the panic route renders exclusively from the App Group pre-cache, pre- AND
+    /// post-frame. `RepositoryProvider.startIfNeeded(for:)` refuses any route that
+    /// answers false here.
+    var loadsPersistentGraph: Bool { self == .placeholderTabs }
+}

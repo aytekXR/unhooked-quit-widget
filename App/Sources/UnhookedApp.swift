@@ -10,6 +10,10 @@ import SwiftUI
 @main
 struct UnhookedApp: App {
     private let rootKind: RootKind
+    private let panicPresentation: PanicPresentation
+    /// Constructed pre-frame but does ZERO work until `startIfNeeded` (pinned by the
+    /// PanicPathTests init-order spy); published to future consumers via environment.
+    private let provider = RepositoryProvider()
 
     init() {
         PanicLaunchTrace.begin()
@@ -23,6 +27,7 @@ struct UnhookedApp: App {
             PanicLaunchFlag.set()
             try? QuitRepository.eraseLocalArtifacts(
                 storeURLs: (try? PersistentStore.storeURL()).map { [$0] } ?? [],
+                appGroupFileURLs: PanicSnapshotStore.appGroup().map { [$0.fileURL] } ?? [],
                 appGroupDefaults: groupDefaults
             )
         }
@@ -39,6 +44,15 @@ struct UnhookedApp: App {
         // UI-test hook: lets XCUITest exercise the panic route without a widget tap.
         let forcedPanic = ProcessInfo.processInfo.environment["FORCE_PANIC_ROUTE"] == "1"
         rootKind = LaunchRouter.resolveRoot(panicFlagIsSet: forcedPanic || PanicLaunchFlag.isSet())
+        // The panic branch resolves its content HERE, pre-frame, from the App Group
+        // pre-cache alone — a few-KB synchronous JSON read, inside the §11 ≤200ms
+        // content budget. The normal branch reads nothing.
+        panicPresentation = rootKind == .panicPlaceholder
+            ? PanicRouteResolver.resolve(
+                selectedQuitID: PanicLaunchFlag.selectedQuitID(),
+                snapshot: PanicSnapshotStore.appGroup()?.read()
+            )
+            : .empty
     }
 
     var body: some Scene {
@@ -46,8 +60,14 @@ struct UnhookedApp: App {
             switch rootKind {
             case .placeholderTabs:
                 RootPlaceholderView()
+                    .environment(provider)
+                    // Post-first-frame by construction: `.task` runs after the frame
+                    // commits — the ONE sanctioned path to store open + the launch
+                    // derived-state pass (ADR-6). The provider is ALSO route-aware,
+                    // so a mis-wired panic branch could still never open the store.
+                    .task { provider.startIfNeeded(for: rootKind) }
             case .panicPlaceholder:
-                PanicPlaceholderView()
+                PanicPlaceholderView(presentation: panicPresentation)
             }
         }
     }

@@ -225,7 +225,14 @@ protocol StreakEngineProtocol {           // pure functions — the TDD core (sh
 // WITNESS with three advance paths — two-gate real-wall, once-per-boot heal restart
 // ≤ cap, same-boot uptime accrual). recomputeDerivedState (E2.3, §8) landed with the
 // dedupe merge + the ADR-7 healing re-anchor (engine healFrozenStreak, 1.2.0);
-// launch/remote-change wiring → E3.1/§4.3. undoSlip/finalizePendingSlips → E4.1;
+// launch wiring LANDED (E3.1): `RepositoryProvider` (App/Sources/Persistence, the
+// post-first-frame owner — zero store work in init, route-aware idempotent
+// startIfNeeded runs recomputeDerivedState + a pre-cache refresh; the panic route
+// never opens the store, pre- OR post-frame); remote-change wiring → §4.3.
+// Production seams LANDED (E3.1): LiveClock (mach_continuous_time sleep-inclusive
+// uptime + kern.bootsessionuuid, the one sanctioned Date() reader), LiveWidgetRefresher
+// (WidgetCenter), LocalOnlyCloudSync (reports .unavailable until the §4.3 flip).
+// undoSlip/finalizePendingSlips → E4.1;
 // eraseEverything LANDED (E2.4): local-first erase — entities, witness, App Group
 // defaults sweep, store file set, debounced reload, THEN the CloudKit purge behind
 // the CloudSyncControlling seam below (Session 08 ruling: the fallible remote step
@@ -251,6 +258,13 @@ protocol CloudSyncControlling {           // account status + private-zone purge
     func deleteAllPrivateZones() async throws            // the erase purge (§10)
 }
 
+// Landed subset (E3.1): the panic half of this sketch ships as `PanicSnapshotStore`
+// (Shared/Sources — a concrete injected-location file store per the LastKnownGoodStore
+// precedent, no separate protocol) + the repository's private rebuild hook called after
+// every mutating write; reloads stay on the E2.2 debounced `WidgetRefreshing` seam.
+// Cache content is minimized per §10: id + (non-discreet) label + discreet flag +
+// verbatim motivations under a schemaVersion — streak/anchor/money fields join as
+// additive Codable fields with their consumers (E3.2 flow, E6 widget-state.json).
 protocol SnapshotServiceProtocol {        // App Group JSON writer; called after EVERY mutating op
     func rebuildSnapshots() throws        // atomic write of panic-snapshot.json + widget-state.json
     func reloadWidgetTimelines()          // WidgetCenter.shared.reloadAllTimelines()
