@@ -1,7 +1,9 @@
 # unhooked-quit-widget
 
-Native iOS quit-anything streak app (working title "Unhooked" — rename pending, Gate G0).
+Native iOS quit-anything streak app — ships as **Ballast** (org `com.beyondkaira`;
+the repo and internal target names keep the working title "Unhooked").
 All product decisions live in `docs/` — start with `docs/resume-prompt.md`.
+The live operator checklist is `docs/operator-expected.md`.
 
 ## Building
 
@@ -20,5 +22,6 @@ swift test --package-path Packages/StreakEngine
 ```
 
 CI (`.github/workflows/ci.yml`) runs package units on Linux and the app's
-unit / snapshot / UI-smoke lanes on a macOS runner. The TestFlight lane is
-dormant until the rename gate clears — see `fastlane/Fastfile`.
+unit / snapshot / UI-smoke lanes on a macOS runner (10x-billed — keep runs
+lean; docs-only commits carry `[skip ci]`). The TestFlight upload lane is LIVE
+on green merges to `main` — see `fastlane/Fastfile`.

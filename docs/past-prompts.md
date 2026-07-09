@@ -1239,3 +1239,168 @@ against Apple docs/headers, not memory. Billed macOS runs this session: 4
 - Snapshot goldens are runtime-coupled: a macos-26 runner-image runtime bump will
   churn them — re-record deliberately (§3.3), the deterministic picker logs the
   runtime per run.
+
+---
+
+## 2026-07-10 · Session 11 · E4.1 slip flow + undo — design RATIFIED + red WIP (1/2); markdown audit done
+
+**Objective (resume-prompt v2.2):** E4.1 — slip flow + 10-minute undo as ONE unit.
+**Outcome: PARTIAL by external limit** — the subagent session limit tripped mid-red
+(two of five test authors died; resets 12:50am Berlin). The session pivoted to a
+clean close on operator instruction: design fully settled and recorded, API surface
++ 5/6 red test files committed `[skip ci]` (af00116 — deliberately NOT the red
+commit; no CI evidence claimed), the one-time markdown audit executed, ZERO billed
+macOS runs consumed. Session 12 completes E4.1 with the full 3–4-run budget intact.
+
+### THE DECISION RECORD — cold-route slip design (settled FIRST, per objective)
+
+Process: 3-option judge panel (advocates per option → three lenses: ratified-
+semantics / privacy+pins / product-brand) + a max-effort adversarial verify pass on
+the winner. **Winner, unanimous: option (a) — the §9-rule-2 outcome buffer grows
+slip support** (option (b) defer-to-next-launch self-disqualified on the immediacy
+constraint — the forgiveness screen IS the product at the moment of vulnerability;
+option (c) open-the-store-outside-the-panic-route disqualified on the privacy-pins
+lens). This is the canonical reading of architecture §7/§9r2 ("the panic flow
+buffers its resulting UrgeEvent/Slip writes") — E4.1 completes the sentence E3.2
+half-wrote.
+
+**Mechanism (binding for Session 12's green):**
+1. COLD route (store never opens; repository never instantiated): tap 1 "I slipped"
+   → confirm stage (slipCopy.confirm, zero writes). Tap 2 "Log it" → THE one cold
+   write boundary: append a `.slipped` `PanicOutcomeDraft` + fsync, ONLY THEN the
+   forgiveness screen. Append failure (after the E3.2-style one retry) keeps the
+   confirm stage + calm `confirm.retryNote` — a slip is §9-rule-1 zero-lost-data
+   class; "Logged." is never claimed without durable bytes.
+2. The draft carries the SLIP-TIME evidence tuple (additive optional fields, raw
+   scalars): `capturedUptime/capturedBootID` (monotonic reading) +
+   `capturedWitnessBootID/Uptime/WallClock` (LKG witness at slip time) +
+   `revokesDraftID` (non-nil = revocation record). NO note field, ever (§10).
+   **[R-WIT — adversarial-verify CORRECTION of a judge amendment]** feeding the
+   FLUSH-time witness can select a future baseline in the reboot-cap arm and bank a
+   39-day best that never existed (attack H1); the slip-time tuple makes deferred
+   flush == live logSlip byte-for-byte, pinned by an equivalence property test.
+3. Forgiveness framing on the cold route = pure engine math over the pre-cache
+   card's NEW additive fields (`startAt/anchorBootID/anchorUptime/bestStreakSeconds/
+   momentumPercent` — §3-sketch-sanctioned, schemaVersion stays 1, populated by
+   `rebuildPanicSnapshot` from store truth): ended = guarded elapsed; best' =
+   max(card best, ended); momentum UNCHANGED (ratified S04); degraded (nil) fields
+   → `logged.bodyNoBest`-class copy, numbers never invented. Earlier unrevoked
+   `.slipped` drafts for the quit FOLD IN-MEMORY into the framing first.
+4. In-session cold undo (live-gated ≤600s): append revocation + fsync → "Undone."
+   The revoked pair never reaches the store (§9r3 governs STORE rows; none exists).
+5. FLUSH (`flushPanicOutcomes`, unchanged position after `recomputeDerivedState`):
+   two-pass — collect `revokedIDs` first **[R-REVOKE]**; then APPEND order, never
+   wall-sorted (**[R-ORDER — second verify CORRECTION]**: a rolled-back wall between
+   two cold slips inverts causality under sorting); the dedupe set gates the
+   UrgeEvent insert AND the streak transition (crash-replay + fsync-retry-duplicate
+   safe); erased-quit drafts DROP; nil-quit `.slipped` lands as unattributed
+   UrgeEvent ONLY **[R-NILQUIT]**; transition = `applySlip(to: before, at: draft.at,
+   monotonic: captured, lastKnownGood: capturedWitness)`; Slip row gets the
+   persisted undo payload + `isPendingUndo = (engine undoSlip(on: next, at: now,
+   monotonic: reading, lastKnownGood: nil) != nil)`; earlier same-quit rows forced
+   non-pending **[R-NEWEST]**; witness NEVER advanced by flush; save-before-clear
+   unchanged. Same-launch heal collision banks toward 0, never inflates (engine
+   floor clamps — accepted + pinned **[R-HEAL]**).
+6. STORE route (dashboard half): `logSlip` finalizes prior pending rows, persists
+   the engine `PendingSlipUndo` into 4 new optional Slip fields (`priorStartAt/
+   priorCleanSeconds/priorBestStreakSeconds/priorMonotonicAnchor`), sets
+   `isPendingUndo=true`. NEW `undoSlip(slipID:) -> Bool` (engine-gated exact
+   restore, THE sanctioned decrease, then DELETES the undone row — see decisions),
+   `finalizePendingSlips()` (scene-phase sweep; justifies the
+   `#Index<Slip>([\.isPendingUndo])`, which lands with green), `updateSlipNote`,
+   `pendingUndoSlip()` (root banner source). No witness refresh from undo or flush.
+7. UI: `SlipFlowModel` (route enum `.cold/.store`) + `SlipFlowView`; motion/standard
+   300ms spring (NEVER the panic 600ms calm — "procedurally identical to any other
+   log"); undo banner NEUTRAL (never amber); glyph `arrow.uturn.backward.circle`
+   (the placeholder's `.forward` was a bug); banner visibility LIVE-GATED
+   **[R-LIVEGATE]** via TimelineView dates (persisted flag alone lies when
+   foregrounded past the window; past-window tap = calm no-op). Production
+   `PanicFlowView` attaches the real `onSlipRoute` (placeholder + `{ _ in }` die).
+   RootPlaceholderView gains a minimal store-backed slip entry + pending-undo
+   banner host. slipCopy.json gets BUNDLED (panicScript precedent: bundle only the
+   consumed file, update REVIEW.md, flag operator) + gains agent-drafted
+   `confirm.retryNote` (needs operator tone review).
+
+**Ratified decisions (Session 11 Key decisions):**
+- **Slip drafts carry the slip-time evidence tuple; deferred application must equal
+  live application** (the R-WIT equivalence property is the load-bearing pin).
+- **Window measurements pass `lastKnownGood: nil`** — everywhere (flush pending
+  check, live banner gate, repository undoSlip): the ratified E1.3 undo semantics
+  predate the witness param ("reboot falls back to floored wall"; S06 pinned "nil
+  reproduces the old bytes exactly"), and an ahead-witness must not burn the window
+  (attack H11). The TRANSITION still receives the captured witness — two different
+  measurements, two clocks, deliberately.
+- **NO cold pre-cache rewrite** (panel's R-RMW rule deliberately DROPPED): no widget
+  consumes streak data until E6, and a second non-store-truth writer to the
+  repository-owned atomic file is the ADR-6 dual-representation hazard (attack H9
+  existed only because of it). In-memory draft-fold gives repeat-cold-slip display
+  honesty; the pre-cache stays single-writer (pinned:
+  `test_coldRoute_writesOnlyTheBufferFile`).
+- **No undo banner on a cold→cold relaunch** (panel rule scoped down): a fresh
+  panic launch is a crisis moment and never opens with undo UI. The window is
+  honored in-session (live gate) and at flush on the next normal launch.
+- **A completed store undo DELETES the Slip row**: an undone slip must not count
+  against Reduce allowance or future insights; the flag-based engine restore is the
+  §9r3 mechanism, row removal after it is bookkeeping. NOTE for the §4.3 CloudKit
+  flip: undone-slip rows will need sync tombstoning (union-merge would resurrect
+  them) — carry this into the flip's design.
+- **The panic-session UrgeEvent(.slipped) SURVIVES an undo** (the session happened;
+  its exit outcome was slipped) — only the streak-affecting Slip row is undone.
+- **Dashboard-half XCUITest deferred**: no quit-creation UI exists, so
+  `test_slipFlow_completesInTwoTaps_fromDashboard` waits for the fixture-seeding
+  (-uiTestScenario) session; the store route is pinned at unit tier meanwhile.
+
+### What landed on disk (af00116, `[skip ci]`, NOT the red commit)
+
+- Inert API surface: Slip payload fields; draft captured*/revokesDraftID;
+  QuitSnapshot additive streak fields; repository undoSlip/finalizePendingSlips/
+  updateSlipNote/pendingUndoSlip stubs; SlipFlowModel/SlipRoute/SlipFraming;
+  SlipCopy loader (json NOT yet bundled — red for SlipCopyTests by design).
+- Red tests, parse-gated, designed failures traced per test: SlipUndoLifecycleTests
+  (11; store lifecycle incl. the sanctioned-decrease restore, 600/601 boundary,
+  guarded-window sweep), SlipFlowModelTests (16; cold captured-tuple append-before-
+  UI, framing max/unchanged/degraded/fold, revocation, single-writer pin, store
+  route + note autosave), SlipCopyTests (3; bundling + shame-lexicon/medical scan +
+  token integrity + calm undo copy), PanicPathTests +2 (pre-cache streak fields +
+  §10 note-exclusion guard), EraseEverythingTests +1 (sentinel extended to
+  slipped/revocation shapes — green-from-birth, declared), SlipFlowUITests (the
+  slot-32 cold two-tap smoke; placeholder-gone assertion).
+- **MISSING (Session 12's first job): Tests/Unit/SlipFlushTests.swift** — the ~15
+  deferred-application pins (equivalence property, R-ORDER/R-REVOKE/R-NILQUIT/
+  R-NEWEST, replay/duplicate idempotency, witness-unchanged, window-at-flush,
+  heal-collision bounds). The named test list is in the delivery-table row's
+  decision record above and in resume-prompt v2.3.
+
+### Markdown audit (one-time close-out task — DONE)
+
+Deleted (byte-identical duplicates, cmp-verified; git history preserves them):
+`brandkit/uploads/{prd,frontend-brandkit,spike-panic-latency}.md`,
+`brandkit/branding-assets/brand-guidelines-full.md`. Deleted
+`docs/operator-checklist.md` (4/5 phases closed — name/IDs/secrets/content-decision
+done, TestFlight live; its one live item, the E0.3 device run, already lives in
+`docs/operator-expected.md` §1). Updated references: `BRAND-GUIDELINES.md` now
+points at `docs/frontend-brandkit.md`; README refreshed (Ballast name decided,
+TestFlight lane LIVE, [skip ci] discipline noted). Root `OPERATOR-TODO.md` stays as
+the gitignored pointer. Every remaining tracked .md is live and required.
+
+### Cost / process notes
+
+- **Billed macOS runs this session: 0.** The WIP commit carries `[skip ci]`
+  deliberately: pushing a knowingly-incomplete red suite would burn a run without
+  producing usable evidence; the ONE red-evidence run belongs to the completed
+  suite (Session 12, runs budget 3–4 intact).
+- The subagent session limit is a new planning constraint: front-load test
+  authoring earlier in a session, and prefer fewer/larger authors over many
+  parallel ones when the account is near its window.
+- CAUTION for the operator until Session 12 lands the flush suite + red run: any
+  code push to main will run CI and show the 30 DESIGNED failures from af00116's
+  suites — that red is expected, not a regression.
+
+### Known limitations / carried forward
+
+- `panic.flow.slipPlaceholder` dead end still stands until Session 12's green.
+- E0.3 latency gate still unwired (operator measurement pending, §1 of
+  operator-expected.md).
+- Undone-slip CloudKit tombstoning → §4.3 flip design (new, this session).
+- VoiceOver audit device-tier items, haptics-only settings channel (E5+),
+  `panic_step_reached`/`slip_logged`/`slip_undone` events (E8) — unchanged.

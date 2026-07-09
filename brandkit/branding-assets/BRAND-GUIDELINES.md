@@ -3,7 +3,9 @@
 **Ballast** — the weight that keeps you steady. iOS-first quit-anything streak widget.
 Tagline: *Quit habits. Keep momentum.*
 
-This is the working summary. The full source brand kit is in `brand-guidelines-full.md`.
+This is the working summary. The full source brand kit is `docs/frontend-brandkit.md`
+(the byte-identical copies that used to sit in `brandkit/` were removed in the
+Session 11 markdown audit — git history preserves them).
 
 ## 1. Essence
 Steady · Discreet · Forgiving · Honest · Quietly proud.

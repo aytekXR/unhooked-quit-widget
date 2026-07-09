@@ -3,12 +3,21 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-09 (Session 10 close: E3.2 DONE; next objective E4.1) |
+| Last updated | 2026-07-10 (Session 11 close: E4.1 design ratified + red WIP committed; Session 12 completes E4.1) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
 Nothing below blocks the next session (E4.1). Items are ordered by how much they
 age; check a box by replacing `[ ]` with `[x]` and the next session's agent will
 prune completed items.
+
+> **Session 11 outcome (2026-07-10):** E4.1 is HALF-DONE — design ratified, 33
+> designed-red tests + API stubs on `main` (af00116, `[skip ci]`), **0 billed runs
+> used**. The Claude subagent session limit cut the red phase short (resets 12:50am
+> Berlin); Session 12 completes E4.1 with the full run budget intact. **Two things
+> to know: (1)** until Session 12's red run, any code push to `main` will show ~30
+> DESIGNED test failures — expected red, not a regression; docs pushes with
+> `[skip ci]` are unaffected. **(2)** §3 billing headroom matters before Session 12
+> (3–4 billed macOS runs: red evidence → green → snapshot refs).
 
 ## 1. E0.3 panic-latency device measurement — carried since Session 02, load-bearing
 
@@ -27,14 +36,19 @@ prune completed items.
       every string in the panic flow renders from it). Review that ONE file's tone
       against the brand kit voice; it gates TestFlight-visible copy now, not just
       ship.
+- [ ] **Queued for Session 12:** `slipCopy.json` gets bundled when E4.1 goes green
+      (the slip flow renders from it) — its tone review then joins the
+      TestFlight-visible gate too. It also gains ONE new agent-drafted line,
+      `confirm.retryNote` (shown only when the durable write fails; must stay calm
+      and zero-shame) — review that line with the file.
 - [ ] Pre-ship (unchanged): clinician/legal pass on `safetyCopy.json`; verify the
       flagged helplines; TR L10n review (`App/Resources/Content/REVIEW.md`).
 
 ## 3. GitHub Actions billing headroom — ~2 min per session
 
-- [ ] Session 10 used 5 billed macOS run-jobs across 4 runs (one wasted on a
-      Darwin-only symbol spelling — the second such incident; the docs-check rule
-      is now in the resume prompt). E4.1 should need 3–4 runs. Check
+- [ ] Session 11 used **0** billed runs (the WIP commit deliberately carries
+      `[skip ci]` — an incomplete red suite would have wasted the run). Session 12
+      needs 3–4 (red evidence → green → snapshot refs). Check
       Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the wasted-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
