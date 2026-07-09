@@ -31,6 +31,7 @@ final class QuitRepository {
     private let lastKnownGoodStore: LastKnownGoodStore
     private let cloud: any CloudSyncControlling
     private let appGroupDefaults: UserDefaults
+    private let panicSnapshotStore: PanicSnapshotStore
     private let debounceSleep: @Sendable (Duration) async -> Void
     private var pendingReload: Task<Void, Never>?
 
@@ -41,6 +42,7 @@ final class QuitRepository {
         lastKnownGoodStore: LastKnownGoodStore,
         cloud: any CloudSyncControlling,
         appGroupDefaults: UserDefaults,
+        panicSnapshotStore: PanicSnapshotStore,
         debounceSleep: @escaping @Sendable (Duration) async -> Void = { try? await Task.sleep(for: $0) }
     ) {
         self.container = container
@@ -50,6 +52,7 @@ final class QuitRepository {
         self.lastKnownGoodStore = lastKnownGoodStore
         self.cloud = cloud
         self.appGroupDefaults = appGroupDefaults
+        self.panicSnapshotStore = panicSnapshotStore
         self.debounceSleep = debounceSleep
     }
 

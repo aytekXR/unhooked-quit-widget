@@ -10,6 +10,12 @@ enum PanicLaunchFlag {
     /// Key inside the App Group defaults suite. Stable across targets.
     static let key = "panic.launch.requested"
 
+    /// Selection channel for the panic route (E3.1): which quit the intervention is
+    /// for. The widget intent stays parameterless until E3.3 — that epic's per-quit
+    /// `@Parameter` (and any later deep link) writes this same key; the app-side
+    /// resolver already consumes it.
+    static let quitIDKey = "panic.launch.quitID"
+
     private static var groupDefaults: UserDefaults? {
         UserDefaults(suiteName: AppIdentifiers.appGroupID)
     }
@@ -18,8 +24,17 @@ enum PanicLaunchFlag {
         groupDefaults?.set(true, forKey: key)
     }
 
+    static func set(quitID: UUID) {
+        // E3.1 red skeleton: the selection channel does not persist yet.
+    }
+
     static func isSet() -> Bool {
         groupDefaults?.bool(forKey: key) ?? false
+    }
+
+    static func selectedQuitID() -> UUID? {
+        // E3.1 red skeleton: the selection channel does not read yet.
+        nil
     }
 
     static func clear() {

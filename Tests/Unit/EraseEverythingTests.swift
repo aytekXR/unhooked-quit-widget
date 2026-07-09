@@ -81,6 +81,8 @@ private struct Harness {
     let cloud: MockCloudSync
     let appGroupDefaults: UserDefaults
     let storeDirectory: URL?
+    let snapshotDirectory: URL
+    let panicSnapshotStore: PanicSnapshotStore
     let repository: QuitRepository
 
     init(onDisk: Bool = false, cloudStatus: CloudAccountStatus = .available) throws {
@@ -111,6 +113,12 @@ private struct Harness {
         )
         cloud = MockCloudSync(status: cloudStatus)
         appGroupDefaults = UserDefaults(suiteName: "e24-group-\(UUID().uuidString)")!
+        // Stands in for the App Group container root (a real directory so the E3.1
+        // file-shaped erase pins can assert on the file set).
+        snapshotDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("e24-snap-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: snapshotDirectory, withIntermediateDirectories: true)
+        panicSnapshotStore = PanicSnapshotStore(directoryURL: snapshotDirectory)
         repository = QuitRepository(
             container: container,
             clock: clock,
@@ -118,6 +126,7 @@ private struct Harness {
             lastKnownGoodStore: lkgStore,
             cloud: cloud,
             appGroupDefaults: appGroupDefaults,
+            panicSnapshotStore: panicSnapshotStore,
             debounceSleep: { _ in }
         )
     }

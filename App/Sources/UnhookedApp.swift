@@ -26,6 +26,16 @@ struct UnhookedApp: App {
                 appGroupDefaults: groupDefaults
             )
         }
+        // UI-test hook (E3.1 smoke, coverage-exempt scaffolding like the hooks above):
+        // seeds a two-quit panic snapshot into the App Group so the panic-route smoke
+        // can assert picker resolution before any store or onboarding exists.
+        if ProcessInfo.processInfo.environment["UITEST_SEED_PANIC_SNAPSHOT"] == "1",
+           let snapshotStore = PanicSnapshotStore.appGroup() {
+            try? snapshotStore.write(PanicSnapshot(quits: [
+                QuitSnapshot(id: UUID(), label: "Vaping", discreet: false, motivations: ["For my kids"]),
+                QuitSnapshot(id: UUID(), label: nil, discreet: true, motivations: ["Sleep better"]),
+            ]))
+        }
         // UI-test hook: lets XCUITest exercise the panic route without a widget tap.
         let forcedPanic = ProcessInfo.processInfo.environment["FORCE_PANIC_ROUTE"] == "1"
         rootKind = LaunchRouter.resolveRoot(panicFlagIsSet: forcedPanic || PanicLaunchFlag.isSet())

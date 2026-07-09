@@ -84,6 +84,12 @@ private struct Harness {
             lastKnownGoodStore: lkgStore,
             cloud: StubCloudSync(),
             appGroupDefaults: UserDefaults(suiteName: "e22-group-\(UUID().uuidString)")!,
+            // Throwaway pre-cache location (E3.1 plumbing) — nothing in this suite
+            // asserts on it; the pre-cache pins live in PanicPathTests.
+            panicSnapshotStore: PanicSnapshotStore(
+                directoryURL: FileManager.default.temporaryDirectory
+                    .appendingPathComponent("e22-snap-\(UUID().uuidString)", isDirectory: true)
+            ),
             // Zero real time in tests: coalescing must come from the debouncer's
             // cancel-prior semantics, never from racing a wall clock (test-suite §7.7).
             debounceSleep: { _ in }

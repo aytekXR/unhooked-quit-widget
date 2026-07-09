@@ -88,6 +88,12 @@ private struct Harness {
             lastKnownGoodStore: lkgStore,
             cloud: StubCloudSync(),
             appGroupDefaults: UserDefaults(suiteName: "e23-group-\(UUID().uuidString)")!,
+            // Throwaway pre-cache location (E3.1 plumbing) — nothing in this suite
+            // asserts on it; the pre-cache pins live in PanicPathTests.
+            panicSnapshotStore: PanicSnapshotStore(
+                directoryURL: FileManager.default.temporaryDirectory
+                    .appendingPathComponent("e23-snap-\(UUID().uuidString)", isDirectory: true)
+            ),
             debounceSleep: { _ in }
         )
     }
