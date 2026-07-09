@@ -51,17 +51,30 @@ public struct StreakCalculator: Sendable {
     /// normal scheduling/rounding noise, not tampering.
     public static let defaultClockTolerance: TimeInterval = 60
 
+    /// Across a reboot, wall-clock credit since the last trusted reading (`lastKnownGood`)
+    /// is honored only up to this ceiling; a larger unverifiable gap freezes the elapsed
+    /// value at the verified span plus this cap and flags the read. The bound is
+    /// per-reboot by nature (a fresh trusted reading in the new boot restores monotonic
+    /// verification) — a documented, accepted limitation of reboot-crossing evidence.
+    public static let defaultRebootGapCap: TimeInterval = 14 * 86_400
+
     /// Clock verdict for a read: does the wall clock agree with the monotonic evidence?
     /// `.timezoneShift` names a wall adjustment shaped like a manual traveler correction
     /// (quarter-hour multiple within ±14h); any other beyond-tolerance disagreement — in
     /// EITHER direction, forward fiddling inflates — is `.clockRolledBack`.
+    /// `lastKnownGood` is the consumer's last trusted clock reading (persisted outside
+    /// the engine); it activates the reboot-crossing checks and is ignored within a boot.
     public static func sanityCheck(
         anchor: MonotonicAnchor,
         now: Date,
         monotonic: MonotonicNow,
-        tolerance: TimeInterval = defaultClockTolerance
+        tolerance: TimeInterval = defaultClockTolerance,
+        lastKnownGood: MonotonicAnchor? = nil
     ) -> ClockSanity {
-        evaluate(anchor: anchor, now: now, monotonic: monotonic, tolerance: tolerance).sanity
+        evaluate(
+            anchor: anchor, now: now, monotonic: monotonic,
+            tolerance: tolerance, lastKnownGood: lastKnownGood
+        ).sanity
     }
 
     /// The freeze-not-inflate elapsed value: within a boot the monotonic uptime
@@ -76,9 +89,13 @@ public struct StreakCalculator: Sendable {
         anchor: MonotonicAnchor,
         now: Date,
         monotonic: MonotonicNow,
-        tolerance: TimeInterval = defaultClockTolerance
+        tolerance: TimeInterval = defaultClockTolerance,
+        lastKnownGood: MonotonicAnchor? = nil
     ) -> Int {
-        evaluate(anchor: anchor, now: now, monotonic: monotonic, tolerance: tolerance).elapsedSeconds
+        evaluate(
+            anchor: anchor, now: now, monotonic: monotonic,
+            tolerance: tolerance, lastKnownGood: lastKnownGood
+        ).elapsedSeconds
     }
 
     /// Single shared branch set for verdict + conservative value (one arm inventory under
@@ -87,7 +104,8 @@ public struct StreakCalculator: Sendable {
         anchor: MonotonicAnchor,
         now: Date,
         monotonic: MonotonicNow,
-        tolerance: TimeInterval
+        tolerance: TimeInterval,
+        lastKnownGood: MonotonicAnchor? = nil
     ) -> (sanity: ClockSanity, elapsedSeconds: Int) {
         let wallDelta = now.timeIntervalSince(anchor.wallClock)
 
@@ -123,13 +141,15 @@ public struct StreakCalculator: Sendable {
         for snapshot: StreakSnapshot,
         now: Date,
         monotonic: MonotonicNow? = nil,
-        milestones: MilestoneTable? = nil
+        milestones: MilestoneTable? = nil,
+        lastKnownGood: MonotonicAnchor? = nil
     ) -> StreakValue {
         let sanity: ClockSanity
         let elapsed: Int
         if let anchor = snapshot.monotonicAnchor, let reading = monotonic {
             (sanity, elapsed) = evaluate(
-                anchor: anchor, now: now, monotonic: reading, tolerance: defaultClockTolerance
+                anchor: anchor, now: now, monotonic: reading,
+                tolerance: defaultClockTolerance, lastKnownGood: lastKnownGood
             )
         } else {
             sanity = .normal

@@ -19,9 +19,12 @@ extension StreakCalculator {
     public static func applySlip(
         to snapshot: StreakSnapshot,
         at now: Date,
-        monotonic: MonotonicNow? = nil
+        monotonic: MonotonicNow? = nil,
+        lastKnownGood: MonotonicAnchor? = nil
     ) -> StreakSnapshot {
-        let ended = guardedElapsedSeconds(of: snapshot, at: now, monotonic: monotonic)
+        let ended = guardedElapsedSeconds(
+            of: snapshot, at: now, monotonic: monotonic, lastKnownGood: lastKnownGood
+        )
         // The slip instant on the goal's OWN guarded timeline: under a rolled-back wall
         // clock the raw `now` is a lie — stamping it into startAt would shrink the
         // momentum denominator's historical span (startAt − trackedSince) and inflate
@@ -58,14 +61,18 @@ extension StreakCalculator {
     public static func undoSlip(
         on snapshot: StreakSnapshot,
         at now: Date,
-        monotonic: MonotonicNow? = nil
+        monotonic: MonotonicNow? = nil,
+        lastKnownGood: MonotonicAnchor? = nil
     ) -> StreakSnapshot? {
         guard let undo = snapshot.pendingUndo else { return nil }
         // `startAt`/`monotonicAnchor` were re-set at the slip instant, so elapsed-since-
         // slip IS the goal's own guarded elapsed: clock fiddling can neither stretch nor
         // burn the window when evidence is present. Without evidence a rollback reads as
         // zero (window stays open) — freeze-not-inflate favors the user's streak.
-        guard guardedElapsedSeconds(of: snapshot, at: now, monotonic: monotonic) <= undoWindowSeconds else {
+        let sinceSlip = guardedElapsedSeconds(
+            of: snapshot, at: now, monotonic: monotonic, lastKnownGood: lastKnownGood
+        )
+        guard sinceSlip <= undoWindowSeconds else {
             return nil
         }
         // Debug tripwire: the bookkeeping can only record values a slip later raised.
@@ -107,10 +114,13 @@ extension StreakCalculator {
     private static func guardedElapsedSeconds(
         of snapshot: StreakSnapshot,
         at now: Date,
-        monotonic: MonotonicNow?
+        monotonic: MonotonicNow?,
+        lastKnownGood: MonotonicAnchor? = nil
     ) -> Int {
         if let anchor = snapshot.monotonicAnchor, let reading = monotonic {
-            return conservativeElapsedSeconds(anchor: anchor, now: now, monotonic: reading)
+            return conservativeElapsedSeconds(
+                anchor: anchor, now: now, monotonic: reading, lastKnownGood: lastKnownGood
+            )
         }
         return max(0, Int(now.timeIntervalSince(snapshot.startAt)))
     }
