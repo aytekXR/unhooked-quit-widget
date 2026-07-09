@@ -14,12 +14,28 @@ final class PanicRouteUITests: XCTestCase {
         app.launchEnvironment["UITEST_SEED_PANIC_SNAPSHOT"] = "1"
         app.launch()
 
-        let picker = app.descendants(matching: .any)
-            .matching(identifier: "panic.quitPicker")
+        // Route sanity first: the picker renders INSIDE the panic root (ADR-6).
+        let panicRoot = app.descendants(matching: .any)
+            .matching(identifier: "root.panicPlaceholder")
             .firstMatch
         XCTAssertTrue(
-            picker.waitForExistence(timeout: 15),
+            panicRoot.waitForExistence(timeout: 15),
+            "A forced panic launch must land on the panic route before anything else (ADR-6)"
+        )
+
+        // The picker's ROWS are the load-bearing assertion: real button elements
+        // (reliably exposed to XCUITest regardless of container grouping), one per
+        // seeded quit — a stronger check than the container id alone.
+        let rows = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'panic.quitPicker.row.'")
+        )
+        XCTAssertTrue(
+            rows.firstMatch.waitForExistence(timeout: 15),
             "A panic launch with several cached quits and no selection must show the quit picker (E3.1)"
+        )
+        XCTAssertEqual(
+            rows.count, 2,
+            "both seeded quits must be offered as picker rows"
         )
         XCTAssertFalse(
             app.descendants(matching: .any)

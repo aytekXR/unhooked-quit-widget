@@ -481,6 +481,95 @@ struct PanicPathTests {
         #expect(provider.repository === first)
     }
 
+    // MARK: - Real App Group round-trip (the UI seed hook + cold read share this store)
+
+    @Test func test_panicSnapshotStore_appGroupRoundTrip() throws {
+        // Pins the PRODUCTION location end to end in the app process: the same
+        // `PanicSnapshotStore.appGroup()` the UITEST seed hook writes and the cold
+        // panic launch reads. Isolates the file mechanics from any UI-lane failure.
+        let store = try #require(
+            PanicSnapshotStore.appGroup(),
+            "the App Group container must resolve in the app process (E0.2)"
+        )
+        defer { try? FileManager.default.removeItem(at: store.fileURL) }
+
+        let snapshot = PanicSnapshot(quits: [
+            card("Vaping", motivations: ["For my kids"]),
+            card(nil, discreet: true, motivations: ["sleep"]),
+        ])
+        try store.write(snapshot)
+        #expect(store.read() == snapshot, "the real container round-trips the cache byte-faithfully")
+    }
+
+    // MARK: - Review pins (Session 09 diff review, both 3/3-confirmed)
+
+    @Test func test_launch_nonMutatingLaunch_refreshesStalePreCacheFromStoreTruth() throws {
+        // Kills the delete-the-call mutant on RepositoryProvider's
+        // `repository.refreshPanicSnapshot()`: the other launch test seeds duplicates,
+        // so recomputeDerivedState's OWN didMutate rebuild masks the launch refresh.
+        // Here the launch is non-mutating — only the explicit refresh can heal the
+        // stale cache (its exact documented purpose: a prior best-effort write that
+        // failed, or pre-erase residue, must never survive into a cold panic frame).
+        let container = try ModelContainer(
+            for: PersistentStore.schema,
+            configurations: [ModelConfiguration(isStoredInMemoryOnly: true)]
+        )
+        let quit = Quit()
+        quit.motivations = ["morning clarity"]
+        container.mainContext.insert(quit)
+        try container.mainContext.save()
+
+        let doubles = try RepoDoubles()
+        // Fixture property: this store must be non-mutating under the launch pass,
+        // or the test cannot isolate the refresh (the probe shares the container).
+        #expect(
+            try doubles.make(container).recomputeDerivedState() == false,
+            "fixture must not mutate — a single clean quit has nothing to merge or heal"
+        )
+
+        // A stale cache from a "previous era": wrong quit, wrong motivations.
+        try doubles.panicSnapshotStore.write(PanicSnapshot(quits: [
+            card("Vaping", motivations: ["stale, from before"])
+        ]))
+
+        let spy = StoreOpenSpy(returning: container)
+        let provider = RepositoryProvider(
+            storeOpener: { try spy.open() },
+            makeRepository: { doubles.make($0) }
+        )
+        provider.startIfNeeded(for: .placeholderTabs)
+
+        let cached = try #require(doubles.panicSnapshotStore.read())
+        #expect(
+            cached.quits.map(\.id) == [quit.id]
+                && cached.quits.first?.motivations == ["morning clarity"],
+            "a NON-mutating launch must still rewrite the pre-cache from store truth — only the explicit launch refresh can have produced this"
+        )
+    }
+
+    @Test(arguments: [
+        (HabitCategory.vape, "Vaping"),
+        (HabitCategory.porn, "Porn"),
+        (HabitCategory.alcohol, "Alcohol"),
+        (HabitCategory.weed, "Weed"),
+        (HabitCategory.doomscroll, "Doomscrolling"),
+        (HabitCategory.custom, "Your goal"),
+    ]) func test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(
+        category: HabitCategory, expected: String
+    ) throws {
+        // Kills the swapped/wrong-arm mutant in displayLabel(for:): these nouns are
+        // what a NON-discreet quit renders in the picker (brand-reviewed, clinical,
+        // no shame lexicon) — the discreet/custom-label arms are pinned elsewhere and
+        // never reach the switch.
+        let h = try Harness()
+        let quit = try h.repository.createQuit(habitCategory: category)
+        let cached = try #require(h.panicSnapshotStore.read())
+        #expect(
+            cached.quits.first { $0.id == quit.id }?.label == expected,
+            "the pre-cache label for a bare \(category.rawValue) quit is the exact brand noun"
+        )
+    }
+
     // MARK: - Production clock conformance
 
     @Test func test_liveClock_readingsAreUsableGuardEvidence() {

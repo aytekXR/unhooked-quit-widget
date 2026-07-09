@@ -49,7 +49,13 @@ struct PanicSnapshotStore: Sendable {
     }
 
     /// Atomic whole-file rewrite — the panic route must never observe a torn cache.
+    /// Self-healing about its parent directory (mirrors the PersistentStore
+    /// precedent): the first cache write must succeed even if nothing else has
+    /// touched the location yet.
     func write(_ snapshot: PanicSnapshot) throws {
+        try FileManager.default.createDirectory(
+            at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true
+        )
         try JSONEncoder().encode(snapshot).write(to: fileURL, options: .atomic)
     }
 
