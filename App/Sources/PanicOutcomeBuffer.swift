@@ -45,7 +45,7 @@ struct PanicOutcomeBuffer: Sendable {
     /// durable record between panic exit and the next normal launch, so "loses
     /// nothing" should survive power loss, not just an app crash. The sync runs at
     /// EXIT time — the user is already breathing; the ≤200ms launch budget is long
-    /// past. The file is created with `.completeUntilFirstUnlock` protection: unlike
+    /// past. The file is created with `.completeUntilFirstUserAuthentication` protection: unlike
     /// the pre-unlock-readable snapshot files (§10), the buffer is written and read
     /// by the app alone, always post-unlock, so it can carry the stricter class.
     func append(_ draft: PanicOutcomeDraft) throws {
@@ -59,7 +59,7 @@ struct PanicOutcomeBuffer: Sendable {
             guard fileManager.createFile(
                 atPath: fileURL.path,
                 contents: nil,
-                attributes: [.protectionKey: FileProtectionType.completeUntilFirstUnlock]
+                attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
             ) else { throw CocoaError(.fileWriteUnknown) }
         }
         let handle = try FileHandle(forWritingTo: fileURL)
