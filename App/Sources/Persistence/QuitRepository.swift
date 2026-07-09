@@ -265,10 +265,15 @@ final class QuitRepository {
     /// the app's launch-time smoke hook shares the identical implementation with
     /// `eraseEverything()`.
     static func eraseLocalArtifacts(storeURLs: [URL], appGroupDefaults: UserDefaults) throws {
-        // Infallible first: sweep every key we own out of the App Group defaults —
-        // the panic launch flag today, every E3.1+ pre-cache key tomorrow, no key
-        // registry to rot. `removeObject` is a no-op on the global-domain keys that
+        // Infallible first: sweep every KEY out of the App Group defaults — the
+        // panic launch flag today, defaults-shaped pre-cache keys tomorrow.
+        // `removeObject` is a no-op on the global-domain keys that
         // `dictionaryRepresentation()` merges in, so the sweep cannot overreach.
+        // SCOPE (review-pinned, Session 08): this helper covers defaults keys + the
+        // store file set ONLY. E3.1 seam: when the App Group JSON snapshots land
+        // (panic-snapshot.json / widget-state.json, architecture §4 — files, not
+        // keys), their file names JOIN this sweep with a file-shaped sentinel test;
+        // until then no such writer exists (verified in the Session 08 review).
         for key in appGroupDefaults.dictionaryRepresentation().keys {
             appGroupDefaults.removeObject(forKey: key)
         }

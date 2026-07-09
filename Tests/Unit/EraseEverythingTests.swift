@@ -273,11 +273,56 @@ struct EraseEverythingTests {
                 "LOCAL erase completes before the fallible cloud step — a transient CloudKit error may never strand sensitive data on-device")
         #expect(h.appGroupDefaults.object(forKey: "e31.panic.precache.sentinel") == nil)
         #expect(h.lkgStore.load() == nil)
+        // Review pin (Session 08): the widget reload rides the LOCAL erase, never the
+        // cloud outcome — widgets must drop streaks even when the purge failed.
+        await h.repository.drainPendingWidgetReload()
+        #expect(h.spy.reloadCount == 1, "the reload fired despite the cloud failure")
 
         h.cloud.zoneDeletionError = nil
         try await h.repository.eraseEverything()
 
         #expect(h.cloud.zoneDeletionRequests == 2, "erase is re-runnable; the retry purges the zone")
+    }
+
+    @Test func test_erase_deletesOrphanRows_notJustCascadedChildren() async throws {
+        // Review pin (Session 08, mutant confirmed 3/3): every suite row so far is
+        // parented to a Quit, so dropping the explicit Slip/UrgeEvent deletes would
+        // survive on the Quit cascade alone — yet CloudKit sync/merges can deliver
+        // ORPHANED children (parent merged away on another device), and an orphan
+        // Slip's note is verbatim user reflection that must not outlive an erase.
+        let h = try Harness()
+        let context = h.container.mainContext
+        let orphanSlip = Slip()
+        orphanSlip.note = "orphan reflection — never leaves the device"
+        context.insert(orphanSlip)
+        let orphanUrge = UrgeEvent()
+        context.insert(orphanUrge)
+        try context.save()
+
+        try await h.repository.eraseEverything()
+
+        let fresh = ModelContext(h.container)
+        #expect(try fresh.fetchCount(FetchDescriptor<Slip>()) == 0,
+                "orphan slips are erased by the explicit per-type delete, not the cascade")
+        #expect(try fresh.fetchCount(FetchDescriptor<UrgeEvent>()) == 0,
+                "orphan urge events are erased by the explicit per-type delete, not the cascade")
+    }
+
+    @Test func test_erase_scopedToStoreFileSet_unrelatedSiblingSurvives() async throws {
+        // Review pin (Session 08, mutant confirmed 3/3): the same eraseLocalArtifacts
+        // helper runs against the REAL App Group directory in the launch smoke hook,
+        // so a delete-the-whole-directory mutant would eat unrelated App Group files.
+        // The sweep is scoped to the store's file set and nothing else.
+        let h = try Harness(onDisk: true)
+        _ = try h.repository.createQuit(habitCategory: .vape)
+        let sibling = try #require(h.storeDirectory).appendingPathComponent("unrelated-sibling.json")
+        try Data("not ours".utf8).write(to: sibling)
+
+        try await h.repository.eraseEverything()
+
+        #expect(h.storeFileSet() == [], "the store file set is gone")
+        #expect(FileManager.default.fileExists(atPath: sibling.path),
+                "erase removes the store FILE SET, never the directory around it")
     }
 
     @Test func test_erase_triggersDebouncedWidgetReload() async throws {
