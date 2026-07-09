@@ -91,6 +91,29 @@ jobs:
       - name: swift test
         run: swift test --package-path "Packages/${{ matrix.package }}"
 
+  # ── E2.2 acceptance lint: the repository is the sole SwiftData importer ──────
+  # implementation-plan E2.2: "repository is the sole SwiftData importer outside
+  # trivial @Query lists (enforced by a lint/grep CI check)". Allowed importers:
+  # App/Sources/Persistence/** (models, store factory, repository) and Tests/**.
+  # No trivial-@Query view exists yet; when one lands (Epic 5+), extending this
+  # allowlist is a deliberate, reviewed change to this job.
+  swiftdata-importer-lint:
+    name: "E2.2 lint · repository is the sole SwiftData importer"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: grep gate
+        run: |
+          set -euo pipefail
+          violations=$(grep -rl --include='*.swift' 'import SwiftData' . \
+            | grep -vE '^(\./)?(App/Sources/Persistence/|Tests/)' || true)
+          if [ -n "$violations" ]; then
+            echo "::error::import SwiftData outside App/Sources/Persistence/ + Tests/ (E2.2 acceptance):"
+            echo "$violations"
+            exit 1
+          fi
+          echo "sole-importer check passed"
+
   app:
     name: "App lanes · build + unit + snapshot + UI smoke"
     runs-on: macos-26
@@ -231,7 +254,7 @@ jobs:
 
   testflight:
     name: TestFlight upload (fastlane beta)
-    needs: [streakengine-release-gate, package-units, app, testflight-gate]
+    needs: [streakengine-release-gate, package-units, swiftdata-importer-lint, app, testflight-gate]
     if: needs.testflight-gate.outputs.enabled == 'true'
     runs-on: macos-26
     timeout-minutes: 45

@@ -80,11 +80,17 @@ public struct StreakCalculator: Sendable {
     /// The freeze-not-inflate elapsed value: within a boot the monotonic uptime
     /// delta is ground truth whenever the wall clock disagrees beyond tolerance — a wall
     /// jump in either direction can neither inflate nor reset the streak. Across a reboot
-    /// (bootID mismatch) uptimes are incomparable, so it falls back to the wall clock,
-    /// floored at zero (a wall reading before the anchor is a definite rollback).
+    /// (bootID mismatch) uptimes are incomparable, so the wall clock is the only witness;
+    /// supplying `lastKnownGood` (the consumer's persisted last trusted reading) bounds
+    /// it: the span up to the reading is verified, a reading from the current boot
+    /// bridges monotonic verification across the reboot, and the unverifiable remainder
+    /// is credited only up to `defaultRebootGapCap` — beyond it (or on a rollback below
+    /// the reading) the value freezes at what the reading proves, flagged. Without a
+    /// reading the fallback is the wall clock floored at zero, unchanged.
     /// NOTE for consumers: `uptime` readings must come from a clock that keeps counting
     /// across device sleep (mach_continuous_time / CLOCK_BOOTTIME derived), or sleep time
-    /// would read as a forward wall jump.
+    /// would read as a forward wall jump. Refresh `lastKnownGood` ONLY from reads whose
+    /// verdict is `.normal` — persisting a disputed wall poisons the baseline.
     public static func conservativeElapsedSeconds(
         anchor: MonotonicAnchor,
         now: Date,
@@ -110,12 +116,42 @@ public struct StreakCalculator: Sendable {
         let wallDelta = now.timeIntervalSince(anchor.wallClock)
 
         guard monotonic.bootID == anchor.bootID else {
-            // Across a reboot the wall delta is trusted UNCAPPED on the high side: the
-            // principled cap ADR-7 names needs a persisted last-known-good wall reading,
-            // which arrives with the Epic 2 repository (deferral recorded in the Session 03
-            // log and carried in resume-prompt.md).
-            if wallDelta < -tolerance { return (.clockRolledBack, 0) }
-            return (.normal, max(0, Int(wallDelta)))
+            guard let lkg = lastKnownGood else {
+                // No trusted reading: the uncapped wall fallback, unchanged — the cap
+                // is opt-in via `lastKnownGood` (pinned by test).
+                if wallDelta < -tolerance { return (.clockRolledBack, 0) }
+                return (.normal, max(0, Int(wallDelta)))
+            }
+
+            // BRIDGE: the trusted reading shares the CURRENT boot and postdates this
+            // anchor, so the reading→now segment re-enters the within-boot guard and
+            // INHERITS its verdict — never a hardcoded .normal: consumers refresh the
+            // reading only on .normal verdicts, and this is the other half of what
+            // keeps a forward-set wall from ever poisoning the baseline.
+            if lkg.bootID == monotonic.bootID && lkg.wallClock >= anchor.wallClock {
+                let bridged = evaluate(
+                    anchor: lkg, now: now, monotonic: monotonic, tolerance: tolerance
+                )
+                let verifiedPrefix = Int(lkg.wallClock.timeIntervalSince(anchor.wallClock))
+                return (bridged.sanity, verifiedPrefix + bridged.elapsedSeconds)
+            }
+
+            // Capped arm: no monotonic continuity to `now`. The baseline floors at the
+            // anchor (a reading that predates this streak proves nothing about it); the
+            // gap since the baseline is unverifiable and credited only up to the cap.
+            let baseline = max(anchor.wallClock, lkg.wallClock)
+            let verified = Int(baseline.timeIntervalSince(anchor.wallClock))
+            let gap = now.timeIntervalSince(baseline)
+            if gap < -tolerance {
+                // Rollback below the trusted reading: freeze at the verified span —
+                // not zero; the reading proves at least this much elapsed.
+                return (.clockRolledBack, verified)
+            }
+            if gap > defaultRebootGapCap {
+                // Reboot + huge forward jump: withhold the unverifiable excess, flag.
+                return (.clockRolledBack, verified + Int(defaultRebootGapCap))
+            }
+            return (.normal, verified + max(0, Int(gap)))
         }
 
         let monoDelta = max(0, monotonic.uptime - anchor.uptime)

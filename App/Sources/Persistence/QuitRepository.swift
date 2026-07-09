@@ -19,11 +19,17 @@ final class QuitRepository {
     /// Active (non-archived) quits may never exceed this (architecture §3).
     static let activeQuitLimit = 3
 
+    /// Trailing-debounce window for widget reloads: a burst of writes inside this window
+    /// costs exactly one `reloadAllTimelines()` (freshness stays seconds — far inside
+    /// the ≤60 s widget-staleness acceptance).
+    static let widgetReloadDebounce: Duration = .milliseconds(500)
+
     private let context: ModelContext
     private let clock: any ClockProviding
     private let widgetRefresher: any WidgetRefreshing
     private let lastKnownGoodStore: LastKnownGoodStore
     private let debounceSleep: @Sendable (Duration) async -> Void
+    private var pendingReload: Task<Void, Never>?
 
     init(
         container: ModelContainer,
@@ -39,12 +45,37 @@ final class QuitRepository {
         self.debounceSleep = debounceSleep
     }
 
-    // MARK: - E2.2 red sentinels (cries-wolf bodies so no test passes from birth)
+    // MARK: - Reads
 
-    /// All quits the user has not archived, in widget-selector order.
+    /// All quits the user has not archived, in widget-selector order. This is the query
+    /// that justifies `#Index<Quit>([\.isArchived, \.sortIndex])` (architecture §4).
     func activeQuits() throws -> [Quit] {
-        [] // E2.2 red sentinel
+        try context.fetch(
+            FetchDescriptor<Quit>(
+                predicate: #Predicate { !$0.isArchived },
+                sortBy: [SortDescriptor(\.sortIndex)]
+            )
+        )
     }
+
+    /// The streak readout for one quit, routed through the clock-integrity guard with
+    /// the device's persisted last-known-good reading — the ADR-7 reboot cap, end to
+    /// end: a reboot + forward-set wall can neither read `.normal` nor inflate.
+    func streakValue(for quitID: UUID) throws -> StreakValue {
+        let quit = try fetchQuit(quitID)
+        let now = clock.now
+        let reading = clock.monotonicNow
+        let lastKnownGood = lastKnownGoodStore.load()
+        let value = StreakCalculator.currentStreak(
+            for: snapshot(of: quit), now: now, monotonic: reading, lastKnownGood: lastKnownGood
+        )
+        refreshLastKnownGood(
+            anchor: quit.monotonicAnchor, now: now, reading: reading, lastKnownGood: lastKnownGood
+        )
+        return value
+    }
+
+    // MARK: - Writes (synchronous; save() before returning; then a debounced reload)
 
     /// Creates a quit, enforcing the max-3-active rule. Quiz-driven fields (triggers,
     /// motivations, spend details) arrive with their consumers (E5); this takes only
@@ -56,14 +87,79 @@ final class QuitRepository {
         goalMode: GoalMode = .quit,
         weeklySpend: Decimal = 0
     ) throws -> Quit {
-        Quit() // E2.2 red sentinel — nothing persisted, no limit enforced
+        let active = try activeQuits()
+        guard active.count < Self.activeQuitLimit else {
+            throw RepositoryError.activeQuitLimitReached
+        }
+        let now = clock.now
+        let reading = clock.monotonicNow
+
+        let quit = Quit()
+        quit.habitCategory = habitCategory
+        quit.customLabel = customLabel
+        quit.goalMode = goalMode
+        quit.weeklySpend = weeklySpend
+        quit.startAt = now
+        quit.createdAt = now
+        // The streak's anchor: wallClock == startAt (the engine's documented invariant).
+        quit.monotonicAnchor = MonotonicAnchor(
+            bootID: reading.bootID, uptime: reading.uptime, wallClock: now
+        )
+        quit.sortIndex = (active.map(\.sortIndex).max() ?? -1) + 1
+        context.insert(quit)
+        try context.save()
+
+        // NO last-known-good refresh here: a fresh anchor trivially agrees with the
+        // reading it was minted from, so a verdict against it would be self-blessing —
+        // a forward-set wall could poison the baseline through quit creation.
+        scheduleWidgetReload()
+        return quit
     }
 
     /// Synchronous local slip log: archive → best, bank the ended streak, restart the
-    /// counter — persisted BEFORE returning.
+    /// counter at the guarded slip instant — persisted BEFORE returning.
     @discardableResult
     func logSlip(quitID: UUID, note: String?) throws -> Slip {
-        Slip() // E2.2 red sentinel — nothing persisted
+        let quit = try fetchQuit(quitID)
+        let now = clock.now
+        let reading = clock.monotonicNow
+        let lastKnownGood = lastKnownGoodStore.load()
+
+        let before = snapshot(of: quit)
+        let next = StreakCalculator.applySlip(
+            to: before, at: now, monotonic: reading, lastKnownGood: lastKnownGood
+        )
+        // The ended streak (guarded + capped), recovered from the bank delta; the
+        // repository owns totalCleanSeconds, so `before.priorCleanSeconds` is never
+        // negative and the delta is exactly the archived streak.
+        let ended = next.priorCleanSeconds - max(0, before.priorCleanSeconds)
+
+        let slip = Slip()
+        slip.at = next.startAt // the guarded slip instant — never a lying wall reading
+        slip.note = note
+        slip.streakSecondsAtSlip = ended
+        slip.countsAgainstAllowance = quit.goalMode == .reduce
+        // isPendingUndo stays false: the whole undo lifecycle (the flag, the finalize
+        // sweep, undoSlip, and the §4 isPendingUndo index) lands as one unit with E4.1.
+        slip.quit = quit
+        context.insert(slip)
+
+        quit.startAt = next.startAt
+        quit.monotonicAnchor = next.monotonicAnchor
+        quit.bestStreakSeconds = next.bestStreakSeconds
+        // BANKED-only (== the engine's priorCleanSeconds): the live streak is added at
+        // read time — storing it here too would double-count momentum's numerator.
+        quit.totalCleanSeconds = next.priorCleanSeconds
+
+        try context.save() // the commit point — before any UI transition (§9 rule 1)
+
+        // Verdict computed against the PRE-slip anchor (the post-slip anchor was just
+        // minted from this same reading and would self-bless).
+        refreshLastKnownGood(
+            anchor: before.monotonicAnchor, now: now, reading: reading, lastKnownGood: lastKnownGood
+        )
+        scheduleWidgetReload()
+        return slip
     }
 
     /// Records a panic-flow outcome (architecture §5.1 `recordUrgeOutcome`).
@@ -74,18 +170,92 @@ final class QuitRepository {
         outcome: UrgeOutcome,
         stepsReached: [PanicStep] = []
     ) throws -> UrgeEvent {
-        UrgeEvent() // E2.2 red sentinel — nothing persisted
+        let quit = try fetchQuit(quitID)
+        let now = clock.now
+        let reading = clock.monotonicNow
+        let lastKnownGood = lastKnownGoodStore.load()
+
+        let event = UrgeEvent()
+        event.at = now
+        event.source = source
+        event.outcome = outcome
+        event.stepsReached = stepsReached
+        event.quit = quit
+        context.insert(event)
+        if outcome == .averted {
+            quit.avertedUrgeCount += 1
+        }
+        try context.save()
+
+        refreshLastKnownGood(
+            anchor: quit.monotonicAnchor, now: now, reading: reading, lastKnownGood: lastKnownGood
+        )
+        scheduleWidgetReload()
+        return event
     }
 
-    /// The streak readout for one quit, routed through the clock-integrity guard with
-    /// the device's persisted last-known-good reading (the ADR-7 reboot cap).
-    func streakValue(for quitID: UUID) throws -> StreakValue {
-        StreakValue(elapsedSeconds: -1, moneySaved: -1, momentum: -1) // E2.2 red sentinel
+    // MARK: - Widget reload debounce
+
+    /// Trailing debounce: every write replaces the pending reload; only a quiet tail
+    /// reaches WidgetCenter. The sleep is injected so tests exercise the REAL
+    /// cancel-prior semantics in zero wall time (test-suite §7.7: no sleep-based waits).
+    private func scheduleWidgetReload() {
+        pendingReload?.cancel()
+        let sleep = debounceSleep
+        pendingReload = Task { @MainActor [widgetRefresher] in
+            await sleep(Self.widgetReloadDebounce)
+            guard !Task.isCancelled else { return }
+            widgetRefresher.reloadAllTimelines()
+        }
     }
 
     /// Test hook: awaits the pending debounced reload, if any. Internal on purpose —
     /// production never waits on widget refreshes.
     func drainPendingWidgetReload() async {
-        // E2.2 red sentinel
+        await pendingReload?.value
+    }
+
+    // MARK: - Private helpers
+
+    private func fetchQuit(_ id: UUID) throws -> Quit {
+        var descriptor = FetchDescriptor<Quit>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        guard let quit = try context.fetch(descriptor).first else {
+            throw RepositoryError.quitNotFound(id)
+        }
+        return quit
+    }
+
+    /// The engine's domain-neutral input, mapped from the model (architecture §5.1).
+    private func snapshot(of quit: Quit) -> StreakSnapshot {
+        StreakSnapshot(
+            startAt: quit.startAt,
+            trackedSince: quit.createdAt,
+            weeklySpend: quit.weeklySpend,
+            priorCleanSeconds: quit.totalCleanSeconds,
+            monotonicAnchor: quit.monotonicAnchor,
+            bestStreakSeconds: quit.bestStreakSeconds,
+            pendingUndo: nil
+        )
+    }
+
+    /// Advances the device's trusted reading ONLY when a guard verdict computed against
+    /// a PRE-EXISTING anchor reads `.normal`. Never on `.clockRolledBack` or
+    /// `.timezoneShift` (persisting a disputed wall would poison every future
+    /// reboot-cap baseline), and never without an anchor (nothing verified the wall).
+    private func refreshLastKnownGood(
+        anchor: MonotonicAnchor?,
+        now: Date,
+        reading: MonotonicNow,
+        lastKnownGood: MonotonicAnchor?
+    ) {
+        guard let anchor else { return }
+        let verdict = StreakCalculator.sanityCheck(
+            anchor: anchor, now: now, monotonic: reading, lastKnownGood: lastKnownGood
+        )
+        guard verdict == .normal else { return }
+        lastKnownGoodStore.save(
+            MonotonicAnchor(bootID: reading.bootID, uptime: reading.uptime, wallClock: now)
+        )
     }
 }

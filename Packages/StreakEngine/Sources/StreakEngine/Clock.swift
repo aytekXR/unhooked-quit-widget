@@ -5,9 +5,11 @@ import Foundation
 // package code. Consumers capture these values (their `ClockProvider` per test-suite §3.1
 // lives app/test-side — it PRODUCES readings; the pure core only consumes them).
 
-/// The monotonic anchor captured when a streak starts and persisted with it — boot
-/// session ID, system uptime, and wall clock, all recorded at one instant. The engine
-/// only ever consumes it; the consumer records all three.
+/// A trusted clock snapshot — boot session ID, system uptime, and wall clock, all
+/// recorded at one instant. Captured when a streak starts and persisted with it as its
+/// anchor, and also usable as a consumer's rolling "last known good" reading (the
+/// `lastKnownGood` parameter on the guard entry points). The engine only ever consumes
+/// it; the consumer records all three.
 public struct MonotonicAnchor: Sendable, Equatable, Hashable, Codable {
     /// Boot session the anchor was taken in. Compared for EQUALITY only: readings whose
     /// `bootID`s differ straddle a reboot, so their uptimes are not comparable (the

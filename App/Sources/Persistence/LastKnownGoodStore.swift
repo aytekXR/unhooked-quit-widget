@@ -20,10 +20,12 @@ final class LastKnownGoodStore {
     }
 
     func load() -> MonotonicAnchor? {
-        nil // E2.2 red sentinel
+        guard let data = defaults.data(forKey: Self.defaultsKey) else { return nil }
+        return try? JSONDecoder().decode(MonotonicAnchor.self, from: data)
     }
 
     func save(_ reading: MonotonicAnchor) {
-        // E2.2 red sentinel
+        guard let data = try? JSONEncoder().encode(reading) else { return }
+        defaults.set(data, forKey: Self.defaultsKey)
     }
 }

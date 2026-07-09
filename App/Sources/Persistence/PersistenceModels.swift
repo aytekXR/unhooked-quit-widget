@@ -12,10 +12,11 @@ import SwiftData
 // The checklist is enforced mechanically by PersistenceStoreTests, not by convention.
 // No Date()/ProcessInfo reads here (banned in production code): "unset" dates default
 // to .distantPast and are stamped by the E2.2 service layer at write time.
-// The four §4 indexes (#Index<Quit>([\.isArchived, \.sortIndex]), #Index<Slip>([\.at]),
-// #Index<Slip>([\.isPendingUndo]), #Index<UrgeEvent>([\.at])) are DEFERRED to E2.2:
-// no E2.1 red test exercises them, and the queries that justify them (activeQuits,
-// the undo sweep, at-ordering) land with the repository — green means minimal.
+// §4 indexes: #Index<Quit>([\.isArchived, \.sortIndex]) landed with E2.2's activeQuits
+// query. The other three stay DEFERRED to their justifying queries (green means
+// minimal): #Index<Slip>([\.isPendingUndo]) with the E4.1 undo lifecycle (finalize
+// sweep), #Index<Slip>([\.at]) with the first time-ordered slip query (E4/E6),
+// #Index<UrgeEvent>([\.at]) with E12.4's on-device insights.
 
 /// Habit category for a tracked goal. String-backed and Codable so SwiftData stores it
 /// as a plain encoded value (CloudKit-safe).
@@ -56,6 +57,9 @@ struct QuizAnswer: Codable, Sendable, Equatable {
 /// never by schema (CloudKit has no server-side uniqueness/limits).
 @Model
 final class Quit {
+    // Backs the repository's activeQuits() fetch (filter !isArchived, sort sortIndex).
+    #Index<Quit>([\.isArchived, \.sortIndex])
+
     var id: UUID = UUID()
     var habitCategory: HabitCategory = HabitCategory.custom
     var customLabel: String?
