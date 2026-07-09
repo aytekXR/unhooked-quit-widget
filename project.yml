@@ -67,6 +67,13 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: Ballast
+        # XcodeGen hardcodes CFBundleVersion "1" in generated plists unless told
+        # otherwise, silently swallowing gym's CURRENT_PROJECT_VERSION xcargs — the
+        # first TestFlight build shipped as bundle version '1' and every later upload
+        # collided with it (ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE). Route both
+        # version fields through the build settings so the per-run override lands.
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         # Portrait-only is a product decision (lock-screen widget wedge, one-hand
@@ -95,6 +102,10 @@ targets:
       path: Widgets/Info.plist
       properties:
         CFBundleDisplayName: Ballast Widgets
+        # Same version routing as the app target — App Store validation requires the
+        # extension's CFBundleVersion to match its host app's.
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
