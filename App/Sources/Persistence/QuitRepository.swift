@@ -49,6 +49,9 @@ final class QuitRepository {
 
     /// All quits the user has not archived, in widget-selector order. This is the query
     /// that justifies `#Index<Quit>([\.isArchived, \.sortIndex])` (architecture §4).
+    /// The in-memory id tiebreak keeps the order TOTAL: the dedupe merge resolves a
+    /// duplicate group's sortIndex with min, which can land on an existing quit's
+    /// value — widget selectors bind by position, so ties must not flap.
     func activeQuits() throws -> [Quit] {
         try context.fetch(
             FetchDescriptor<Quit>(
@@ -56,6 +59,7 @@ final class QuitRepository {
                 sortBy: [SortDescriptor(\.sortIndex)]
             )
         )
+        .sorted { ($0.sortIndex, $0.id.uuidString) < ($1.sortIndex, $1.id.uuidString) }
     }
 
     /// The streak readout for one quit, routed through the clock-integrity guard with
@@ -239,36 +243,234 @@ final class QuitRepository {
         )
     }
 
-    /// Advances the device's trusted reading ONLY when BOTH hold:
-    ///  1. a guard verdict computed against a pre-existing anchor reads `.normal`
+    /// Maintains the device's conservative WITNESS — a provable lower bound on
+    /// elapsed real time. Session 07 EXTENSION of the Session 06 discipline: the two
+    /// original gates are unchanged and preferred, and no path ever writes an
+    /// unverified wall claim into the baseline.
+    ///
+    /// Path 1 — REAL-WALL ADVANCE (the Session 06 gates, unchanged): only when BOTH
+    ///  a. a guard verdict computed against a pre-existing anchor reads `.normal`
     ///     (never on `.clockRolledBack`/`.timezoneShift` — persisting a disputed wall
     ///     would poison every future reboot-cap baseline; never without an anchor), and
-    ///  2. the new reading is CONTINUOUS with the previous trusted reading — the old
+    ///  b. the new reading is CONTINUOUS with the previous trusted reading — the old
     ///     reading itself re-run through the guard as the anchor. A freshly-minted
     ///     quit anchor agrees with the reading it was minted from for ANY wall value,
-    ///     so gate 1 alone would let a fresh quit launder a forward-set wall into the
-    ///     device-global baseline (Session 06 review MAJOR); the continuity gate
+    ///     so gate (a) alone would let a fresh quit launder a forward-set wall into
+    ///     the device-global baseline (Session 06 review MAJOR); the continuity gate
     ///     refuses it (within a boot the uptime delta disputes the wall jump; across a
     ///     reboot the advance stays inside the same cap the display honors).
+    ///
+    /// Path 2 — heal-time RESTART: lives in `recomputeDerivedState()`, bounded to
+    /// ≤ `defaultRebootGapCap` per reboot (the same credit the capped arm grants).
+    ///
+    /// Path 3 — UPTIME ACCRUAL (fallback when path 1 declines): same boot and the
+    /// uptime advanced ⇒ the witness wall moves by exactly the uptime delta. Pure
+    /// monotonic arithmetic — no wall claim is consulted, so a lying wall cannot
+    /// launder in — and it keeps the witness live under a disputed wall so the chain
+    /// re-certifies through path 1 once the conservative lag decays below the cap.
     private func refreshLastKnownGood(
         anchor: MonotonicAnchor?,
         now: Date,
         reading: MonotonicNow,
         lastKnownGood: MonotonicAnchor?
     ) {
-        guard let anchor else { return }
-        let verdict = StreakCalculator.sanityCheck(
-            anchor: anchor, now: now, monotonic: reading, lastKnownGood: lastKnownGood
-        )
-        guard verdict == .normal else { return }
-        if let previous = lastKnownGood {
-            let continuity = StreakCalculator.sanityCheck(
-                anchor: previous, now: now, monotonic: reading, lastKnownGood: previous
+        if let anchor {
+            let verdict = StreakCalculator.sanityCheck(
+                anchor: anchor, now: now, monotonic: reading, lastKnownGood: lastKnownGood
             )
-            guard continuity == .normal else { return }
+            if verdict == .normal {
+                let continuity = lastKnownGood.map { previous in
+                    StreakCalculator.sanityCheck(
+                        anchor: previous, now: now, monotonic: reading, lastKnownGood: previous
+                    ) == .normal
+                } ?? true
+                if continuity {
+                    lastKnownGoodStore.save(
+                        MonotonicAnchor(bootID: reading.bootID, uptime: reading.uptime, wallClock: now)
+                    )
+                    return
+                }
+            }
         }
-        lastKnownGoodStore.save(
-            MonotonicAnchor(bootID: reading.bootID, uptime: reading.uptime, wallClock: now)
-        )
+        guard let previous = lastKnownGood,
+              previous.bootID == reading.bootID,
+              reading.uptime > previous.uptime else { return }
+        lastKnownGoodStore.save(MonotonicAnchor(
+            bootID: previous.bootID,
+            uptime: reading.uptime,
+            wallClock: previous.wallClock + (reading.uptime - previous.uptime)
+        ))
+    }
+
+    // MARK: - E2.3 · recomputeDerivedState (dedupe merge + heal + witness restart)
+
+    /// The launch-time derived-state pass (architecture §8): the CloudKit dedupe merge
+    /// (same-`id` records fold into one that never shrinks history), the ADR-7 healing
+    /// re-anchor (freeze-then-resume) for streaks frozen by the reboot cap, and the
+    /// bounded witness restart that lets the trusted-reading chain recover.
+    /// Deterministic — a pure function of the record SET, so every arrival/processing
+    /// order converges to the same state — idempotent, and safe at every launch: a
+    /// no-op pass saves nothing and schedules no reload. App-launch wiring lands with
+    /// E3.1; remote-change wiring with the §4.3 CloudKit flip.
+    @discardableResult
+    func recomputeDerivedState() throws -> Bool {
+        let now = clock.now
+        let reading = clock.monotonicNow
+        var didMutate = false
+
+        let groups = Dictionary(grouping: try context.fetch(FetchDescriptor<Quit>()), by: \.id)
+            .values.filter { $0.count > 1 }
+        for rows in groups {
+            try merge(rows)
+            didMutate = true
+        }
+
+        // Heal AFTER the merge so the re-anchor is minted against the merged record.
+        let witness = lastKnownGoodStore.load()
+        var healedAny = false
+        for quit in try context.fetch(FetchDescriptor<Quit>()) {
+            guard let healed = StreakCalculator.healFrozenStreak(
+                on: snapshot(of: quit), at: now, monotonic: reading, lastKnownGood: witness
+            ) else { continue }
+            // Option (iii): ONLY the streak re-bases. createdAt (the tracking origin,
+            // "never resets") and the banked monotonic fields never move — post-heal
+            // momentum reads honest-conservative, and counting resumes.
+            quit.startAt = healed.startAt
+            quit.monotonicAnchor = healed.monotonicAnchor
+            healedAny = true
+            didMutate = true
+        }
+        if healedAny, let previous = witness {
+            // Witness restart (path 2): grant exactly what the capped arm granted the
+            // healed quits — min(gap, cap) — NEVER the raw wall, which the bridge arm
+            // would trust uncapped for any older (incl. CloudKit-delivered) anchor.
+            // Per-reboot unverifiable optimism stays ≤ cap, the Session-06 bound; the
+            // in-window channel has always granted the same per-reboot credit.
+            let gap = now.timeIntervalSince(previous.wallClock)
+            lastKnownGoodStore.save(MonotonicAnchor(
+                bootID: reading.bootID,
+                uptime: reading.uptime,
+                wallClock: previous.wallClock + min(max(0, gap), StreakCalculator.defaultRebootGapCap)
+            ))
+        }
+
+        if didMutate {
+            try context.save()
+            scheduleWidgetReload()
+        }
+        return didMutate
+    }
+
+    /// Folds one duplicate group into its canonical survivor: every field OVERWRITTEN
+    /// with an order-free resolution over the whole group, every child re-parented —
+    /// the logical result is independent of which physical row survives.
+    private func merge(_ rows: [Quit]) throws {
+        let ordered = rows.sorted {
+            ($0.createdAt, $0.startAt, -$0.bestStreakSeconds)
+                < ($1.createdAt, $1.startAt, -$1.bestStreakSeconds)
+        }
+        let survivor = ordered[0]
+        let losers = ordered.dropFirst()
+
+        // The record whose startAt wins contributes its anchor AS A COHERENT TUPLE —
+        // the guard measures elapsed from anchor.wallClock, so pairing the newest
+        // startAt with an older anchor would silently inflate, unflagged.
+        let startWinner = rows.min { a, b in
+            if a.startAt != b.startAt { return a.startAt > b.startAt } // latest start first
+            switch (a.monotonicAnchor, b.monotonicAnchor) {
+            case (.some, nil): return true // an anchored record beats an unanchored one
+            case (nil, .some), (nil, nil): return false
+            case let (.some(x), .some(y)):
+                return (x.wallClock, x.uptime, x.bootID.uuidString)
+                    < (y.wallClock, y.uptime, y.bootID.uuidString)
+            }
+        }!
+
+        survivor.createdAt = rows.map(\.createdAt).min()! // max total tracked span
+        survivor.startAt = startWinner.startAt            // latest slip-terminated start (§8)
+        survivor.monotonicAnchor = startWinner.monotonicAnchor
+        survivor.bestStreakSeconds = rows.map(\.bestStreakSeconds).max()!
+        survivor.totalCleanSeconds = rows.map(\.totalCleanSeconds).max()!
+        survivor.weeklySpend = rows.map(\.weeklySpend).max()!
+        survivor.weeklyAllowance = rows.compactMap(\.weeklyAllowance).max()
+        survivor.habitCategory = rows.map(\.habitCategory).min { $0.rawValue < $1.rawValue }!
+        survivor.goalMode = rows.map(\.goalMode).min { $0.rawValue < $1.rawValue }!
+        survivor.customLabel = rows.compactMap(\.customLabel).min()
+        survivor.currencyCode = rows.map(\.currencyCode).min()!
+        survivor.triggers = Self.orderPreservingUnion(of: rows.map(\.triggers))
+        survivor.motivations = Self.orderPreservingUnion(of: rows.map(\.motivations))
+        survivor.discreetMode = rows.contains { $0.discreetMode } // fails toward privacy
+        survivor.isArchived = rows.contains { $0.isArchived }     // the user's archive wins
+        survivor.sortIndex = rows.map(\.sortIndex).min()!
+
+        // Children union by id, re-parented BEFORE any delete (.cascade would eat
+        // them). The recount corrects the cross-device undercount: two devices can
+        // each hold averted events the other missed, so max-of-counters alone is low;
+        // flooring at the stored max keeps the counter monotonic.
+        let unionedAverted = adoptChildren(of: ordered, into: survivor)
+        survivor.avertedUrgeCount = max(rows.map(\.avertedUrgeCount).max()!, unionedAverted)
+
+        // QuizProfile points AT Quit with no inverse: re-point before a loser delete
+        // leaves it dangling. Re-point only — profile semantics are E5's.
+        let loserIdentities = Set(losers.map { ObjectIdentifier($0) })
+        for profile in try context.fetch(FetchDescriptor<QuizProfile>()) {
+            if let owner = profile.quit, loserIdentities.contains(ObjectIdentifier(owner)) {
+                profile.quit = survivor
+            }
+        }
+
+        // Persist the re-parenting BEFORE deleting losers: belt-and-suspenders so the
+        // cascade can never act on a stale in-memory inverse (Session 07 red team).
+        try context.save()
+        for loser in losers { context.delete(loser) }
+    }
+
+    /// Re-parents every child row onto the survivor, deduping same-id child rows to
+    /// one. Returns the number of distinct `.averted` urge events in the union.
+    private func adoptChildren(of ordered: [Quit], into survivor: Quit) -> Int {
+        var keptSlips: [UUID: Slip] = [:]
+        var keptUrges: [UUID: UrgeEvent] = [:]
+        for row in ordered {
+            for slip in Array(row.slips ?? []).sorted(by: { $0.at < $1.at }) {
+                if let kept = keptSlips[slip.id] {
+                    if kept !== slip { context.delete(slip) }
+                } else {
+                    keptSlips[slip.id] = slip
+                    slip.quit = survivor
+                }
+            }
+            for urge in Array(row.urgeEvents ?? []).sorted(by: { $0.at < $1.at }) {
+                if let kept = keptUrges[urge.id] {
+                    if kept !== urge { context.delete(urge) }
+                } else {
+                    keptUrges[urge.id] = urge
+                    urge.quit = survivor
+                }
+            }
+        }
+        return keptUrges.values.count { $0.outcome == .averted }
+    }
+
+    /// Order-preserving union over string lists — a pure function of the SET of
+    /// lists: candidates ordered by (count desc, then ASCENDING element-wise
+    /// lexicographic; the direction is contractual), the first is the base, the rest
+    /// append their unseen items in their own order. No pairwise fold (order-
+    /// dependent) and no joined-string tie-break (not injective over free text) —
+    /// user-entered order survives, and every insertion order of the same lists
+    /// converges byte-identically. Motivations render verbatim in the panic flow, so
+    /// sorting ITEMS alphabetically would scramble user priority.
+    private static func orderPreservingUnion(of lists: [[String]]) -> [String] {
+        let ordered = lists.sorted { a, b in
+            if a.count != b.count { return a.count > b.count }
+            return a.lexicographicallyPrecedes(b)
+        }
+        var seen = Set<String>()
+        var union: [String] = []
+        for list in ordered {
+            for item in list where seen.insert(item).inserted {
+                union.append(item)
+            }
+        }
+        return union
     }
 }

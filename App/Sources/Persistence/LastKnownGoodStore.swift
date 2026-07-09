@@ -1,8 +1,11 @@
 import Foundation
 import StreakEngine
 
-/// Device-local persistence for the clock guard's last trusted reading — the persisted
-/// wall reading the ADR-7 reboot sanity cap needs (carried since Session 03).
+/// Device-local persistence for the clock guard's conservative WITNESS — a provable
+/// lower bound on elapsed real time, the persisted reading the ADR-7 reboot sanity cap
+/// measures from (carried since Session 03; redefined from "last trusted wall reading"
+/// to witness semantics in Session 07 — see `QuitRepository.refreshLastKnownGood` for
+/// the three advance paths and their bounds).
 ///
 /// DELIBERATELY not SwiftData: the single product store is CloudKit-mirrored, and a
 /// clock reading is device truth — device A's `bootID`/`uptime`/`wallClock` are garbage

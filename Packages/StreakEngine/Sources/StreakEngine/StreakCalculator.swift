@@ -105,22 +105,24 @@ public struct StreakCalculator: Sendable {
     }
 
     /// Single shared branch set for verdict + conservative value (one arm inventory under
-    /// the 100%-branch bar; the two public faces above stay straight-line).
+    /// the 100%-branch bar; the two public faces above stay straight-line). `healable`
+    /// tags the ONE arm the E2.3 healing re-anchor may act on — the across-reboot
+    /// over-cap freeze — so `healFrozenStreak` never re-derives arm logic.
     private static func evaluate(
         anchor: MonotonicAnchor,
         now: Date,
         monotonic: MonotonicNow,
         tolerance: TimeInterval,
         lastKnownGood: MonotonicAnchor? = nil
-    ) -> (sanity: ClockSanity, elapsedSeconds: Int) {
+    ) -> (sanity: ClockSanity, elapsedSeconds: Int, healable: Bool) {
         let wallDelta = now.timeIntervalSince(anchor.wallClock)
 
         guard monotonic.bootID == anchor.bootID else {
             guard let lkg = lastKnownGood else {
                 // No trusted reading: the uncapped wall fallback, unchanged — the cap
                 // is opt-in via `lastKnownGood` (pinned by test).
-                if wallDelta < -tolerance { return (.clockRolledBack, 0) }
-                return (.normal, max(0, Int(wallDelta)))
+                if wallDelta < -tolerance { return (.clockRolledBack, 0, false) }
+                return (.normal, max(0, Int(wallDelta)), false)
             }
 
             // BRIDGE: the trusted reading shares the CURRENT boot and postdates this
@@ -133,7 +135,7 @@ public struct StreakCalculator: Sendable {
                     anchor: lkg, now: now, monotonic: monotonic, tolerance: tolerance
                 )
                 let verifiedPrefix = Int(lkg.wallClock.timeIntervalSince(anchor.wallClock))
-                return (bridged.sanity, verifiedPrefix + bridged.elapsedSeconds)
+                return (bridged.sanity, verifiedPrefix + bridged.elapsedSeconds, false)
             }
 
             // Capped arm: no monotonic continuity to `now`. The baseline floors at the
@@ -144,27 +146,29 @@ public struct StreakCalculator: Sendable {
             let gap = now.timeIntervalSince(baseline)
             if gap < -tolerance {
                 // Rollback below the trusted reading: freeze at the verified span —
-                // not zero; the reading proves at least this much elapsed.
-                return (.clockRolledBack, verified)
+                // not zero; the reading proves at least this much elapsed. Recovers on
+                // its own once the wall catches back up, so it is not healable.
+                return (.clockRolledBack, verified, false)
             }
             if gap > defaultRebootGapCap {
                 // Reboot + huge forward jump: withhold the unverifiable excess, flag.
-                return (.clockRolledBack, verified + Int(defaultRebootGapCap))
+                // The ONE healable state — frozen forever without a corrective write.
+                return (.clockRolledBack, verified + Int(defaultRebootGapCap), true)
             }
-            return (.normal, verified + max(0, Int(gap)))
+            return (.normal, verified + max(0, Int(gap)), false)
         }
 
         let monoDelta = max(0, monotonic.uptime - anchor.uptime)
         let disagreement = wallDelta - monoDelta
         if abs(disagreement) <= tolerance {
-            return (.normal, max(0, Int(wallDelta)))
+            return (.normal, max(0, Int(wallDelta)), false)
         }
 
         let magnitude = abs(disagreement)
         let remainder = magnitude.truncatingRemainder(dividingBy: 900)
         let timezoneShaped = magnitude <= 14 * 3_600 + tolerance
             && (remainder <= tolerance || 900 - remainder <= tolerance)
-        return (timezoneShaped ? .timezoneShift : .clockRolledBack, Int(monoDelta))
+        return (timezoneShaped ? .timezoneShift : .clockRolledBack, Int(monoDelta), false)
     }
 
     /// The headline readout, fully derived from the snapshot and an injected `now`.
@@ -183,7 +187,7 @@ public struct StreakCalculator: Sendable {
         let sanity: ClockSanity
         let elapsed: Int
         if let anchor = snapshot.monotonicAnchor, let reading = monotonic {
-            (sanity, elapsed) = evaluate(
+            (sanity, elapsed, _) = evaluate(
                 anchor: anchor, now: now, monotonic: reading,
                 tolerance: defaultClockTolerance, lastKnownGood: lastKnownGood
             )
@@ -234,12 +238,34 @@ public struct StreakCalculator: Sendable {
         monotonic: MonotonicNow? = nil,
         lastKnownGood: MonotonicAnchor? = nil
     ) -> StreakSnapshot? {
-        // E2.3 red sentinel (cries-wolf: a corrupted non-nil snapshot for EVERY
-        // input, so no red test can pass from birth). Green replaces this body.
-        var corrupted = snapshot
-        corrupted.startAt = .distantPast
-        corrupted.trackedSince = .distantFuture
-        corrupted.priorCleanSeconds = -1
-        return corrupted
+        guard let anchor = snapshot.monotonicAnchor, let reading = monotonic else {
+            return nil
+        }
+        let verdict = evaluate(
+            anchor: anchor, now: now, monotonic: reading,
+            tolerance: defaultClockTolerance, lastKnownGood: lastKnownGood
+        )
+        guard verdict.healable else { return nil }
+
+        let frozen = verdict.elapsedSeconds
+        var healed = snapshot
+        // Re-base onto the current boot so counting resumes: the guard measures
+        // elapsed from the anchor, so a back-dated (bootID, uptime − frozen,
+        // now − frozen) anchor reads exactly `frozen` at `now` and ticks 1:1 with
+        // real time from here. startAt rides along (anchor.wallClock == startAt),
+        // which keeps the NEXT applySlip's slip instant on the real wall.
+        healed.startAt = now - TimeInterval(frozen)
+        healed.monotonicAnchor = MonotonicAnchor(
+            bootID: reading.bootID,
+            uptime: reading.uptime - TimeInterval(frozen),
+            wallClock: healed.startAt
+        )
+        // Tripwire: the minted anchor must read (.normal, frozen) at the heal instant.
+        let minted = evaluate(
+            anchor: healed.monotonicAnchor!, now: now, monotonic: reading,
+            tolerance: defaultClockTolerance
+        )
+        assert(minted.sanity == .normal && minted.elapsedSeconds == frozen)
+        return healed
     }
 }
