@@ -788,3 +788,137 @@ E2.3 DONE: red 28996554955 → green 28997109088 (ALL test lanes; coverage
 build 23 uploaded) → review-red 28999392466 → review-green 29000350889 (FULLY
 green end-to-end incl. the TestFlight upload — build 24). Engine tagged
 streakengine-v1.2.0 on aaf36fe. CodeGraph synced at session end.
+
+---
+
+## 2026-07-09 · Session 08 · E2.4 — one-tap erase (local-first) + CloudSyncControlling seam, red→green (+1 review-pins commit); TestFlight runner-acquisition incident
+
+**Prompted.** Execute resume prompt v1.9 with workflows (ultracode): E2.4 — one-tap
+erase (local + CloudKit seam + caches), strictly test-first, scope-adjusted per the
+prompt (companion store is E12; RevenueCat/analytics clears are E7/E8 seams). Also:
+update the operator's personal TODO file with anything operator-owned and notify at
+session end. Workflows ran at three gates: 3-adversary spec review (17 findings →
+refutation-first verifiers → 3 confirmed, 14 refuted); 3-lens pre-red verification
+(PASS ×3, zero findings); 4-dimension adversarial diff review with 3-verifier
+majority panels per finding (37 agents: 11 findings → 6 confirmed, 5 refuted).
+
+**Produced.**
+- **`QuitRepository.eraseEverything() async throws` (green dc3ba97):** LOCAL-FIRST
+  sequence — fetch-and-delete all five entity types (children first, no batch-delete
+  API, no cascade reliance; explicit per-type deletes also catch ORPHANED rows a
+  future sync/merge can deliver) + one save → witness clear (`LastKnownGoodStore.
+  clear()`, infallible, before anything that can throw) → App Group defaults key
+  sweep + store file-set removal (`eraseLocalArtifacts`, static, shared verbatim
+  with the launch smoke hook; file set = base + `-shm`/`-wal`/`-journal` sidecars +
+  hidden support artifacts, scoped to the SET, never the directory) → debounced
+  widget reload → **CloudKit private-zone purge LAST** through the new
+  `CloudSyncControlling` seam (account unavailable ⇒ skip, never fail — fully-local
+  is first-class; available + throw ⇒ PROPAGATE after local completion, erase is
+  re-runnable). E7 (RevenueCat reset) and E8 (`erase_all_completed`) are named TODO
+  seams, deliberately code-free.
+- **`CloudSyncControlling` + `CloudAccountStatus`** (new seam file; added to
+  architecture §5.1 in the same change per test-suite §7.8). Production conformance
+  (CKContainer) deliberately deferred to the §4.3 flip.
+- **UI-smoke launch hook** (`UITEST_SEED_PANIC_THEN_ERASE` in `UnhookedApp.init`,
+  FORCE_PANIC_ROUTE-precedent scaffolding): seeds a panic flag, runs the REAL
+  `eraseLocalArtifacts`, and the route resolution right after is the observable.
+- **Tests:** the five plan names verbatim (`test_erase_deletesBothStoreFiles` — the
+  single product store's whole on-disk file set, companion store is E12;
+  `test_erase_requestsCloudKitZoneDeletion` — mock seam, one request per erase;
+  `test_erase_clearsPanicPreCacheDefaults` — defaults sweep + the WITNESS pinned
+  through its own store; `test_erase_appRelaunch_startsAtOnboarding` — UI smoke,
+  launch A is the SOLE route-level discriminator (comment-pinned), launch B is a
+  durability sanity check; `test_iCloudUnavailable_appFunctionsFullyLocal` — full
+  repo surface + COMPLETE local erase with zero cloud calls) + pins: fresh-context
+  empty store across all five entities, cloud-failure-surfaces-then-retry (with
+  local-complete + reload-despite-failure asserts), debounced reload (no repository
+  write may precede the awaited erase — spec-review-confirmed pass-from-birth trap),
+  orphan-row erase, unrelated-sibling survives the file sweep.
+
+### Red (TDD §7.1 evidence)
+
+Commit 8ec0608 FAILED THE BUILD (backslash line-continuations inside single-line
+string literals — Swift has none; run 29015343681 is NOT red evidence). Lesson made
+mechanical: `swiftc -parse` on every touched Swift file is now a pre-push gate
+(session-rules Environment note). The corrected red is b55a974, run **29016220253**:
+all 7 new unit tests failed on their DESIGNED assertions (19 issues in the E2.4
+suite; all pre-existing unit/merge/witness tests green in the same run), e.g.:
+```
+✘ test_erase_deletesBothStoreFiles — (h.storeFileSet() → ["unhooked.store",
+  "unhooked.store-shm", "unhooked.store-wal"]) == []
+✘ test_erase_requestsCloudKitZoneDeletion — (h.cloud.zoneDeletionRequests → 0) == 1
+✘ test_erase_clearsPanicPreCacheDefaults — (h.lkgStore.load() → MonotonicAnchor(…)) == nil
+```
+UI lane: `test_erase_appRelaunch_startsAtOnboarding` failed exactly on the designed
+launch-A assertion ("Erased state must land on the fresh-install root…");
+WalkingSkeleton smokes green, PanicLatency skipped (simulator).
+
+### Key decisions (ratified this session)
+
+- **LOCAL-FIRST erase order** (spec-review confirmed-major, 3/3): architecture §10's
+  cloud-purge-before-local sketch was BACKWARDS for this product — every local step
+  is cloud-independent and the on-device copy (verbatim motivations pre-cache,
+  witness, store file, readable by a person holding the phone) is the more sensitive
+  one; a transient CK error must never strand it. §10 corrected in the same change;
+  the one fallible remote step goes last and its failure surfaces for retry.
+- **Cloud policy:** `accountStatus() == .unavailable` ⇒ skip the purge entirely
+  (zero cloud calls, pinned); available + failure ⇒ throw AFTER local completion.
+- **The witness is erased state** (extends Session 07): cleared through
+  `LastKnownGoodStore.clear()`, before the fallible steps; a fresh install has no
+  witness and the chain re-establishes through the ordinary advance paths.
+- **Defaults clearing is a KEY SWEEP** over `dictionaryRepresentation()` on the
+  injected App Group suite (no key registry to rot; global-domain keys no-op);
+  **file clearing is an allowlist-shaped FILE-SET sweep** (review-pinned: a
+  directory nuke would eat unrelated App Group files under the real container).
+- **Erase lives on QuitRepository** (architecture §5.1 QuitServiceProtocol), init
+  grows `cloud:` + `appGroupDefaults:`; post-erase the repository/container are
+  dead by design (relaunch = fresh install; verified acceptable, 0/3 on the
+  zombie-repository finding).
+
+### Review (ultracode workflows at three gates)
+
+- Spec review (3 adversaries × refutation-first verifiers): confirmed the ordering
+  major (above), the reload-test pass-from-birth trap (fixed pre-red: no repository
+  write before the awaited erase), and the launch-B-non-discriminating note
+  (comment-pinned). Killed 14 findings incl. unlink-while-open, isStoredInMemoryOnly
+  doubts, and a §4.3 two-device-claim overreach.
+- Pre-red 3-lens: PASS ×3 — but see the string-literal build failure the lens
+  missed; the parse gate now backstops it mechanically.
+- Diff review (4 dims → 11 findings → 3-verifier majority): **6 confirmed (1 major
+  test gap + 2 minor pins + 1 comment over-claim + 2 notes), 5 refuted.** All three
+  mutants killed in 669eb1b (orphan rows / reload-despite-cloud-failure / file-set
+  scoping); the over-claiming eraseLocalArtifacts comment now states its exact scope
+  with the E3.1 seam named.
+
+### Known limitations / carried items
+
+1. **Panic-snapshot files are OUTSIDE today's erase sweep (latent, 3/3-confirmed,
+   by design):** `eraseLocalArtifacts` covers defaults keys + the store file set;
+   architecture §4's `panic-snapshot.json`/`widget-state.json` are FILES and no
+   writer exists yet (grep-verified). **E3.1's DoD MUST add their file names to the
+   sweep + a file-shaped sentinel erase test** — carried at the top of the resume
+   prompt.
+2. Real CloudKit zone purge + production `CloudSyncControlling` conformance →
+   the §4.3 flip / contract tier (test-suite §4.3 erase contract); two-device erase
+   propagation stays the manual release checklist.
+3. RevenueCat reset (E7) and `erase_all_completed` (E8) are named TODO seams in
+   `eraseEverything` — wire there, not elsewhere.
+4. UI smoke launch B is a durability sanity check, not an erase pin (documented
+   in-file; unit tests are the real pins).
+5. recomputeDerivedState launch/remote-change wiring → E3.1/§4.3; undo lifecycle
+   whole in E4.1; `StreakCalculating` exposure policy unchanged.
+6. **CI incident (infra, watch it):** dc3ba97's TestFlight upload was cancelled by
+   GitHub — "The job was not acquired by Runner of type hosted even after multiple
+   attempts" — after all test gates were green. Not billing-shaped (test lanes got
+   macOS runners in the same run). The 669eb1b run re-exercises the lane.
+
+### Gate status
+
+E2.4 DONE: red 29016220253 (b55a974; 8ec0608's build-failure run 29015343681
+disqualified and replaced) → green 29017223500 (dc3ba97; ALL test lanes + gate
+floors green; upload lane lost to the runner-acquisition incident) → review pins
+669eb1b, run 29019440970 **FULLY GREEN end-to-end incl. the TestFlight upload**
+(the runner incident did not recur; a fresh build shipped on this run).
+No engine changes (StreakEngine stays 1.2.0). OPERATOR-TODO.md restored to
+untracked (was accidentally committed as 5eba607) + gitignored. CodeGraph synced
+at session end.

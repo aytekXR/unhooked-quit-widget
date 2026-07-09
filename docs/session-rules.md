@@ -87,3 +87,8 @@ The build machine is Linux (no Xcode, no simulators). Consequences:
   Linux lanes where honest, and cancel superseded runs (already configured in ci.yml).
 - Physical-device work (panic-latency spike, widget device matrix, TestFlight) is
   operator-owned and can only be scaffolded, never executed, from this machine.
+- **Parse gate (added 2026-07-09, Session 08):** before EVERY push that touches Swift
+  sources, run `swiftc -parse` on each touched file (syntax-only — works on the Linux
+  toolchain without Xcode or module resolution). A backslash-line-continuation typo
+  inside a string literal reached CI in Session 08 and cost a billed macOS run that
+  produced no red evidence; the parse gate makes that class of failure impossible.

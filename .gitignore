@@ -14,6 +14,10 @@ xcuserdata/
 # macOS noise
 .DS_Store
 
+# Operator-local checklist — deliberately untracked (accidentally committed once as
+# 5eba607; removed from the index in Session 08, ignored ever since)
+OPERATOR-TODO.md
+
 # fastlane transient output
 fastlane/report.xml
 fastlane/README.md
