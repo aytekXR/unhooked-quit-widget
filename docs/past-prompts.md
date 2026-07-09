@@ -922,3 +922,152 @@ floors green; upload lane lost to the runner-acquisition incident) → review pi
 No engine changes (StreakEngine stays 1.2.0). OPERATOR-TODO.md restored to
 untracked (was accidentally committed as 5eba607) + gitignored. CodeGraph synced
 at session end.
+
+## 2026-07-09 · Session 09 · E3.1 — panic path productionizing (pre-cache, launch wiring, production seams, panic route), red→green (+1 pins/harden commit); one wasted run on an SDK deprecation
+
+**Prompted.** Execute resume prompt v2.0 with workflows (ultracode): E3.1 — panic
+path productionizing, strictly test-first; log operator-expected items to chat AND
+the operator's personal file at session start (done: OPERATOR-TODO.md top section).
+Workflows ran at four gates: 3-designer/3-judge design panel (6 agents); 3-lens
+pre-red verification (PASS ×3, zero blockers — the compile-risk lens empirically
+compiled the risky Swift 6 constructs before the billed run); 4-dimension adversarial
+diff review with 3-verifier refutation-first majority panels (22 agents: 6 findings →
+2 confirmed 3/3, 4 refuted 0/3).
+
+**Produced.**
+- **`panic-snapshot.json` pre-cache (the ratified shape):** `PanicSnapshot`/
+  `QuitSnapshot` value types + `PanicSnapshotStore` (Shared/Sources — compiled into
+  both targets for the E6 widget reader; injected-location per the LastKnownGoodStore
+  precedent, no new protocol). Content MINIMIZED per §10: id + (non-discreet) label +
+  discreet flag + VERBATIM motivations under `schemaVersion` (streak/anchor/money
+  fields join additively with E3.2/E6). Discreet quits ship `label = nil`; slip notes
+  physically absent (raw-bytes pin). Rebuilt best-effort (`try?`, synchronous, after
+  save) at the tail of createQuit/logSlip/logUrgeEvent/recomputeDerivedState-when-
+  mutating; `refreshPanicSnapshot()` at launch heals failed writes / prunes residue.
+  NEVER rebuilt by eraseEverything.
+- **Erase carry item PAID (Session 08's 3/3-confirmed):** `eraseLocalArtifacts` gained
+  an owned `appGroupFileURLs` set ([panic-snapshot.json]; never a directory);
+  both callers pass it (eraseEverything + the UITEST_SEED_PANIC_THEN_ERASE hook);
+  file-shaped sentinel tests: owned-file-removed + unowned-sibling-survives +
+  not-resurrected-by-erase (post-drain).
+- **`RepositoryProvider`** (App/Sources/Persistence, @MainActor @Observable): zero-work
+  init; ROUTE-AWARE idempotent `startIfNeeded(for:)` — normal route opens the store
+  once POST-first-frame (`.task` on the normal branch only, belt-and-braces with the
+  route guard), runs `recomputeDerivedState()` + the pre-cache refresh, publishes the
+  repository (environment-injected for E3.2/E4.1); the PANIC route opens NOTHING,
+  pre- or post-frame (the scope-adjusted plan pin `test_panicLaunch_skipsStoreWork
+  BeforeFirstFrame`). `RootKind.loadsPersistentGraph` is the pure gate; RootKind cases
+  and `resolveRoot` signature UNTOUCHED (design-panel fatal on the alternative).
+- **Production seams:** `LiveClock` (mach_continuous_time × timebase = sleep-INCLUSIVE
+  uptime; `kern.bootsessionuuid` sysctl cached per instance, sysctl failure degrades
+  to a fresh UUID = foreign-boot = conservative cap path; `Date()` as the one
+  sanctioned wall read), `LiveWidgetRefresher` (WidgetCenter passthrough,
+  coverage-exempt), `LocalOnlyCloudSync` (.unavailable until the §4.3 flip).
+  Composition root = `RepositoryProvider.liveRepository` (production witness suite =
+  App Group defaults).
+- **Panic route selection:** `PanicLaunchFlag` gained the `panic.launch.quitID` App
+  Group key (`set(quitID:)`/`selectedQuitID()`; `clear()` drops BOTH keys) — the
+  widget intent stays parameterless until E3.3, which writes this same key. Pure
+  `PanicRouteResolver`: empty→bare breathe; selected-match→that quit; single quit→no
+  picker; several+no/unknown selection→picker (unknown id degrades like no selection —
+  never a dead end, §9). `UnhookedApp` resolves the presentation pre-frame on the
+  panic branch only (synchronous few-KB JSON read, §11 budget); placeholder-grade
+  brandkit-compliant `PanicQuitPickerView` (no red, coach copy, SF Symbols, neutral
+  title for discreet) under the CONTENT-STABLE `root.panicPlaceholder` container id,
+  so every route-level smoke keeps discriminating on the route.
+- **Latency gate:** untouched and unwired — the E0.3 device measurement is still
+  `_pending_` in docs/spike-panic-latency.md (operator-owned, now the only blocker on
+  wiring the permanent gate).
+- **Docs in the same change:** architecture §5.1 annotated (RepositoryProvider, live
+  seams, the landed SnapshotServiceProtocol subset + content-minimization note).
+
+### Red (TDD §7.1 evidence)
+
+Red commit f47cbce, run **29026946526**: all 13 new unit tests failed on their
+DESIGNED assertions (23 issues in the E3.1 suite; all 54 pre-existing tests green in
+the same run), e.g.:
+```
+✘ test_motivationsPreCache_updatedOnEveryQuitWrite — (…panicSnapshotStore).read() → nil
+✘ test_panicLaunch_withQuitID_selectsThatQuit — (resolve(…) → .picker([])) == .breathe(second)
+✘ test_panicLaunch_skipsStoreWorkBeforeFirstFrame — (spy.opens → 1) == 0 · (spy.opens → 2) == 0
+✘ test_liveClock_readingsAreUsableGuardEvidence — (a.uptime → -1.0) > 0 · bootID mismatch
+```
+UI lane: `test_panicRoute_seededSnapshot_showsQuitPicker` failed exactly on the
+designed picker assertion; all pre-existing smokes green; PanicLatency skipped (sim).
+
+### Key decisions (ratified this session — design panel + judges + main-agent synthesis)
+
+- **The pre-cache is a FILE** (`panic-snapshot.json`): architecture §4/§10/§11/ADR-6
+  are explicit and repeated; the implementation-plan's "app-group defaults" phrasing
+  loses. Consequence accepted and paid in-session: the file joins the erase sweep.
+- **Winner api-minimalist** over latency-purist (fatal: RootKind evolution breaks
+  committed WalkingSkeleton assertions) and privacy-absolutist (speculative deep-link
+  parser). Grafts: route-aware start + panic-opens-nothing spy (judge 2 /
+  privacy-absolutist), hardened eager-open red skeleton (pass-from-birth discipline),
+  drop `generatedAt` (no consumer; no clock read on the write path), keep
+  `schemaVersion` (named consumers).
+- **Pre-cache write failures are silent-recover** (§9): `try?`, never fails logSlip,
+  never async; the launch refresh is the healing channel (now pinned by the
+  non-mutating-launch test after the review caught it mutant-survivable).
+- **Session 06 carried note resolved N/A:** E3.1 persists `QuitSnapshot` cards, not
+  the engine's `StreakSnapshot` — its Codable key concern never materialized.
+
+### Review (ultracode workflows at three gates) + CI incident
+
+- Pre-red 3-lens: PASS ×3, zero blockers; two documented notes (LiveWidgetRefresher
+  is green-step scaffolding — no unit-observable behavior; snapshot omits streak
+  fields by design).
+- Diff review (4 dims → 6 findings → 3-verifier majority): **2 confirmed 3/3, 4
+  refuted 0/3.** Confirmed both test-quality mutant gaps, landed in 4bd7902:
+  (1) MAJOR — the launch refresh call was deletable with all tests green (the
+  duplicate-seeded launch test was masked by recompute's own didMutate rebuild) →
+  `test_launch_nonMutatingLaunch_refreshesStalePreCacheFromStoreTruth`;
+  (2) minor — all six `displayLabel` arms unpinned → parameterized brand-noun pins.
+  Refuted (0/3 each): picker ForEach id-collision, erase-ordering privacy regression,
+  erase-abort-on-file-throw, PanicLaunchTrace normal-route leak (pre-existing design).
+- **CI cost incident (new failure class, record it):** green commit feee1ab's run
+  29027702023 FAILED THE BUILD on `String(cString:)` — deprecated in the current SDK,
+  promoted to an error by warnings-as-errors. The `swiftc -parse` gate CANNOT catch
+  semantic deprecations (needs full type-checking, impossible for iOS targets on the
+  Linux box) — one billed macOS run wasted; fix 4591dc7 (String(decoding:as:) over the
+  NUL-truncated buffer). Mitigation for future agents: treat NEW Darwin/Foundation
+  API calls as deprecation-risk; prefer the modern replacement API from the start.
+- **UI-smoke integration lesson:** the picker smoke initially queried the NESTED
+  accessibility container id and failed against the live app while all logic was
+  unit-green (run 29028256271's sole red); hardened in 4bd7902 to query the picker's
+  ROW BUTTONS by identifier prefix (real elements, stronger assertion: both seeded
+  rows must exist) + a route-sanity assert; a new unit pin round-trips the REAL App
+  Group store in the app process, and `PanicSnapshotStore.write` self-heals its
+  parent directory (PersistentStore precedent).
+
+### Known limitations / carried items
+
+1. **Latency gate still unwired** — blocked ONLY on the operator's E0.3 device
+   measurement (spike doc `_pending_`); harness untouched; wire threshold + settle
+   the MVP §7 vs test-suite §1.5 wording drift when numbers land.
+2. **E3.2 MUST build the §9-rule-2 panic write buffer:** the panic route provably
+   never opens the store (pinned this session), so the flow's UrgeEvent/Slip writes
+   need the append-only App Group buffer + flush-on-repository-start — AND the buffer
+   file must JOIN `eraseLocalArtifacts` + a sentinel test in the same session (the
+   Session 08→09 carry pattern, now a template).
+3. **Pre-cache streak fields:** if E3.2's flow shows the streak, extend QuitSnapshot
+   additively + bump `schemaVersion` (read() treats foreign versions as absent).
+4. Picker is placeholder-grade (selection is in-memory @State → breathe); the real
+   flow, haptics, and exits are E3.2; per-widget quitID parameter + entry-point
+   matrix are E3.3 (they write the already-landed `panic.launch.quitID` key).
+5. `LocalOnlyCloudSync` reports .unavailable BY DESIGN until the §4.3 flip — the
+   erase cloud-purge path is unreachable in production until then (mock-pinned).
+6. WidgetToolkit "InstantLaunch" extraction (plan tag) stays deferred until a second
+   consumer exists (portfolio sequencing rule).
+
+### Gate status
+
+E3.1 DONE: red 29026946526 (f47cbce) → green-attempt 29027702023 (feee1ab)
+DISQUALIFIED as evidence (build failure, deprecation-as-error) → green 29028256271
+(4591dc7; build + ALL unit (67) + snapshot lanes green; sole red = the E3.1 picker
+UI smoke, hardened in the pins commit) → pins/harden 4bd7902, run **29029650205 —
+FULLY GREEN end-to-end incl. the TestFlight upload** (release gate, package units,
+sole-importer lint, app build/unit/snapshot/UI-smoke incl. the hardened picker smoke
+and both review pins; a fresh build shipped on this run). Billed macOS runs this session: 4 (one
+wasted — see CI incident). No engine changes (StreakEngine stays 1.2.0).
+OPERATOR-TODO.md updated at session start AND close. CodeGraph synced at session end.

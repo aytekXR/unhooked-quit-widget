@@ -31,15 +31,17 @@ specifies local-first, cloud purge last; Session 08 ruling).
 | E2.2 QuitRepository | ✅ DONE | Session 06; undo lifecycle WHOLE → E4.1; production Clock/Widget conformances → E3.1; sole-importer CI lint live |
 | E2.3 dedupe merge + recompute | ✅ DONE | Session 07; launch/remote-change wiring → E3.1/§4.3; real-CloudKit dedupe → contract tier; LKG witness discipline ratified |
 | E2.4 one-tap erase | ✅ DONE | Session 08; LOCAL-FIRST order (the one plan correction — §10 updated); CloudKit purge behind `CloudSyncControlling` (real purge → §4.3/contract); RevenueCat clear → E7 seam; `erase_all_completed` → E8 seam; panic-snapshot FILES join the sweep in E3.1 (review-pinned carry) |
-| E3.1 panic productionizing | ▶ NEXT | Session 09 objective — `resume-prompt.md` v2.0 |
-| E3.2–E10.2 | ☐ not started | Per plan; no scope changes |
+| E3.1 panic productionizing | ✅ DONE | Session 09; pre-cache = panic-snapshot.json FILE (§4/ADR-6 outrank the plan's "defaults" phrasing — recorded adjustment, not drift) + erase coverage in the same session; production Clock/Widget conformances + RepositoryProvider post-frame wiring; panic route provably store-free; quitID channel landed (intent parameter → E3.3); **latency gate still unwired — operator E0.3 measurement pending**; InstantLaunch package extraction → second consumer |
+| E3.2 panic flow UI | ▶ NEXT | Session 10 objective — `resume-prompt.md` v2.1 (adds the §9-rule-2 write buffer as a named deliverable) |
+| E3.3–E10.2 | ☐ not started | Per plan; no scope changes |
 
-**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 11 done + 1 half-scaffolded ≈
-**~35%** of build tasks; milestones: M0 ✅, M1 in progress (engine + persistence done;
-panic/slip/quiz flows pending), M2 not started. **Calendar:** roadmap targets
-store-approval by week 5–6 with a mid-December 2026 hard window; Sessions 02–08 ran
-2026-07-07 → 07-09, so the build is comfortably inside the window (≈4 months of slack
-— per roadmap discipline, slack goes to distribution content, not scope creep).
+**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 12 done + 1 half-scaffolded ≈
+**~39%** of build tasks; milestones: M0 ✅, M1 in progress (engine + persistence +
+panic plumbing done; panic flow UI, slip, quiz pending), M2 not started. **Calendar:**
+roadmap targets store-approval by week 5–6 with a mid-December 2026 hard window;
+Sessions 02–09 ran 2026-07-07 → 07-09, so the build is comfortably inside the window
+(≈4 months of slack — per roadmap discipline, slack goes to distribution content,
+not scope creep).
 
 **Production-readiness level:** foundation-complete / feature-incomplete (pre-alpha).
 Shipping-quality: CI gates (engine floors, sole-importer lint, snapshot/UI lanes),
