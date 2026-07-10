@@ -64,7 +64,7 @@ final class QuitRepository {
         self.debounceSleep = debounceSleep
     }
 
-    // MARK: - E3.2 · panic write-buffer flush (§9 rule 2)
+    // MARK: - E3.2/E4.1 · panic write-buffer flush (§9 rule 2)
 
     /// Replays the panic flow's buffered outcomes into the store — the "flushed into
     /// SwiftData as soon as the context is ready" half of §9 rule 2. Returns how many
@@ -74,18 +74,32 @@ final class QuitRepository {
     /// the §9 silent-recover class — the buffer stays intact for the next launch and
     /// the launch sequence continues; only a store that cannot OPEN is blocking.
     /// Idempotent under replay: the flushed `UrgeEvent` ADOPTS the draft's id, so a
-    /// crash between save and clear re-runs as a no-op instead of double-counting.
-    /// `at` is the draft's TRUE exit instant, never the flush clock (§12.4 insights
-    /// aggregate on urge timing). A draft whose quit no longer exists is DROPPED —
-    /// erased means erased, nothing may resurrect behavioral data about that quit —
-    /// while a nil-quit draft (zero-quit panic) lands honestly unattributed. The
-    /// launch's witness work stays with `recomputeDerivedState()`, which runs first
-    /// in the same sequence — replaying historical events earns no fresh wall trust.
+    /// crash between save and clear re-runs as a no-op instead of double-counting —
+    /// and the SAME id set gates the E4.1 streak transition, so a replayed slip can
+    /// never re-cut a streak. `at` is the draft's TRUE exit instant, never the flush
+    /// clock (§12.4 insights aggregate on urge timing). A draft whose quit no longer
+    /// exists is DROPPED — erased means erased, nothing may resurrect behavioral data
+    /// about that quit — while a nil-quit draft (zero-quit panic) lands honestly
+    /// unattributed, as an UrgeEvent ONLY [R-NILQUIT]. The launch's witness work
+    /// stays with `recomputeDerivedState()`, which runs first in the same sequence —
+    /// replaying historical events earns no fresh wall trust.
+    ///
+    /// E4.1 (Session 11 decision record, binding): TWO passes. Revocation ids are
+    /// collected FIRST [R-REVOKE] — in append order a revocation always follows its
+    /// target, so a single pass would apply a slip before learning its own session
+    /// already took it back. Then drafts apply in APPEND order, never wall-sorted
+    /// [R-ORDER]: a rolled-back wall between two cold slips would invert causality
+    /// under sorting. A revoked pair (the slip draft + its revocation) drops whole —
+    /// neither becomes an UrgeEvent, neither touches a streak.
     @discardableResult
     func flushPanicOutcomes() -> Int {
         let drafts = panicOutcomeBuffer.drafts()
         guard !drafts.isEmpty else { return 0 }
+        let now = clock.now
+        let reading = clock.monotonicNow
         do {
+            // Pass 1 [R-REVOKE]: every draft an in-session cold undo took back.
+            let revokedIDs = Set(drafts.compactMap(\.revokesDraftID))
             // A var, extended per insert: the buffer itself can hold the SAME draft
             // twice (the exit-time append retry re-writes when the first write's
             // fsync error surfaced after the bytes landed), and the store-side set
@@ -93,6 +107,10 @@ final class QuitRepository {
             var existing = Set(try context.fetch(FetchDescriptor<UrgeEvent>()).map(\.id))
             var landed = 0
             for draft in drafts where !existing.contains(draft.id) {
+                // Revocation records are bookkeeping, never UrgeEvents; a revoked
+                // slip never reaches the store (§9 rule 3 governs STORE rows — the
+                // pair evaporates before one exists).
+                if draft.revokesDraftID != nil || revokedIDs.contains(draft.id) { continue }
                 let quit: Quit?
                 if let quitID = draft.quitID {
                     guard let found = try? fetchQuit(quitID) else { continue }
@@ -111,6 +129,9 @@ final class QuitRepository {
                 if draft.outcome == .averted, let quit {
                     quit.avertedUrgeCount += 1
                 }
+                if draft.outcome == .slipped, let quit {
+                    applyDeferredSlip(draft, to: quit, flushNow: now, flushReading: reading)
+                }
                 existing.insert(draft.id)
                 landed += 1
             }
@@ -127,6 +148,64 @@ final class QuitRepository {
             context.rollback() // no half-flushed rows may ride a later unrelated save
             return 0
         }
+    }
+
+    /// Applies one buffered cold slip exactly as a live `logSlip` at the slip instant
+    /// would have — the R-WIT equivalence pin: the transition runs on the SLIP-TIME
+    /// evidence tuple the draft captured (its monotonic reading + its witness), so a
+    /// reboot, a rolled-back wall, or plain elapsed time between slip and flush can
+    /// neither shrink nor inflate what the slip banks. Only the UNDO WINDOW is
+    /// measured at flush time (engine gate, `lastKnownGood: nil` — the ratified E1.3
+    /// semantics): the affordance is honored across the deferral exactly as long as
+    /// it would have survived live. The witness is NEVER advanced here.
+    private func applyDeferredSlip(
+        _ draft: PanicOutcomeDraft, to quit: Quit, flushNow: Date, flushReading: MonotonicNow
+    ) {
+        let captured: MonotonicNow? = {
+            guard let bootID = draft.capturedBootID, let uptime = draft.capturedUptime else {
+                return nil
+            }
+            return MonotonicNow(bootID: bootID, uptime: uptime)
+        }()
+        let capturedWitness: MonotonicAnchor? = {
+            guard let bootID = draft.capturedWitnessBootID,
+                  let uptime = draft.capturedWitnessUptime,
+                  let wallClock = draft.capturedWitnessWallClock else { return nil }
+            return MonotonicAnchor(bootID: bootID, uptime: uptime, wallClock: wallClock)
+        }()
+
+        let before = snapshot(of: quit)
+        let next = StreakCalculator.applySlip(
+            to: before, at: draft.at, monotonic: captured, lastKnownGood: capturedWitness
+        )
+        // The ended streak, recovered from the bank delta (the logSlip identity).
+        let ended = next.priorCleanSeconds - max(0, before.priorCleanSeconds)
+
+        // R-NEWEST: earlier same-quit rows are forced non-pending — one reversible
+        // slip at a time, whichever route logged it.
+        finalizePendingRows(for: quit)
+
+        let slip = Slip()
+        slip.at = next.startAt // the guarded slip instant, byte-equal to live logSlip
+        slip.streakSecondsAtSlip = ended
+        slip.countsAgainstAllowance = quit.goalMode == .reduce
+        // Note stays nil FOREVER for a cold slip: the draft has no note field (§10).
+        if StreakCalculator.undoSlip(
+            on: next, at: flushNow, monotonic: flushReading, lastKnownGood: nil
+        ) != nil {
+            slip.isPendingUndo = true
+            applyUndoPayload(next.pendingUndo, to: slip)
+        }
+        // else: the window closed while the draft waited — the row lands already
+        // FINALIZED (flag false, payload nil): the sweep's exact bytes.
+        slip.quit = quit
+        context.insert(slip)
+
+        quit.startAt = next.startAt
+        quit.monotonicAnchor = next.monotonicAnchor
+        quit.bestStreakSeconds = next.bestStreakSeconds
+        // BANKED-only (== the engine's priorCleanSeconds), same as live logSlip.
+        quit.totalCleanSeconds = next.priorCleanSeconds
     }
 
     // MARK: - Reads
@@ -223,13 +302,20 @@ final class QuitRepository {
         // negative and the delta is exactly the archived streak.
         let ended = next.priorCleanSeconds - max(0, before.priorCleanSeconds)
 
+        // One reversible slip at a time (§9 rule 3): a newer slip finalizes any prior
+        // pending row for this quit BEFORE opening its own window — mirroring the
+        // engine, whose applySlip just replaced the snapshot's pendingUndo the same way.
+        finalizePendingRows(for: quit)
+
         let slip = Slip()
         slip.at = next.startAt // the guarded slip instant — never a lying wall reading
         slip.note = note
         slip.streakSecondsAtSlip = ended
         slip.countsAgainstAllowance = quit.goalMode == .reduce
-        // isPendingUndo stays false: the whole undo lifecycle (the flag, the finalize
-        // sweep, undoSlip, and the §4 isPendingUndo index) lands as one unit with E4.1.
+        // The window opens NOW: the flag plus the engine's recorded pre-slip values —
+        // undoSlip restores RECORDED bytes, never reconstructions (§9 rule 3).
+        slip.isPendingUndo = true
+        applyUndoPayload(next.pendingUndo, to: slip)
         slip.quit = quit
         context.insert(slip)
 
@@ -260,7 +346,50 @@ final class QuitRepository {
     /// closed or nothing is pending (the tap raced the sweep at most one render).
     @discardableResult
     func undoSlip(slipID: UUID) throws -> Bool {
-        false
+        guard let slip = try fetchSlip(slipID), slip.isPendingUndo, let quit = slip.quit else {
+            return false
+        }
+        // A pending flag without its recorded payload cannot restore honestly (a
+        // partial write that should never exist) — finalize it and answer calmly.
+        guard let pendingUndo = persistedUndo(of: slip) else {
+            finalizeRow(slip)
+            try context.save()
+            return false
+        }
+        let now = clock.now
+        let reading = clock.monotonicNow
+
+        // The post-slip state IS the quit's current snapshot; the engine gate measures
+        // the window on the guarded timeline with `lastKnownGood: nil` — the ratified
+        // E1.3 undo semantics (an ahead witness must not burn the window, S11 record).
+        var current = snapshot(of: quit)
+        current.pendingUndo = pendingUndo
+        guard let restored = StreakCalculator.undoSlip(
+            on: current, at: now, monotonic: reading, lastKnownGood: nil
+        ) else {
+            // Past the window: a calm no-op that FINALIZES — the same bytes the
+            // scene-phase sweep would have written (the tap raced it one render).
+            finalizeRow(slip)
+            try context.save()
+            return false
+        }
+
+        // The ONE sanctioned monotonic decrease (§9 rule 3): exact recorded priors.
+        quit.startAt = restored.startAt
+        quit.monotonicAnchor = restored.monotonicAnchor
+        quit.bestStreakSeconds = restored.bestStreakSeconds
+        quit.totalCleanSeconds = restored.priorCleanSeconds
+        // An undone slip must not count against Reduce allowance or future insights:
+        // the row is DELETED (S11 ratified; its CloudKit tombstoning is a named
+        // design item for the §4.3 flip). The panic-session UrgeEvent survives — the
+        // session happened; only the streak-affecting row is undone.
+        context.delete(slip)
+        try context.save()
+
+        // NO witness refresh: restoring a historical anchor earns no fresh wall trust.
+        rebuildPanicSnapshot()
+        scheduleWidgetReload()
+        return true
     }
 
     /// The undo-window finalize sweep (architecture §7: scene-phase driven, never a
@@ -268,19 +397,56 @@ final class QuitRepository {
     /// E8's post-window `slip_logged` trigger attaches here when the enum exists.
     @discardableResult
     func finalizePendingSlips() -> Int {
-        0
+        guard let pending = try? context.fetch(
+            FetchDescriptor<Slip>(predicate: #Predicate { $0.isPendingUndo })
+        ), !pending.isEmpty else { return 0 }
+        let now = clock.now
+        let reading = clock.monotonicNow
+        var finalized = 0
+        for slip in pending {
+            // Orphaned or payload-less pending rows cannot restore — sweep them too.
+            guard let quit = slip.quit, let pendingUndo = persistedUndo(of: slip) else {
+                finalizeRow(slip)
+                finalized += 1
+                continue
+            }
+            var current = snapshot(of: quit)
+            current.pendingUndo = pendingUndo
+            // Window still open (engine gate, guarded timeline, nil witness) → leave
+            // the row alone; closed → finalize. Idempotent by construction: a
+            // finalized row no longer matches the pending fetch.
+            if StreakCalculator.undoSlip(
+                on: current, at: now, monotonic: reading, lastKnownGood: nil
+            ) == nil {
+                finalizeRow(slip)
+                finalized += 1
+            }
+        }
+        if finalized > 0 {
+            // Silent-recover class (§9): the sweep runs on scene-phase changes; a
+            // failed save simply leaves the rows for the next sweep.
+            try? context.save()
+        }
+        return finalized
     }
 
     /// Reflection-note autosave target (store-backed slips only — §10: notes live
     /// ONLY in the store, never in any App Group file).
     func updateSlipNote(slipID: UUID, note: String?) throws {
+        guard let slip = try fetchSlip(slipID) else { return }
+        slip.note = note
+        try context.save()
+        // No pre-cache rebuild, no widget reload: notes NEVER leave the store (§10),
+        // so nothing widget- or cache-visible changed.
     }
 
     /// The normal route's undo-banner source: the one still-pending slip, if any
     /// (one reversible slip at a time — §9 rule 3). Backed by the E4.1
     /// `#Index<Slip>([\.isPendingUndo])`.
     func pendingUndoSlip() throws -> Slip? {
-        nil
+        var descriptor = FetchDescriptor<Slip>(predicate: #Predicate { $0.isPendingUndo })
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
     }
 
     /// Records a panic-flow outcome (architecture §5.1 `recordUrgeOutcome`).
@@ -454,6 +620,54 @@ final class QuitRepository {
         return quit
     }
 
+    /// Optional-returning on purpose (unlike `fetchQuit`): every E4.1 caller treats a
+    /// missing row as a calm no-op, never an error — the undo tap racing the sweep,
+    /// or a note autosave landing after an undo deleted its row.
+    private func fetchSlip(_ id: UUID) throws -> Slip? {
+        var descriptor = FetchDescriptor<Slip>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
+    }
+
+    /// The row's persisted undo payload as the engine value — nil when any recorded
+    /// field is missing (`priorMonotonicAnchor` alone may honestly be nil: a slip
+    /// logged without a monotonic reading recorded a nil prior anchor).
+    private func persistedUndo(of slip: Slip) -> PendingSlipUndo? {
+        guard let priorStartAt = slip.priorStartAt,
+              let priorCleanSeconds = slip.priorCleanSeconds,
+              let priorBestStreakSeconds = slip.priorBestStreakSeconds else { return nil }
+        return PendingSlipUndo(
+            priorStartAt: priorStartAt,
+            priorCleanSeconds: priorCleanSeconds,
+            priorBestStreakSeconds: priorBestStreakSeconds,
+            priorMonotonicAnchor: slip.priorMonotonicAnchor
+        )
+    }
+
+    private func applyUndoPayload(_ undo: PendingSlipUndo?, to slip: Slip) {
+        slip.priorStartAt = undo?.priorStartAt
+        slip.priorCleanSeconds = undo?.priorCleanSeconds
+        slip.priorBestStreakSeconds = undo?.priorBestStreakSeconds
+        slip.priorMonotonicAnchor = undo?.priorMonotonicAnchor
+    }
+
+    /// Finalized means finalized: flag down AND payload gone — the recorded priors
+    /// exist exactly as long as the window does (they are restore material, not
+    /// history; history is the row's own banked fields).
+    private func finalizeRow(_ slip: Slip) {
+        slip.isPendingUndo = false
+        applyUndoPayload(nil, to: slip)
+    }
+
+    /// Forces every still-pending row of one quit non-pending (no window check):
+    /// a NEWER slip replaces any open undo, exactly as the engine's applySlip just
+    /// replaced the snapshot's `pendingUndo` (§9 rule 3 — one reversible slip).
+    private func finalizePendingRows(for quit: Quit) {
+        for slip in (quit.slips ?? []) where slip.isPendingUndo {
+            finalizeRow(slip)
+        }
+    }
+
     /// The engine's domain-neutral input, mapped from the model (architecture §5.1).
     private func snapshot(of quit: Quit) -> StreakSnapshot {
         StreakSnapshot(
@@ -601,13 +815,30 @@ final class QuitRepository {
     /// means ABSENT until a new tracking era's first write (the sweep owns the file).
     private func rebuildPanicSnapshot() {
         guard let quits = try? activeQuits() else { return }
-        let cards = quits.map { quit in
-            QuitSnapshot(
+        let now = clock.now
+        let reading = clock.monotonicNow
+        let lastKnownGood = lastKnownGoodStore.load()
+        let cards = quits.map { quit -> QuitSnapshot in
+            // E4.1 additive streak fields (§3 sketch; schemaVersion stays 1): raw
+            // scalars from store truth — the cold slip flow's forgiveness framing
+            // renders from these because the store never opens on that route.
+            // Momentum comes from the same guarded read the dashboard shows; this is
+            // a READ — the rebuild never refreshes the witness (not one of the three
+            // sanctioned advance paths).
+            let value = StreakCalculator.currentStreak(
+                for: snapshot(of: quit), now: now, monotonic: reading, lastKnownGood: lastKnownGood
+            )
+            return QuitSnapshot(
                 id: quit.id,
                 // §10: discreet mode strips labels from snapshots (readable pre-unlock).
                 label: quit.discreetMode ? nil : Self.displayLabel(for: quit),
                 discreet: quit.discreetMode,
-                motivations: quit.motivations // verbatim, user order — the flow renders these
+                motivations: quit.motivations, // verbatim, user order — the flow renders these
+                startAt: quit.startAt,
+                anchorBootID: quit.monotonicAnchor?.bootID,
+                anchorUptime: quit.monotonicAnchor?.uptime,
+                bestStreakSeconds: quit.bestStreakSeconds,
+                momentumPercent: Int((value.momentum * 100).rounded())
             )
         }
         try? panicSnapshotStore.write(PanicSnapshot(quits: cards))

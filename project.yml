@@ -57,11 +57,14 @@ targets:
       - App/Sources
       - Shared/Sources
       # App/Resources/Content stays unbundled (Phase 4 drafts, inert until
-      # clinician/legal sign-off; see Content/REVIEW.md) — EXCEPT panicScript.json:
-      # E3.2 is its named consuming epic (the flow renders the shipping file, never
-      # copies — test-suite §3.2), so it ships from here on; its tone review moves
-      # up the operator's sign-off queue accordingly.
+      # clinician/legal sign-off; see Content/REVIEW.md) — EXCEPT the consumed files
+      # below. Each ships from here once its named consuming epic renders the shipping
+      # file (never copies — test-suite §3.2), moving its tone review up the operator's
+      # sign-off queue: panicScript.json (E3.2 panic flow), slipCopy.json (E4.1 slip
+      # flow + undo).
       - path: App/Resources/Content/panicScript.json
+        buildPhase: resources
+      - path: App/Resources/Content/slipCopy.json
         buildPhase: resources
       # AppIcon is the brandkit single-size set (light + dark + tinted 1024): actool
       # generates every size, incl. the iPad 152/167 App Store validation requires

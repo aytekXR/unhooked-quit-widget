@@ -13,10 +13,11 @@ import SwiftData
 // No Date()/ProcessInfo reads here (banned in production code): "unset" dates default
 // to .distantPast and are stamped by the E2.2 service layer at write time.
 // §4 indexes: #Index<Quit>([\.isArchived, \.sortIndex]) landed with E2.2's activeQuits
-// query. The other three stay DEFERRED to their justifying queries (green means
-// minimal): #Index<Slip>([\.isPendingUndo]) with the E4.1 undo lifecycle (finalize
-// sweep), #Index<Slip>([\.at]) with the first time-ordered slip query (E4/E6),
-// #Index<UrgeEvent>([\.at]) with E12.4's on-device insights.
+// query; #Index<Slip>([\.isPendingUndo]) landed with E4.1's undo lifecycle (the
+// finalize sweep + banner-source queries justify it). The remaining two stay DEFERRED
+// to their justifying queries (green means minimal): #Index<Slip>([\.at]) with the
+// first time-ordered slip query (E4/E6), #Index<UrgeEvent>([\.at]) with E12.4's
+// on-device insights.
 
 /// Habit category for a tracked goal. String-backed and Codable so SwiftData stores it
 /// as a plain encoded value (CloudKit-safe).
@@ -89,6 +90,10 @@ final class Quit {
 
 @Model
 final class Slip {
+    // Backs the E4.1 undo-lifecycle queries: the scene-phase finalize sweep and the
+    // pendingUndoSlip banner source both filter on the flag (architecture §4).
+    #Index<Slip>([\.isPendingUndo])
+
     var id: UUID = UUID()
     var at: Date = Date.distantPast
     /// Optional reflection note — NEVER leaves the device beyond the user's own iCloud.

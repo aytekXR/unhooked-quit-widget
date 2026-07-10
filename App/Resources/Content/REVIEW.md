@@ -4,7 +4,7 @@
 |---|---|
 | Status | **DRAFT — awaiting operator line-by-line review + medical/legal sign-off** |
 | Author | Agent-drafted 2026-07-08 for review (operator chose "agent drafts") |
-| Wired into app? | **Partially (E3.2).** `panicScript.json` is bundled and rendered by the panic flow since Session 10 — its tone review (item 3 below) now gates TestFlight-visible copy, not just ship. The other four files stay inert and unbundled; their audit tests (test-suite §1 tests 12–13 + helpline-region) arrive with their consuming epics. |
+| Wired into app? | **Partially (E3.2 + E4.1).** `panicScript.json` is bundled and rendered by the panic flow since Session 10; `slipCopy.json` is now bundled and rendered by the E4.1 slip flow + undo — both tone reviews (item 3 below) gate TestFlight-visible copy, not just ship. The other three files stay inert and unbundled; their audit tests (test-suite §1 tests 12–13 + helpline-region) arrive with their consuming epics. |
 | Audit self-check | Passed a local scan: 0 medical-claim tokens, 0 shame-lexicon tokens, all 43 milestones carry a "commonly reported" marker, all JSON valid. |
 
 ## Files
@@ -24,7 +24,7 @@
    - TR **ALO 182** crisis line: only third-party-verified — confirm on an official Sağlık Bakanlığı page. **112** is included as the confirmed fallback.
    - TR **YEDAM 115** operating hours: unconfirmed.
    - US **compulsive-behavior**: no verified dedicated national hotline exists; the circulating `1-800-837-9041` was deliberately **excluded** as unverified/likely defunct. NAMI + 988 used as the neutral, non-shaming fallback.
-3. **Tone/voice review** — confirm the copy matches the brand kit voice (Steady/Forgiving/Honest); the `{{motivations}}`/`{{motivation}}` echo must never be turned into generated religious or moralizing language (brand kit §1.2).
+3. **Tone/voice review** — confirm the copy matches the brand kit voice (Steady/Forgiving/Honest); the `{{motivations}}`/`{{motivation}}` echo must never be turned into generated religious or moralizing language (brand kit §1.2). **E4.1: review the ONE new agent-drafted line — `slipCopy.json` `confirm.retryNote`** (shown only when the durable write did not persist; must stay calm, zero-shame, retryable — no "Logged." claim without durable bytes).
 4. **Turkish copy** — TR strings in `helplines.json`/notices are first-pass; the L10n pass (warm-informal *sen*) refines them.
 
 ## Categories & tokens (for the eventual consuming code)

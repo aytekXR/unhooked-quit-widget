@@ -10,6 +10,10 @@ import SwiftUI
 /// animation on entry, stage transitions at motion/calm 600ms fades.
 struct PanicFlowView: View {
     @State var model: PanicFlowModel
+    /// The cold-route slip flow, built EXACTLY ONCE when the slipped-exit handoff
+    /// appears (never per render) and then model-state-driven from there. Nil = the
+    /// panic steps show; non-nil = the real slip flow is mounted over them.
+    @State private var slipModel: SlipFlowModel?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(model: PanicFlowModel) {
@@ -20,9 +24,11 @@ struct PanicFlowView: View {
     /// flag carries no origin yet, so cold launches default to the flagship
     /// lock-screen path — E3.3's entry-point matrix adds true per-source
     /// attribution. `hapticsOnlyPacer` stays false until a settings writer exists
-    /// (the E5+ seam; the store is off-limits on this path). The slip route's
-    /// consumer is the model's own `slipHandoff` placeholder until E4.1 attaches
-    /// the real slip flow to this closure.
+    /// (the E5+ seam; the store is off-limits on this path). E4.1 attaches the REAL
+    /// slip flow: the mount is driven off `model.slipHandoff` (set by `exitSlipped`)
+    /// through the view's `onChange` seam below, so `onSlipRoute` is a required-by-
+    /// initializer no-op — the routing lives in state, and the old
+    /// `SlipRoutePlaceholderView` destination is gone.
     init(quit: QuitSnapshot?, script: PanicScript) {
         _model = State(initialValue: PanicFlowModel(
             quit: quit,
@@ -41,12 +47,21 @@ struct PanicFlowView: View {
             .animation(.easeInOut(duration: reduceMotion ? 0.2 : 0.6), value: model.stage)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("panic.flow")
+            // The slipped-exit seam (E4.1): the handoff drives the mount. `exitSlipped`
+            // sets `model.slipHandoff` on the panic scene; here it builds the cold-route
+            // `SlipFlowModel` ONCE and parks it in state. The store never opens on this
+            // path — the flow touches only the card + the §9-rule-2 buffer + the witness.
+            .onChange(of: model.slipHandoff != nil) { _, handedOff in
+                if handedOff, slipModel == nil, let handoff = model.slipHandoff {
+                    slipModel = Self.makeColdSlipModel(handoff: handoff, card: model.quit)
+                }
+            }
     }
 
     @ViewBuilder
     private var content: some View {
-        if model.slipHandoff != nil {
-            SlipRoutePlaceholderView(label: model.exitLabel("slipped") ?? "")
+        if let slipModel {
+            SlipFlowView(model: slipModel, clock: LiveClock(), onDismiss: { self.slipModel = nil })
         } else {
             switch model.stage {
             case .breath: BreathStepView(model: model, reduceMotion: reduceMotion)
@@ -57,6 +72,25 @@ struct PanicFlowView: View {
             case .celebration: CelebrationView(model: model)
             }
         }
+    }
+
+    /// Cold-route composition (architecture §9 rule 2): the card out of the pre-cache,
+    /// the App Group outcome buffer as the ONE write target, and the App Group witness
+    /// store — everything the store-free slip flow may touch. `loadShipping()` degrades
+    /// to the plain-label fallback (§9) when the bundled copy is unreadable.
+    @MainActor
+    private static func makeColdSlipModel(handoff: PanicSlipHandoff, card: QuitSnapshot?) -> SlipFlowModel {
+        SlipFlowModel(
+            route: .cold(
+                handoff: handoff,
+                card: card,
+                buffer: PanicOutcomeBuffer.appGroup(),
+                witnessStore: UserDefaults(suiteName: AppIdentifiers.appGroupID)
+                    .map(LastKnownGoodStore.init(defaults:))
+            ),
+            copy: SlipCopy.loadShipping() ?? .degraded,
+            clock: LiveClock()
+        )
     }
 }
 
@@ -408,25 +442,3 @@ private struct CelebrationView: View {
     }
 }
 
-/// The slipped exit's PLACEHOLDER destination — E4.1 replaces this screen with the
-/// real slip flow (attached via the model's routing seam); until then the handoff
-/// simply parks here, having written nothing.
-private struct SlipRoutePlaceholderView: View {
-    let label: String
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "arrow.uturn.forward.circle")
-                .font(.system(size: 56, weight: .light))
-                .foregroundStyle(.teal)
-                .accessibilityHidden(true)
-            Text(label)
-                .font(.title2.weight(.semibold))
-                .multilineTextAlignment(.center)
-        }
-        .padding(24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("panic.flow.slipPlaceholder")
-    }
-}
