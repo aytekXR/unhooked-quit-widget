@@ -2,20 +2,21 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v2.4 |
-| Last updated | 2026-07-10 (Session 12 close: E4.1 COMPLETE — red→green→refs all-green on `8cf1461`; 4 billed runs used incl. 1 burned) |
-| Phase | Phase 1 core build — Epics 0–1 CLOSED; E2.1–E2.4 + E3.1 + E3.2 + **E4.1 DONE**; delivery 14/32 (~44%) |
-| Next session objective | **Session 13: E3.3 — panic entry-point matrix (per-widget quit parameter, per-source attribution, discreet "Reset" control)** |
+| Document | Resume Prompt v2.5 |
+| Last updated | 2026-07-10 (Session 13 close: E3.3 COMPLETE — red `29117701445` → green `29118390046`, 2 billed runs, zero burned) |
+| Phase | Phase 1 core build — Epics 0–1 CLOSED; E2.1–E2.4 + E3.1–E3.3 + E4.1 DONE; delivery 15/32 (~47%) |
+| Next session objective | **Session 14: E4.2 — zero-shame copy enforcement (banned-lexicon CI gate over the centralized strings)** |
 
-> **What changed in Session 12:** E4.1 shipped WHOLE — both slip routes, the undo
-> lifecycle, the deferred cold application (SlipFlushTests' 13 pins incl. the R-WIT
-> equivalence property), SlipFlowView + the real panic→slip mount (the
-> `panic.flow.slipPlaceholder` dead end is GONE), the root-placeholder store slip
-> entry + pending-undo banner + scene-phase finalize, `slipCopy.json` bundled with
-> the agent-drafted `confirm.retryNote` (operator tone review flagged), and 24 new
-> snapshot goldens (repo total 64). Main is ALL-GREEN; the TestFlight lane uploaded
-> the slip-flow build. Full ledger + the burned-run lesson: Session 12 entry in
-> `docs/past-prompts.md`.
+> **What changed in Session 13:** E3.3 shipped WHOLE in 2 runs — per-quit intent
+> `@Parameter` (PanicQuitEntity/Query over the pre-cache, ADR-6 readers-only), TRUE
+> per-source attribution (`panic.launch.source` channel, pre-frame capture, the
+> `.lockscreenWidget` hardcode is DEAD), the discreet **"Reset"** control
+> (`PanicControlDiscreet`, `arrow.counterclockwise`, strings unit-pinned via Shared
+> `PanicControlStyle`), and the in-app entry (fourth source, placeholder-grade root
+> button → `InAppPanicEntry`). ONE recorded adjustment (platform ceiling,
+> docs-checked): control-family launches attribute `.controlCenter`; `.actionButton`
+> stays reserved — iOS has no launch-surface API. Device matrix → operator
+> (`docs/operator-expected.md` §7). Full ledger: Session 13 in `docs/past-prompts.md`.
 
 ---
 
@@ -27,120 +28,111 @@
    prompt; check blast radius before editing public symbols. **Before the
    session-end commit: `codegraph sync` + confirm `codegraph status` clean.**
 2. **Parse gate**: `swiftc -parse` every touched Swift file before every push.
-3. **Access-level gate (NEW, Session 12 — a burned run bought it):** the parse gate
-   is SYNTAX-only. Before every push that adds test/production Swift, also (a) scan
-   for private types named in non-private signatures (`@Test` methods are internal —
-   a file-`private` parameter type is a build error), and (b) `swiftc -typecheck` a
-   scratch harness on the Linux toolchain for every NEW API-shape assumption
-   (StreakEngine + pure-Foundation files compile locally; empirical typecheck beats
-   declaration cross-check — it caught a field-name misnomer the same day).
-4. Docs-check new Darwin/Foundation calls and bare SDK member spellings (two
-   sessions each lost a billed run to this class before the gates existed).
+3. **Access-level gate (Session 12):** scan for private types named in non-private
+   signatures (`@Test` methods are internal), and `swiftc -typecheck` a scratch
+   harness on the Linux toolchain for every NEW pure-Foundation API shape —
+   include a USAGE-exercise file calling the new API the way the tests will
+   (the Session-13 refinement that caught signature drift for free).
+4. **Docs-check gate (Session 13 refinement):** every Darwin-only / AppIntents /
+   SF-Symbol member spelling gets verified against Apple docs (the
+   `developer.apple.com/tutorials/data/...json` endpoints work headlessly) BEFORE
+   the code is written — this is what made Session 13 zero-burn. Never answer SDK
+   questions from memory.
 5. Docs-only commits carry `[skip ci]`; never spawn agent workflows for docs-only
-   changes (operator rule, Session 12).
+   changes (operator rule). Subagent structured outputs need hard size caps or
+   Write-to-file returns (three Session-13 readers died on the retry cap).
 
 ## Where we are
 
-- **StreakEngine 1.2.0** — unchanged in Sessions 11–12; E3.3 needs ZERO engine work.
-- **E4.1 is DONE and all-green** (`8cf1461`): logSlip opens the undo window
-  (flag + persisted `PendingSlipUndo` payload), `undoSlip` engine-gated exact
-  restore + row delete, `finalizePendingSlips` scene-phase sweep
-  (+ `#Index<Slip>([\.isPendingUndo])`), two-pass flush applying deferred slips
-  from the SLIP-TIME evidence tuple, pre-cache carries the additive streak fields,
-  SlipFlowModel/SlipFlowView live on both routes, `slipCopy.json` bundled.
-- **Widgets target already has the walking-skeleton surfaces** E3.3 parameterizes:
-  `Widgets/Sources/OpenPanicIntent.swift` (AppIntent), `PanicControlWidget.swift`
-  (ControlWidget), `SkeletonWidget.swift`, `UnhookedWidgetBundle.swift`. E3.1
-  landed the quitID channel (`PanicLaunchFlag.selectedQuitID()` →
-  `PanicRouteResolver.resolve(selectedQuitID:snapshot:)`); the intent PARAMETER
-  that feeds it is E3.3's work.
-- **Attribution today**: every cold panic launch is recorded `.lockscreenWidget`
-  (E3.2 default — `PanicFlowView.init(quit:script:)` hardcodes the source).
-  `PanicSource` already has all five cases. E3.3 threads the TRUE source from each
-  entry point into the flow (and therefore into UrgeEvents/drafts). Analytics
-  events stay E8 — attribution here means the persisted `source` field only.
-- **TestFlight: LIVE**, now carrying the full panic→slip→undo loop. CI signing
-  read-only; never re-enable MATCH_BOOTSTRAP. macOS CI minutes bill 10x.
-- **Brand kit stays load-bearing**: discreet control variant must be titled
-  "Reset" with a neutral symbol (implementation-plan E3.3); no red anywhere;
-  slip motion 300ms spring; undo banner NEUTRAL.
+- **StreakEngine 1.2.0** — untouched since Session 07; E4.2 needs ZERO engine work.
+- **E3.3 is DONE and green** (`29118390046`): both intents carry the quit
+  `@Parameter`; `PanicLaunchFlag` has the 3-key launch instruction
+  (requested/quitID/source; `clear()` sweeps all three); source threads
+  UnhookedApp → PanicPlaceholderView → PanicFlowView → model → UrgeEvent;
+  `PanicControlStyle` (Shared) is the single source of truth for both control
+  kinds' strings; `InAppPanicEntry` is the in-app seam; the walking-skeleton root
+  now has "Panic" + slip-entry surfaces. Widgets bundle registers SkeletonWidget +
+  PanicControlWidget + PanicResetControlWidget.
+- **Copy inventory for E4.2**: bundled content lives in
+  `App/Resources/Content/` — `panicScript.json`, `slipCopy.json`, `safetyCopy.json`
+  (+ `REVIEW.md` tracking operator tone review). UI strings also live inline in
+  views (slip banner "Slip logged. Undo?", forgiveness copy is slipCopy-driven,
+  root placeholder rows). E4.2 centralizes the SLIP/RELAPSE strings into one
+  audited table and gates them.
+- **TestFlight: LIVE**, carrying panic → slip → undo + the new entry-point matrix.
+  CI signing read-only; never re-enable MATCH_BOOTSTRAP. macOS CI minutes bill 10x.
+- Brand kit stays load-bearing: no red anywhere; no shame lexicon; discreet
+  variants neutral; motivations VERBATIM in user order.
 
 ## Next session objective (one session, definition of done below)
 
-**Session 13 — E3.3 panic entry-point matrix** (implementation-plan row, verbatim
-goal): ControlWidget registration (Control Center, Action button, lock-screen
-control) + per-widget quit parameter; discreet variant titled "Reset".
+**Session 14 — E4.2 zero-shame copy enforcement** (implementation-plan row,
+verbatim goal): every slip/relapse string passes the no-shame checklist; copy
+centralized in one audited strings table.
 
-1. **Red first** (billed run 1 = the red evidence): the two named tests —
-   `test_panicIntent_parameter_quitEntity_resolvesActiveQuits()` (the intent's
-   quit parameter resolves against active quits; drives the entity/query design)
-   and `test_controlWidget_discreetMode_usesNeutralTitleAndSymbol()` — plus the
-   per-source attribution pins this row implies (each entry point's launch lands
-   its TRUE `PanicSource` on the draft/UrgeEvent; the `.lockscreenWidget`
-   hardcode dies). Design the intent parameter against the PRE-CACHE (the panic
-   path never opens the store — ADR-6; the widget target already reads
-   `panic-snapshot.json` by design intent, architecture §4).
-2. **Green** (billed run 2): quit-parameterized `OpenPanicIntent` (+ entity/query
-   over the pre-cache cards), source threading (widget kind / control / action
-   button / in-app → `PanicLaunchFlag` → `PanicFlowView`), discreet "Reset"
-   control variant, `PanicControlWidget` + lock-screen family registration.
-3. Widget-surface snapshots only if a rendering surface changes (budget 2–3
-   billed runs total; refs run only if goldens are added).
-4. **Acceptance**: all four sources reachable and correctly attributed
-   (store-persisted `source`); the manual device matrix (lock screen / CC /
-   Action button × Focus on/off) is documented for the operator in
-   `docs/operator-expected.md` — it is operator-owned device work.
-5. Scope guards: no analytics (E8); no engine changes; never weaken a QA
-   assertion; SwiftData stays inside `App/Sources/Persistence/**` (the widget
-   target reads the pre-cache FILE, never the store); all standing gates above.
-
-**Why E3.3 over E5.1 (deliberate pick, Session 12):** E5.1's third named test
-needs E8.1's `AnalyticsEvent` enum (dependency), while E3.3 is dependency-free
-(deps: E3.1 ✓), closes Epic 3's build half, kills the `.lockscreenWidget`
-attribution FYI, and hands the operator real device surfaces to exercise in the
-physical-device pass they asked for.
+1. **Red first** (billed run 1): the named test
+   `test_slipStrings_containNoForbiddenLexicon()` — a unit test scanning the
+   centralized strings table against a banned-word/phrase list ("failed",
+   "ruined", "back to day 1", etc. — derive the list from the brandkit no-shame
+   checklist + MVP §7, and pin the LIST ITSELF so it can only grow). Add pins
+   that the table is COMPLETE (every slip-flow-rendered string comes from it —
+   e.g. a reflection/altitude pin over SlipCopy + the inline slip strings the
+   audit finds).
+2. **Green** (billed run 2): centralize whatever inline slip/relapse strings the
+   audit finds into the audited table (`slipCopy.json` is the natural home; keep
+   decode-tolerance discipline), make the lexicon gate pass, wire it as a
+   PERMANENT unit-lane gate (it already is one by living in Tests/Unit — no
+   ci.yml change needed).
+3. **Acceptance**: copy-audit checklist (MVP §7) SIGNED — the human half is
+   operator work: flag it in `docs/operator-expected.md`; forbidden-lexicon test
+   permanent.
+4. Scope guards: no analytics (E8); no engine changes; SwiftData stays inside
+   `App/Sources/Persistence/**`; never weaken a QA assertion; NO new goldens
+   expected (copy centralization must not change rendered output — if a string
+   changes, snapshot refs would need a third run: avoid).
+5. Budget: 2 billed runs. E4.2 is small — do NOT pad it with E5.1: E5.1's third
+   named test needs E8.1's `AnalyticsEvent` enum. If E4.2 lands early, the right
+   pairing decision (E8.1 next to unblock E5.1, per the dependency chain) belongs
+   to the SESSION-END resume prompt, not mid-session scope creep.
 
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app name **Ballast**,
-> org `com.beyondkaira`). E4.1 is DONE (all-green `8cf1461`); Session 13 = E3.3
-> panic entry-point matrix (see the objective above). Local Swift toolchain:
+> org `com.beyondkaira`). E3.3 is DONE (green `29118390046`); Session 14 = E4.2
+> zero-shame copy enforcement (see the objective above). Local Swift toolchain:
 > `. ~/.local/share/swiftly/env.sh`. **Standing gates:** CodeGraph query-first +
-> sync at close; `swiftc -parse` every touched file; the Session-12 ACCESS-LEVEL
-> gate (private-type-in-internal-signature scan + local typecheck harnesses for
-> new API shapes); docs-check new Darwin APIs; docs-only commits `[skip ci]`, no
-> workflows for docs-only work.
-> READ FIRST: `docs/implementation-plan.md` E3.3 row + Epic 3 DoD,
-> `docs/architecture.md` §4/§5 (intents, App Group files, pre-cache), the Session
-> 09 ledger (quitID channel: intent parameter → E3.3) and Session 12 ledger (gates,
-> carried limitations), `Widgets/Sources/*` (the four skeleton files),
-> `App/Sources/PanicRouteResolver.swift`, `docs/session-rules.md`.
-> **This session:** red (two named E3.3 tests + attribution pins) → THE red
-> evidence run → green (parameterized intent + entity over pre-cache cards, source
-> threading, discreet "Reset" control) → verify all-green → document the manual
-> device matrix for the operator. Budget 2–3 billed macOS runs.
-> **At session end:** append the Session 13 ledger, overwrite this resume prompt
-> (next objective per `roadmap.md` — likely E4.2 zero-shame copy gate (small; may
-> pair with E5.1) or E5.1 age gate (mind the E8.1 dependency on its third named
-> test)), update `docs/operator-expected.md`, `codegraph sync`, commit `[skip ci]`,
-> push, `gh run watch` green.
+> sync at close; `swiftc -parse` every touched file; the access-level scan +
+> Linux typecheck harness WITH usage-exercise file; docs-check every SDK spelling
+> against Apple docs before writing code; docs-only commits `[skip ci]`, no
+> workflows for docs-only work; cap subagent structured outputs.
+> READ FIRST: `docs/implementation-plan.md` E4.2 row + Epic 4 DoD, the brandkit
+> no-shame checklist (`docs/frontend-brandkit.md`), `App/Resources/Content/*`
+> (slipCopy.json + REVIEW.md), `App/Sources/SlipFlowModel.swift` +
+> `SlipFlowView.swift` + `RootPlaceholderView.swift` (where slip strings render),
+> the Session 13 ledger (gates), `docs/session-rules.md`.
+> **This session:** red (the named lexicon test + table-completeness pins) → THE
+> red-evidence run → green (centralize strings, gate passes) → verify all-green →
+> flag the human checklist sign-off for the operator. Budget 2 billed macOS runs.
+> **At session end:** append the Session 14 ledger, overwrite this resume prompt
+> (next objective per `roadmap.md` — likely E8.1 event enum to unblock E5.1, or
+> E5.2 quiz if the operator prefers user-visible progress), update
+> `docs/operator-expected.md`, `codegraph sync`, commit `[skip ci]`, push,
+> `gh run watch` green.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
 1. **E0.3 device measurement** (`docs/spike-panic-latency.md`) — STILL the only
-   blocker on the permanent latency gate; measures the real flow's first frame.
-2. **Content tone review, now TestFlight-visible:** `panicScript.json` AND
-   `slipCopy.json` (bundled Session 12) — including the ONE new agent-drafted
-   `confirm.retryNote` line (REVIEW.md item 3).
-3. TestFlight housekeeping: internal-tester group; expire the stray
+   blocker on the permanent latency gate.
+2. **E3.3 device matrix** (`docs/operator-expected.md` §7, NEW) — the operator
+   half of E3.3's acceptance: lock screen / CC / Action button / in-app × Focus
+   on/off, one airplane-mode pass; includes the "Reset" control gallery check.
+3. **Content tone review:** `panicScript.json` + `slipCopy.json` (incl. the
+   agent-drafted `confirm.retryNote`, REVIEW.md item 3) — E4.2 will ADD the
+   signed copy-audit checklist to this pile.
+4. TestFlight housekeeping: internal-tester group; expire the stray
    bundle-version-"1" build.
-4. GitHub Actions billing headroom: Session 12 used 4 runs; Session 13 needs 2–3.
-5. Slack webhook rotation (optional hygiene) — unchanged.
-6. **E4.1 on-device recipe** (operator asked): run from Xcode with scheme env vars
-   `FORCE_PANIC_ROUTE=1` + `UITEST_SEED_PANIC_SNAPSHOT=1` → picker → panic flow →
-   "I slipped" → two-tap slip flow with live 10-minute undo. A plain TestFlight
-   launch still shows the walking-skeleton root (no quiz/onboarding yet creates
-   quits, so the store-route slip entry has nothing to list).
+5. GitHub Actions billing headroom: Session 13 used 2 runs; Session 14 needs 2.
+6. Slack webhook rotation (optional hygiene) — unchanged.
 
 ## Standing rules reminders (do not relearn these)
 
@@ -152,17 +144,20 @@ physical-device pass they asked for.
   streaks freeze, never inflate (ADR-7). `Quit.totalCleanSeconds` is BANKED-only.
 - WITNESS discipline: three advance paths only; erase clears it; flush/undo never
   advance it; deferred slips apply with the SLIP-TIME witness, windows with nil.
-- Erase discipline: local-first; key sweep; owned file-set sweep; cloud purge last.
-- Panic path stays thin (ADR-6): the panic route NEVER opens the store; the cold
-  slip flow writes ONLY the buffer file (single-writer pre-cache pin). Single
-  store; no accounts (ADR-2).
-- Never weaken a QA assertion; TDD red first (red evidence = the CI run on the red
-  commit; a build failure is NOT evidence — Session 12 paid for the reminder);
-  `cloudKitDatabase` stays `.none` until the §4.3 flip (which must also design
-  undone-slip tombstoning).
-- Snapshot goldens: pinned in-test geometry (.iPhone13) + AX5 axis; goldens
-  re-record deliberately via the CI artifact; SnapshotTesting stays exact-pinned
-  at 1.19.3.
+- Erase discipline: local-first; key sweep (now 3 flag keys — the full
+  `dictionaryRepresentation` sweep covers them); owned file-set sweep; cloud
+  purge last.
+- Panic path stays thin (ADR-6): panic surfaces NEVER open the store (the in-app
+  entry reads the pre-cache even with the store warm); single-writer pre-cache
+  pin; single store; no accounts (ADR-2).
+- E3.3 attribution ceiling is a RECORDED ADJUSTMENT: control family →
+  `.controlCenter`; `.actionButton` reserved; do not "fix" it without a platform
+  API.
+- Never weaken a QA assertion; TDD red first (red evidence = the CI run on the
+  red commit; build failures are NOT evidence); `cloudKitDatabase` stays `.none`
+  until the §4.3 flip (which must also design undone-slip tombstoning).
+- Snapshot goldens: pinned in-test geometry (.iPhone13) + AX5 axis; re-record
+  deliberately via the CI artifact; SnapshotTesting exact-pinned at 1.19.3.
 - Carried product notes: store-route SlipFraming passes momentum/motivation nil
-  (unreachable surface until the dashboard epic — feed real values then);
-  dashboard-half slip XCUITest waits for the fixture-seeding session.
+  (feed real values in the dashboard epic); dashboard-half slip XCUITest waits
+  for the fixture-seeding session.

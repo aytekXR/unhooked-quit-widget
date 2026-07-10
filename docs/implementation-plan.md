@@ -34,17 +34,19 @@ specifies local-first, cloud purge last; Session 08 ruling).
 | E3.1 panic productionizing | ✅ DONE | Session 09; pre-cache = panic-snapshot.json FILE (§4/ADR-6 outrank the plan's "defaults" phrasing — recorded adjustment, not drift) + erase coverage in the same session; production Clock/Widget conformances + RepositoryProvider post-frame wiring; panic route provably store-free; quitID channel landed (intent parameter → E3.3); **latency gate still unwired — operator E0.3 measurement pending**; InstantLaunch package extraction → second consumer |
 | E3.2 panic flow UI | ✅ DONE | Session 10; §9-rule-2 write buffer (`panic-outcomes.ndjson`, erase-covered same-session, idempotent timestamp-preserving flush in `startIfNeeded`); 4-7-8 pacer behind the `HapticsPlaying` seam (§5.1); reasons VERBATIM at 40pt with vertical paging; slipped exit = ROUTING SEAM ONLY (`PanicSlipHandoff` — E4.1 owns the slip flow + its writes as one unit); `panicScript.json` now BUNDLED (its consuming epic arrived; tone review gates TestFlight-visible copy); first 40 snapshot goldens (light/dark × default/AX5 — AX5 supersedes the plan's "XXL" wording, stricter); deferrals: haptics-only production channel → E5+ settings writer; `panic_step_reached` → E8.1; VoiceOver audit + Live Activity → device tier / P1 |
 | E4.1 slip flow + undo | ✅ DONE | Sessions 11–12; design = the BINDING Session 11 decision record, shipped exactly in Session 12 (red evidence run 29090095270 → green 14bee2a → refs 8cf1461, all-green): logSlip opens the undo window (flag + persisted `PendingSlipUndo` payload; newer finalizes older), engine-gated `undoSlip` exact restore + row DELETE, `finalizePendingSlips` scene-phase sweep + `#Index<Slip>([\.isPendingUndo])`, two-pass flush applying deferred cold slips from the SLIP-TIME evidence tuple (R-WIT equivalence pinned), pre-cache additive streak fields, SlipFlowModel/SlipFlowView on both routes (placeholder dead end deleted), `slipCopy.json` bundled (+agent-drafted retryNote, operator tone review flagged), 24 goldens (repo total 64). Deferrals: dashboard-half XCUITest → fixture-seeding session; store-route framing momentum/motivation → dashboard epic; `slip_logged`/`slip_undone` → E8.1; undone-slip CloudKit tombstoning → §4.3 flip |
-| E3.3, E4.2–E10.2 | ☐ not started | Per plan; no scope changes. Next: E3.3 (Session 13 — deliberate pick over E5.1, whose third named test depends on E8.1's event enum) |
+| E3.3 panic entry-point matrix | ✅ DONE | Session 13 (red evidence run 29117701445 — build green, exactly the 19 designed issues → green same session); per-quit intent `@Parameter` (PanicQuitEntity/Query over the pre-cache, ADR-6 readers only); TRUE per-source attribution via the `panic.launch.source` App Group channel threaded pre-frame → PanicFlowModel (the `.lockscreenWidget` hardcode is dead); discreet **"Reset"** control (own kind `PanicControlDiscreet`, `arrow.counterclockwise`, neutral gallery strings unit-pinned via Shared `PanicControlStyle`); in-app entry = the fourth source (placeholder-grade root button → pre-cache composition, `.inApp`); **RECORDED ADJUSTMENT** (platform ceiling, docs-checked WWDC24 10157): iOS exposes NO control launch-surface API and one control kind serves CC / lock-screen slot / Action button, so control-family launches attribute `.controlCenter` and `.actionButton` stays reserved in the schema; device matrix → operator (`docs/operator-expected.md` §7); E6.2 feeds the quit parameter a selector UI |
+| E4.2–E10.2 | ☐ not started | Per plan; no scope changes. Next: E4.2 (Session 14 — zero-shame copy gate; deps E4.1 ✓, dependency-free; E5.1 still waits on E8.1's event enum for its third named test) |
 
-**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 14 done + 1 half-scaffolded
-(E0.3: harness shipped, device measurement operator-owned) ≈ **~44–45%** of build
+**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 15 done + 1 half-scaffolded
+(E0.3: harness shipped, device measurement operator-owned) ≈ **~47–48%** of build
 tasks; milestones: M0 ✅, M1 in progress (engine + persistence + the full panic flow
-+ slip/undo done; the QUIZ is M1's remaining exit criterion), M2 not started.
++ slip/undo + the entry-point matrix done; the QUIZ is M1's remaining exit
+criterion), M2 not started.
 **Calendar:** roadmap targets store-approval by week 5–6 with a mid-December 2026
-hard window; Sessions 02–12 ran 2026-07-07 → 07-10, so the build is comfortably
+hard window; Sessions 02–13 ran 2026-07-07 → 07-10, so the build is comfortably
 inside the window (≈4 months of slack — per roadmap discipline, slack goes to
-distribution content, not scope creep). Remaining build tasks: 18 → at the observed
-~1–1.5 tasks/session pace, roughly **12–15 sessions** to the full v1.0 scope.
+distribution content, not scope creep). Remaining build tasks: 17 → at the observed
+~1–1.5 tasks/session pace, roughly **11–14 sessions** to the full v1.0 scope.
 
 **Production-readiness level:** core-loop-complete (pre-alpha). The product's soul
 path is now real END TO END: lock-screen-class panic launch → the ~90s flow → either
@@ -53,10 +55,11 @@ the live 10-minute undo, on both the store-free cold route and the store route) 
 with the deferred cold application provably byte-equal to a live log. Shipping-quality
 mechanics: CI gates (engine floors, sole-importer lint, 64 snapshot goldens, UI
 smokes), signed TestFlight uploads on every green merge, clock-integrity + erase +
-write-buffer + slip/undo semantics adversarially reviewed and pinned. Not yet
-product: no onboarding/quiz (users cannot create quits from UI), per-source panic
-attribution pending (E3.3), no widget suite beyond the skeleton, no paywall, no
-analytics — E3.3–E9 are the remaining distance to the MVP §7 release gates.
+write-buffer + slip/undo semantics adversarially reviewed and pinned; per-source
+panic attribution live at the platform's ceiling (E3.3). Not yet product: no
+onboarding/quiz (users cannot create quits from UI), no widget suite beyond the
+skeleton + the two panic controls, no paywall, no analytics — E4.2–E9 are the
+remaining distance to the MVP §7 release gates.
 
 ---
 
@@ -167,6 +170,7 @@ Goal: the highest-test-density code in the product — all streak/momentum/clock
 - **Failing tests first:** `test_panicIntent_parameter_quitEntity_resolvesActiveQuits()`, `test_controlWidget_discreetMode_usesNeutralTitleAndSymbol()`.
 - **Acceptance:** all four `panic_opened` sources reachable and correctly attributed; manual device matrix (lock screen / CC / Action button × Focus on/off) documented and green.
 - **Deps:** E3.1.
+- **Shipped Session 13 with one RECORDED ADJUSTMENT (platform ceiling, not drift — the E3.1 "pre-cache = FILE" precedent):** iOS exposes no launch-surface API for controls and one control registration serves Control Center, the lock-screen slots, AND the Action button with user-assigned placement (docs-checked: WWDC24 10157, WidgetKit docs). "Correctly attributed" therefore lands at entry-point-KIND granularity — lock-screen widget `.lockscreenWidget`, control family `.controlCenter`, in-app `.inApp` — and `.actionButton` stays reserved in `PanicSource` (never fabricated; the rejected alternative, a dedicated Action-button App Shortcut, also runs from Siri and pins the wrong meaning). Attribution is store-persisted only (`UrgeEvent.source`); `panic_opened` analytics remain E8.1.
 
 **Epic 3 Definition of Done:** panic-latency CI gate permanent; entry-point device matrix green; flow accessible (VoiceOver + haptics-only + Dynamic Type); zero network dependency proven by airplane-mode manual test.
 

@@ -1513,3 +1513,107 @@ gone and TestFlight builds now carry the full panic→slip→undo loop.
   measurement still the only blocker on the permanent latency gate.
 - Cold panic launches remain attributed `.lockscreenWidget` until E3.3 (next
   session) lands true per-source attribution.
+
+---
+
+## Session 13 — 2026-07-10 — E3.3 panic entry-point matrix (COMPLETE)
+
+### Objective & outcome
+
+Resume prompt v2.4: E3.3 — ControlWidget registration + per-widget quit parameter +
+per-source attribution + discreet "Reset" control. **DONE in 2 billed runs, zero
+burned:** red evidence run `29117701445` (build GREEN, the new suite failed with
+EXACTLY the 19 designed issues — 143 tests, only the 7 new pins red) → green run
+`29118390046` same session. Both plan-named tests live in
+`Tests/Unit/PanicEntryPointTests.swift` alongside the attribution pins.
+
+### What shipped
+
+- **Per-quit intent parameter:** `PanicQuitEntity` + `PanicQuitQuery`
+  (Shared/Sources/PanicQuitEntity.swift) — an AppEntity/EntityQuery designed over
+  the PRE-CACHE (`PanicSnapshotStore.read()`, ADR-6 readers-only; a discreet card
+  surfaces as the neutral "Your goal"). Both intents carry
+  `@Parameter(title: "Quit") var quit: PanicQuitEntity?` (optional → nil keeps
+  today's resolver behavior; E6.2's selector will feed it).
+- **True per-source attribution:** `PanicSource` MOVED to Shared/Sources (same
+  module for app code — zero app-side changes; now widget-visible).
+  `PanicLaunchFlag` gained `sourceKey` / `set(source:quitID:)` / `launchSource()`;
+  `clear()` sweeps all three keys. `UnhookedApp` captures the source PRE-FRAME
+  (the placeholder's onAppear consumes the flag) and threads it
+  → `PanicPlaceholderView(presentation:source:)` → `PanicFlowView(quit:script:source:)`
+  → `PanicFlowModel.source` → draft → `UrgeEvent.source`. **The
+  `.lockscreenWidget` hardcode at PanicFlowView.swift:36 is dead**; a flag with no
+  source (legacy widget binary / FORCE_PANIC_ROUTE hook) keeps the historic
+  lock-screen default, documented in code.
+- **Intent split (behavior follows KIND):** `OpenPanicIntent` = the lock-screen
+  WIDGET button (→ `.lockscreenWidget`; stays Shortcuts-discoverable — a
+  Shortcuts run attributes exactly what the old hardcode did). NEW
+  `OpenPanicControlIntent` = the control family (→ `.controlCenter`,
+  `isDiscoverable = false` so the discreet control never surfaces as a "Panic"
+  Shortcuts row).
+- **Discreet "Reset" control:** NEW `PanicResetControlWidget`, own kind
+  `PanicControlDiscreet`, `Label("Reset", systemImage: "arrow.counterclockwise")`,
+  neutral gallery description ("Opens a quick reset.") — all strings from Shared
+  `PanicControlStyle` (single source of truth, unit-pinned incl. a leak-lexicon
+  scan; the flagship control is unchanged and now style-driven). Registered in
+  `UnhookedWidgetBundle`.
+- **In-app entry (the fourth source):** placeholder-grade "Panic" button on
+  `RootPlaceholderView` → `InAppPanicEntry` (pure, unit-pinned: `.inApp` + the
+  pre-cache composition — one panic composition path even when the store is warm)
+  → sheet-presented `PanicPlaceholderView`. Pre-store by design; degrades to the
+  bare breathe frame with no cache (§9 no-dead-ends).
+
+### The RECORDED ADJUSTMENT (platform ceiling, not drift)
+
+iOS exposes NO launch-surface API for controls, and ONE control registration
+serves Control Center + lock-screen slots + Action button with USER-assigned
+placement (docs-checked with citations: WWDC24 10157, WidgetKit docs — the
+Session-13 docs-check phase). "All four sources correctly attributed" therefore
+lands at entry-point-KIND granularity: `.lockscreenWidget` / `.controlCenter`
+(the whole control family) / `.inApp`; `.actionButton` stays RESERVED in the
+schema — never fabricated (S10 panel rule). Rejected alternative: a dedicated
+Action-button App Shortcut (also runs from Siri → pins the wrong meaning; adds
+AppShortcutsProvider surface no test names). Amended in the implementation-plan
+E3.3 row; operator veto path noted in operator-expected §7 + FYI list.
+
+### Process notes (ultracode session)
+
+- Workflow-driven: 8-reader understand fan-out → 3-researcher Apple-docs check
+  (the burned-run class killer: every AppIntents/SF-Symbol spelling verified with
+  citations BEFORE any code) → adversarial design panel (fact-verifier + critic +
+  red-test author drafting against a local parse gate). The critic caught a
+  must-fix: my draft counted PanicFlowTests fixture DEFAULTS (:187/:246) as red
+  pins — they are shared E3.2 fixtures feeding real assertions (:510,
+  QuitRepositoryTests:213); the red commit left ALL existing tests untouched.
+- Red-stub discipline (S11/S12 pattern, refined): stubs land the full API surface
+  so the 7 pins COMPILE and fail on BEHAVIOR — the flag writer real but reader
+  nil, so the round-trip pin fails on read-back and the clear-sweep pin asserts
+  the RAW key (non-vacuous red for both halves).
+- Structured-output caps killed 3 subagents (readers with big payloads) —
+  re-runs with hard size caps or Write-to-scratchpad outputs fixed it; the
+  repo-facts verifier was replaced by direct CodeGraph queries. No session-limit
+  trips.
+- Gates that made zero-burn possible: swiftc -parse ×13, the access-level scan,
+  a Linux `swiftc -typecheck -warnings-as-errors` harness over the ENTIRE
+  pure-Foundation surface incl. a usage-exercise file, and docs-verification of
+  every Darwin-only spelling (`isDiscoverable`, `TypeDisplayRepresentation`,
+  `DisplayRepresentation(title:)` interpolation, `arrow.counterclockwise`,
+  EntityQuery's `init()`/`entities(for:)`).
+
+### Known limitations / carried forward
+
+- **`.actionButton` unattributable** until Apple ships a launch-surface API
+  (recorded adjustment above) — revisit if a WWDC changes the ceiling.
+- **In-app entry is placeholder-grade** (sheet-presented, swipe-dismiss; the
+  real dashboard PanicEntryButton chrome + discreet app-level variant is E5+
+  dashboard work). No new XCUITest: the wiring is unit-pinned
+  (`InAppPanicEntry`), the E2E cap (≤12) untouched, the surface is in the
+  operator device matrix (operator-expected §7).
+- **Widget-copy coverage:** the Shared logic types compile into BOTH targets;
+  tests exercise the app-module copies. The widget coverage floor is
+  documentation-level until Epic 6 wires mechanical enforcement (ci.yml has
+  none today — verified).
+- Store-route framing momentum/motivation nil; dashboard-half XCUITest →
+  fixture-seeding session; `slip_logged`/`slip_undone`/`panic_opened` → E8.1;
+  undone-slip CloudKit tombstoning → §4.3 flip; E0.3 device measurement still
+  the only blocker on the permanent latency gate (all unchanged).

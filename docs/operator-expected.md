@@ -3,21 +3,21 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-10 (Session 12 close: E4.1 COMPLETE, main all-green, TestFlight build carries the slip flow) |
+| Last updated | 2026-07-10 (Session 13 close: E3.3 COMPLETE — entry-point matrix live; NEW §7 device matrix is your half of the acceptance) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E3.3 — panic entry-point matrix). Items are
+Nothing below blocks the next session (E4.2 — zero-shame copy gate). Items are
 ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the next
 session's agent will prune completed items.
 
-> **Session 12 outcome (2026-07-10):** E4.1 is DONE — slip flow + 10-minute undo on
-> both routes, deferred cold application, forgiveness UI, 24 new snapshot goldens;
-> `main` is ALL-GREEN on `8cf1461` and the TestFlight lane uploaded the build.
-> **Billed runs used: 4** (the 3–4 budget's top end): one was BURNED on a build
-> failure (an access-level diagnostic the syntax parse gate cannot see — now a
-> standing pre-push gate), then red evidence → green → snapshot refs each landed
-> in one run. The earlier "code pushes show ~30 designed failures" caution is
-> CLOSED — there is no expected red anymore.
+> **Session 13 outcome (2026-07-10):** E3.3 is DONE — per-quit intent parameter
+> (entity/query over the pre-cache), TRUE per-source attribution (the
+> `.lockscreenWidget` hardcode is dead), the discreet **"Reset"** control, and the
+> in-app panic entry. **Billed runs used: 2** (red evidence → green, zero burned —
+> the docs-check + typecheck-harness gates paid off). One platform ceiling was
+> RECORDED (not a bug): iOS cannot tell Control Center / lock-screen slot / Action
+> button apart for one control, so control launches attribute `.controlCenter` —
+> details in §7 below, veto path noted there.
 
 ## 1. E0.3 panic-latency device measurement — carried since Session 02, load-bearing
 
@@ -59,8 +59,8 @@ session's agent will prune completed items.
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
-- [ ] Session 12 used **4** billed macOS runs; Session 13 (E3.3) plans **2–3**
-      (red evidence → green → refs only if new goldens). Check
+- [ ] Session 13 used **2** billed macOS runs (red → green, none burned); Session 14
+      (E4.2) plans **2** (red evidence → green; the copy gate adds no goldens). Check
       Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
@@ -77,6 +77,41 @@ session's agent will prune completed items.
 - [ ] CI reads `secrets.SLACK_WEBHOOK_URL`; the old URL briefly sat in local git
       history. Rotate when convenient.
 
+## 7. E3.3 manual device matrix — YOUR half of the E3.3 acceptance (~15 min)
+
+The build half shipped Session 13; the acceptance's device matrix is operator-owned
+device work. Any post-E3.3 build works; for seeded quits run from Xcode with scheme
+env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet).
+
+- [ ] **Place the surfaces** from the system galleries: the "Streak" lock-screen
+      widget (its wind button); the **"Panic"** control in a lock-screen control
+      slot AND in Control Center; Settings → Action Button → Controls → "Panic".
+- [ ] **Discreet check:** in the controls gallery, confirm the **"Reset"** control
+      shows the neutral counterclockwise-arrow glyph and its description ("Opens a
+      quick reset.") carries zero habit words; place it once and fire it.
+- [ ] **Run the matrix** — each row × Focus ON and OFF; at least one pass in
+      airplane mode (Epic 3 DoD: zero network dependency):
+
+      | # | Launch from | Expect | Recorded source |
+      |---|---|---|---|
+      | 1 | Lock-screen widget button | picker (2 quits) → flow | lockscreenWidget |
+      | 2 | Lock-screen control slot | same | controlCenter (see note) |
+      | 3 | Control Center "Panic" | same | controlCenter |
+      | 4 | Action button | same | controlCenter (see note) |
+      | 5 | "Reset" control (any surface) | same | controlCenter (see note) |
+      | 6 | In-app "Panic" button on the root | picker sheet | inApp |
+
+- [ ] The attribution VALUES are unit-pinned, so if row-by-row source inspection is
+      friction, it is enough to confirm each surface OPENS the flow (Focus on/off,
+      airplane ok) — that closes the matrix. To spot-check a recorded source, finish
+      one flow arm ("The urge passed") and inspect the persisted UrgeEvent from an
+      Xcode run.
+
+> **Platform note (recorded adjustment, not a bug):** iOS provides NO API to tell
+> Control Center vs lock-screen slot vs Action button apart — one control
+> registration serves all three and YOU assign placement. Rows 2/4/5 recording
+> `controlCenter` is correct behavior. `.actionButton` stays reserved in the schema.
+
 ---
 
 ## Decisions on record you can veto (FYI, no action needed)
@@ -91,5 +126,14 @@ session's agent will prune completed items.
   pin, Session 11) — repeat-cold-slip display honesty comes from the in-memory
   draft fold, never a second writer to `panic-snapshot.json`.
 - **Redirect menu ships the JSON's 4 options** (ratified override, not drift).
-- Cold panic launches are attributed `.lockscreenWidget` **until E3.3 (next
-  session)** lands true per-source attribution.
+- **E3.3 attribution ceiling (Session 13, recorded adjustment):** control-family
+  launches (Control Center / lock-screen slot / Action button) all record
+  `.controlCenter` — iOS has no launch-surface API for controls (docs-checked,
+  WWDC24 10157). `.actionButton` stays reserved in the schema. Veto path: a new
+  dedicated `PanicSource` case for the "Reset" control would need a schema
+  decision, not a platform fight.
+- **Shortcuts exposure (Session 13):** the lock-screen widget intent ("Panic")
+  remains Shortcuts-discoverable (pre-E3.3 behavior); a Shortcuts-run launch
+  attributes `.lockscreenWidget` exactly as the old hardcode did. The control
+  intent is NOT discoverable (the discreet "Reset" control rides it — a Shortcuts
+  row titled "Panic" would leak what it hides).
