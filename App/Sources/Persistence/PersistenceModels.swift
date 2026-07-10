@@ -30,12 +30,8 @@ enum GoalMode: String, Codable, Sendable, CaseIterable {
     case quit, reduce
 }
 
-/// Where a panic session was launched from. Deliberate superset of the architecture §3
-/// sketch's three cases: E3.3's entry-point matrix names all four widget/system sources
-/// (lock screen, Control Center, Action button) plus in-app.
-enum PanicSource: String, Codable, Sendable, CaseIterable {
-    case lockscreenWidget, homeWidget, controlCenter, actionButton, inApp
-}
+// PanicSource moved to Shared/Sources/PanicSource.swift in E3.3 (same module for app
+// code; now visible to the widget target, which writes it via PanicLaunchFlag).
 
 /// How a panic session ended.
 enum UrgeOutcome: String, Codable, Sendable, CaseIterable {

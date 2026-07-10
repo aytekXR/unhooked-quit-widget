@@ -49,7 +49,7 @@ struct PanicPlaceholderView: View {
     @ViewBuilder
     private func flowOrFallback(quit: QuitSnapshot?) -> some View {
         if let script {
-            PanicFlowView(quit: quit, script: script)
+            PanicFlowView(quit: quit, script: script, source: .lockscreenWidget)
         } else {
             BreatheFrame()
         }
