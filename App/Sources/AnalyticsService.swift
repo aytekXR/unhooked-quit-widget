@@ -143,10 +143,66 @@ enum AnalyticsEvent: Equatable, Sendable {
     }
 
     /// The transmittable payload — exactly the MVP §5 property columns, key-for-key.
+    /// Values are String (the TelemetryDeck parameter type); numerics are bounded
+    /// Int ordinals, stringified — no floating point exists in the schema.
     var parameters: [String: String] {
-        // E8.1 red: mapping not yet implemented. The whitelist, slip_logged, and
-        // wire-value tests fail on this stub BY DESIGN — the red evidence run.
-        [:]
+        switch self {
+        case let .onboardingStarted(variant):
+            ["variant": variant]
+        case let .quizStepCompleted(stepNumber):
+            ["step_number": String(stepNumber)]
+        case let .quizCompleted(habitCategory, goalMode):
+            ["habit_category": habitCategory.rawValue, "goal_mode": goalMode.rawValue]
+        case let .paywallViewed(variant, priceTest, source):
+            ["variant": variant, "price_test": priceTest.rawValue, "source": source.rawValue]
+        case let .trialStarted(product):
+            ["product": product]
+        case let .purchase(product, period):
+            ["product": product, "period": period.rawValue]
+        case let .teaserEntered(variant):
+            ["variant": variant]
+        case let .quitCreated(habitCategory, goalMode, quitIndex):
+            [
+                "habit_category": habitCategory.rawValue,
+                "goal_mode": goalMode.rawValue,
+                "quit_index": String(quitIndex),
+            ]
+        case let .widgetAdded(kind, discreet):
+            ["kind": kind.rawValue, "discreet": String(discreet)]
+        case let .panicOpened(source, coldStart):
+            ["source": Self.wireValue(of: source), "cold_start_ms": coldStart.rawValue]
+        case let .panicStepReached(step):
+            ["step": step.rawValue]
+        case let .urgeAverted(habitCategory):
+            ["habit_category": habitCategory.rawValue]
+        case let .slipLogged(habitCategory):
+            ["habit_category": habitCategory.rawValue]
+        case .slipUndone:
+            [:]
+        case let .discreetModeEnabled(component):
+            ["component": component.rawValue]
+        case let .resourcesViewed(source):
+            ["source": source.rawValue]
+        case .eraseAllCompleted:
+            [:]
+        case let .winbackShown(offer):
+            ["offer": offer]
+        case let .winbackConverted(offer):
+            ["offer": offer]
+        }
+    }
+
+    /// The audited snake_case wire value for a panic source — never `rawValue`
+    /// (camelCase; Architect MUST-FIX #2, Session 15). Exhaustive: a new source
+    /// cannot ship without choosing its audited wire value.
+    private static func wireValue(of source: PanicSource) -> String {
+        switch source {
+        case .lockscreenWidget: "lockscreen_widget"
+        case .homeWidget: "home_widget"
+        case .controlCenter: "control_center"
+        case .actionButton: "action_button"
+        case .inApp: "in_app"
+        }
     }
 }
 
@@ -182,11 +238,9 @@ struct AnalyticsService {
 
     /// The one seam every fire site uses — never on the panic pre-frame path (ADR-6).
     func fire(_ event: AnalyticsEvent) {
-        // E8.1 red: the consent gate is not yet implemented — this pass-through is
-        // the designed `test_optOut_sendsNothing` failure (the run that proves the
-        // opt-out test catches a real leak). No real transport exists behind it at
-        // red: no TelemetryDeck binding lands until green, so the "leak" reaches an
-        // in-process test spy and nothing else (Architect red-state ruling).
+        // ADR-8: zero events before consent — the ONE gate every seam shares
+        // (opt-in default OFF; nothing can opt in until E8.2's consent step ships).
+        guard isOptedIn() else { return }
         sink.receive(event)
     }
 

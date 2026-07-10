@@ -113,6 +113,9 @@ final class QuitRepository {
             // alone would land both copies.
             var existing = Set(try context.fetch(FetchDescriptor<UrgeEvent>()).map(\.id))
             var landed = 0
+            // Collected during the replay, fired only past the commit point below —
+            // a thrown save rolls back the rows AND forfeits their events together.
+            var avertedCategories: [HabitCategory] = []
             for draft in drafts where !existing.contains(draft.id) {
                 // Revocation records are bookkeeping, never UrgeEvents; a revoked
                 // slip never reaches the store (§9 rule 3 governs STORE rows — the
@@ -135,6 +138,7 @@ final class QuitRepository {
                 context.insert(event)
                 if draft.outcome == .averted, let quit {
                     quit.avertedUrgeCount += 1
+                    avertedCategories.append(quit.habitCategory)
                 }
                 if draft.outcome == .slipped, let quit {
                     applyDeferredSlip(draft, to: quit, flushNow: now, flushReading: reading)
@@ -146,6 +150,13 @@ final class QuitRepository {
                 try context.save()
                 rebuildPanicSnapshot()
                 scheduleWidgetReload()
+                // Post-commit (§1.2 invariant 3): one urge_averted per LANDED
+                // attributed averted row. [R-NILQUIT] rows fire nothing — the
+                // category is unconstructible without a quit — and replayed or
+                // revoked drafts never reach this list.
+                for category in avertedCategories {
+                    analytics.fire(.urgeAverted(habitCategory: category))
+                }
             }
             // Consume only after the commit point — a crash before this line replays
             // safely (the id dedupe above), a crash after it has nothing left to lose.
@@ -393,6 +404,10 @@ final class QuitRepository {
         context.delete(slip)
         try context.save()
 
+        // Post-save (§1.2 invariant 3): the restore is committed — the undo is real.
+        // Property-less by MVP §5; the two calm no-op arms above fire nothing.
+        analytics.fire(.slipUndone)
+
         // NO witness refresh: restoring a historical anchor earns no fresh wall trust.
         rebuildPanicSnapshot()
         scheduleWidgetReload()
@@ -480,6 +495,13 @@ final class QuitRepository {
             quit.avertedUrgeCount += 1
         }
         try context.save()
+
+        if outcome == .averted {
+            // Post-save, BESIDE the write (§1.2 invariant 3): the durable row is
+            // committed; analytics can neither block nor fail it. The category is
+            // the closed enum — `custom` is the ceiling, never the free-text label.
+            analytics.fire(.urgeAverted(habitCategory: quit.habitCategory))
+        }
 
         refreshLastKnownGood(
             anchor: quit.monotonicAnchor, now: now, reading: reading, lastKnownGood: lastKnownGood

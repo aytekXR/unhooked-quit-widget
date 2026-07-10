@@ -270,9 +270,21 @@ protocol SnapshotServiceProtocol {        // App Group JSON writer; called after
     func reloadWidgetTimelines()          // WidgetCenter.shared.reloadAllTimelines()
 }
 
-protocol AnalyticsServiceProtocol {       // TelemetryDeck wrapper with the privacy gate baked in
-    func fire(_ event: FunnelEvent)       // no-op unless analyticsOptIn == true;
-                                          // closed enum makes forbidden properties unrepresentable
+// Landed (E8.1, Session 15) as the concrete @MainActor `AnalyticsService` facade over
+// the closed `AnalyticsEvent` enum — the shipped code names are authoritative (this
+// sketch's AnalyticsServiceProtocol/FunnelEvent were illustrative; semantics match
+// one-for-one, Architect-confirmed). fire() is the ONE consent gate (opt-in default
+// OFF; zero events before consent, ADR-8); the payload mapping serializes exactly
+// the MVP §5 table (19 wire names, pinned byte-exact in AnalyticsEventTests).
+// Production binds TelemetryDeck 2.14.1 (exact-pinned) behind the seam below with
+// LAZY post-frame init (ADR-6: analytics never pre-frame on the panic path); the
+// SDK's on-disk SignalCache is the on-device queue. Wired seams: urge_averted
+// (logUrgeEvent + flush replay, post-save) and slip_undone (undoSlip true arm) —
+// remaining fire-points land with their features/sessions (slip_logged four-arm,
+// panic_opened, panic_step_reached, erase_all_completed).
+protocol AnalyticsSink {                  // @MainActor; SpyAnalyticsSink in tests (§7 rule 8)
+    func receive(_ event: AnalyticsEvent) // the TYPED value crosses the seam — no
+                                          // name/params surface exists to smuggle through
 }
 
 // Landed with E3.2 (test-suite §3.1's named haptics seam; §7 rule 8 — doubles

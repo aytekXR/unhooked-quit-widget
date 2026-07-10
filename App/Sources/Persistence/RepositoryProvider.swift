@@ -67,6 +67,18 @@ final class RepositoryProvider {
     /// crash at the composition root would.
     static func liveRepository(_ container: ModelContainer) -> QuitRepository {
         let groupDefaults = UserDefaults(suiteName: AppIdentifiers.appGroupID)!
+        // The ADR-8 double gate, both halves deliberately closed in E8.1: consent
+        // is hardwired false until E8.2's consent step ships the stored opt-in
+        // (its named tests own the default-OFF storage semantics), AND the
+        // transport stays Noop until the operator drops the TelemetryDeck app ID
+        // (operator-expected §8). Zero events before consent, by construction.
+        let appID = AnalyticsConfiguration.telemetryDeckAppID
+        let sink: any AnalyticsSink
+        if appID.isEmpty {
+            sink = NoopAnalyticsSink()
+        } else {
+            sink = TelemetryDeckSink(appID: appID)
+        }
         return QuitRepository(
             container: container,
             clock: LiveClock(),
@@ -74,7 +86,8 @@ final class RepositoryProvider {
             lastKnownGoodStore: LastKnownGoodStore(defaults: groupDefaults),
             cloud: LocalOnlyCloudSync(),
             appGroupDefaults: groupDefaults,
-            panicSnapshotStore: PanicSnapshotStore.appGroup()!
+            panicSnapshotStore: PanicSnapshotStore.appGroup()!,
+            analytics: AnalyticsService(sink: sink, isOptedIn: { false })
         )
     }
 }

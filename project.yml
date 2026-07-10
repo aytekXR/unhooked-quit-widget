@@ -35,6 +35,14 @@ packages:
     # a silent no-op in 1.18, functional from 1.19). Version bumps are deliberate
     # commits per test-suite §3.3's re-record discipline.
     exactVersion: "1.19.3"
+  TelemetryDeck:
+    url: https://github.com/TelemetryDeck/SwiftSDK
+    # EXACT pin (E8.1): latest STABLE — 3.0.0 exists only as betas (docs-checked
+    # against the official repo/releases, Session 15). Same rationale as the
+    # SnapshotTesting pin above: no committed Package.resolved means a range
+    # re-resolves on every CI run. App target only — the widget extension never
+    # fires analytics (ADR-6/ADR-8).
+    exactVersion: "2.14.1"
 
 settings:
   base:
@@ -76,6 +84,7 @@ targets:
       - package: StreakEngine
       - package: WidgetToolkit
       - package: PaywallKit
+      - package: TelemetryDeck
     info:
       path: App/Info.plist
       properties:
