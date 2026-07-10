@@ -162,7 +162,11 @@ private func slippedDraft(
 
 /// The three worlds the R-WIT equivalence property is quantified over: what happens
 /// between the slip and the flush must not change what the slip banked.
-private enum DeferredArm: String, CaseIterable {
+/// Internal (not `private`) BY NECESSITY: it appears in an internal `@Test` method's
+/// signature, and Swift rejects a more-private parameter type there — the exact
+/// build error that consumed a billed run on 2f98127. The name stays unique across
+/// the test target.
+enum DeferredArm: String, CaseIterable {
     case sameBoot = "same boot"
     case rebootBetween = "reboot between slip and flush"
     case rolledBackWall = "wall rolled back before flush"
