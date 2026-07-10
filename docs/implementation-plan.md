@@ -33,26 +33,30 @@ specifies local-first, cloud purge last; Session 08 ruling).
 | E2.4 one-tap erase | ✅ DONE | Session 08; LOCAL-FIRST order (the one plan correction — §10 updated); CloudKit purge behind `CloudSyncControlling` (real purge → §4.3/contract); RevenueCat clear → E7 seam; `erase_all_completed` → E8 seam; panic-snapshot FILES join the sweep in E3.1 (review-pinned carry) |
 | E3.1 panic productionizing | ✅ DONE | Session 09; pre-cache = panic-snapshot.json FILE (§4/ADR-6 outrank the plan's "defaults" phrasing — recorded adjustment, not drift) + erase coverage in the same session; production Clock/Widget conformances + RepositoryProvider post-frame wiring; panic route provably store-free; quitID channel landed (intent parameter → E3.3); **latency gate still unwired — operator E0.3 measurement pending**; InstantLaunch package extraction → second consumer |
 | E3.2 panic flow UI | ✅ DONE | Session 10; §9-rule-2 write buffer (`panic-outcomes.ndjson`, erase-covered same-session, idempotent timestamp-preserving flush in `startIfNeeded`); 4-7-8 pacer behind the `HapticsPlaying` seam (§5.1); reasons VERBATIM at 40pt with vertical paging; slipped exit = ROUTING SEAM ONLY (`PanicSlipHandoff` — E4.1 owns the slip flow + its writes as one unit); `panicScript.json` now BUNDLED (its consuming epic arrived; tone review gates TestFlight-visible copy); first 40 snapshot goldens (light/dark × default/AX5 — AX5 supersedes the plan's "XXL" wording, stricter); deferrals: haptics-only production channel → E5+ settings writer; `panic_step_reached` → E8.1; VoiceOver audit + Live Activity → device tier / P1 |
-| E4.1 slip flow + undo | ◐ IN PROGRESS | Session 11: cold-route design SETTLED (buffer-extended slip drafts carrying the slip-time evidence tuple; judge panel + adversarial verify — full decision record in the Session 11 ledger), API surface + 33 designed-red tests committed `[skip ci]` (af00116, no CI evidence claimed); Session 12 completes: SlipFlushTests → the ONE red-evidence run → green → snapshots/refs. The dashboard-half XCUITest (`test_slipFlow_completesInTwoTaps_fromDashboard`) defers to the fixture-seeding session (no quit-creation UI exists); it is pinned at unit tier meanwhile |
-| E3.3, E4.2–E10.2 | ☐ not started | Per plan; no scope changes |
+| E4.1 slip flow + undo | ✅ DONE | Sessions 11–12; design = the BINDING Session 11 decision record, shipped exactly in Session 12 (red evidence run 29090095270 → green 14bee2a → refs 8cf1461, all-green): logSlip opens the undo window (flag + persisted `PendingSlipUndo` payload; newer finalizes older), engine-gated `undoSlip` exact restore + row DELETE, `finalizePendingSlips` scene-phase sweep + `#Index<Slip>([\.isPendingUndo])`, two-pass flush applying deferred cold slips from the SLIP-TIME evidence tuple (R-WIT equivalence pinned), pre-cache additive streak fields, SlipFlowModel/SlipFlowView on both routes (placeholder dead end deleted), `slipCopy.json` bundled (+agent-drafted retryNote, operator tone review flagged), 24 goldens (repo total 64). Deferrals: dashboard-half XCUITest → fixture-seeding session; store-route framing momentum/motivation → dashboard epic; `slip_logged`/`slip_undone` → E8.1; undone-slip CloudKit tombstoning → §4.3 flip |
+| E3.3, E4.2–E10.2 | ☐ not started | Per plan; no scope changes. Next: E3.3 (Session 13 — deliberate pick over E5.1, whose third named test depends on E8.1's event enum) |
 
-**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 13 done + 1 half-scaffolded +
-1 in progress (E4.1 ≈ half-done: design ratified + red suite 5/6 files) ≈ **~42–44%**
-of build tasks; milestones: M0 ✅, M1 in progress (engine + persistence + the full
-panic flow done; slip/undo + quiz are M1's remaining exit criteria), M2 not started.
+**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 14 done + 1 half-scaffolded
+(E0.3: harness shipped, device measurement operator-owned) ≈ **~44–45%** of build
+tasks; milestones: M0 ✅, M1 in progress (engine + persistence + the full panic flow
++ slip/undo done; the QUIZ is M1's remaining exit criterion), M2 not started.
 **Calendar:** roadmap targets store-approval by week 5–6 with a mid-December 2026
-hard window; Sessions 02–11 ran 2026-07-07 → 07-10, so the build is comfortably
+hard window; Sessions 02–12 ran 2026-07-07 → 07-10, so the build is comfortably
 inside the window (≈4 months of slack — per roadmap discipline, slack goes to
-distribution content, not scope creep).
+distribution content, not scope creep). Remaining build tasks: 18 → at the observed
+~1–1.5 tasks/session pace, roughly **12–15 sessions** to the full v1.0 scope.
 
-**Production-readiness level:** foundation-complete / core-loop-forming (pre-alpha).
-Shipping-quality: CI gates (engine floors, sole-importer lint, real snapshot goldens,
-UI smokes), signed TestFlight uploads on every green merge, clock-integrity + erase +
-panic write-buffer semantics adversarially reviewed and pinned; the product's soul —
-the ~90s panic flow — is real, brand-audited UI reachable from the lock-screen path.
-Not yet product: the slipped exit parks on a placeholder (E4.1), no onboarding/quiz,
-no widget suite beyond the skeleton, no paywall, no analytics — E3.3–E9 are the
-remaining distance to the MVP §7 release gates.
+**Production-readiness level:** core-loop-complete (pre-alpha). The product's soul
+path is now real END TO END: lock-screen-class panic launch → the ~90s flow → either
+exit — averted (quiet celebration) or slipped (the two-tap zero-shame slip flow with
+the live 10-minute undo, on both the store-free cold route and the store route) —
+with the deferred cold application provably byte-equal to a live log. Shipping-quality
+mechanics: CI gates (engine floors, sole-importer lint, 64 snapshot goldens, UI
+smokes), signed TestFlight uploads on every green merge, clock-integrity + erase +
+write-buffer + slip/undo semantics adversarially reviewed and pinned. Not yet
+product: no onboarding/quiz (users cannot create quits from UI), per-source panic
+attribution pending (E3.3), no widget suite beyond the skeleton, no paywall, no
+analytics — E3.3–E9 are the remaining distance to the MVP §7 release gates.
 
 ---
 

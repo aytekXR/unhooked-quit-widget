@@ -1404,3 +1404,112 @@ the gitignored pointer. Every remaining tracked .md is live and required.
 - Undone-slip CloudKit tombstoning → §4.3 flip design (new, this session).
 - VoiceOver audit device-tier items, haptics-only settings channel (E5+),
   `panic_step_reached`/`slip_logged`/`slip_undone` events (E8) — unchanged.
+
+## 2026-07-10 · Session 12 · E4.1 COMPLETE — slip flow + 10-minute undo, red→green→refs, all-green
+
+**Objective (resume-prompt v2.3):** complete E4.1 — write SlipFlushTests, push the
+red-evidence run, implement green per the Session 11 decision record, land snapshots
++ refs. **Outcome: DONE.** E4.1 ships whole: both slip routes, the undo lifecycle,
+the deferred cold application, the forgiveness UI, bundled copy, 24 new goldens.
+Delivery table moves to 14/32 (~44%); the `panic.flow.slipPlaceholder` dead end is
+gone and TestFlight builds now carry the full panic→slip→undo loop.
+
+### Commits / billed runs (4 used — the budget's top end; one was burned)
+
+1. `2f98127` red push #1 — **BURNED RUN** (build failure, no evidence): ONE semantic
+   diagnostic, `Tests/Unit/SlipFlushTests.swift:178` "method must be declared
+   fileprivate because its parameter uses a private type" — the parameterized
+   equivalence test's argument enum was file-`private` while `@Test` methods are
+   internal. The `swiftc -parse` gate is SYNTAX-only and cannot see access levels;
+   the pre-push 3-agent verify also missed it (it checked the enum's Sendability,
+   not its access exposure). **New permanent gate** (applied for the rest of the
+   session): a repo-wide scan for private types named in non-private signatures +
+   local `swiftc -typecheck` harnesses for every API-shape assumption (the harness
+   pattern separately caught a `StreakSnapshot.totalCleanSeconds` misnomer before
+   it ever reached CI — empirical typecheck > declaration cross-check).
+2. `7712617` red fix → **run 29090095270 = THE red evidence**: build green; unit
+   lane 136 tests / 13 suites with 92 designed issues confined to exactly the five
+   designed-red suites (SlipFlush/SlipUndoLifecycle/SlipFlowModel/SlipCopy +
+   PanicPath's one new test); snapshot lane green (40 goldens intact); UI lane red
+   ONLY on the E4.1 smoke; every pre-existing suite green.
+3. `14bee2a` green → **run 29091690154**: unit lane GREEN (whole E4.1 suite passes,
+   zero regressions), UI smoke GREEN (the real two-tap cold flow end-to-end),
+   snapshot lane red by design — SlipFlowSnapshotTests recorded its 24 references
+   (`record: .missing` fails-while-recording, the Session 10 precedent).
+4. `8cf1461` refs (24 goldens from the test-outputs artifact, visually reviewed
+   before committing) → the all-green verification run + the TestFlight upload that
+   puts the slip flow in testers' hands.
+
+### What landed (mechanism = the Session 11 decision record, followed exactly)
+
+- **Tests/Unit/SlipFlushTests.swift** (the missing 6th red file): 13 tests /
+  ~15 runtime cases — the R-WIT equivalence property (deferred slip == live
+  `logSlip` byte-for-byte; parameterized same-boot / reboot-between /
+  rolled-back-wall), slip-time-span banking (2d, never the 10d flush span),
+  duplicate-id + replay idempotency gating the TRANSITION, R-REVOKE (revoked pair
+  drops whole; a revocation is never an UrgeEvent; slip→undo→slip lands exactly
+  one), R-NILQUIT, erased-quit drop, R-ORDER (append order — wall-sorting would
+  bank a phantom 2d+300 best), R-NEWEST, witness-never-advanced, window-closed-at-
+  flush lands finalized, R-HEAL heal-collision bounded (banks 0; startAt keeps the
+  healed re-base). Pre-push: 3-agent adversarial verify incl. a scratch SPM
+  executable running the REAL engine over every expected value.
+- **QuitRepository green**: `logSlip` opens the window (flag + the engine's
+  recorded `PendingSlipUndo` persisted into the four `prior*` fields;
+  finalize-prior first); `undoSlip` = engine-gated exact restore (`lastKnownGood:
+  nil`) + row DELETE; `finalizePendingSlips` idempotent scene-phase sweep;
+  `updateSlipNote`; `pendingUndoSlip`; `#Index<Slip>([\.isPendingUndo])` landed
+  with its justifying queries. `flushPanicOutcomes` two-pass: revocation ids
+  collected first, append order, `applyDeferredSlip` runs `applySlip` on the
+  CAPTURED tuple (reading + witness) with only the undo-window gate measured at
+  flush time; the id-dedupe set gates the transition as well as the insert; the
+  witness is never advanced. `rebuildPanicSnapshot` populates the additive card
+  fields (startAt/anchor scalars/best/momentum% via the guarded read).
+- **SlipFlowModel green**: durable-first confirm (one append retry → calm
+  retryNote, stays confirming); cold forgiveness framing = pure engine math over
+  the card with the in-memory fold of earlier unrevoked drafts (single-writer pin
+  holds — the cold route writes ONLY the buffer file); in-session cold undo =
+  appended revocation; live window gate from the slip-instant anchor
+  (`conservativeElapsedSeconds`, `lastKnownGood: nil`); store route through
+  `logSlip`/`undoSlip`/`updateSlipNote` with the debounced note autosave.
+- **UI**: new `SlipFlowView` (300ms spring — never the panic 600ms calm; NEUTRAL
+  secondary-fill undo banner live-gated via TimelineView with a phase-zero latch
+  for snapshot determinism; `arrow.uturn.backward.circle`; 56pt targets; SF Pro
+  motivation echo; identifiers on REAL elements: `slip.flow.confirm.log`,
+  `slip.flow.undo`, `slip.flow.logged`, `slip.flow.undoBanner`). `PanicFlowView`
+  mounts the real cold flow off the handoff (`SlipRoutePlaceholderView` deleted);
+  `RootPlaceholderView` gains the placeholder-grade store slip entry +
+  pending-undo banner + scene-phase finalize (skeleton anchor kept byte-for-byte).
+- **Content**: `slipCopy.json` BUNDLED (project.yml; the panicScript precedent) +
+  the ONE agent-drafted `confirm.retryNote` line ("That didn't save just yet —
+  nothing's lost. Tap Log it to try again whenever you're ready.") — REVIEW.md
+  item 3 flags it for operator tone review.
+- **Goldens**: 24 new (6 slip states × light/dark × default/AX5, .iPhone13);
+  repo total 64.
+
+### Process notes (ultracode session)
+
+- Verification workflows carried their weight: the pre-red pass proved every
+  expected value by EXECUTING the engine; the pre-green pass (3 reviewers:
+  48-test simulation, strict-concurrency compile-risk with empirical local
+  typechecks, regression/record conformance) returned zero findings and the green
+  run confirmed it — no billed run was spent on a logic error.
+- The one burned run was an ACCESS-LEVEL semantic the syntax parse gate cannot
+  catch; its scan + typecheck-harness replacements are recorded above and in the
+  resume prompt as a standing gate.
+- Subagent session limits: no trips this session (3+3+3 agents, front-loaded).
+
+### Known limitations / carried forward
+
+- **Store-route framing passes momentum nil** (renders as an empty token
+  substitution in `logged.body`) — deliberately unpinned and practically
+  unreachable (no quit-creation UI); the dashboard epic that makes the store route
+  reachable should feed the real momentum from a `streakValue` read. Same epic
+  should revisit `SlipFraming.motivation` on the store route (also nil — the quit
+  model HAS motivations).
+- Dashboard-half XCUITest (`test_slipFlow_completesInTwoTaps_fromDashboard`) still
+  deferred to the fixture-seeding session (unchanged Session 11 ruling).
+- `slip_logged`/`slip_undone` events → E8.1 (the finalize sweep and undo remain
+  their attach points); undone-slip CloudKit tombstoning → §4.3 flip; E0.3 device
+  measurement still the only blocker on the permanent latency gate.
+- Cold panic launches remain attributed `.lockscreenWidget` until E3.3 (next
+  session) lands true per-source attribution.
