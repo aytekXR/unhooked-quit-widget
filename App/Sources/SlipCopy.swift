@@ -37,12 +37,25 @@ struct SlipCopy: Codable, Equatable, Sendable {
         var undoneConfirmation: String
     }
 
+    /// E4.2 — the root dashboard surface's slip strings (the pending-undo banner and
+    /// the slip-entry rows), so EVERY slip-rendered string comes from this one audited
+    /// table (implementation-plan §E4.2) instead of view-inline literals. Optional for
+    /// decode tolerance (the `retryNote` precedent): an older file still decodes and
+    /// the surface degrades to the plain fallback, never to a decode failure.
+    struct Dashboard: Codable, Equatable, Sendable {
+        var pendingBanner: String
+        var undoLabel: String
+        /// The discreet slip row's title — carries ZERO habit context (brandkit §1.2).
+        var discreetRowLabel: String
+    }
+
     var confirm: Confirm
     var logged: Logged
     var reflection: Reflection
     var undo: Undo
     var encouragement: [String]
     var motivationEcho: String
+    var dashboard: Dashboard?
 
     /// Decodes the shipping file from the app bundle. `nil` when the resource is
     /// missing or undecodable — the slip flow is a zero-lost-data surface, so callers

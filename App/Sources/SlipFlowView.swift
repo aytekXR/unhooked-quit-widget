@@ -300,6 +300,18 @@ extension SlipCopy {
         reflection: .init(prompt: "", placeholder: "", skipLabel: "Skip", saveLabel: "Save"),
         undo: .init(banner: "Undo?", undoLabel: "Undo", windowNote: "", undoneConfirmation: "Undone."),
         encouragement: [],
-        motivationEcho: ""
+        motivationEcho: "",
+        dashboard: .degraded
+    )
+}
+
+extension SlipCopy.Dashboard {
+    /// The dashboard surface's honest-degrade labels (same discipline as above): the
+    /// plainest functional strings, kept total so the pending-undo banner and the
+    /// discreet row never render blank when the shipping table is missing its section.
+    static let degraded = SlipCopy.Dashboard(
+        pendingBanner: "Undo?",
+        undoLabel: "Undo",
+        discreetRowLabel: "Tracked goal"
     )
 }
