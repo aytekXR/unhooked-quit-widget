@@ -37,6 +37,11 @@ final class QuitRepository {
     /// injected pre-cache location places the buffer too — tests land in the same
     /// temp directory, production in the real container, with zero extra wiring.
     private let panicOutcomeBuffer: PanicOutcomeBuffer
+    /// The E8.1 analytics seam (ADR-8): events fire BESIDE the durable writes —
+    /// post-save, never inside or blocking one (Architect ruling, Session 15; §1.2
+    /// invariant 3). Defaulted to the transmit-nothing service, so construction
+    /// sites opt in per test exactly like `debounceSleep`.
+    private let analytics: AnalyticsService
     private let debounceSleep: @Sendable (Duration) async -> Void
     private var pendingReload: Task<Void, Never>?
 
@@ -48,7 +53,8 @@ final class QuitRepository {
         cloud: any CloudSyncControlling,
         appGroupDefaults: UserDefaults,
         panicSnapshotStore: PanicSnapshotStore,
-        debounceSleep: @escaping @Sendable (Duration) async -> Void = { try? await Task.sleep(for: $0) }
+        debounceSleep: @escaping @Sendable (Duration) async -> Void = { try? await Task.sleep(for: $0) },
+        analytics: AnalyticsService = .disabled
     ) {
         self.container = container
         self.context = container.mainContext
@@ -62,6 +68,7 @@ final class QuitRepository {
             directoryURL: panicSnapshotStore.fileURL.deletingLastPathComponent()
         )
         self.debounceSleep = debounceSleep
+        self.analytics = analytics
     }
 
     // MARK: - E3.2/E4.1 · panic write-buffer flush (§9 rule 2)

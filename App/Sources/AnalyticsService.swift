@@ -1,25 +1,195 @@
 import Foundation
 
-/// The closed analytics event vocabulary (ADR-8: privacy by unrepresentability).
-///
-/// Deliberately uninhabited at skeleton stage: cases land in E8.1, copied verbatim
-/// from the MVP §5 event table and nowhere else. Because the enum has no cases, no
-/// event can even be constructed yet — the strongest possible form of "zero events
-/// before consent". Adding cases or associated values is an Architect-gated change
-/// (agent-workflows §1.2/§1.4).
-enum AnalyticsEvent: Sendable {
-    // E8.1: cases arrive here, exactly the MVP §5 closed list. No timestamps, no
-    // content, no custom habit names are ever representable as associated values.
+// E8.1 — the closed analytics vocabulary + the consent-gated facade (ADR-8: privacy
+// by unrepresentability; MVP §5 is the ONLY source of event names and properties).
+// This file stays pure Foundation on purpose: the Linux empirical harness compiles
+// these exact bytes, so every payload-mapping change is exercised before a billed
+// macOS run. The TelemetryDeck binding lives in its own file (TelemetryDeckSink.swift)
+// behind the AnalyticsSink seam for the same reason.
+
+/// The 19 audited wire names — exactly the MVP §5 event table, snake_case verbatim.
+/// CaseIterable so the whitelist test is exhaustive BY CONSTRUCTION: a new case
+/// cannot ship without a fixture and a key whitelist (test-suite §1.1 test 10).
+enum AnalyticsEventKind: String, CaseIterable, Sendable {
+    case onboardingStarted = "onboarding_started"
+    case quizStepCompleted = "quiz_step_completed"
+    case quizCompleted = "quiz_completed"
+    case paywallViewed = "paywall_viewed"
+    case trialStarted = "trial_started"
+    case purchase
+    case teaserEntered = "teaser_entered"
+    case quitCreated = "quit_created"
+    case widgetAdded = "widget_added"
+    case panicOpened = "panic_opened"
+    case panicStepReached = "panic_step_reached"
+    case urgeAverted = "urge_averted"
+    case slipLogged = "slip_logged"
+    case slipUndone = "slip_undone"
+    case discreetModeEnabled = "discreet_mode_enabled"
+    case resourcesViewed = "resources_viewed"
+    case eraseAllCompleted = "erase_all_completed"
+    case winbackShown = "winback_shown"
+    case winbackConverted = "winback_converted"
 }
 
-/// App-local TelemetryDeck wrapper (architecture §14 lists no shared analytics
-/// package — this stays app code). Skeleton stub: the TelemetryDeck SDK is wired in
-/// E8.1; until then this transmits nothing, unconditionally.
-struct AnalyticsService: Sendable {
-    /// Fires a funnel event. No generic track(String) API exists or may be added —
-    /// the enum is the entire transmittable surface (MVP §5; test 10 in test-suite §1.1).
-    func fire(_ event: AnalyticsEvent) {
-        // E8.1: consent gate (opt-in, default OFF) then TelemetryDeck send.
-        // Unreachable today: AnalyticsEvent is uninhabited.
+/// Cold-start latency bucket for `panic_opened` — the ONLY representable timing
+/// (MVP §5: "bucket `cold_start_ms` client-side so no precise timing fingerprint
+/// leaves the device"). Derived at fire time, never stored (§1.2 invariant 2).
+enum ColdStartBucket: String, CaseIterable, Sendable {
+    case under1s = "under_1s"
+    case oneToTwoSeconds = "1s_to_2s"
+    case over2s = "over_2s"
+}
+
+/// Where a paywall was presented from (MVP §5 `paywall_viewed.source`).
+enum PaywallSource: String, CaseIterable, Sendable {
+    case onboarding, settings, winback
+}
+
+/// The annual price A/B arm (MVP §6: $29.99 vs $39.99 from day one).
+enum PriceTestVariant: String, CaseIterable, Sendable {
+    case annual2999 = "29_99"
+    case annual3999 = "39_99"
+}
+
+/// Subscription period for `purchase` (MVP §5).
+enum SubscriptionPeriod: String, CaseIterable, Sendable {
+    case monthly, annual
+}
+
+/// Widget family for `widget_added` (MVP §5 kind values, verbatim).
+enum WidgetKind: String, CaseIterable, Sendable {
+    case panicRect = "panic_rect"
+    case circular
+    case inline
+    case homeSmall = "home_s"
+    case homeMedium = "home_m"
+}
+
+/// Which discreet component was enabled (MVP §5 `discreet_mode_enabled.component`).
+enum DiscreetComponent: String, CaseIterable, Sendable {
+    case widget, icon
+}
+
+/// Where the resources/helplines screen was opened from (MVP §5).
+enum ResourcesSource: String, CaseIterable, Sendable {
+    case settings
+    case slipFlow = "slip_flow"
+}
+
+/// The closed analytics event vocabulary (ADR-8). Every case is one MVP §5 table row;
+/// associated values are that row's properties and NOTHING else — journal/note
+/// content, quiz free text, precise timings, and custom habit names are
+/// unrepresentable in this type. `HabitCategory`/`GoalMode`/`PanicStep`/`PanicSource`
+/// are reused from the models deliberately: one source of truth, and
+/// `Quit.customLabel` (the user's free-text habit name) is a separate field the
+/// mapping cannot reach — `custom` is the wire ceiling (Architect ruling, Session 15).
+/// Adding cases or associated values is an Architect-gated change
+/// (agent-workflows §1.2/§1.4).
+enum AnalyticsEvent: Equatable, Sendable {
+    case onboardingStarted(variant: String)
+    case quizStepCompleted(stepNumber: Int)
+    case quizCompleted(habitCategory: HabitCategory, goalMode: GoalMode)
+    case paywallViewed(variant: String, priceTest: PriceTestVariant, source: PaywallSource)
+    case trialStarted(product: String)
+    case purchase(product: String, period: SubscriptionPeriod)
+    case teaserEntered(variant: String)
+    /// `quitIndex` is the 1-based ordinal (1–3), NEVER an identifier — a UUID here
+    /// would be the cross-service join §10 forbids (Architect ruling, Session 15).
+    case quitCreated(habitCategory: HabitCategory, goalMode: GoalMode, quitIndex: Int)
+    case widgetAdded(kind: WidgetKind, discreet: Bool)
+    case panicOpened(source: PanicSource, coldStart: ColdStartBucket)
+    case panicStepReached(step: PanicStep)
+    case urgeAverted(habitCategory: HabitCategory)
+    /// NO timestamp property is representable (MVP §5: aggregate counts only) —
+    /// pinned by `test_slipLogged_payload_hasNoTimestampProperty`.
+    case slipLogged(habitCategory: HabitCategory)
+    case slipUndone
+    case discreetModeEnabled(component: DiscreetComponent)
+    case resourcesViewed(source: ResourcesSource)
+    case eraseAllCompleted
+    case winbackShown(offer: String)
+    case winbackConverted(offer: String)
+
+    // The free-String fields — `variant`, `product`, `offer` — are experiment ids /
+    // StoreKit SKUs / offer ids: compile-time or operator-console constants, never
+    // user input. The type cannot constrain them; the payload audit (E8.2) and a
+    // value-domain test at each event's wiring session enforce the discipline
+    // (Architect SHOULD, Session 15).
+
+    /// The audited wire name this event serializes under.
+    var kind: AnalyticsEventKind {
+        switch self {
+        case .onboardingStarted: .onboardingStarted
+        case .quizStepCompleted: .quizStepCompleted
+        case .quizCompleted: .quizCompleted
+        case .paywallViewed: .paywallViewed
+        case .trialStarted: .trialStarted
+        case .purchase: .purchase
+        case .teaserEntered: .teaserEntered
+        case .quitCreated: .quitCreated
+        case .widgetAdded: .widgetAdded
+        case .panicOpened: .panicOpened
+        case .panicStepReached: .panicStepReached
+        case .urgeAverted: .urgeAverted
+        case .slipLogged: .slipLogged
+        case .slipUndone: .slipUndone
+        case .discreetModeEnabled: .discreetModeEnabled
+        case .resourcesViewed: .resourcesViewed
+        case .eraseAllCompleted: .eraseAllCompleted
+        case .winbackShown: .winbackShown
+        case .winbackConverted: .winbackConverted
+        }
     }
+
+    /// The transmittable payload — exactly the MVP §5 property columns, key-for-key.
+    var parameters: [String: String] {
+        // E8.1 red: mapping not yet implemented. The whitelist, slip_logged, and
+        // wire-value tests fail on this stub BY DESIGN — the red evidence run.
+        [:]
+    }
+}
+
+/// The transport seam (test-suite §3.1: "the `AnalyticsEvent` sink" — doubles conform
+/// to this protocol, never to an SDK type). @MainActor like every house seam
+/// (ClockProviding / WidgetRefreshing / CloudSyncControlling / HapticsPlaying):
+/// every fire site is already main-actor-isolated.
+@MainActor
+protocol AnalyticsSink {
+    func receive(_ event: AnalyticsEvent)
+}
+
+/// The transport that transmits nothing, unconditionally — the injection default at
+/// every seam, and the production transport while the TelemetryDeck app ID is
+/// operator-pending (the dormant half of the double gate).
+@MainActor
+struct NoopAnalyticsSink: AnalyticsSink {
+    func receive(_ event: AnalyticsEvent) {}
+}
+
+/// App-local TelemetryDeck facade (architecture §14 lists no shared analytics
+/// package — this stays app code). The closed enum is the ENTIRE transmittable
+/// surface: no generic track(String) API exists or may be added (MVP §5;
+/// test-suite §1.1 test 10; agent-workflows §1.4).
+@MainActor
+struct AnalyticsService {
+    /// The transport behind the consent gate. Tests inject `SpyAnalyticsSink`;
+    /// production wires TelemetryDeck (or stays no-op until the operator app ID lands).
+    let sink: any AnalyticsSink
+    /// The ADR-8 consent read — default OFF until the quiz consent step (E8.2)
+    /// writes it. Injected so tests exercise both gate states without storage.
+    let isOptedIn: () -> Bool
+
+    /// The one seam every fire site uses — never on the panic pre-frame path (ADR-6).
+    func fire(_ event: AnalyticsEvent) {
+        // E8.1 red: the consent gate is not yet implemented — this pass-through is
+        // the designed `test_optOut_sendsNothing` failure (the run that proves the
+        // opt-out test catches a real leak). No real transport exists behind it at
+        // red: no TelemetryDeck binding lands until green, so the "leak" reaches an
+        // in-process test spy and nothing else (Architect red-state ruling).
+        sink.receive(event)
+    }
+
+    /// The default at every injection seam: transmits nothing, consent reads false.
+    static let disabled = AnalyticsService(sink: NoopAnalyticsSink(), isOptedIn: { false })
 }
