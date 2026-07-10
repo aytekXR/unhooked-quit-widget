@@ -1,4 +1,5 @@
 import Foundation
+import StreakEngine
 import SwiftData
 import Testing
 @testable import Unhooked
