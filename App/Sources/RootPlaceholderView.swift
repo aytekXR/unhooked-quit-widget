@@ -20,10 +20,12 @@ struct RootPlaceholderView: View {
     /// Bumped after a mutating slip action to re-read the pending-undo banner source
     /// (placeholder-grade: no observation plumbing on this throwaway surface yet).
     @State private var refreshToken = 0
+    @State private var inAppPanic: InAppPanicPresentation?
 
     var body: some View {
         VStack(spacing: 24) {
             skeleton
+            panicEntry
             if let repository = provider?.repository {
                 storeSlipSurface(repository)
             }
@@ -67,6 +69,40 @@ struct RootPlaceholderView: View {
         .padding(20)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("root.placeholder")
+    }
+
+    /// In-app panic entry (E3.3 — the fourth `PanicSource`). Placeholder-grade like the
+    /// slip surface, but available PRE-store by design: it composes from the PRE-CACHE
+    /// via `InAppPanicEntry` (one panic composition path — ADR-6: a panic surface never
+    /// opens the store, even when the store is warm), attributes `.inApp`, and presents
+    /// as a sheet (swipe-dismissable; the real dashboard PanicEntryButton chrome is E5+
+    /// work). Brandkit Component 3 semantics: 56pt target, teal, wind glyph + "Panic".
+    private var panicEntry: some View {
+        Button {
+            inAppPanic = InAppPanicPresentation(
+                presentation: InAppPanicEntry.presentation(
+                    snapshot: PanicSnapshotStore.appGroup()?.read()
+                )
+            )
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "wind")
+                    .accessibilityHidden(true)
+                Text("Panic")
+                    .font(.body.weight(.semibold))
+                Spacer()
+            }
+            .foregroundStyle(.teal)
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, minHeight: 56)
+            .background(.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("root.panicEntry")
+        .sheet(item: $inAppPanic) { item in
+            PanicPlaceholderView(presentation: item.presentation, source: InAppPanicEntry.source)
+        }
     }
 
     @ViewBuilder
@@ -143,6 +179,12 @@ struct RootPlaceholderView: View {
 private struct SlipPresentation: Identifiable {
     let id = UUID()
     let model: SlipFlowModel
+}
+
+/// Identifiable wrapper for the in-app panic mount (`PanicPresentation` carries no id).
+private struct InAppPanicPresentation: Identifiable {
+    let id = UUID()
+    let presentation: PanicPresentation
 }
 
 #Preview {

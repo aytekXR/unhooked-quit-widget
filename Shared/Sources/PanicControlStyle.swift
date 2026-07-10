@@ -7,18 +7,22 @@
 enum PanicControlStyle {
     case standard, discreet
 
-    /// Control label / gallery title.
+    /// Control label / gallery title. "Reset" is the plan-locked discreet title.
     var title: String {
-        // E3.3 red stub: BOTH variants return the standard title. The green commit
-        // switches on `self` — .discreet returns the plan-locked "Reset".
-        "Panic"
+        switch self {
+        case .standard: "Panic"
+        case .discreet: "Reset"
+        }
     }
 
-    /// SF Symbol for the control glyph (docs-verified to exist on iOS 26).
+    /// SF Symbol for the control glyph (docs-verified to exist on iOS 26). The discreet
+    /// glyph is neutral — never the brand breath glyph `wind` (category-adjacent), never
+    /// an outing glyph like `eye.slash`.
     var symbolName: String {
-        // red stub: both return the brand breath glyph. Green: .discreet returns the
-        // neutral "arrow.counterclockwise".
-        "wind"
+        switch self {
+        case .standard: "wind"
+        case .discreet: "arrow.counterclockwise"
+        }
     }
 
     /// Settings-gallery display name (mirrors `title`).
@@ -27,16 +31,19 @@ enum PanicControlStyle {
     /// Settings-gallery description. The discreet variant's copy must leak none of the
     /// habit lexicon.
     var description: String {
-        // red stub: both return the standard description. Green: .discreet returns the
-        // neutral "Opens a quick reset."
-        "Opens a full-screen reset, instantly."
+        switch self {
+        case .standard: "Opens a full-screen reset, instantly."
+        case .discreet: "Opens a quick reset."
+        }
     }
 
     /// The registered ControlWidget `kind` string — must differ per variant or the two
-    /// controls collapse into one registration.
+    /// controls collapse into one registration. "PanicControl" predates E3.3 and must
+    /// never change (it names existing users' placed controls).
     var controlKind: String {
-        // red stub: both return the standard kind (so the "separate kind" pin fails).
-        // Green: .discreet returns "PanicControlDiscreet".
-        "PanicControl"
+        switch self {
+        case .standard: "PanicControl"
+        case .discreet: "PanicControlDiscreet"
+        }
     }
 }

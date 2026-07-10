@@ -11,6 +11,12 @@ import SwiftUI
 struct PanicPlaceholderView: View {
     let presentation: PanicPresentation
 
+    /// The launch's TRUE origin (E3.3), captured BEFORE `onAppear` consumes the flag
+    /// keys: pre-frame by UnhookedApp on the cold route, `.inApp` from the dashboard
+    /// entry. Threaded into every flow mount so `UrgeEvent.source` records the real
+    /// entry point.
+    let source: PanicSource
+
     /// The shipping flow copy, decoded once per scene (a few-KB bundled read, same
     /// class as the pre-cache read). `nil` — a missing/corrupt bundle resource —
     /// degrades to the E0.3 breathe frame: the panic path never dead-ends (§9).
@@ -49,7 +55,7 @@ struct PanicPlaceholderView: View {
     @ViewBuilder
     private func flowOrFallback(quit: QuitSnapshot?) -> some View {
         if let script {
-            PanicFlowView(quit: quit, script: script, source: .lockscreenWidget)
+            PanicFlowView(quit: quit, script: script, source: source)
         } else {
             BreatheFrame()
         }
@@ -118,12 +124,12 @@ private struct PanicQuitPickerView: View {
 }
 
 #Preview("Breathe") {
-    PanicPlaceholderView(presentation: .empty)
+    PanicPlaceholderView(presentation: .empty, source: .lockscreenWidget)
 }
 
 #Preview("Picker") {
     PanicPlaceholderView(presentation: .picker([
         QuitSnapshot(id: UUID(), label: "Vaping", discreet: false, motivations: []),
         QuitSnapshot(id: UUID(), label: nil, discreet: true, motivations: []),
-    ]))
+    ]), source: .lockscreenWidget)
 }

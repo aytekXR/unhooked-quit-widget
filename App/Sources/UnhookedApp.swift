@@ -11,6 +11,7 @@ import SwiftUI
 struct UnhookedApp: App {
     private let rootKind: RootKind
     private let panicPresentation: PanicPresentation
+    private let panicSource: PanicSource
     /// Constructed pre-frame but does ZERO work until `startIfNeeded` (pinned by the
     /// PanicPathTests init-order spy); published to future consumers via environment.
     private let provider = RepositoryProvider()
@@ -56,6 +57,13 @@ struct UnhookedApp: App {
                 snapshot: PanicSnapshotStore.appGroup()?.read()
             )
             : .empty
+        // The launch's TRUE origin (E3.3), captured pre-frame on the same read — the
+        // placeholder's onAppear consumes all flag keys. A flag with no source is a
+        // legacy/pre-E3.3 writer (or the FORCE_PANIC_ROUTE test hook) and keeps the
+        // historic lock-screen default; every shipping entry point writes one now.
+        panicSource = rootKind == .panicPlaceholder
+            ? (PanicLaunchFlag.launchSource() ?? .lockscreenWidget)
+            : .lockscreenWidget
     }
 
     var body: some Scene {
@@ -70,7 +78,7 @@ struct UnhookedApp: App {
                     // so a mis-wired panic branch could still never open the store.
                     .task { provider.startIfNeeded(for: rootKind) }
             case .panicPlaceholder:
-                PanicPlaceholderView(presentation: panicPresentation)
+                PanicPlaceholderView(presentation: panicPresentation, source: panicSource)
             }
         }
     }

@@ -32,13 +32,12 @@ struct PanicQuitQuery: EntityQuery {
     var store: PanicSnapshotStore? = PanicSnapshotStore.appGroup()
 
     func entities(for identifiers: [UUID]) async throws -> [PanicQuitEntity] {
-        // E3.3 red stub: green filters `cards()` to the requested identifiers, in order.
-        []
+        let wanted = Set(identifiers)
+        return cards().filter { wanted.contains($0.id) }.map(PanicQuitEntity.init(card:))
     }
 
     func suggestedEntities() async throws -> [PanicQuitEntity] {
-        // E3.3 red stub: green maps every pre-cache card to a PanicQuitEntity.
-        []
+        cards().map(PanicQuitEntity.init(card:))
     }
 
     /// The pre-cache cards this query resolves over (nil-safe; empty when no cache).

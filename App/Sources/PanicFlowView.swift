@@ -20,19 +20,19 @@ struct PanicFlowView: View {
         _model = State(initialValue: model)
     }
 
-    /// Production wiring for the cold panic route. E3.3 red stub: the `source` parameter
-    /// is accepted (so the view-threading pin compiles) but IGNORED — the model still
-    /// gets the `.lockscreenWidget` hardcode. The green commit threads `source` through,
-    /// killing the hardcode. `hapticsOnlyPacer` stays false until a settings writer
-    /// exists (the E5+ seam; the store is off-limits on this path). E4.1 attaches the
-    /// REAL slip flow: the mount is driven off `model.slipHandoff` (set by `exitSlipped`)
-    /// through the view's `onChange` seam below, so `onSlipRoute` is a required-by-
-    /// initializer no-op — the routing lives in state.
+    /// Production wiring for the cold panic route. E3.3: the launch's TRUE origin
+    /// threads in from the pre-frame capture (UnhookedApp → PanicPlaceholderView) or the
+    /// in-app entry — the `.lockscreenWidget` hardcode is dead. `hapticsOnlyPacer` stays
+    /// false until a settings writer exists (the E5+ seam; the store is off-limits on
+    /// this path). E4.1 attaches the REAL slip flow: the mount is driven off
+    /// `model.slipHandoff` (set by `exitSlipped`) through the view's `onChange` seam
+    /// below, so `onSlipRoute` is a required-by-initializer no-op — the routing lives
+    /// in state.
     init(quit: QuitSnapshot?, script: PanicScript, source: PanicSource) {
         _model = State(initialValue: PanicFlowModel(
             quit: quit,
             script: script,
-            source: .lockscreenWidget, // red-stub: ignores `source`; green threads it
+            source: source,
             clock: LiveClock(),
             haptics: LiveHapticsEngine(),
             buffer: PanicOutcomeBuffer.appGroup(),

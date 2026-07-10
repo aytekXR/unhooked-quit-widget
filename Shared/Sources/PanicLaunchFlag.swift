@@ -37,9 +37,6 @@ enum PanicLaunchFlag {
     /// Writes the requested flag, the source, and (when present) the quit selection as
     /// ONE launch instruction — the per-source entry points (E3.3) call this.
     static func set(source: PanicSource, quitID: UUID? = nil) {
-        // E3.3 red stub: the WRITER half is real (the round-trip pin fails on the
-        // read-back, not vacuously, and the clear-sweep pin has a physical key to find),
-        // but `launchSource()` — the reader half — is not implemented yet.
         groupDefaults?.set(true, forKey: key)
         groupDefaults?.set(source.rawValue, forKey: sourceKey)
         if let quitID {
@@ -57,17 +54,14 @@ enum PanicLaunchFlag {
 
     /// The launch's true origin, read back for the app's pre-frame capture.
     static func launchSource() -> PanicSource? {
-        // E3.3 red stub: the reader half is unimplemented — always nil. The green commit
-        // reads `sourceKey` back through `PanicSource(rawValue:)`.
-        nil
+        (groupDefaults?.string(forKey: sourceKey)).flatMap(PanicSource.init(rawValue:))
     }
 
-    /// Consumes BOTH keys: a stale selection surviving the flag would hijack the
-    /// next panic launch onto the wrong quit.
+    /// Consumes ALL THREE keys: a stale selection surviving the flag would hijack the
+    /// next panic launch onto the wrong quit, and a stale source would mis-attribute it.
     static func clear() {
-        // E3.3 red stub: clear() does NOT yet sweep `sourceKey` — the green commit adds
-        // that third removal (a stale source would mis-attribute the next launch).
         groupDefaults?.removeObject(forKey: key)
         groupDefaults?.removeObject(forKey: quitIDKey)
+        groupDefaults?.removeObject(forKey: sourceKey)
     }
 }

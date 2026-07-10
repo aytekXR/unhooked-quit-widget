@@ -6,5 +6,6 @@ struct UnhookedWidgetBundle: WidgetBundle {
     var body: some Widget {
         SkeletonWidget()
         PanicControlWidget()
+        PanicResetControlWidget()
     }
 }

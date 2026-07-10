@@ -7,7 +7,7 @@ import Foundation
 /// `PanicPlaceholderView(presentation:source:)` with these values.
 enum InAppPanicEntry {
     /// The TRUE origin an in-app launch lands on the flow.
-    static let source: PanicSource = .lockscreenWidget // red-stub: green returns .inApp
+    static let source: PanicSource = .inApp
 
     /// What the in-app mount shows, resolved from the pre-cache exactly like the cold
     /// route (no selection — the picker/single-quit/empty matrix is the resolver's).
