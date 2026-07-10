@@ -1617,3 +1617,82 @@ E3.3 row; operator veto path noted in operator-expected §7 + FYI list.
   fixture-seeding session; `slip_logged`/`slip_undone`/`panic_opened` → E8.1;
   undone-slip CloudKit tombstoning → §4.3 flip; E0.3 device measurement still
   the only blocker on the permanent latency gate (all unchanged).
+
+## Session 14 — 2026-07-10 — E4.2 zero-shame copy enforcement (COMPLETE)
+
+### Objective & outcome
+
+Resume prompt v2.5: E4.2 — every slip/relapse string passes the no-shame checklist;
+copy centralized in one audited strings table. **DONE in 2 billed runs, zero burned:**
+red evidence run `29122473990` (146 tests / 15 suites, EXACTLY the 2 designed
+issues — both `#require(copy.dashboard)` on the not-yet-extended table) → green run
+`29123195424` same session. The plan-named test lives in
+`Tests/Unit/SlipLexiconTests.swift` and is a PERMANENT unit-lane gate (Tests/Unit
+globs into UnhookedTests — zero ci.yml changes).
+
+### What shipped
+
+- **The named gate** `test_slipStrings_containNoForbiddenLexicon()`: a 37-token
+  forbidden lexicon (35 substring tokens + 2 word-boundary tokens `sin`/`cure`,
+  which would false-positive on "single"/"secure" as substrings), derived from
+  brandkit §1.1/§1.2/§9.3 + MVP §3/§7 + the slipCopy `_meta` monotonic note.
+  Matching: casefold + diacritic-fold (the TR-fast-follow posture) + whitespace
+  collapse; substring matching deliberately catches inflections ("shame"→"ashamed",
+  "guilt"→"guilty", "recover"→"recovery"). Sanctioned terms documented in-file:
+  `slip`/`slipped` is THE clinical noun; bare `lost`/`over`/`clean`/`start`/
+  `reset`/`sober` excluded with reasons ("nothing's lost" ships; "clean days over
+  total days" ships; "Reset" is the discreet control; "sober" is an ASO keyword);
+  "addiction" deferred to E9's milestone medical-claim gate.
+- **Reflection-driven corpus:** `Mirror`-walked strings of the DECODED `SlipCopy`
+  (a field added to the table joins the scan automatically — the table-completeness
+  mechanism) + the in-code `SlipCopy.degraded` fallback (it renders too) + the
+  panic script's slipped-exit (decode-first scope: `_meta`/`note`/`analytics`
+  fields quoting banned phrases are outside `Codable`, the SlipCopyTests
+  precedent). Non-vacuity floor: ≥20 reflected strings.
+- **The audited table extended:** `SlipCopy.Dashboard` (pendingBanner / undoLabel /
+  discreetRowLabel), decode-tolerant optional (the `retryNote` precedent — old
+  files still decode; the red state depends on it: nil ⇒ the two designed
+  failures). `slipCopy.json` gained the section BYTE-IDENTICAL to the E4.1-shipped
+  view literals; `RootPlaceholderView` now renders banner/undo/discreet-row from
+  the table — the last view-inline slip literals are dead. NO golden changed by
+  construction (RootPlaceholderView has none; SlipFlowView values untouched).
+- **Pins:** dashboard strings byte-exact ("Slip logged. Undo?" / "Undo" /
+  "Tracked goal"); discreet-row leak scan (the PanicControlStyle precedent);
+  degraded totality (`SlipCopy.Dashboard.degraded`, plainest labels);
+  `test_forbiddenLexicon_onlyGrows_fromFoundationFloor()` — the live lists are
+  pinned as a superset of a frozen foundation set, so removing a token is a
+  deliberate two-place edit; matcher behavior pins (catches the plan's seed
+  tokens verbatim, never trips on sanctioned copy).
+
+### Process notes (ultracode session)
+
+- Workflow-driven: 3-agent audit fan-out (test-infra recon + banned-lexicon
+  derivation with per-token false-positive checks) → adversarial 2-critic panel
+  over the uncommitted red diff (red-design auditor + house-style critic; both
+  verdicts SHIP, zero must-fix; the auditor independently confirmed the app
+  target has NO coverage floor — only StreakEngine does — and control-tested the
+  Swift 6 memberwise-optional-default semantics).
+- **StructuredOutput retry-cap deaths persist** (Session 13 class): the string
+  sweep + BOTH critics died at the cap with complete, valid-looking payloads —
+  salvaged verbatim from the workflow transcripts (`agent-*.jsonl`). Next session:
+  have critic-style agents Write findings to a scratchpad file and return a
+  one-line pointer instead of large structured outputs.
+- Zero-burn gates, extended this session with EMPIRICAL local harnesses (run,
+  not just typechecked, on the Linux toolchain): memberwise-optional default,
+  decode tolerance both ways, the EXACT matcher over the EXACT shipping corpus
+  (clean + catches all must-catch), red/green reflected-string counts (20/23),
+  and the green-state byte-exact decode — before any billed run.
+- `swiftc -parse` ×4; access-level scan; docs-check n/a (zero new Darwin-only
+  spellings — Foundation `folding`/`range(of:options:)` + house Testing macros).
+
+### Known limitations / carried forward
+
+- The copy-audit checklist's HUMAN half (MVP §7 sign-off) is operator work —
+  flagged in `docs/operator-expected.md` §3 (the dashboard strings are byte-moves,
+  no new drafting to review).
+- The gate covers slip/relapse strings; panic non-slip copy keeps its E3.2 pins;
+  milestones/safety copy gates arrive with their consuming epics (E9).
+- E5.1 remains blocked on E8.1's `AnalyticsEvent` enum (its third named test);
+  store-route framing momentum/motivation nil → dashboard epic; dashboard-half
+  slip XCUITest → fixture-seeding session; E0.3 device measurement still the only
+  blocker on the permanent latency gate (all unchanged).

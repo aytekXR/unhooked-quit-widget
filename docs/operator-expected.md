@@ -3,21 +3,22 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-10 (Session 13 close: E3.3 COMPLETE — entry-point matrix live; NEW §7 device matrix is your half of the acceptance) |
+| Last updated | 2026-07-10 (Session 14 close: E4.2 COMPLETE — the zero-shame copy gate is a permanent CI gate; NEW §3 checklist sign-off is your half of the acceptance) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E4.2 — zero-shame copy gate). Items are
-ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the next
-session's agent will prune completed items.
+Nothing below blocks the next session (E8.1 — typed `AnalyticsEvent` enum +
+`AnalyticsService`; it unblocks E5.1). Items are ordered by how much they age;
+check a box by replacing `[ ]` with `[x]` and the next session's agent will prune
+completed items.
 
-> **Session 13 outcome (2026-07-10):** E3.3 is DONE — per-quit intent parameter
-> (entity/query over the pre-cache), TRUE per-source attribution (the
-> `.lockscreenWidget` hardcode is dead), the discreet **"Reset"** control, and the
-> in-app panic entry. **Billed runs used: 2** (red evidence → green, zero burned —
-> the docs-check + typecheck-harness gates paid off). One platform ceiling was
-> RECORDED (not a bug): iOS cannot tell Control Center / lock-screen slot / Action
-> button apart for one control, so control launches attribute `.controlCenter` —
-> details in §7 below, veto path noted there.
+> **Session 14 outcome (2026-07-10):** E4.2 is DONE — every slip/relapse string now
+> comes from the ONE audited table (`slipCopy.json`, new `dashboard` section is a
+> byte-move of already-shipped literals), and
+> `SlipLexiconTests.test_slipStrings_containNoForbiddenLexicon()` is a PERMANENT
+> unit-lane gate (37 banned tokens, list can only grow, reflection-driven corpus).
+> **Billed runs used: 2** (red evidence `29122473990` → green `29123195424`, zero
+> burned — third zero-burn session in a row). Nothing rendered changed: no golden
+> was touched. Your half of the E4.2 acceptance is the §3 checklist signature below.
 
 ## 1. E0.3 panic-latency device measurement — carried since Session 02, load-bearing
 
@@ -45,8 +46,20 @@ session's agent will prune completed items.
       quiz/onboarding exists yet to create quits, so the new dashboard slip entry
       has nothing to list. That arrives with E5.
 
-## 3. Content tone review — now fully TestFlight-visible
+## 3. Content tone review — now fully TestFlight-visible — **+ NEW: E4.2 checklist signature (~15 min)**
 
+- [ ] **NEW (E4.2 acceptance, your half): sign the MVP §7 copy-audit checklist**
+      — "Copy audit: no medical claims, no fear content, no fabricated statistics;
+      milestones say 'commonly reported'" — for the SLIP surface. The mechanical
+      half is now CI-enforced (`Tests/Unit/SlipLexiconTests.swift` scans every
+      slip string against 37 banned tokens on every run, and the list can only
+      grow); your half is the judgment call a wordlist can't make: read
+      `slipCopy.json` top to bottom (including the new `dashboard` section — its
+      3 strings are byte-moves of copy you've already seen on device) against the
+      brandkit voice (Steady / Forgiving / Honest), and record the sign-off by
+      checking this box. If any string fails your read, note the replacement —
+      the next session re-records the affected goldens deliberately (a string
+      change is a third billed run; batch it with other copy edits if possible).
 - [ ] `panicScript.json` ships since Session 10; **`slipCopy.json` ships since
       Session 12** — every string in the slip flow renders from it. Review both
       files' tone against the brand kit voice.
@@ -59,8 +72,10 @@ session's agent will prune completed items.
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
-- [ ] Session 13 used **2** billed macOS runs (red → green, none burned); Session 14
-      (E4.2) plans **2** (red evidence → green; the copy gate adds no goldens). Check
+- [ ] Session 14 used **2** billed macOS runs (red → green, none burned); Session 15
+      (E8.1 analytics enum + service) plans **2**. Note: E8.1 adds the TelemetryDeck
+      SPM dependency — a new build-risk class; the session plan carries a no-op
+      transport fallback so a fighting SDK can't burn extra runs. Check
       Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
