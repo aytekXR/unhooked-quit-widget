@@ -1696,3 +1696,31 @@ globs into UnhookedTests — zero ci.yml changes).
   store-route framing momentum/motivation nil → dashboard epic; dashboard-half
   slip XCUITest → fixture-seeding session; E0.3 device measurement still the only
   blocker on the permanent latency gate (all unchanged).
+
+## Session 15 — 2026-07-11 — E8.1 typed `AnalyticsEvent` enum + `AnalyticsService` (IN PROGRESS — ledger opened early on operator request)
+
+### Session-open operator-action record (logged before build work, per operator ask)
+
+Operator reported the Control Center "Panic" control dead on device. A Mac-side
+debug session root-caused it (`OpenPanicControlIntent`/`OpenPanicIntent` compiled
+ONLY into the widget extension — iOS silently no-ops a control whose
+`openAppWhenRun` intent isn't registered in the app target; plus a latent warm
+bug: the launch flag was consumed only in `UnhookedApp.init`) and FIXED it
+(intents → `Shared/Sources`; new `WarmPanicEntry` warm gate; new
+`PanicWarmLaunchTests`; 151/151 unit + 17/17 snapshot on the Mac) — but the fix
+is **uncommitted in the Mac's working tree**. This build machine and
+`origin/main` (`9f69f2b`) do not have it; no remote branch carries it.
+
+**Operator actions required — recorded in `operator-expected.md` §0:**
+1. Commit & push the fix from the Mac (2 moved, 3 edited, 2 new files).
+2. Device-verify both paths (cold CC tap → panic flow; warm CC tap → sheet over
+   dashboard) — the debug session's explicit ask.
+3. Decide the warm-mount presentation (swipe-dismissible sheet vs full-screen
+   cover; sheet shipped because the celebration screen has no dismiss button).
+
+**Session 15 consequence:** `panic_opened` seam wiring is DEFERRED this session —
+its consumption sites (`UnhookedApp` / `WarmPanicEntry` / `RootPlaceholderView`)
+are exactly the files hot in the operator's uncommitted Mac tree; keeping E8.1's
+file set disjoint keeps the operator's push conflict-free. All other E8.1 work
+proceeds autonomously. `git log`/fetch checked before every push in case the Mac
+fix lands mid-session (the standing operator-commits-mid-session pattern).

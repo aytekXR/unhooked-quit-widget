@@ -3,13 +3,14 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-10 (Session 14 close: E4.2 COMPLETE — the zero-shame copy gate is a permanent CI gate; NEW §3 checklist sign-off is your half of the acceptance) |
+| Last updated | 2026-07-11 (Session 15 OPEN: NEW §0 — the Control Center panic fix is uncommitted on your Mac; push it. E8.1 build work proceeds in parallel) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E8.1 — typed `AnalyticsEvent` enum +
-`AnalyticsService`; it unblocks E5.1). Items are ordered by how much they age;
-check a box by replacing `[ ]` with `[x]` and the next session's agent will prune
-completed items.
+Nothing below blocks the running session (E8.1 — typed `AnalyticsEvent` enum +
+`AnalyticsService`; it unblocks E5.1) — but **§0 is urgent in a way the rest
+isn't**: an uncommitted, device-verified fix lives only in your Mac's working
+tree. Items below §0 are ordered by how much they age; check a box by replacing
+`[ ]` with `[x]` and the next session's agent will prune completed items.
 
 > **Session 14 outcome (2026-07-10):** E4.2 is DONE — every slip/relapse string now
 > comes from the ONE audited table (`slipCopy.json`, new `dashboard` section is a
@@ -19,6 +20,45 @@ completed items.
 > **Billed runs used: 2** (red evidence `29122473990` → green `29123195424`, zero
 > burned — third zero-burn session in a row). Nothing rendered changed: no golden
 > was touched. Your half of the E4.2 acceptance is the §3 checklist signature below.
+
+## 0. ⚠️ Control Center panic fix is UNCOMMITTED on your Mac — push it (Session 15, 2026-07-11)
+
+Your device report ("Panic control did nothing") was root-caused and fixed in a
+Mac-side debug session: `OpenPanicControlIntent`/`OpenPanicIntent` were compiled
+only into the widget extension (iOS silently no-ops a control whose
+`openAppWhenRun` intent isn't in the app target), plus a latent warm-launch bug
+(the flag was consumed only in `UnhookedApp.init`). The fix — intents moved to
+`Shared/Sources`, new `App/Sources/WarmPanicEntry.swift` warm gate, new
+`Tests/Unit/PanicWarmLaunchTests.swift` (151/151 unit + 17/17 snapshot on the
+Mac) — exists ONLY in the Mac's working tree. This build machine and
+`origin/main` are at `9f69f2b` WITHOUT it.
+
+- [ ] **Commit & push the fix from the Mac** (2 moved, 3 edited, 2 new files).
+      Until then the verified fix is one careless `git checkout` from being lost,
+      and the build installed on your iPhone corresponds to no commit. If
+      Session 15 has already pushed E8.1 commits by the time you do this, pull
+      and rebase first — the touched file sets were kept disjoint on purpose
+      (see the deferral note below). Push protection tripping ⇒ secret-ify,
+      never unblock-URL.
+- [ ] **Device-verify both paths** (the debug session's ask): COLD — app not
+      running, tap Control Center "Panic" → app launches straight into the
+      panic flow. WARM — app open on the dashboard, pull down Control Center,
+      tap Panic → panic flow appears as a sheet over the dashboard. Doing §1's
+      latency capture in the same sitting kills two birds.
+- [ ] **Decide the warm-mount presentation:** it ships as a swipe-dismissible
+      SHEET, not a full-screen cover, because the celebration screen has no
+      dismiss button and a cover would trap you there. Veto (= you want a hard
+      cover + a designed dismiss affordance) or accept; if accepted, silence —
+      the record stands.
+- [ ] FYI from that Mac session: `gstack` 1.39 → 1.60 is available —
+      `/gstack-upgrade` on the Mac when convenient.
+
+> **Session 15 consequence (already handled, nothing for you to do):** E8.1
+> deliberately does NOT wire the `panic_opened` analytics call site this
+> session — its consumption points (`UnhookedApp` init / `WarmPanicEntry` /
+> `RootPlaceholderView`) are exactly the files hot in your uncommitted Mac
+> tree. The seam stays deferred one more session to keep your push
+> conflict-free; everything else in E8.1 proceeds.
 
 ## 1. E0.3 panic-latency device measurement — carried since Session 02, load-bearing
 
