@@ -22,6 +22,12 @@ struct RootPlaceholderView: View {
     @State private var refreshToken = 0
     @State private var inAppPanic: InAppPanicPresentation?
 
+    /// E4.2: every slip string this surface renders comes from the ONE audited table
+    /// (implementation-plan §E4.2), never a view-inline literal — byte-identical to
+    /// the E4.1-shipped strings, so nothing rendered changes.
+    private let slipCopy = SlipCopy.loadShipping() ?? .degraded
+    private var dashboardCopy: SlipCopy.Dashboard { slipCopy.dashboard ?? .degraded }
+
     var body: some View {
         VStack(spacing: 24) {
             skeleton
@@ -120,7 +126,7 @@ struct RootPlaceholderView: View {
                     presentation = SlipPresentation(
                         model: SlipFlowModel(
                             route: .store(repository: repository, quitID: quit.id),
-                            copy: SlipCopy.loadShipping() ?? .degraded,
+                            copy: slipCopy,
                             clock: LiveClock()
                         )
                     )
@@ -146,13 +152,13 @@ struct RootPlaceholderView: View {
     private func pendingUndoBanner(_ repository: QuitRepository, slip: Slip) -> some View {
         let slipID = slip.id
         return VStack(spacing: 10) {
-            Text("Slip logged. Undo?")
+            Text(dashboardCopy.pendingBanner)
                 .font(.subheadline.weight(.medium))
             Button {
                 _ = try? repository.undoSlip(slipID: slipID)
                 refreshToken += 1
             } label: {
-                Label("Undo", systemImage: "arrow.uturn.backward.circle")
+                Label(dashboardCopy.undoLabel, systemImage: "arrow.uturn.backward.circle")
                     .font(.body.weight(.semibold))
                     .foregroundStyle(.teal)
                     .frame(maxWidth: .infinity, minHeight: 56)
@@ -166,9 +172,10 @@ struct RootPlaceholderView: View {
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
     }
 
-    /// A neutral, habit-context-free row title (discreet rows never name the habit).
+    /// A neutral, habit-context-free row title (discreet rows never name the habit;
+    /// the discreet label comes from the audited table like every other slip string).
     private func rowLabel(_ quit: Quit) -> String {
-        if quit.discreetMode { return "Tracked goal" }
+        if quit.discreetMode { return dashboardCopy.discreetRowLabel }
         if let custom = quit.customLabel, !custom.isEmpty { return custom }
         return quit.habitCategory.rawValue.capitalized
     }

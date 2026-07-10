@@ -24,7 +24,7 @@
    - TR **ALO 182** crisis line: only third-party-verified — confirm on an official Sağlık Bakanlığı page. **112** is included as the confirmed fallback.
    - TR **YEDAM 115** operating hours: unconfirmed.
    - US **compulsive-behavior**: no verified dedicated national hotline exists; the circulating `1-800-837-9041` was deliberately **excluded** as unverified/likely defunct. NAMI + 988 used as the neutral, non-shaming fallback.
-3. **Tone/voice review** — confirm the copy matches the brand kit voice (Steady/Forgiving/Honest); the `{{motivations}}`/`{{motivation}}` echo must never be turned into generated religious or moralizing language (brand kit §1.2). **E4.1: review the ONE new agent-drafted line — `slipCopy.json` `confirm.retryNote`** (shown only when the durable write did not persist; must stay calm, zero-shame, retryable — no "Logged." claim without durable bytes).
+3. **Tone/voice review** — confirm the copy matches the brand kit voice (Steady/Forgiving/Honest); the `{{motivations}}`/`{{motivation}}` echo must never be turned into generated religious or moralizing language (brand kit §1.2). **E4.1: review the ONE new agent-drafted line — `slipCopy.json` `confirm.retryNote`** (shown only when the durable write did not persist; must stay calm, zero-shame, retryable — no "Logged." claim without durable bytes). **E4.2 note: the `dashboard` section adds NO new drafting** — its three strings are byte-moved from the already-shipped view literals; the E4.2 copy-audit checklist sign-off is tracked in `docs/operator-expected.md`.
 4. **Turkish copy** — TR strings in `helplines.json`/notices are first-pass; the L10n pass (warm-informal *sen*) refines them.
 
 ## Categories & tokens (for the eventual consuming code)
