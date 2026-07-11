@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (Session 16 CLOSED: E5.1 age gate DONE — red evidence `29135328846` (exactly the 7 designed cases) → green `29136061287` all-green + TestFlight, **2 billed runs, ZERO burned**. The newest TestFlight build now opens on the AGE GATE, not the bare skeleton. Nothing blocks Session 17 = E5.2 quiz engine. Open for you: §1–§8; newest items are §3's ALO-182 flag flip + the now-TestFlight-visible safety files, and §5's tester guide. Session 16 vetoable rulings at the bottom.) |
+| Last updated | 2026-07-11 (**Session 17 MID-SESSION status check, operator request** — E5.2 quiz engine IN FLIGHT and ON PLAN: PM spec + Architect privacy pre-approval + Brand copy sign-off + QA test plan all landed unanimous BEFORE code (the stricter-loop gates); red commit `596cb52` pushed — red-evidence run `29151832001` in progress (billed run 1 of 2 planned; designed red = 25 failing cases / 55 issues, Linux-harness-predicted issue-for-issue on the pure lane, 3/3 pre-push critics PASS). Green (engine + config + screens) is being built now and will use billed run 2. **NOTHING IS BLOCKED ON YOU.** New non-blocking asks queued in §3 (the FOUNDER copy pass on `quizConfig.json` — every quiz string is DRAFT by design). Session 17 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
 Nothing below blocks the next session (E5.2 quiz engine). **§0 is CLOSED**
@@ -145,6 +145,22 @@ a live failure. Original context, for the record:
       (Sağlık Bakanlığı page; the file's own `_meta` MUST_VERIFY item). Verify it,
       flip its `verified` flag to `true`, and 182 joins the surface automatically
       (a unit test pins that unverified rows can never render there).
+- [ ] **NEW (Session 17 — THE FOUNDER QUIZ COPY PASS, ~20 min, yours by design):**
+      `App/Resources/Content/quizConfig.json` is the quiz's ONE audited copy table
+      and every string in it is **DRAFT — agents scaffolded, you own the words**
+      (roadmap: "agents scaffold screens, copy owned by founder"). It is
+      CI-lexicon-scanned (so any shame/medical token is a build failure), and the
+      Brand agent signed it with two replacements already applied (effects title;
+      the lowest commitment-slider echo — "One day at a time" was rejected as
+      AA-coded). Read it top to bottom against the brandkit voice and rewrite
+      freely; a copy edit is cheap NOW (no snapshot goldens exist yet — see the
+      rulings below). Two sub-decisions ride along:
+      (a) the **effects step (slot 10)** needs your medical-claims read — chips are
+      non-diagnostic self-report nouns ("Restless sleep", never "insomnia") and the
+      title deliberately makes no causal claim; keep it that way;
+      (b) whether the motivations step should gain an optional free-text
+      "why does {motivation} matter to you?" elaboration (enriches the panic
+      reasons screen; local-only like all answers) — a copy/UX call, not built yet.
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
@@ -154,7 +170,9 @@ a live failure. Original context, for the record:
       (E5.1 age gate) used **exactly its 2 planned runs, zero burned** (the
       Linux harness predicted the red run issue-for-issue, and a pre-push
       critic caught a would-be build-breaker in the green views). Session 17
-      (E5.2 quiz — the largest surface yet) plans **2, with 1 contingency**.
+      (E5.2 quiz — the largest surface yet) plans **2, with 1 contingency**;
+      **mid-session status: run 1 (red evidence `29151832001`) in flight,
+      contingency untouched.**
       Check Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
@@ -277,3 +295,38 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
   5. **No discreet variant on the gate screens:** pre-gate no habit context
      exists to hide — "made for adults / 17+" is generic App Store language; a
      shoulder-surfer learns nothing.
+- **Session 17 (E5.2 quiz, mid-session) — the panel-signed rulings, each vetoable:**
+  1. **`quiz_completed` is NOT fired by E5.2 — it moves to E5.3's summary render.**
+     Your mvp.md §5 fixes its trigger as "Personalized summary shown", and the
+     summary screen is E5.3's; firing it at quiz-questions-complete would inflate
+     the ≥70% start→summary funnel metric and corrupt the ≥8% conversion
+     denominator. E5.2 leaves a named handoff seam `(habitCategory, goalMode)`.
+     mvp.md untouched (the Session-16 step-0 discipline). Veto = tell the next
+     session to fire it at quit creation instead.
+  2. **`quiz_step_completed` carries a FIXED canonical step number** (habit=1 …
+     commitment=13; summary=14 is E5.3's): hidden conditional steps and the
+     reserved consent slot simply emit no event — numbers never renumber per
+     user, so funnel drop-off stays comparable. The on-screen progress bar shows
+     the user's visible position ("Step 4 of 11") — two different numbers, both
+     honest.
+  3. **The consent step is a RESERVED, unrendered seam at slot 3** (E8.2 drops
+     the real consent UI into it without renumbering). E5.2 renders nothing
+     there, never touches `analyticsOptIn`.
+  4. **The quiz resume checkpoint lives in app-STANDARD UserDefaults** (never the
+     App Group suite — that's readable pre-unlock, and the checkpoint can hold
+     the custom habit name), is cleared on completion, and one-tap erase sweeps
+     it (test-pinned).
+  5. **Snapshot goldens stay at zero for Epic 5 — the batch point MOVED to
+     post-founder-copy.** Recording goldens against DRAFT copy guarantees a paid
+     re-record when you rewrite the words; the one deliberate CI-artifact
+     re-record now batches E5.1 + E5.2 + E5.3 screens AFTER your §3 copy pass.
+     (Refines Session 16's "batch with E5.2" note.)
+  6. **The scenario-29 quiz XCUITest defers to E5.3** — as specified it asserts
+     the full funnel through summary + paywall, which don't exist yet; the
+     Epic-5-DoD "age gate un-bypassable" obligation is met NOW at the unit tier
+     (routing pins: gate → quiz → quit is the only path to content). Veto = a
+     dedicated new E2E slot this session (the QA plan §5 documents the honest
+     shape it would take).
+  7. **Motivation chips store the display words themselves** (id == label:
+     "Self-respect", "Faith", …) so the panic screen echoes the user's own words
+     verbatim without the repository ever reading the copy table.
