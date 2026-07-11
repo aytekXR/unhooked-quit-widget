@@ -19,23 +19,39 @@ import Foundation
 /// wired into `recomputeDerivedState()` (Architect MUST-FIX 2: the
 /// computed-never-stored invariant governs time-varying live state, not this).
 enum SummaryDerivation {
-    /// RED STUB — deliberately ignores the spend. Green: `weeklySpend × 52`,
-    /// Decimal-exact, no floating point anywhere.
+    /// The precedence total order (PM §3.2): a clock/rhythm window (evenings,
+    /// after work) is more actionable than a mood state, and the PRD's own
+    /// example anchors on "evenings". First match over the user's selection wins.
+    private static let precedence = ["evenings", "afterWork", "social", "alone", "boredom", "stress"]
+
+    /// `weeklySpend × 52`, Decimal-exact — no floating point anywhere in the
+    /// money path (the §1.1 test-9 class).
     static func projectedAnnualSavings(weeklySpend: Decimal) -> Decimal {
-        .zero
+        weeklySpend * 52
     }
 
-    /// RED STUB — deliberately returns a non-nil empty guess. Green: the single
-    /// highest-precedence selected trigger's token (evenings > afterWork >
-    /// social > alone > boredom > stress — PM §3.2 total order); [] → nil.
+    /// The single highest-precedence selected trigger's token — "the FIRST hard
+    /// window" is singular, so multiple selections collapse to the primary one.
+    /// No triggers → nil (never a guess); an unrecognized ID can never win.
     static func riskWindowToken(frequency: String?, triggers: [String]) -> String? {
-        ""
+        precedence.first { triggers.contains($0) }
     }
 
     /// Convenience over the raw ordered answers, mirroring
-    /// `QuizProfileMapping.draft(from:)` — the `createQuit` call site is one line.
-    /// RED STUB — feeds the stubs above nothing real.
+    /// `QuizProfileMapping.draft(from:)` — the `createQuit` call site is one
+    /// line. Reads ONLY spend, frequency, and triggers; the draft's field set
+    /// stays untouched (frequency is deliberately NOT added to QuizQuitDraft).
     static func derive(from answers: [QuizAnswer]) -> (savings: Decimal, windowToken: String?) {
-        (projectedAnnualSavings(weeklySpend: .zero), riskWindowToken(frequency: nil, triggers: []))
+        func answer(_ stepID: String) -> QuizAnswer? {
+            answers.first { $0.stepID == stepID }
+        }
+        let spend = answer("spend")?.freeText.flatMap { Decimal(string: $0) } ?? 0
+        return (
+            projectedAnnualSavings(weeklySpend: spend),
+            riskWindowToken(
+                frequency: answer("frequency")?.choiceIDs.first,
+                triggers: answer("triggers")?.choiceIDs ?? []
+            )
+        )
     }
 }

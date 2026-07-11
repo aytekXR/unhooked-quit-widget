@@ -365,6 +365,13 @@ final class QuitRepository {
         )
         profile.completedAt = clock.now
         profile.quit = quit
+        // E5.3 (Architect MUST-FIX 1): fill the two EXISTING summary fields from
+        // the pure derivation BEFORE the single save — quiz-time projections of
+        // immutable answers (savings Decimal-exact; the window is a trigger TOKEN,
+        // never a phrase), deliberately NOT wired into recomputeDerivedState().
+        let summary = SummaryDerivation.derive(from: profile.answers)
+        profile.projectedAnnualSavings = summary.savings
+        profile.predictedRiskWindow = summary.windowToken
         context.insert(profile)
         try context.save() // the ONE commit — quit + profile land together
 
@@ -737,6 +744,29 @@ final class QuitRepository {
         var descriptor = FetchDescriptor<AppSettings>()
         descriptor.fetchLimit = 1
         return (try? context.fetch(descriptor).first?.onboardingVariant) ?? ""
+    }
+
+    /// E5.3 — the summary screen's display inputs, read-only from persisted truth
+    /// (Architect MUST-FIX 6: the currencyCode rides the quit's STORED value — no
+    /// ambient Locale read in any model/view; motivations verbatim in user order).
+    /// The completion seam mounts immediately after `completeQuiz`, so the newest
+    /// `completedAt` is the quiz that just finished. Fetch-only; nil when no
+    /// completed profile-with-quit exists (the view renders nothing paywall-shaped
+    /// either way).
+    func latestSummaryInputs() -> QuizSummaryInputs? {
+        let profiles = (try? context.fetch(FetchDescriptor<QuizProfile>())) ?? []
+        guard
+            let profile = profiles
+                .filter({ $0.completedAt != nil })
+                .max(by: { ($0.completedAt ?? .distantPast) < ($1.completedAt ?? .distantPast) }),
+            let quit = profile.quit
+        else { return nil }
+        return QuizSummaryInputs(
+            savings: profile.projectedAnnualSavings,
+            currencyCode: quit.currencyCode,
+            riskToken: profile.predictedRiskWindow,
+            motivations: quit.motivations
+        )
     }
 
     /// Fetch-FIRST the AppSettings singleton, creating only when absent — so the row

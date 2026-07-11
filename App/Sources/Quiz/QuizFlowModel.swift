@@ -9,13 +9,14 @@ import Observation
 /// Analytics discipline: production injects `.disabled` (the AgeGateModel
 /// precedent — consent is hardwired OFF until E8.2); tests inject an opted-IN
 /// spy. Every fire goes through `AnalyticsService.fire()`, post-checkpoint-write,
-/// BESIDE the write, never inside it (§1.2 invariant 3). NO quiz_completed fires
-/// here — E5.3's summary render owns it (R2); this model only exposes the handoff.
+/// BESIDE the write, never inside it (§1.2 invariant 3). quiz_completed fires
+/// via `onSummaryAppear()`, invoked by the summary view at render (R2's
+/// canonical trigger: "Personalized summary shown") — never from `complete()`.
 @MainActor
 @Observable
 final class QuizFlowModel {
-    /// The E5.3 handoff (R2): quiz_completed is NOT fired here — the summary
-    /// screen fires it when it renders, carrying exactly these two values.
+    /// The E5.3 handoff (R2): `complete()` never fires quiz_completed — the
+    /// summary render does (`onSummaryAppear()`), carrying exactly these two values.
     struct CompletionHandoff: Equatable, Sendable {
         var habitCategory: HabitCategory
         var goalMode: GoalMode
@@ -36,6 +37,9 @@ final class QuizFlowModel {
     /// funnel denominator).
     private let resumedFromCheckpoint: Bool
     private var didFireOnboardingStarted = false
+    /// E5.3 (Architect Q4): the durable once-per-completion guard for the
+    /// summary-render quiz_completed fire — the onboarding_started precedent.
+    private var didFireQuizCompleted = false
 
     /// `variant` is `AppSettings.onboardingVariant` read verbatim at the
     /// composition root (R3 — "" until E7/Superwall assigns it; never fabricated).
@@ -112,11 +116,19 @@ final class QuizFlowModel {
     }
 
     /// E5.3 — the summary-render fire-point (R2's canonical trigger, Architect
-    /// Q4/Session 18): the summary view calls this in `.onAppear`.
-    /// RED STUB — fires nothing (green: guarded once-per-completion
-    /// quiz_completed carrying exactly the handoff's habitCategory + goalMode;
-    /// no completion in hand → nothing, never a fabricated fire).
-    func onSummaryAppear() {}
+    /// Q4/Session 18): the summary view calls this in `.onAppear`. Fires
+    /// quiz_completed exactly once per completion, payload exactly the handoff's
+    /// (habitCategory, goalMode) — the guard is durable because the model is the
+    /// mounting view's @State (survives every re-render); no completion in hand
+    /// → nothing, never a fabricated fire.
+    func onSummaryAppear() {
+        guard let completion, !didFireQuizCompleted else { return }
+        didFireQuizCompleted = true
+        analytics.fire(.quizCompleted(
+            habitCategory: completion.habitCategory,
+            goalMode: completion.goalMode
+        ))
+    }
 
     /// Completion: hand the ordered answers to the repository (the one QuizProfile
     /// assembler), expose the E5.3 handoff, and clear the checkpoint ONLY on

@@ -35,6 +35,25 @@ struct UnhookedApp: App {
                 appGroupDefaults: groupDefaults
             )
         }
+        // UI-test hook (E5.3 smoke, coverage-exempt scaffolding like the hooks above):
+        // resets to a FRESH INSTALL before route resolution — the summary smoke
+        // drives gate → quiz → quit and must be self-isolating in the shared CI
+        // simulator (order-independence: it both REQUIRES a fresh install and
+        // leaves a real quit behind). Same artifact set eraseEverything owns
+        // locally, PLUS the app-standard quiz checkpoint (its sanctioned home is
+        // outside the App Group by design — R5).
+        if ProcessInfo.processInfo.environment["UITEST_RESET"] == "1",
+           let groupDefaults = UserDefaults(suiteName: AppIdentifiers.appGroupID) {
+            try? QuitRepository.eraseLocalArtifacts(
+                storeURLs: (try? PersistentStore.storeURL()).map { [$0] } ?? [],
+                appGroupFileURLs: [
+                    PanicSnapshotStore.appGroup()?.fileURL,
+                    PanicOutcomeBuffer.appGroup()?.fileURL,
+                ].compactMap { $0 },
+                appGroupDefaults: groupDefaults
+            )
+            UserDefaults.standard.removeObject(forKey: QuizProgressStore.key)
+        }
         // UI-test hook (E3.1 smoke, coverage-exempt scaffolding like the hooks above):
         // seeds a two-quit panic snapshot into the App Group so the panic-route smoke
         // can assert picker resolution before any store or onboarding exists.

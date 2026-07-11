@@ -21,11 +21,12 @@ enum QuizPostGateScreen: Equatable, Sendable, CaseIterable {
 enum QuizGateRouting {
     /// `quizComplete` defaults false so the E5.2 call sites (the model-build
     /// decision) are untouched — they ask "is onboarding due", never "what does
-    /// a completion mount".
-    /// RED: deliberately ignores `quizComplete` (green: an in-session completion
-    /// routes to .summary before anything else — the summary always precedes any
-    /// future paywall surface, P0 story 1).
+    /// a completion mount". An in-session completion routes to .summary BEFORE
+    /// anything else (P0 story 1: the summary always precedes any future paywall
+    /// surface) — including over `hasActiveQuit`, because completing the quiz
+    /// just CREATED a quit.
     static func postGateScreen(hasActiveQuit: Bool, quizComplete: Bool = false) -> QuizPostGateScreen {
-        hasActiveQuit ? .dashboard : .quiz
+        if quizComplete { return .summary }
+        return hasActiveQuit ? .dashboard : .quiz
     }
 }

@@ -14,10 +14,25 @@ import Foundation
 /// `locale` is injectable so tests pin an explicit locale for determinism;
 /// production passes the device locale for digit grouping only.
 enum SummaryFormatter {
-    /// RED STUB — deliberately returns a fabricated figure for every input.
+    /// "~" + floor-to-ten + locale-formatted currency + "/year"; zero (or a
+    /// negative, defensively) → nil so the absent variant renders. The floor is
+    /// the Honest arm: the figure is always "this much or better".
     static func savingsDisplay(
         _ savings: Decimal, currencyCode: String, locale: Locale = .current
     ) -> String? {
-        "~$0/year"
+        guard savings > 0 else { return nil }
+        var value = savings
+        var floored = Decimal()
+        // Scale -1 = the tens place; .down = floor (never overstate a projection).
+        NSDecimalRound(&floored, &value, -1, .down)
+
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = locale
+        formatter.currencyCode = currencyCode
+        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 0
+        guard let money = formatter.string(from: floored as NSDecimalNumber) else { return nil }
+        return "~\(money)/year"
     }
 }
