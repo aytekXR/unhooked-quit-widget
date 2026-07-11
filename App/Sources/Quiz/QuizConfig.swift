@@ -59,6 +59,10 @@ struct QuizConfig: Codable, Equatable, Sendable {
         /// canonical analytics slot.
         var progressA11yFormat: String
         var spendPlaceholder: String
+        /// The calm completion-retry notice (Architect SHOULD-4; the slipCopy
+        /// `confirm.retryNote` precedent): shown only when the durable save fails —
+        /// nothing is lost (the checkpoint survives), Continue retries.
+        var retryNote: String
     }
 
     var meta: Meta
@@ -131,7 +135,8 @@ struct QuizConfig: Codable, Equatable, Sendable {
             continueLabel: "Continue",
             backLabel: "Back",
             progressA11yFormat: "Step %1$d of %2$d",
-            spendPlaceholder: "0"
+            spendPlaceholder: "0",
+            retryNote: "That didn't save just yet — nothing's lost. Tap Continue to try again."
         )
     )
 }

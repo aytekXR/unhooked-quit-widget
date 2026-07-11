@@ -41,13 +41,16 @@ struct AgeGateContainerView: View {
             case .blocked:
                 AgeGateBlockedView(model: model)
             case .passed:
-                RootPlaceholderView()
+                // E5.2: the passed branch mounts the post-gate router (quiz until a
+                // quit exists, then the placeholder root) — new content inherits the
+                // gate for free, exactly as this container was designed.
+                PostGateRootView()
             }
         } else if let repository = provider?.repository,
                   AgeGateRouting.firstScreen(ageGatePassed: repository.isAgeGatePassed()) == .onward {
             // A previously-passed install: no model is ever built, content mounts
             // directly from store truth.
-            RootPlaceholderView()
+            PostGateRootView()
         } else {
             // Store still opening — neutral, non-habit, no premature pass
             // (Architect MUST-FIX #7). Brand rules hold even here: no red,

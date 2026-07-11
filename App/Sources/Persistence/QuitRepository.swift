@@ -270,15 +270,21 @@ final class QuitRepository {
 
     // MARK: - Writes (synchronous; save() before returning; then a debounced reload)
 
-    /// Creates a quit, enforcing the max-3-active rule. Quiz-driven fields (triggers,
-    /// motivations, spend details) arrive with their consumers (E5); this takes only
-    /// what E2.2 exercises.
-    @discardableResult
-    func createQuit(
+    /// The shared save-free create core (Architect MUST-FIX 1, Session 17): builds
+    /// and inserts the quit with the FULL field set — max-3 guard, anchor mint,
+    /// sortIndex assignment. Does NOT save, does NOT rebuild the snapshot, does NOT
+    /// schedule a reload: each public create owns exactly ONE commit + ONE rebuild +
+    /// ONE reload (calling the primitive and mutating after it would rebuild the
+    /// pre-cache before the quiz fields exist).
+    private func insertQuit(
         habitCategory: HabitCategory,
-        customLabel: String? = nil,
-        goalMode: GoalMode = .quit,
-        weeklySpend: Decimal = 0
+        customLabel: String?,
+        goalMode: GoalMode,
+        weeklySpend: Decimal,
+        weeklyAllowance: Int?,
+        triggers: [String],
+        motivations: [String],
+        currencyCode: String
     ) throws -> Quit {
         let active = try activeQuits()
         guard active.count < Self.activeQuitLimit else {
@@ -292,6 +298,10 @@ final class QuitRepository {
         quit.customLabel = customLabel
         quit.goalMode = goalMode
         quit.weeklySpend = weeklySpend
+        quit.weeklyAllowance = weeklyAllowance
+        quit.triggers = triggers
+        quit.motivations = motivations
+        quit.currencyCode = currencyCode
         quit.startAt = now
         quit.createdAt = now
         // The streak's anchor: wallClock == startAt (the engine's documented invariant).
@@ -300,25 +310,69 @@ final class QuitRepository {
         )
         quit.sortIndex = (active.map(\.sortIndex).max() ?? -1) + 1
         context.insert(quit)
-        try context.save()
+        // NO last-known-good refresh on any create: a fresh anchor trivially agrees
+        // with the reading it was minted from, so a verdict against it would be
+        // self-blessing — a forward-set wall could poison the baseline.
+        return quit
+    }
 
-        // NO last-known-good refresh here: a fresh anchor trivially agrees with the
-        // reading it was minted from, so a verdict against it would be self-blessing —
-        // a forward-set wall could poison the baseline through quit creation.
+    /// Creates a quit, enforcing the max-3-active rule. Quiz-driven fields (triggers,
+    /// motivations, spend details) arrive through `createQuit(from:)`; this primitive
+    /// takes only what E2.2 exercises — behavior byte-identical to its pre-E5.2 form.
+    @discardableResult
+    func createQuit(
+        habitCategory: HabitCategory,
+        customLabel: String? = nil,
+        goalMode: GoalMode = .quit,
+        weeklySpend: Decimal = 0
+    ) throws -> Quit {
+        let quit = try insertQuit(
+            habitCategory: habitCategory,
+            customLabel: customLabel,
+            goalMode: goalMode,
+            weeklySpend: weeklySpend,
+            weeklyAllowance: nil,
+            triggers: [],
+            motivations: [],
+            currencyCode: "USD"
+        )
+        try context.save()
         rebuildPanicSnapshot()
         scheduleWidgetReload()
         return quit
     }
 
     /// E5.2 — the quiz's create (architecture §5.1: the `from profile:` form arrives
-    /// with its consumer). RED STUB — deliberately ignores the profile: no field
-    /// mapping, no max-3 guard, no profile insert/link, no anchor. The designed
-    /// failures on the red commit (QuizCompletionTests + the erase pin).
+    /// with its consumer): derives the field set from the profile's answers via the
+    /// pure Linux-verified mapping (motivations VERBATIM in user order, custom label
+    /// iff .custom, allowance iff .reduce), inserts the quit AND the profile under
+    /// ONE save, then rebuilds the pre-cache — the panic ReasonsView renders the
+    /// user's own words from this write — and schedules one reload.
     @discardableResult
     func createQuit(from profile: QuizProfile) throws -> Quit {
-        let quit = Quit()
-        context.insert(quit)
-        try context.save()
+        let draft = QuizProfileMapping.draft(from: profile.answers)
+        let quit = try insertQuit(
+            habitCategory: draft.habitCategory,
+            customLabel: draft.customLabel,
+            goalMode: draft.goalMode,
+            weeklySpend: draft.weeklySpend,
+            weeklyAllowance: draft.weeklyAllowance,
+            triggers: draft.triggers,
+            motivations: draft.motivations,
+            // Money-saved correctness for non-USD users (Architect SHOULD-3);
+            // Locale is a creation-time read, never stored beyond the code.
+            currencyCode: Locale.current.currency?.identifier ?? "USD"
+        )
+        profile.completedAt = clock.now
+        profile.quit = quit
+        context.insert(profile)
+        try context.save() // the ONE commit — quit + profile land together
+
+        // E8 seam (named TODO, not a stub — Architect R6 fire-point assignment):
+        // `quit_created(habitCategory:goalMode:quitIndex:)` fires HERE post-save
+        // when its wiring session lands (quitIndex = quit.sortIndex + 1). The
+        // repository create path is the fire-point so both onboarding AND the
+        // future E6.2 dashboard add emit it exactly once.
         rebuildPanicSnapshot()
         scheduleWidgetReload()
         return quit
@@ -569,6 +623,11 @@ final class QuitRepository {
         //    erased state (a stale one would poison the next tracking era's cap
         //    baseline), and it may never outlive a partially-failed erase.
         lastKnownGoodStore.clear()
+        // E5.2 (R5): the quiz resume checkpoint is §10 on-device data — it can hold
+        // the custom habit name and in-progress free text — so it is swept with the
+        // infallible local clears (app-standard defaults; relaunch = fresh install,
+        // and the age gate + quiz both return by design).
+        quizProgressStore.clear()
 
         // 3. Defaults sweep (infallible) + owned App Group files + store file set
         //    (the fallible local steps) — shared verbatim with the launch-time smoke
@@ -669,6 +728,15 @@ final class QuitRepository {
         let settings = try fetchOrCreateAppSettings()
         settings.ageGatePassed = true
         try context.save()
+    }
+
+    /// E5.2 — read-only lookup for `onboarding_started`'s variant (R3: read verbatim,
+    /// "" until E7/Superwall writes it — E5.2 fabricates nothing). Fetch-only, never
+    /// creates the settings row (the fail-closed `isAgeGatePassed` read precedent).
+    func onboardingVariant() -> String {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor).first?.onboardingVariant) ?? ""
     }
 
     /// Fetch-FIRST the AppSettings singleton, creating only when absent — so the row

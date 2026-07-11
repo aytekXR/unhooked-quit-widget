@@ -159,6 +159,7 @@
     "continueLabel": "Continue",
     "backLabel": "Back",
     "progressA11yFormat": "Step %1$d of %2$d",
-    "spendPlaceholder": "0"
+    "spendPlaceholder": "0",
+    "retryNote": "That didn't save just yet — nothing's lost. Tap Continue to try again."
   }
 }

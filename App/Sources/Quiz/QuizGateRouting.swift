@@ -14,9 +14,7 @@ enum QuizPostGateScreen: Equatable, Sendable {
 }
 
 enum QuizGateRouting {
-    /// RED STUB — deliberately wrong: routes everyone to the dashboard.
-    /// The designed failure on the red commit (`test_postGate_noActiveQuit_routesToQuiz`).
     static func postGateScreen(hasActiveQuit: Bool) -> QuizPostGateScreen {
-        .dashboard
+        hasActiveQuit ? .dashboard : .quiz
     }
 }

@@ -9,10 +9,8 @@ import Observation
 /// Analytics discipline: production injects `.disabled` (the AgeGateModel
 /// precedent — consent is hardwired OFF until E8.2); tests inject an opted-IN
 /// spy. Every fire goes through `AnalyticsService.fire()`, post-checkpoint-write,
-/// BESIDE the write, never inside it (§1.2 invariant 3).
-///
-/// RED COMMIT: the marked members are deliberately wrong stubs — the designed
-/// failures for the E5.2 red-evidence run.
+/// BESIDE the write, never inside it (§1.2 invariant 3). NO quiz_completed fires
+/// here — E5.3's summary render owns it (R2); this model only exposes the handoff.
 @MainActor
 @Observable
 final class QuizFlowModel {
@@ -33,6 +31,11 @@ final class QuizFlowModel {
     private let checkpoint: QuizProgressStore
     private let variant: String
     private let onComplete: ([QuizAnswer]) throws -> Void
+    /// MUST-FIX 6: a mid-quiz relaunch resumes from the checkpoint and must NOT
+    /// re-fire onboarding_started (double-counting corrupts the start→summary
+    /// funnel denominator).
+    private let resumedFromCheckpoint: Bool
+    private var didFireOnboardingStarted = false
 
     /// `variant` is `AppSettings.onboardingVariant` read verbatim at the
     /// composition root (R3 — "" until E7/Superwall assigns it; never fabricated).
@@ -51,8 +54,10 @@ final class QuizFlowModel {
         self.onComplete = onComplete
         if let progress = checkpoint.load() {
             self.engine = QuizFlowEngine.resume(config: config, progress: progress)
+            self.resumedFromCheckpoint = true
         } else {
             self.engine = QuizFlowEngine(config: config)
+            self.resumedFromCheckpoint = false
         }
     }
 
@@ -75,10 +80,13 @@ final class QuizFlowModel {
         engine.answer(for: stepID)
     }
 
-    /// RED STUB — advances without the checkpoint write; fires only what the
-    /// engine reports (nothing at red).
+    /// Forward advance: commit the answers + position to the checkpoint FIRST,
+    /// then fire quiz_step_completed(slot) beside that write (§1.2 invariant 3 —
+    /// "post-save" for a step advance is post-checkpoint-write), then complete
+    /// when the last visible step is passed.
     func advance() {
         let outcome = engine.advance()
+        checkpoint.save(engine.progress())
         if let slot = outcome.firedStep {
             analytics.fire(.quizStepCompleted(stepNumber: slot))
         }
@@ -87,29 +95,36 @@ final class QuizFlowModel {
         }
     }
 
-    /// Back preserves answers and fires nothing (AC5) — the engine owns the
-    /// preservation semantics (deliberately wrong at red).
+    /// Back preserves answers and fires nothing (AC5); the checkpoint follows the
+    /// position so a mid-quiz relaunch resumes exactly where the user stood.
     func back() {
         engine.back()
+        checkpoint.save(engine.progress())
     }
 
-    /// RED STUB — never fires. Green: fires onboarding_started(variant:) exactly
-    /// once, on a FRESH quiz entry only — a checkpoint resume never re-fires
-    /// (Architect MUST-FIX 6: double-counting corrupts the funnel denominator).
-    func onFirstScreenAppear() {}
+    /// Fires onboarding_started(variant:) exactly once, when the FIRST quiz screen
+    /// renders on a FRESH entry — idempotent against re-renders, suppressed on a
+    /// checkpoint resume (MUST-FIX 6).
+    func onFirstScreenAppear() {
+        guard !resumedFromCheckpoint, !didFireOnboardingStarted else { return }
+        didFireOnboardingStarted = true
+        analytics.fire(.onboardingStarted(variant: variant))
+    }
 
     /// Completion: hand the ordered answers to the repository (the one QuizProfile
-    /// assembler), then expose the E5.3 handoff. RED: the checkpoint is
-    /// deliberately NOT cleared here.
+    /// assembler), expose the E5.3 handoff, and clear the checkpoint ONLY on
+    /// success — a failed save keeps every answer recoverable.
     private func complete() {
         let answers = engine.orderedAnswers()
         do {
             try onComplete(answers)
+            completionFailed = false
             let draft = QuizProfileMapping.draft(from: answers)
             completion = CompletionHandoff(
                 habitCategory: draft.habitCategory,
                 goalMode: draft.goalMode
             )
+            checkpoint.clear()
         } catch {
             completionFailed = true
         }

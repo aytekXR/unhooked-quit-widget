@@ -5,10 +5,6 @@ import Foundation
 /// Linux harness runs the exact shipping bytes. The @Observable shell is
 /// `QuizFlowModel`; the risky logic (visibility, conditional gating, the R1
 /// fixed-ordinal numbering, back/advance semantics, resume) lives HERE.
-///
-/// RED COMMIT: the marked members are deliberately wrong stubs — the designed
-/// failures for the E5.2 red-evidence run (a build failure is not red evidence;
-/// every failure below is a test assertion).
 struct QuizFlowEngine {
     let config: QuizConfig
     private(set) var answers: [String: QuizAnswer]
@@ -27,10 +23,16 @@ struct QuizFlowEngine {
         self.index = 0
     }
 
-    /// RED STUB — returns the raw config: the seam and every conditional included,
-    /// no filtering (the designed visibility failures).
+    /// The rendered sequence: the reserved seam is ALWAYS excluded in E5.2 (R4 —
+    /// E8.2 renders it), and a conditional step is visible iff its referenced
+    /// answer contains the required choice. Canonical slots ride the steps
+    /// untouched — hiding a step never renumbers its neighbors (R1).
     var visibleSteps: [QuizConfig.Step] {
-        config.steps
+        config.steps.filter { step in
+            guard step.kind != .seam else { return false }
+            guard let condition = step.condition else { return true }
+            return answers[condition.whenStep]?.choiceIDs.contains(condition.equals) == true
+        }
     }
 
     var currentStep: QuizConfig.Step? {
@@ -49,16 +51,21 @@ struct QuizFlowEngine {
         answers[stepID]
     }
 
-    /// RED STUB — advances the position but never reports a fired slot.
+    /// Advances past the current visible step, reporting its fixed slot for the
+    /// quiz_step_completed fire ("every step advance" — a re-advance after Back
+    /// honestly re-fires). Advancing past the last visible step completes.
     mutating func advance() -> AdvanceOutcome {
+        guard let step = currentStep else {
+            return AdvanceOutcome(firedStep: nil, didComplete: true)
+        }
         index += 1
-        return AdvanceOutcome(firedStep: nil, didComplete: index >= visibleSteps.count)
+        return AdvanceOutcome(firedStep: step.slot, didComplete: index >= visibleSteps.count)
     }
 
-    /// RED STUB — drops every stored answer instead of preserving them.
+    /// Back moves to the prior visible step and preserves every answer (AC5) —
+    /// the prior screen re-hydrates from `answer(for:)`.
     mutating func back() {
         index = max(0, index - 1)
-        answers = [:]
     }
 
     /// The canonical (visible-order) answer list — what completion hands the
