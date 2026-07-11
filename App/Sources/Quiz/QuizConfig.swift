@@ -16,10 +16,14 @@ struct QuizConfig: Codable, Equatable, Sendable {
     }
 
     /// The question kinds the engine renders. `seam` is a RESERVED slot another
-    /// epic owns (today: slot 3, consent, E8.2) — never rendered, never numbered
-    /// into events by E5.2 (resume-prompt scope guard c; R4).
+    /// epic owns — never rendered, never numbered into events (R4; none remain in
+    /// the shipping table since E8.2 rendered slot 3). `consent` is E8.2's
+    /// analytics opt-in step: visible at its fixed slot like any question, but
+    /// its choice is a DEVICE SETTING — the view routes it through
+    /// `QuizFlowModel.recordConsent`, never `record(_:)`, so it can never become
+    /// a QuizAnswer or a checkpoint byte (ruling c, by construction).
     enum StepKind: String, Codable, Sendable {
-        case singleChoice, multiChoice, decimalInput, freeText, slider, seam
+        case singleChoice, multiChoice, decimalInput, freeText, slider, seam, consent
     }
 
     struct Choice: Codable, Equatable, Sendable {
@@ -47,8 +51,8 @@ struct QuizConfig: Codable, Equatable, Sendable {
         var placeholder: String?
         var helper: String?
         var sliderEchoes: [String]?
-        /// Seam-only: which epic owns the reserved slot ("E8.2"). A seam carries
-        /// no rendered strings by design.
+        /// Which epic owns/owned a reserved slot ("E8.2"). Nothing reads it since
+        /// the consent step rendered — kept for provenance and future seams.
         var owner: String?
     }
 

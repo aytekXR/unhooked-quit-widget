@@ -1,9 +1,9 @@
 {
   "_meta": {
     "version": 1,
-    "audit": "DRAFT — founder copy pass required (roadmap: agents scaffold screens, copy is founder-owned). This file is the ONE audited quiz table (ADR-9: the quiz definition is bundled versioned static content) and every string in it is lexicon-scanned by SlipLexiconTests on every CI run. Brand sign-off: SIGNED-WITH-CHANGES (Session 17) — effects title and the lowest commitment echo replaced per the Brand review; the effects step (slot 10) additionally needs the medical-claims review alongside the founder pass (operator-expected §3).",
+    "audit": "DRAFT — founder copy pass required (roadmap: agents scaffold screens, copy is founder-owned). This file is the ONE audited quiz table (ADR-9: the quiz definition is bundled versioned static content) and every string in it is lexicon-scanned by SlipLexiconTests on every CI run. Brand sign-off: SIGNED-WITH-CHANGES (Session 17) — effects title and the lowest commitment echo replaced per the Brand review; the effects step (slot 10) additionally needs the medical-claims review alongside the founder pass (operator-expected §3). The slot-3 consent step (Session 19, E8.2) carries its own PM+Brand+QA joint sign-off (safety-content gate; Brand SIGNED-WITH-CHANGES — 'anonymous' struck as an unverifiable overclaim, the audit-backed 'never tied to you' folded into the helper); its 4 strings are DRAFT/founder-owned like every sibling and its choice is a device setting, never stored quiz data.",
     "review_status": "DRAFT — founder copy pass pending",
-    "numbering_note": "slot is the FIXED canonical analytics step_number (R1, Session 17): hidden conditionals and the reserved consent seam emit no event for their slot; visible steps report identical numbers for every user. Slot 14 (personalized summary) is E5.3's and is where quiz_completed fires (R2)."
+    "numbering_note": "slot is the FIXED canonical analytics step_number (R1, Session 17): hidden conditionals emit no event for their slot; visible steps report identical numbers for every user. The consent step (slot 3, E8.2) RENDERS and emits like any visible step — post-choice, and only for opted-in users (the fire() gate drops it for decliners; step-0 ruling a, Session 19). Slot 14 (personalized summary) is E5.3's and is where quiz_completed fires (R2)."
   },
   "steps": [
     {
@@ -31,9 +31,15 @@
     },
     {
       "id": "consent",
-      "kind": "seam",
+      "kind": "consent",
       "slot": 3,
-      "owner": "E8.2"
+      "owner": "E8.2",
+      "title": "Share app usage data?",
+      "helper": "You'd share which steps you reach and your habit type — never your answers, notes, or the times you log, and never tied to you. It's off until you choose, and nothing's been sent yet.",
+      "choices": [
+        { "id": "optIn", "label": "Share usage data" },
+        { "id": "decline", "label": "No thanks" }
+      ]
     },
     {
       "id": "frequency",

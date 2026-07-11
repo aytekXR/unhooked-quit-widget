@@ -738,25 +738,32 @@ final class QuitRepository {
     }
 
     /// E8.2 — the consent read authority (ADR-8): fetch-only, never creates, and
-    /// the default is fail-closed — no row, a missing value, or a fetch error all
+    /// `?? false` is fail-closed — no row, a missing value, or a fetch error all
     /// read OFF (the `isAgeGatePassed`/`onboardingVariant` precedent). The
     /// production `AnalyticsService.isOptedIn` closure reads THIS, live, on every
-    /// fire.
-    ///
-    /// RED: deliberately inert (always OFF — the pre-E8.2 truth); the designed
-    /// failures are the ConsentPersistenceTests assertions. Green lands the fetch.
+    /// fire — so a mid-run opt-in governs the same run's later events.
     func isAnalyticsOptedIn() -> Bool {
-        false
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor).first?.analyticsOptIn) ?? false
     }
 
     /// E8.2 — the ONE writer of `analyticsOptIn`, reached only from the consent
     /// step's choice tap (via the composition root's injected callback — the
     /// `markAgeGatePassed` shape over the SHARED singleton helper, Architect
-    /// MUST-FIX #6, Session 16).
-    ///
-    /// RED: deliberately a no-op; green lands the fetchOrCreate + save.
+    /// MUST-FIX #6, Session 16). Synchronous durable save AT the tap, so the
+    /// value has landed before Continue advances and the slot-3 fire reads it.
     func setAnalyticsOptIn(_ optedIn: Bool) throws {
+        let settings = try fetchOrCreateAppSettings()
+        settings.analyticsOptIn = optedIn
+        try context.save()
     }
+
+    /// E8.2 — vends the ONE production analytics service (composition-root
+    /// constructed: real sink + live consent closure) so the quiz model fires
+    /// through the same gate as every repository seam. Views never construct
+    /// their own sink or consent read.
+    var analyticsService: AnalyticsService { analytics }
 
     /// E5.2 — read-only lookup for `onboarding_started`'s variant (R3: read verbatim,
     /// "" until E7/Superwall writes it — E5.2 fabricates nothing). Fetch-only, never

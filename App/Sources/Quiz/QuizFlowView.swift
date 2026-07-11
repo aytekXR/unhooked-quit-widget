@@ -114,15 +114,21 @@ struct QuizFlowView: View {
     }
 
     /// Single-choice steps require an explicit pick (the quiz never nudges — the
-    /// age-gate precedent); everything else may continue unanswered (multi-select
-    /// and inputs are optional by design; empty motivations degrade to the panic
-    /// script's generic encouragements). A failed completion re-enables Continue
-    /// as the retry affordance (SHOULD-4 — never a dead end).
+    /// age-gate precedent); the consent step likewise requires a deliberate
+    /// choice, gated off the model's TRANSIENT signal — never the stored value,
+    /// whose `false` is ambiguous between "declined" and "never answered" (E8.2).
+    /// Everything else may continue unanswered (multi-select and inputs are
+    /// optional by design; empty motivations degrade to the panic script's
+    /// generic encouragements). A failed completion re-enables Continue as the
+    /// retry affordance (SHOULD-4 — never a dead end).
     private var continueDisabled: Bool {
         if model.completionFailed { return false }
         guard let step = model.currentStep else { return true }
         if step.kind == .singleChoice {
             return model.answer(for: step.id)?.choiceIDs.isEmpty != false
+        }
+        if step.kind == .consent {
+            return model.consentChoice == nil
         }
         return false
     }
@@ -192,10 +198,52 @@ private struct QuizStepContent: View {
                 .accessibilityIdentifier("quiz.spendField")
         case .slider:
             commitmentSlider
+        case .consent:
+            consentChoices
         case .seam:
             // Structurally unreachable: the engine never surfaces a seam step (R4);
             // rendering nothing keeps even a config mistake silent and calm.
             EmptyView()
+        }
+    }
+
+    /// E8.2 — the calm two-choice consent control: both choices are the SAME
+    /// pill as every answer chip (equal peers — never a primary + quiet pair;
+    /// the one primary on screen stays the shared Continue). Taps route through
+    /// `recordConsent`, NEVER `toggle`/`record` — the choice is a device setting,
+    /// not a QuizAnswer (ruling c). Selection reflects the model's transient
+    /// pick: nothing pre-selected on a fresh mount or resume, the user's own
+    /// choice re-hydrates on a within-session Back.
+    private var consentChoices: some View {
+        VStack(spacing: 10) {
+            ForEach(step.choices ?? [], id: \.id) { choice in
+                let optsIn = choice.id == "optIn"
+                let selected = model.consentChoice == optsIn
+                Button {
+                    model.recordConsent(optsIn)
+                } label: {
+                    HStack(spacing: 8) {
+                        Text(choice.label)
+                            .font(.body.weight(selected ? .semibold : .regular))
+                        Spacer(minLength: 0)
+                        // Selection carries a glyph, never color alone (brandkit §8).
+                        Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(selected ? Color.white : Color.secondary)
+                            .accessibilityHidden(true)
+                    }
+                    .foregroundStyle(selected ? Color.white : Color.primary)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 13)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        selected ? Color.teal : Color(.systemGray6),
+                        in: RoundedRectangle(cornerRadius: 14)
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? [.isSelected] : [])
+                .accessibilityIdentifier("quiz.choice.\(choice.id)")
+            }
         }
     }
 

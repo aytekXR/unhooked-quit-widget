@@ -7,10 +7,14 @@ import SwiftUI
 /// placeholder. Completion flips the published handoff and this view re-routes.
 ///
 /// Composition (MUST-FIX 7): the QuizProfile is assembled by the repository —
-/// this view hands the model `repository.completeQuiz` as a method reference and
-/// never touches SwiftData itself. Production analytics is `.disabled` (the
-/// AgeGateModel precedent; consent is hardwired OFF until E8.2) — the fire-points
-/// are live and spy-proven, the transport is not.
+/// this view hands the model `repository.completeQuiz` and
+/// `repository.setAnalyticsOptIn` as injected callbacks and never touches
+/// SwiftData itself. Production analytics is the repository-VENDED live service
+/// (E8.2): its gate reads the stored consent on every fire, so an opt-in made at
+/// the slot-3 step governs this same run's later events (the summary's
+/// quiz_completed included). The view never constructs a sink or a consent read
+/// — that is composition-root work. The transport stays dormant until the
+/// operator's app ID (§8, the double gate's second half).
 struct PostGateRootView: View {
     @Environment(RepositoryProvider.self) private var provider: RepositoryProvider?
     @State private var model: QuizFlowModel?
@@ -82,12 +86,18 @@ struct PostGateRootView: View {
         else { return }
         model = QuizFlowModel(
             config: QuizConfig.loadShipping() ?? .degraded,
-            analytics: .disabled,
+            analytics: repository.analyticsService,
             checkpoint: QuizProgressStore(),
             variant: repository.onboardingVariant(),
             onComplete: { [weak repository] answers in
                 guard let repository else { return }
                 try repository.completeQuiz(answers)
+            },
+            // try? is the safe direction (the age-gate persistPass precedent): a
+            // failed save keeps the durable value OFF — fail-closed, never a
+            // silently-open gate.
+            persistConsent: { [weak repository] optedIn in
+                try? repository?.setAnalyticsOptIn(optedIn)
             }
         )
     }

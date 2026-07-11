@@ -6,12 +6,14 @@ import Observation
 /// stamps every date) and imports NO SwiftData (MUST-FIX 7 — the QuizProfile is
 /// assembled by `QuitRepository.completeQuiz`, handed in as `onComplete`).
 ///
-/// Analytics discipline: production injects `.disabled` (the AgeGateModel
-/// precedent — consent is hardwired OFF until E8.2); tests inject an opted-IN
-/// spy. Every fire goes through `AnalyticsService.fire()`, post-checkpoint-write,
-/// BESIDE the write, never inside it (§1.2 invariant 3). quiz_completed fires
-/// via `onSummaryAppear()`, invoked by the summary view at render (R2's
-/// canonical trigger: "Personalized summary shown") — never from `complete()`.
+/// Analytics discipline: production injects the repository-vended LIVE service
+/// (E8.2 — its gate reads the stored `AppSettings.analyticsOptIn` on every fire,
+/// default OFF; the transport half of the double gate stays dormant until the
+/// operator's app ID, §8); tests inject spies at either polarity. Every fire
+/// goes through `AnalyticsService.fire()`, post-checkpoint-write, BESIDE the
+/// write, never inside it (§1.2 invariant 3). quiz_completed fires via
+/// `onSummaryAppear()`, invoked by the summary view at render (R2's canonical
+/// trigger: "Personalized summary shown") — never from `complete()`.
 @MainActor
 @Observable
 final class QuizFlowModel {
@@ -27,11 +29,22 @@ final class QuizFlowModel {
     /// SHOULD-4: a completion failure surfaces calmly (never a dead end, never a
     /// `try!`); the checkpoint stays intact so nothing is lost.
     private(set) var completionFailed = false
+    /// E8.2 — the consent step's transient answered-signal: nil on every model
+    /// construction (fresh AND checkpoint-resume — never a pre-selection, the
+    /// default-off protection), then the user's own pick so a within-session Back
+    /// re-hydrates their choice. NEVER persisted and NEVER read back from storage:
+    /// the durable truth is `AppSettings.analyticsOptIn`, and a stored `false` is
+    /// ambiguous between "declined" and "never answered".
+    private(set) var consentChoice: Bool?
 
     private let analytics: AnalyticsService
     private let checkpoint: QuizProgressStore
     private let variant: String
     private let onComplete: ([QuizAnswer]) throws -> Void
+    /// E8.2 — the injected consent writer (the `onComplete` precedent: the model
+    /// never touches SwiftData, MUST-FIX 7). Production wires
+    /// `repository.setAnalyticsOptIn` at the composition root.
+    private let persistConsent: (Bool) -> Void
     /// MUST-FIX 6: a mid-quiz relaunch resumes from the checkpoint and must NOT
     /// re-fire onboarding_started (double-counting corrupts the start→summary
     /// funnel denominator).
@@ -50,12 +63,14 @@ final class QuizFlowModel {
         analytics: AnalyticsService = .disabled,
         checkpoint: QuizProgressStore = QuizProgressStore(),
         variant: String = "",
-        onComplete: @escaping ([QuizAnswer]) throws -> Void = { _ in }
+        onComplete: @escaping ([QuizAnswer]) throws -> Void = { _ in },
+        persistConsent: @escaping (Bool) -> Void = { _ in }
     ) {
         self.analytics = analytics
         self.checkpoint = checkpoint
         self.variant = variant
         self.onComplete = onComplete
+        self.persistConsent = persistConsent
         if let progress = checkpoint.load() {
             self.engine = QuizFlowEngine.resume(config: config, progress: progress)
             self.resumedFromCheckpoint = true
@@ -82,6 +97,18 @@ final class QuizFlowModel {
 
     func answer(for stepID: String) -> QuizAnswer? {
         engine.answer(for: stepID)
+    }
+
+    /// E8.2 — the consent step's choice tap: sets the transient answered-signal
+    /// (drives the view's Continue gating and within-session Back re-hydration)
+    /// and persists AT THE TAP through the injected writer — the durable value
+    /// lands BEFORE Continue → advance() → the slot-3 fire, so the live gate
+    /// reads the user's choice at that fire (MVP §5: "fire nothing before the
+    /// opt-in choice"). Deliberately NOT `record(_:)`: the consent choice is a
+    /// device setting, never a QuizAnswer, never a checkpoint byte (ruling c).
+    func recordConsent(_ optedIn: Bool) {
+        consentChoice = optedIn
+        persistConsent(optedIn)
     }
 
     /// Forward advance: commit the answers + position to the checkpoint FIRST,

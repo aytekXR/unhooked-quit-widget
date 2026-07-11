@@ -67,11 +67,11 @@ final class RepositoryProvider {
     /// crash at the composition root would.
     static func liveRepository(_ container: ModelContainer) -> QuitRepository {
         let groupDefaults = UserDefaults(suiteName: AppIdentifiers.appGroupID)!
-        // The ADR-8 double gate, both halves deliberately closed in E8.1: consent
-        // is hardwired false until E8.2's consent step ships the stored opt-in
-        // (its named tests own the default-OFF storage semantics), AND the
-        // transport stays Noop until the operator drops the TelemetryDeck app ID
-        // (operator-expected §8). Zero events before consent, by construction.
+        // The ADR-8 double gate: consent now reads the STORED choice live (E8.2 —
+        // `AppSettings.analyticsOptIn`, written only by the quiz's consent step,
+        // default OFF, fail-closed), AND the transport stays Noop until the
+        // operator drops the TelemetryDeck app ID (operator-expected §8). Zero
+        // events before consent, by construction.
         let appID = AnalyticsConfiguration.telemetryDeckAppID
         let sink: any AnalyticsSink
         if appID.isEmpty {
@@ -79,7 +79,13 @@ final class RepositoryProvider {
         } else {
             sink = TelemetryDeckSink(appID: appID)
         }
-        return QuitRepository(
+        // The consent closure needs the repository, but the service is a
+        // repository constructor arg — the late-bound holder breaks the cycle.
+        // Fail-closed default until the reference lands; `isOptedIn` is only ever
+        // evaluated lazily inside fire(), post-frame, so the one-statement gap
+        // between construction and binding is unreachable.
+        let consent = ConsentReader()
+        let repository = QuitRepository(
             container: container,
             clock: LiveClock(),
             widgetRefresher: LiveWidgetRefresher(),
@@ -87,7 +93,18 @@ final class RepositoryProvider {
             cloud: LocalOnlyCloudSync(),
             appGroupDefaults: groupDefaults,
             panicSnapshotStore: PanicSnapshotStore.appGroup()!,
-            analytics: AnalyticsService(sink: sink, isOptedIn: { false })
+            analytics: AnalyticsService(sink: sink, isOptedIn: { consent.read() })
         )
+        // weak: the repository owns the service whose closure owns this reader —
+        // a strong reference back would cycle.
+        consent.read = { [weak repository] in repository?.isAnalyticsOptedIn() ?? false }
+        return repository
     }
+}
+
+/// E8.2 — the composition root's late-bound consent read (see `liveRepository`).
+/// The repository's `isAnalyticsOptedIn()` stays the ONE AppSettings read
+/// authority; this holder only defers the reference, never forks the read.
+private final class ConsentReader {
+    var read: () -> Bool = { false }
 }
