@@ -11,6 +11,7 @@ import XCTest
 /// Assertions on anchors/text only (the Session 09 lesson — never `.contain`
 /// containers); route anchors via `descendants(matching: .any)` (the
 /// WalkingSkeleton idiom — element type stays unpinned).
+@MainActor
 final class QuizSummaryUITests: XCTestCase {
 
     func test_minimalPath_gateToQuiz_toSummary_beforeAnyPaywall_thenDashboard() {
