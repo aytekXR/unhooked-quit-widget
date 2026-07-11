@@ -4,16 +4,16 @@ import Testing
 
 // E5.2 unit lane — the quiz flow model over the pure engine: step advance fires
 // quiz_step_completed with the FIXED canonical slot (R1), back preserves answers,
-// the consent seam (slot 3) is a reserved no-op (R4, E8.2's), the resume checkpoint
-// lives in app-standard defaults (R5), and NO quiz_completed fires here (R2 — the
-// E5.3 summary owns it). Doc-canonical names from implementation-plan.md E5.2.
+// the resume checkpoint lives in app-standard defaults (R5), and NO quiz_completed
+// fires here (R2 — the E5.3 summary owns it). Doc-canonical names from
+// implementation-plan.md E5.2.
 //
-// RED: `QuizFlowEngine.visibleSteps` returns the raw config (seam + conditionals
-// included), `advance()` reports no fired slot and writes no checkpoint, `back()`
-// drops answers, and `onFirstScreenAppear()` never fires — the designed failures
-// are the assertions below (plus the completion-side cases in QuizCompletionTests
-// and the erase/routing pins). Red evidence for this file = the CI run on the red
-// commit; the Linux harness runs these bodies over the shipping bytes first.
+// E8.2 (Session 19) REVERSED the E5.2-era "reserved seam" pins BY DESIGN (their
+// R4 annotations always said the slot was E8.2's): consent now RENDERS at fixed
+// slot 3 for every path, joins the fired-slot sequence (step-0 ruling a: EMIT),
+// and adds one visible step to every path's totals. The flipped expectations
+// below are the post-E8.2 truth; the consent-specific pins live in
+// ConsentGateTests/ConsentPersistenceTests.
 
 /// The house spy shape, copied verbatim from AgeGateTests/AnalyticsWiringTests
 /// (file-private by the no-shared-fixtures convention).
@@ -98,7 +98,7 @@ struct QuizFlowModelTests {
     // MARK: - Named test 1 (doc-canonical): every step advance fires
     // quiz_step_completed with the step's FIXED canonical slot (R1)
 
-    @Test(arguments: [1, 4, 5, 6, 7, 8, 9, 10, 11, 13])
+    @Test(arguments: [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13])
     func test_quiz_everyStepAdvance_firesQuizStepCompleted(step slot: Int) throws {
         let (model, spy) = try makeShippingModel()
         drive(model, answers: cannedMinimalAnswer(for:))
@@ -107,8 +107,8 @@ struct QuizFlowModelTests {
             if case let .quizStepCompleted(stepNumber) = $0 { stepNumber } else { nil }
         }
         #expect(
-            fired == [1, 4, 5, 6, 7, 8, 9, 10, 11, 13],
-            "the minimal path fires the fixed canonical slots, in order, once each — never renumbered by rendered position (R1)"
+            fired == [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13],
+            "the minimal path fires the fixed canonical slots — the rendered consent step (3, E8.2) included — in order, once each, never renumbered by rendered position (R1)"
         )
         #expect(
             fired.contains(slot),
@@ -121,9 +121,10 @@ struct QuizFlowModelTests {
     @Test func test_quiz_backNavigation_preservesAnswers() throws {
         let (model, spy) = try makeShippingModel()
         model.record(QuizAnswer(stepID: "habit", choiceIDs: ["vape"]))
-        model.advance()
+        model.advance() // → consent (the rendered slot 3, E8.2)
+        model.advance() // past consent — unanswered at the model tier (the view owns the pick)
         model.record(QuizAnswer(stepID: "frequency", choiceIDs: ["daily"]))
-        model.advance()
+        model.advance() // → spend
         model.record(QuizAnswer(stepID: "spend", choiceIDs: [], freeText: "26"))
 
         let firedBeforeBack = spy.received.count
@@ -136,9 +137,13 @@ struct QuizFlowModelTests {
         )
 
         model.back()
+        #expect(model.currentStep?.id == "consent", "consent is a real visible step on the back path (E8.2)")
+
+        model.back()
         #expect(model.currentStep?.id == "habit")
         #expect(model.answer(for: "habit")?.choiceIDs == ["vape"])
 
+        model.advance()
         model.advance()
         model.advance()
         #expect(
@@ -190,14 +195,14 @@ struct QuizFlowModelTests {
     @Test func test_quizFlow_visibleSteps_derivedFromConfigAndAnswers() throws {
         let (model, _) = try makeShippingModel()
         #expect(
-            model.visibleSteps.map(\.slot) == [1, 4, 5, 6, 7, 8, 9, 10, 11, 13],
-            "minimal path: the seam (3) is excluded and unanswered conditionals (2, 12) are hidden"
+            model.visibleSteps.map(\.slot) == [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13],
+            "minimal path: the consent step (3, E8.2) renders for everyone; unanswered conditionals (2, 12) stay hidden"
         )
 
         model.record(QuizAnswer(stepID: "habit", choiceIDs: ["custom"]))
         model.record(QuizAnswer(stepID: "goal", choiceIDs: ["reduce"]))
         #expect(
-            model.visibleSteps.map(\.slot) == [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+            model.visibleSteps.map(\.slot) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
             "custom + reduce reveal their conditional steps at their FIXED slots (R1)"
         )
     }
@@ -227,31 +232,40 @@ struct QuizFlowModelTests {
         #expect(minimal.visibleSteps.first { $0.id == "motivations" }?.slot == 9)
         #expect(maximal.visibleSteps.first { $0.id == "motivations" }?.slot == 9)
         // …while the R9 visible totals differ (two honest numbers).
-        #expect(minimal.visibleSteps.count == 10)
-        #expect(maximal.visibleSteps.count == 12)
+        #expect(minimal.visibleSteps.count == 11)
+        #expect(maximal.visibleSteps.count == 13)
     }
 
-    // MARK: - AC10 pin: the consent seam (slot 3) is reserved and inert (R4 — E8.2's)
+    // MARK: - AC10 pin, REVERSED by E8.2 (the R4 annotation always said the slot
+    // was E8.2's): the consent step RENDERS at slot 3 with its signed strings —
+    // no reserved seam remains in the shipping table. The emission half of the
+    // old pin (slot 3 never fires) flipped into ConsentGateTests (step-0 a: EMIT).
 
-    @Test func test_quiz_consentSeam_reservedNoOp_optInUntouched() throws {
-        let (model, spy) = try makeShippingModel()
+    @Test func test_quiz_consentStep_slot3_rendersWithSignedStrings() throws {
+        let (model, _) = try makeShippingModel()
         #expect(
-            !model.visibleSteps.contains { $0.slot == 3 || $0.id == "consent" },
-            "E5.2 renders nothing for the reserved consent slot"
+            model.visibleSteps.contains { $0.slot == 3 && $0.id == "consent" },
+            "E8.2 renders the consent step at its reserved fixed slot"
         )
 
-        drive(model, answers: cannedMinimalAnswer(for:))
-        let fired = spy.received.compactMap {
-            if case let .quizStepCompleted(stepNumber) = $0 { stepNumber } else { nil }
-        }
-        #expect(!fired.contains(3), "the seam's slot number is never emitted")
-
-        // Structural: the reserved seam carries an owner and NO rendered strings.
+        // Structural: the slot-3 entry is a rendered step now — strings present,
+        // provenance kept, and NO seam-kind step survives anywhere in the table.
         let config = try #require(QuizConfig.loadShipping())
-        let seam = try #require(config.steps.first { $0.kind == .seam })
-        #expect(seam.slot == 3)
-        #expect(seam.owner == "E8.2")
-        #expect(seam.title == nil && seam.choices == nil && seam.helper == nil)
+        #expect(
+            config.steps.first { $0.kind == .seam } == nil,
+            "no reserved seam remains in the shipping table"
+        )
+        let consent = try #require(config.steps.first { $0.id == "consent" })
+        #expect(consent.slot == 3)
+        #expect(consent.owner == "E8.2")
+        #expect(
+            consent.title != nil && consent.helper != nil,
+            "the consent step carries its PM+Brand+QA-signed strings (safety-content gate)"
+        )
+        #expect(
+            consent.choices?.map(\.id) == ["optIn", "decline"],
+            "the two choice ids are the product contract (opt-in first, decline an equal second)"
+        )
     }
 
     // MARK: - AC11 guard (green-by-construction): NO quiz_completed fires in E5.2 (R2)
@@ -286,7 +300,8 @@ struct QuizFlowModelTests {
         let store = throwawayStore()
         let (interrupted, _) = try makeShippingModel(checkpoint: store)
         interrupted.record(QuizAnswer(stepID: "habit", choiceIDs: ["vape"]))
-        interrupted.advance()
+        interrupted.advance() // → consent (the rendered slot 3, E8.2)
+        interrupted.advance() // past consent — its choice is AppSettings' truth, never checkpointed
         interrupted.record(QuizAnswer(stepID: "frequency", choiceIDs: ["daily"]))
         interrupted.advance()
 

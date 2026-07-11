@@ -737,6 +737,27 @@ final class QuitRepository {
         try context.save()
     }
 
+    /// E8.2 — the consent read authority (ADR-8): fetch-only, never creates, and
+    /// the default is fail-closed — no row, a missing value, or a fetch error all
+    /// read OFF (the `isAgeGatePassed`/`onboardingVariant` precedent). The
+    /// production `AnalyticsService.isOptedIn` closure reads THIS, live, on every
+    /// fire.
+    ///
+    /// RED: deliberately inert (always OFF — the pre-E8.2 truth); the designed
+    /// failures are the ConsentPersistenceTests assertions. Green lands the fetch.
+    func isAnalyticsOptedIn() -> Bool {
+        false
+    }
+
+    /// E8.2 — the ONE writer of `analyticsOptIn`, reached only from the consent
+    /// step's choice tap (via the composition root's injected callback — the
+    /// `markAgeGatePassed` shape over the SHARED singleton helper, Architect
+    /// MUST-FIX #6, Session 16).
+    ///
+    /// RED: deliberately a no-op; green lands the fetchOrCreate + save.
+    func setAnalyticsOptIn(_ optedIn: Bool) throws {
+    }
+
     /// E5.2 — read-only lookup for `onboarding_started`'s variant (R3: read verbatim,
     /// "" until E7/Superwall writes it — E5.2 fabricates nothing). Fetch-only, never
     /// creates the settings row (the fail-closed `isAgeGatePassed` read precedent).
