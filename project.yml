@@ -84,6 +84,12 @@ targets:
         buildPhase: resources
       - path: App/Resources/Content/helplines.json
         buildPhase: resources
+      # E5.2 (onboarding quiz) is the consuming epic: quizConfig.json is the quiz
+      # definition (ADR-9 bundled static content) AND its ONE audited copy table —
+      # every string DRAFT/founder-owned (operator-expected §3), lexicon-scanned by
+      # SlipLexiconTests on every run.
+      - path: App/Resources/Content/quizConfig.json
+        buildPhase: resources
       # AppIcon is the brandkit single-size set (light + dark + tinted 1024): actool
       # generates every size, incl. the iPad 152/167 App Store validation requires
       # even for an iPhone-only app (upload error 90023 without it). The light 1024

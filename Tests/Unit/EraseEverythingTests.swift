@@ -83,6 +83,9 @@ private struct Harness {
     let storeDirectory: URL?
     let snapshotDirectory: URL
     let panicSnapshotStore: PanicSnapshotStore
+    /// E5.2 — the quiz resume checkpoint (app-STANDARD defaults in production, R5):
+    /// a throwaway suite here so the erase sweep is assertable per test.
+    let quizProgress: QuizProgressStore
     let repository: QuitRepository
 
     init(onDisk: Bool = false, cloudStatus: CloudAccountStatus = .available) throws {
@@ -119,6 +122,9 @@ private struct Harness {
             .appendingPathComponent("e24-snap-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: snapshotDirectory, withIntermediateDirectories: true)
         panicSnapshotStore = PanicSnapshotStore(directoryURL: snapshotDirectory)
+        quizProgress = QuizProgressStore(
+            defaults: UserDefaults(suiteName: "e24-quiz-\(UUID().uuidString)")!
+        )
         repository = QuitRepository(
             container: container,
             clock: clock,
@@ -127,6 +133,7 @@ private struct Harness {
             cloud: cloud,
             appGroupDefaults: appGroupDefaults,
             panicSnapshotStore: panicSnapshotStore,
+            quizProgressStore: quizProgress,
             debounceSleep: { _ in }
         )
     }
@@ -399,5 +406,27 @@ struct EraseEverythingTests {
             "a slipped cold draft + its revocation are §10 on-device behavioral data — one-tap erase removes the buffer file that holds them"
         )
         #expect(buffer.drafts().isEmpty, "erased means gone: the reader sees no surviving records")
+    }
+
+    // MARK: - E5.2 · the quiz resume checkpoint joins the sweep (R5, Session 17 —
+    // the standing rule: a new on-device artifact joins erase in ITS landing session)
+
+    @Test func test_erase_clearsQuizProgressCheckpoint() async throws {
+        let h = try Harness()
+        h.quizProgress.save(QuizProgress(
+            currentStepID: "spend",
+            answers: [
+                QuizAnswer(stepID: "habit", choiceIDs: ["vape"]),
+                QuizAnswer(stepID: "customName", choiceIDs: [], freeText: "my private word"),
+            ]
+        ))
+        #expect(h.quizProgress.load() != nil, "seeded: an interrupted quiz is on the device")
+
+        try await h.repository.eraseEverything()
+
+        #expect(
+            h.quizProgress.load() == nil,
+            "erase sweeps the app-standard quiz checkpoint — it may hold the custom habit name and free text, and relaunch must equal fresh install (R5)"
+        )
     }
 }

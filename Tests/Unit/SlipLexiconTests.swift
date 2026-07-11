@@ -192,6 +192,36 @@ struct SlipLexiconTests {
         }
     }
 
+    // MARK: - The E5.2 quiz gate (Session 17 — the quiz config IS its audited copy
+    // table, ADR-9; every string DRAFT/founder-owned; the reflection walk covers the
+    // shipping table AND the degraded fallback so a new config field can never dodge
+    // the scan. `_meta` deliberately decodes only `version`, keeping review notes out
+    // of the corpus — the SlipCopy precedent.)
+
+    @Test func test_quizConfigStrings_containNoForbiddenLexicon() throws {
+        let config = try #require(
+            QuizConfig.loadShipping(),
+            "the audited quiz table is the shipping quizConfig.json — it must be bundled and decode as-is (§3.2)"
+        )
+        let corpus = Self.reflectedStrings(of: config) + Self.reflectedStrings(of: QuizConfig.degraded)
+
+        // Non-vacuity floor: the 13-slot draft reflects 12 titles + ~76 choice
+        // strings + helpers + echoes + controls — far above 40; a collapse to fewer
+        // means the walk (or the decode) silently broke.
+        #expect(
+            Self.reflectedStrings(of: config).count >= 40,
+            "the reflected quiz corpus collapsed — the scan would be vacuous"
+        )
+
+        for string in corpus {
+            let violation = Self.firstViolation(in: string)
+            #expect(
+                violation == nil,
+                "forbidden lexicon '\(violation ?? "?")' must never appear in the quiz — a quiz prompt is a calm question, never a verdict (brandkit §1.2): \(string)"
+            )
+        }
+    }
+
     // MARK: - Table completeness (the audit-found inline strings, byte-exact)
 
     @Test func test_slipTable_carriesDashboardStrings_byteExactWithRenderedCopy() throws {

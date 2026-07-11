@@ -42,6 +42,12 @@ final class QuitRepository {
     /// invariant 3). Defaulted to the transmit-nothing service, so construction
     /// sites opt in per test exactly like `debounceSleep`.
     private let analytics: AnalyticsService
+    /// E5.2 — the quiz resume checkpoint (app-STANDARD defaults by design, R5 —
+    /// never the App Group suite, §10). Injected so erase tests use a throwaway
+    /// suite; defaulted so existing construction sites are untouched (the
+    /// debounceSleep/analytics precedent). Erase must sweep it (relaunch =
+    /// fresh install).
+    private let quizProgressStore: QuizProgressStore
     private let debounceSleep: @Sendable (Duration) async -> Void
     private var pendingReload: Task<Void, Never>?
 
@@ -53,6 +59,7 @@ final class QuitRepository {
         cloud: any CloudSyncControlling,
         appGroupDefaults: UserDefaults,
         panicSnapshotStore: PanicSnapshotStore,
+        quizProgressStore: QuizProgressStore = QuizProgressStore(),
         debounceSleep: @escaping @Sendable (Duration) async -> Void = { try? await Task.sleep(for: $0) },
         analytics: AnalyticsService = .disabled
     ) {
@@ -67,6 +74,7 @@ final class QuitRepository {
         self.panicOutcomeBuffer = PanicOutcomeBuffer(
             directoryURL: panicSnapshotStore.fileURL.deletingLastPathComponent()
         )
+        self.quizProgressStore = quizProgressStore
         self.debounceSleep = debounceSleep
         self.analytics = analytics
     }
@@ -300,6 +308,30 @@ final class QuitRepository {
         rebuildPanicSnapshot()
         scheduleWidgetReload()
         return quit
+    }
+
+    /// E5.2 — the quiz's create (architecture §5.1: the `from profile:` form arrives
+    /// with its consumer). RED STUB — deliberately ignores the profile: no field
+    /// mapping, no max-3 guard, no profile insert/link, no anchor. The designed
+    /// failures on the red commit (QuizCompletionTests + the erase pin).
+    @discardableResult
+    func createQuit(from profile: QuizProfile) throws -> Quit {
+        let quit = Quit()
+        context.insert(quit)
+        try context.save()
+        rebuildPanicSnapshot()
+        scheduleWidgetReload()
+        return quit
+    }
+
+    /// E5.2 — the quiz completion seam (Architect MUST-FIX 7): `QuizProfile` is a
+    /// @Model, so it is assembled HERE (the sole SwiftData importer), never in a
+    /// Quiz/* view or model — the composition root hands `QuizFlowModel` this
+    /// method reference as its `onComplete`.
+    func completeQuiz(_ answers: [QuizAnswer]) throws {
+        let profile = QuizProfile()
+        profile.answers = answers
+        _ = try createQuit(from: profile)
     }
 
     /// Synchronous local slip log: archive → best, bank the ended streak, restart the

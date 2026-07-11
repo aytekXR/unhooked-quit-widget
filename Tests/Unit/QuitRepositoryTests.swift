@@ -397,4 +397,20 @@ struct QuitRepositoryTests {
         let names = Set(PersistentStore.schema.entities.map(\.name))
         #expect(names == ["Quit", "Slip", "UrgeEvent", "QuizProfile", "AppSettings"])
     }
+
+    // MARK: - E5.2 · the post-gate routing decision (Epic-5-DoD un-bypassability
+    // down-payment at the unit tier — QA §5 ruling, Session 17): a passed gate with
+    // no quit lands on the QUIZ, never directly on content. Lives beside the E5.1
+    // persist pin the same way that pin landed here.
+
+    @Test func test_postGate_noActiveQuit_routesToQuiz() {
+        #expect(
+            QuizGateRouting.postGateScreen(hasActiveQuit: false) == .quiz,
+            "a passed gate with no active quit mounts the onboarding quiz — content is reachable only through gate → quiz → quit"
+        )
+        #expect(
+            QuizGateRouting.postGateScreen(hasActiveQuit: true) == .dashboard,
+            "an existing quit mounts the dashboard placeholder, not a re-run quiz"
+        )
+    }
 }
