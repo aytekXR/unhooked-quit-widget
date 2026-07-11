@@ -2,21 +2,22 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v2.6 |
-| Last updated | 2026-07-10 (Session 14 close: E4.2 COMPLETE — red `29122473990` → green `29123195424`, 2 billed runs, zero burned) |
-| Phase | Phase 1 core build — Epics 0–1 CLOSED; E2.1–E2.4 + E3.1–E3.3 + E4.1–E4.2 DONE; delivery 16/32 (50%) |
-| Next session objective | **Session 15: E8.1 — typed `AnalyticsEvent` enum + `AnalyticsService` (TelemetryDeck wrapper; unblocks E5.1 and retires the deferred-events backlog)** |
+| Document | Resume Prompt v2.7 |
+| Last updated | 2026-07-11 (Session 15 close: E8.1 COMPLETE — burned `29130610823` → red evidence `29130875659` → green `29131380401`, 3 billed runs) |
+| Phase | Phase 1 core build — Epics 0–1 CLOSED; E2.1–E2.4 + E3.1–E3.3 + E4.1–E4.2 + E8.1 DONE; delivery 17/32 (53%) |
+| Next session objective | **Session 16: E5.1 — age gate (first screen); resolve the `age_gate_blocked` schema tension BEFORE red (see below)** |
 
-> **What changed in Session 14:** E4.2 shipped WHOLE in 2 runs — the permanent
-> zero-shame gate `SlipLexiconTests.test_slipStrings_containNoForbiddenLexicon()`
-> (37-token lexicon, casefold+diacritic-fold matching, word-boundary `sin`/`cure`,
-> reflection-driven corpus so new `SlipCopy` fields can't dodge the scan, an
-> only-grows foundation-floor pin), and the copy centralization: `slipCopy.json`
-> gained the `dashboard` section (byte-identical to the shipped literals),
-> `SlipCopy.Dashboard` is decode-tolerant (retryNote precedent), and
-> `RootPlaceholderView` renders every slip string from the ONE audited table. NO
-> goldens changed. The checklist's human half → operator (`operator-expected.md`
-> §3). Full ledger: Session 14 in `docs/past-prompts.md`.
+> **What changed in Session 15:** E8.1 shipped WHOLE — the closed `AnalyticsEvent`
+> enum (19 MVP §5 cases byte-pinned, no Date/float representable, snake_case
+> `panic_opened` source map), the @MainActor `AnalyticsService` facade whose `fire()`
+> is the ONE consent gate (default OFF), the `AnalyticsSink` seam, TelemetryDeck
+> 2.14.1 exact-pinned with a lazy post-frame dormant transport (empty operator app
+> ID ⇒ NoopSink — the ADR-8 double gate), and the FIRST live fire-points:
+> `urge_averted` (warm + cold flush arms) and `slip_undone` — both red-first, both
+> post-save. One run burned on a missing test-file import (new gate below). ALSO:
+> the operator's Control Center panic fix is UNCOMMITTED on their Mac —
+> `operator-expected.md` §0; it constrains which files agents may touch (see
+> standing note 6). Full ledger: Session 15 in `docs/past-prompts.md`.
 
 ---
 
@@ -28,149 +29,161 @@
    prompt; check blast radius before editing public symbols. **Before the
    session-end commit: `codegraph sync` + confirm `codegraph status` clean.**
 2. **Parse gate**: `swiftc -parse` every touched Swift file before every push.
+   **Session 15 lesson — the parse gate is IMPORT-BLIND (syntax-only):** for every
+   NEW test file, copy the import block from the closest proven neighbor
+   (SlipFlushTests for repository harnesses) and grep the file's non-Foundation
+   types against its imports before push — a missing `import StreakEngine` burned
+   run `29130610823` after sailing through parse, harness, AND two critics
+   (a read-only critic's "compiles clean" claim is NOT compile evidence).
 3. **Access-level gate (Session 12):** scan for private types named in non-private
-   signatures (`@Test` methods are internal), and `swiftc -typecheck` a scratch
-   harness on the Linux toolchain for every NEW pure-Foundation API shape —
-   include a USAGE-exercise file calling the new API the way the tests will.
-   **Session 14 refinement: RUN the harness, don't just typecheck it** — empirical
-   assertions over the exact shipping bytes (decode both states, exercise the
-   exact algorithm over the exact corpus) caught everything before CI, twice.
+   signatures (`@Test` methods are internal), and RUN (never just typecheck) a
+   Linux scratch harness over the exact shipping bytes of every pure-Foundation
+   API, with usage-exercise — both red and green profiles when a designed red
+   exists (Session 15: both predictions matched CI test-for-test).
 4. **Docs-check gate (Session 13):** every Darwin-only / AppIntents / SF-Symbol /
-   third-party-SDK member spelling gets verified against official docs (the
-   `developer.apple.com/tutorials/data/...json` endpoints work headlessly) BEFORE
-   the code is written. Never answer SDK questions from memory. **E8.1 note: this
-   now covers the TelemetryDeck SDK surface too — verify signal/parameter APIs
-   against its official docs, and pin the SPM dependency EXACT (the
-   SnapshotTesting 1.19.3 precedent).**
+   third-party-SDK member spelling gets verified against official docs BEFORE the
+   code is written. **Session 15 refinement: for SPM deps, ALSO clone the pinned
+   tag and grep the actual source** (product names, signatures, reserved-key lists)
+   — it caught nothing this time only because the web docs-check was right; it is
+   cheap and decisive.
 5. Docs-only commits carry `[skip ci]`; never spawn agent workflows for docs-only
-   changes (operator rule). **Subagent structured outputs keep dying at the retry
-   cap (Sessions 13 AND 14, sweep + both critics): critic/reader agents must
-   Write findings to a scratchpad file and return a one-line pointer — reserve
-   structured outputs for small schemas.** Salvage path if it happens anyway: the
-   payloads survive in the workflow transcript `agent-*.jsonl`.
+   changes (operator rule). Critic/reader agents Write findings to a scratchpad
+   file and return a one-line pointer (zero structured-output retry-cap deaths in
+   Session 15 — the fix works); salvage path if violated: `agent-*.jsonl`.
+6. **Mac-tree conflict guard (until operator-expected §0 closes):** the operator's
+   uncommitted panic fix owns `UnhookedApp.swift`, `RootPlaceholderView.swift`,
+   `PanicLaunchFlag.swift`, `Shared/Sources` intent files, `WarmPanicEntry.swift`
+   (new), `PanicWarmLaunchTests.swift` (new). Do NOT edit these files; `git fetch`
+   + `git log origin/main` before EVERY push (operator commits mid-session); if the
+   fix lands mid-session, rebase and re-run the parse gate on any overlap.
+7. **Privacy-surface gate (agent-workflows §2.2, exercised in Session 15):**
+   anything touching stores/`AnalyticsEvent`/outbound gets an Architect-agent
+   pre-approval BEFORE implementation; adding an enum case is Architect-gated AND
+   requires the MVP §5 table row to exist first.
 
 ## Where we are
 
-- **StreakEngine 1.2.0** — untouched since Session 07; E8.1 needs ZERO engine work.
-- **E4.2 is DONE and green** (`29123195424`): `slipCopy.json` is THE one audited
-  slip strings table (now incl. the `dashboard` section); `SlipLexiconTests` is
-  the permanent unit-lane gate; `RootPlaceholderView` has no inline slip literals;
-  `SlipCopy.degraded` is total (incl. `Dashboard.degraded`).
-- **Analytics seams waiting for E8.1** (all deliberately deferred to it):
-  `panic_opened` (source channel EXISTS since E3.3 — `UrgeEvent.source` persists
-  per-launch attribution), `urge_averted` / `slip_logged` / `slip_undone`
-  (repository writes exist; MVP §5: `slip_logged` fires POST-undo-window, never at
-  tap — `finalizePendingSlips` is the natural hook), `panic_step_reached` (model
-  records `stepsReached`), `erase_all_completed` (erase flow exists),
-  `quiz_*`/paywall events (features not built yet — enum cases only).
-- **TestFlight: LIVE** through the green run. CI signing read-only; never
-  re-enable MATCH_BOOTSTRAP. macOS CI minutes bill 10x.
-- Brand kit stays load-bearing: no red anywhere; no shame lexicon (now
-  CI-enforced for slip strings); discreet variants neutral; motivations VERBATIM.
+- **The analytics boundary is LIVE**: every future feature instruments against the
+  closed enum (that was E8.1's whole point — "enum lands week 1"). Adding an event
+  = MVP §5 row + Architect approval + case + fixture + whitelist entry (the
+  completeness tests force the last two).
+- **Consent is double-gated shut**: `isOptedIn` hardwired `{ false }` in
+  RepositoryProvider until E8.2's consent step; transport dormant until the
+  operator drops the TelemetryDeck app ID (`AnalyticsConfiguration`,
+  operator-expected §8). Zero events can leave any build today.
+- **Deferred fire-points (each named, none forgotten):** `slip_logged` — the
+  four-arm post-save placement is spec'd VERBATIM in the Session 15 Architect
+  verdict (scratchpad is gone; the ledger's Process notes summarize it: fire once
+  per row transitioning to permanent, post-save, quit-guarded, at logSlip's
+  superseded-priors / flush's superseded+lands-finalized / undoSlip past-window /
+  finalizePendingSlips window-closed arms; NEVER inside `finalizeRow` — it runs
+  pre-save); `panic_opened` (blocked by standing note 6; consumption sites);
+  `panic_step_reached` (ADR-6 warm-up design needed: first consented receive must
+  not pay SDK init pre-frame in PanicFlowModel construction);
+  `erase_all_completed` (consent-wipe ordering design; TODO comment at the erase
+  seam stands).
+- **StreakEngine 1.2.0** — untouched. **TestFlight LIVE** through green
+  `29131380401`. CI signing read-only; never re-enable MATCH_BOOTSTRAP; macOS
+  minutes bill 10x.
+- Brand kit load-bearing: no red anywhere; slip strings CI-gated (SlipLexiconTests);
+  discreet variants neutral; motivations VERBATIM.
 
 ## Next session objective (one session, definition of done below)
 
-**Session 15 — E8.1 typed `AnalyticsEvent` enum + `AnalyticsService`**
-(implementation-plan row, verbatim goal): the §5.1 architecture enum wrapped by
-the app-local `AnalyticsService` over the TelemetryDeck SDK — forbidden
-properties are unrepresentable; opt-in default OFF; on-device queue. App code,
-NOT a shared package (architecture §14).
+**Session 16 — E5.1 age gate (first screen)** (implementation-plan row, verbatim
+goal): birth-year entry; under-17 blocked to resources; only a boolean stored.
 
-1. **Red first** (billed run 1), the four plan-named tests:
-   `test_analyticsFacade_hasNoGenericTrackMethod()` (API-shape assertion),
-   `test_slipLogged_payload_hasNoTimestampProperty()`,
-   `test_everyEventCase_serializesOnlyWhitelistedKeys()` (exhaustive over
-   `CaseIterable` fixtures), `test_optOut_sendsNothing()` (network spy — zero
-   events before opt-in is an MVP §5/release-criteria HARD rule).
-2. **Green** (billed run 2): the closed enum (every MVP §5 event, properties per
-   its table ONLY — no journal content, no slip timestamps, `cold_start_ms`
-   bucketed), the service with opt-in default OFF + on-device queue, TelemetryDeck
-   SPM dep pinned exact. Wiring existing seams (panic/slip/urge/erase call sites)
-   is IN scope if the run budget holds — the enum's whole point is that features
-   instrument against it; wiring quiz/paywall events is NOT (features don't exist).
-3. **Acceptance:** every §5 event representable; forbidden properties
-   unrepresentable BY TYPE; opt-in gate proven by the network spy.
-4. Scope guards: no dashboards/insights (E8.2 owns the proxy-inspection doc);
-   analytics NEVER on the panic path pre-frame (ADR-6 thinness — fire-and-forget
-   after first frame, or from the store-side write); `logSlip` stays synchronous-
-   local (the event fires beside, never inside, the durable write); never weaken
-   a QA assertion; SwiftData stays inside `App/Sources/Persistence/**`.
-5. **Risk note (new-dependency class):** adding the TelemetryDeck SPM package to
-   project.yml is the first third-party runtime dep since SnapshotTesting — a CI
-   build-failure risk the parse gate can't catch. Mitigate: docs-check the SDK
-   API first; pin exact; if the SDK fights the macOS CI build, land the enum +
-   service behind a protocol seam with a no-op transport (the HapticsPlaying
-   precedent) and defer the SDK binding — the four named tests bind to the
-   facade, not the transport.
-6. Budget: 2 billed runs.
+0. **BEFORE red — resolve the schema tension:** the plan's third named test
+   `test_ageGate_firesAgeGateBlocked_withNoAgeProperty()` fires `age_gate_blocked`,
+   which is NOT an MVP §5 row, and the enum is closed + Architect-gated + byte-pinned
+   (adding a case without a fixture/whitelist row fails the completeness tests BY
+   DESIGN). Path: PM-style decision recorded in the ledger + MVP §5 row added
+   deliberately + Architect approval + case/fixture/whitelist in the SAME red — or
+   re-spec the test against an existing event. Do not silently invent the event.
+1. **Red first** (billed run 1): the three plan-named tests —
+   `test_ageGate_under17_blocksAndShowsResources()`,
+   `test_ageGate_birthYearNeverPersisted()` (AppSettings gains ONLY `ageGatePassed`),
+   the third per the step-0 decision.
+2. **Green** (billed run 2): the gate screen (first screen, before ANY habit
+   content — feasibility condition #6), resources routing for under-17, boolean-only
+   persistence.
+3. Scope guards: safety-content sign-off applies (age gate is on the
+   agent-workflows §2.2 stricter-loop list — PM+Brand+QA copy table before code;
+   operator adjudicates disagreement); no quiz screens beyond the gate (E5.2); no
+   birth year in ANY store, file, or payload (test-pinned).
+4. Budget: 2 billed runs (+ check operator-expected §4 headroom — Session 15 used 3).
+
+## Operator-owned blockers (not agent work; carry until closed)
+
+1. **§0 URGENT: the Control Center panic fix is uncommitted on your Mac** — push
+   it; device-verify cold+warm; decide sheet-vs-cover (operator-expected §0).
+2. E0.3 device measurement (`docs/spike-panic-latency.md`) — still the only blocker
+   on the permanent latency gate.
+3. E3.3 device matrix (operator-expected §7).
+4. Content tone review + E4.2 copy-audit checklist signature (operator-expected §3).
+5. GitHub Actions billing headroom (§4 — Session 15 used 3 runs, 1 burned).
+6. TestFlight housekeeping (§5); Slack webhook rotation (§6, optional).
+7. NEW §8: TelemetryDeck app ID whenever convenient (transport stays dormant and
+   harmless without it).
 
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app name **Ballast**,
-> org `com.beyondkaira`). E4.2 is DONE (green `29123195424`); Session 15 = E8.1
-> typed `AnalyticsEvent` enum + `AnalyticsService` (see the objective above).
-> Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`. **Standing gates:**
-> CodeGraph query-first + sync at close; `swiftc -parse` every touched file; the
-> access-level scan + Linux harness RUN empirically with usage-exercise;
-> docs-check every SDK spelling (incl. TelemetryDeck) before writing code;
-> docs-only commits `[skip ci]`, no workflows for docs-only work; critic/reader
-> subagents Write findings to files, never big structured outputs.
-> READ FIRST: `docs/implementation-plan.md` E8.1 row + Epic 8 DoD,
-> `docs/mvp.md` §5 (the event table — the ONLY properties allowed),
-> `docs/architecture.md` §5.1 + §14, the E3.3/E4.1 deferred-seam list in the
-> Session 13/14 ledgers, `docs/session-rules.md`.
-> **This session:** red (the four named tests) → THE red-evidence run → green
-> (closed enum + service, opt-in OFF, exact-pinned SDK or the no-op-transport
-> fallback) → verify all-green → wire existing seams if budget holds → flag
-> anything operator-owned. Budget 2 billed macOS runs.
-> **At session end:** append the Session 15 ledger, overwrite this resume prompt
-> (next objective per `roadmap.md` — likely E5.1 age gate, now unblocked),
-> update `docs/operator-expected.md`, `codegraph sync`, commit `[skip ci]`,
-> push, `gh run watch` green.
-
-## Operator-owned blockers (not agent work; carry until closed)
-
-1. **E0.3 device measurement** (`docs/spike-panic-latency.md`) — STILL the only
-   blocker on the permanent latency gate.
-2. **E3.3 device matrix** (`docs/operator-expected.md` §7) — lock screen / CC /
-   Action button / in-app × Focus on/off, one airplane-mode pass; includes the
-   "Reset" control gallery check.
-3. **Content tone review + the NEW E4.2 copy-audit checklist sign-off**
-   (`docs/operator-expected.md` §3): the mechanical half is CI-enforced now;
-   the judgment half (MVP §7 "copy audit" line) needs your signature. The E4.2
-   dashboard strings are byte-moves — no new drafting to review beyond E4.1's
-   `confirm.retryNote`.
-4. TestFlight housekeeping: internal-tester group; expire the stray
-   bundle-version-"1" build.
-5. GitHub Actions billing headroom: Session 14 used 2 runs; Session 15 needs 2.
-6. Slack webhook rotation (optional hygiene) — unchanged.
+> org `com.beyondkaira`). E8.1 is DONE (green `29131380401`); Session 16 = E5.1
+> age gate — but FIRST resolve the `age_gate_blocked` schema tension (objective
+> step 0 above: MVP §5 has no such row; the enum is closed, byte-pinned, and
+> Architect-gated). Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`.
+> **Standing gates:** CodeGraph query-first + sync at close; `swiftc -parse` every
+> touched file + the NEW import-coverage check on every new test file (copy the
+> closest proven neighbor's import block — Session 15 burned a run on this);
+> access-level scan + Linux harness RUN empirically; docs-check every SDK spelling
+> (clone pinned tags for SPM deps); docs-only commits `[skip ci]`, no workflows for
+> docs-only work; critics Write findings to files; privacy-surface changes need
+> Architect pre-approval BEFORE implementation; safety-content (the age gate IS
+> one) needs the PM+Brand+QA copy sign-off before code; do NOT touch the
+> Mac-panic-fix file set (resume-prompt standing note 6) until operator-expected
+> §0 closes.
+> READ FIRST: `docs/implementation-plan.md` E5.1 row + Epic 5, `docs/mvp.md` §5
+> (the closed event table) + §7, `docs/architecture.md` §5.1 + ADR-8,
+> `docs/operator-expected.md` §0/§4/§8, the Session 15 ledger's deferred
+> fire-point list, `docs/session-rules.md`.
+> **This session:** step-0 schema decision → red (the three named tests) → THE
+> red-evidence run → green (gate screen + boolean-only persistence + resources
+> routing) → verify all-green → flag operator-owned items.
+> **At session end:** append the Session 16 ledger, overwrite this resume prompt
+> (next objective per `roadmap.md` — likely E5.2 quiz engine or E8.2 consent
+> screen; E8.2 also retires the hardwired `isOptedIn: { false }`), update
+> `docs/operator-expected.md`, `codegraph sync`, commit `[skip ci]`, push,
+> `gh run watch` green.
 
 ## Standing rules reminders (do not relearn these)
 
-- No shame copy (slip strings now CI-gated by `SlipLexiconTests` — the lexicon
-  only GROWS); no medical claims; no red anywhere in UI; discreet variants
-  mandatory; motivations render VERBATIM in user order.
-- Analytics via the closed `AnalyticsEvent` enum only (E8.1 BUILDS it); zero
-  events before opt-in; `logSlip` stays synchronous-local on the store-backed
-  path; `slip_logged` fires post-undo-window (MVP §5), never at tap.
+- Analytics ONLY via the closed `AnalyticsEvent` enum (LIVE since E8.1); zero
+  events before opt-in (the gate is `AnalyticsService.fire`, the one and only);
+  never a generic track; adding a case = MVP §5 row + Architect + fixture +
+  whitelist (completeness tests enforce). Analytics never pre-frame on the panic
+  path (ADR-6); fires are post-save, BESIDE writes, never inside (invariant 3).
+- No shame copy (slip strings CI-gated; lexicon only GROWS); no medical claims; no
+  red anywhere in UI; discreet variants mandatory; motivations VERBATIM in user
+  order.
 - Monotonic fields never decrease — undo is the ONE sanctioned exemption (§9r3);
-  streaks freeze, never inflate (ADR-7). `Quit.totalCleanSeconds` is BANKED-only.
+  streaks freeze, never inflate (ADR-7); `Quit.totalCleanSeconds` is BANKED-only.
 - WITNESS discipline: three advance paths only; erase clears it; flush/undo never
   advance it; deferred slips apply with the SLIP-TIME witness, windows with nil.
-- Erase discipline: local-first; key sweep (3 flag keys — the full
-  `dictionaryRepresentation` sweep covers them); owned file-set sweep; cloud
-  purge last.
-- Panic path stays thin (ADR-6): panic surfaces NEVER open the store; single-
-  writer pre-cache pin; single store; no accounts (ADR-2). Analytics never
-  pre-frame on the panic path.
-- E3.3 attribution ceiling is a RECORDED ADJUSTMENT: control family →
-  `.controlCenter`; `.actionButton` reserved; do not "fix" it without a platform
-  API.
-- Never weaken a QA assertion; TDD red first (red evidence = the CI run on the
-  red commit; build failures are NOT evidence); `cloudKitDatabase` stays `.none`
-  until the §4.3 flip (which must also design undone-slip tombstoning).
+- Erase discipline: local-first; key sweep; owned file-set sweep; cloud purge last;
+  `logSlip` stays synchronous-local.
+- Panic path stays thin (ADR-6): panic surfaces NEVER open the store; single-writer
+  pre-cache pin; single store; no accounts (ADR-2).
+- E3.3 attribution ceiling is a RECORDED ADJUSTMENT (control family →
+  `.controlCenter`); the analytics wire map covers all five PanicSource cases
+  snake_case — never fabricate `.actionButton`.
+- Never weaken a QA assertion; TDD red first (red evidence = the CI run on the red
+  commit; build failures are NOT evidence — Session 15 paid to relearn this);
+  `cloudKitDatabase` stays `.none` until the §4.3 flip (undone-slip tombstoning
+  designs with it).
 - Snapshot goldens: pinned in-test geometry (.iPhone13) + AX5 axis; re-record
-  deliberately via the CI artifact; SnapshotTesting exact-pinned at 1.19.3.
+  deliberately via the CI artifact; SnapshotTesting 1.19.3 + TelemetryDeck 2.14.1
+  exact-pinned.
 - Carried product notes: store-route SlipFraming passes momentum/motivation nil
-  (feed real values in the dashboard epic); dashboard-half slip XCUITest waits
-  for the fixture-seeding session.
+  (dashboard epic feeds real values); dashboard-half slip XCUITest waits for the
+  fixture-seeding session.

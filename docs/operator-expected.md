@@ -3,14 +3,26 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (Session 15 OPEN: NEW §0 — the Control Center panic fix is uncommitted on your Mac; push it. E8.1 build work proceeds in parallel) |
+| Last updated | 2026-07-11 (Session 15 CLOSE: E8.1 COMPLETE — the analytics boundary is live and double-gated shut; §0 panic-fix push STILL OPEN; NEW §8 TelemetryDeck app ID) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the running session (E8.1 — typed `AnalyticsEvent` enum +
-`AnalyticsService`; it unblocks E5.1) — but **§0 is urgent in a way the rest
-isn't**: an uncommitted, device-verified fix lives only in your Mac's working
-tree. Items below §0 are ordered by how much they age; check a box by replacing
-`[ ]` with `[x]` and the next session's agent will prune completed items.
+Nothing below blocks the next session (E5.1 age gate — though its agent must
+resolve the `age_gate_blocked` schema tension first, see the resume prompt) — but
+**§0 is urgent in a way the rest isn't**: an uncommitted, device-verified fix
+lives only in your Mac's working tree. Items below §0 are ordered by how much
+they age; check a box by replacing `[ ]` with `[x]` and the next session's agent
+will prune completed items.
+
+> **Session 15 outcome (2026-07-11):** E8.1 is DONE — the closed `AnalyticsEvent`
+> enum (19 MVP §5 events, forbidden properties unrepresentable BY TYPE) +
+> `AnalyticsService` with the consent gate (default OFF) + TelemetryDeck 2.14.1
+> exact-pinned behind a DORMANT transport; `urge_averted`/`slip_undone` fire live
+> (in-process only — nothing can leave any build until BOTH the E8.2 consent step
+> ships AND you provide the app ID in §8). **Billed runs used: 3** (one burned on
+> a missing test-file import — red `29130610823` burned → red evidence
+> `29130875659` → green `29131380401` + TestFlight). The zero-burn streak ended
+> at three sessions; the gate that closes this failure class is recorded in the
+> resume prompt.
 
 > **Session 14 outcome (2026-07-10):** E4.2 is DONE — every slip/relapse string now
 > comes from the ONE audited table (`slipCopy.json`, new `dashboard` section is a
@@ -112,10 +124,11 @@ Mac) — exists ONLY in the Mac's working tree. This build machine and
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
-- [ ] Session 14 used **2** billed macOS runs (red → green, none burned); Session 15
-      (E8.1 analytics enum + service) plans **2**. Note: E8.1 adds the TelemetryDeck
-      SPM dependency — a new build-risk class; the session plan carries a no-op
-      transport fallback so a fighting SDK can't burn extra runs. Check
+- [ ] Session 15 used **3** billed macOS runs (**1 burned**: a new test file was
+      missing an import — TEST BUILD FAILED with no red evidence; the gate that
+      closes this class is now standing rule #2 in the resume prompt). Session 16
+      (E5.1 age gate) plans **2**. The TelemetryDeck SPM dependency resolved
+      cleanly on CI (no extra runs from the new-dependency risk class). Check
       Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
@@ -166,6 +179,20 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
 > Control Center vs lock-screen slot vs Action button apart — one control
 > registration serves all three and YOU assign placement. Rows 2/4/5 recording
 > `controlCenter` is correct behavior. `.actionButton` stays reserved in the schema.
+
+## 8. TelemetryDeck app ID — the E8.1 transport ships DORMANT until you provide it (~10 min, whenever)
+
+- [ ] Create the app in the **TelemetryDeck console** (SaaS credentials are
+      operator-held by design — agent-workflows §1.3) and paste the app ID into
+      `AnalyticsConfiguration.telemetryDeckAppID`
+      (`App/Sources/TelemetryDeckSink.swift`). Until then the transport is a Noop
+      sink and the SDK is never even initialized — zero bytes leave any build.
+      **No urgency**: consent is independently hardwired OFF until E8.2's consent
+      screen ships, so this is the second half of a double gate.
+- [ ] While creating the app, decide the **salt** (optional `Config(appID:salt:)`
+      hardening — 64 random chars; TelemetryDeck says set it once and never change
+      it, or distinct-user continuity breaks). Record the decision; wiring it is a
+      one-line agent edit.
 
 ---
 

@@ -1697,7 +1697,7 @@ globs into UnhookedTests — zero ci.yml changes).
   slip XCUITest → fixture-seeding session; E0.3 device measurement still the only
   blocker on the permanent latency gate (all unchanged).
 
-## Session 15 — 2026-07-11 — E8.1 typed `AnalyticsEvent` enum + `AnalyticsService` (IN PROGRESS — ledger opened early on operator request)
+## Session 15 — 2026-07-11 — E8.1 typed `AnalyticsEvent` enum + `AnalyticsService` (COMPLETE; ledger opened early on operator request, closed same session)
 
 ### Session-open operator-action record (logged before build work, per operator ask)
 
@@ -1724,3 +1724,100 @@ are exactly the files hot in the operator's uncommitted Mac tree; keeping E8.1's
 file set disjoint keeps the operator's push conflict-free. All other E8.1 work
 proceeds autonomously. `git log`/fetch checked before every push in case the Mac
 fix lands mid-session (the standing operator-commits-mid-session pattern).
+
+### Objective & outcome (session close)
+
+Resume prompt v2.6: E8.1 — typed `AnalyticsEvent` enum + `AnalyticsService`.
+**DONE in 3 billed runs, 1 burned** (the zero-burn streak ends at three): red commit
+`b43b03d` burned run `29130610823` — TEST BUILD FAILED, `AnalyticsWiringTests` was
+missing `import StreakEngine` (ManualClock's `MonotonicNow`), zero red evidence —
+→ one-line fix `78eb84c` → **red evidence `29130875659`** (157 tests / 17 suites:
+EXACTLY the 23 designed failing cases / 33 issues — 17 whitelist kinds + slipLogged
+payload + optOut 19-leak + panicOpened wire pin + 3 spy-empty wiring — zero
+collateral, every other suite green) → **green `2cc3e1d` run `29131380401`**
+all-green same session (157/157 unit, 17/17 snapshot) + TestFlight upload.
+
+### What shipped
+
+- **The closed enum**: 19 cases == the MVP §5 rows byte-exact (wire names pinned as
+  a set in-test); associated values REUSE the model enums (HabitCategory / GoalMode /
+  PanicStep / PanicSource — one source of truth; `custom` is the wire ceiling,
+  `Quit.customLabel` unreachable by type); new String-raw value enums for the rest
+  (ColdStartBucket under_1s/1s_to_2s/over_2s, PaywallSource, PriceTestVariant,
+  SubscriptionPeriod, WidgetKind, DiscreetComponent, ResourcesSource). No Date and
+  no float is representable in ANY associated value (Mirror-walk pinned). NOTE:
+  `panic_opened` source serializes an EXPLICIT snake_case map, never
+  `PanicSource.rawValue` (camelCase) — Architect MUST-FIX #2, pinned by test.
+- **`AnalyticsService`** (@MainActor facade — the deliberate migration from the
+  E0.2 non-isolated stub, Architect Q1): `fire()` is the ONE consent gate (opt-in
+  default OFF, `isOptedIn` injected); `AnalyticsSink` @MainActor transport seam
+  (test-suite §3.1's `SpyAnalyticsSink` shape in both test files); `NoopAnalyticsSink`
+  + `.disabled` as the universal injection default.
+- **TelemetryDeck 2.14.1 exact-pinned** (project.yml, app target ONLY), spellings
+  verified against BOTH official docs and the cloned pinned-tag source;
+  `TelemetryDeckSink` lazy-inits the SDK on first receive — never in UnhookedApp.init
+  (ADR-6: nothing pre-frame on the panic path; the SDK asserts on pre-init signals
+  in DEBUG); the SDK's on-disk SignalCache (10k, retry/backoff) IS the plan's
+  on-device queue. **The ADR-8 double gate**: consent hardwired false until E8.2's
+  consent step ships the stored opt-in, AND the transport is DORMANT behind the
+  empty operator-owned app ID (`AnalyticsConfiguration.telemetryDeckAppID`,
+  operator-expected §8) — zero events before consent, by construction, twice over.
+- **Wired seams, red-first** (phasing amendment ACKed by the Architect: the wiring
+  tests rode the red commit with a compile-surface-only `analytics:` param — the
+  debounceSleep additive precedent, ~8 construction sites untouched): `urge_averted`
+  warm arm (logUrgeEvent, post-save) + cold arm (flushPanicOutcomes post-commit
+  collect-and-fire; quit-guarded — R-NILQUIT rows fire nothing; rollback forfeits
+  rows AND events together); `slip_undone` (undoSlip true arm, post-save; the two
+  calm no-op arms fire nothing).
+- **Docs (§7 rules 8+9, same commit)**: architecture §5.1 gains the AnalyticsSink
+  landed note (code names authoritative over the sketch's
+  AnalyticsServiceProtocol/FunnelEvent — Architect-confirmed, no ADR addendum);
+  test-suite §4.5 pinned to the 19 wire names + in-process test cross-refs +
+  `erase_all_completed` spelling drift fixed (was "confirmed").
+
+### Process notes (ultracode session)
+
+- **The privacy-surface pre-approval gate was exercised for real** (agent-workflows
+  §2.2): Architect agent APPROVED-WITH-CHANGES before any code. MUST-FIX #1 killed
+  the planned `finalizeRow` slip_logged shortcut by reading the actual bodies — it
+  runs PRE-save inside logSlip/flushPanicOutcomes (invariant-3 breach), fires on
+  quit-less orphans, and misses the cold lands-finalized arm; the verdict specifies
+  the correct four-arm post-save placement verbatim for the future wiring session.
+  The mid-session phasing amendment went back to the SAME Architect agent
+  (SendMessage continuation) and got a reasoned ACK.
+- **Critic findings now go to files** (the Session 13/14 structured-output death
+  class): zero retry-cap deaths this session. But: **a read-only critic's "compiles
+  clean" claim is NOT compile evidence** — critic A asserted the wiring tests
+  compile; the burned run proved otherwise.
+- **THE BURNED RUN + the new gate**: `swiftc -parse` is IMPORT-BLIND (syntax-only)
+  and the Linux harness compiles the APP file's bytes, not test files — a missing
+  `import StreakEngine` sailed through both. New rule for every NEW test file:
+  copy the import block from the closest proven neighbor (SlipFlushTests for
+  repository harnesses) and run an import-coverage check (grep the file's
+  non-Foundation types against its imports) before push.
+- Empirical Linux harness ran the EXACT shipping AnalyticsService.swift bytes in
+  BOTH modes (red: 17/19 whitelist asymmetry + 19-leak + pins, EXACT MATCH; green:
+  clean, EXACT MATCH) — the billed runs matched both predictions test-for-test.
+- TelemetryDeck reserved-parameter-key list checked against all 15 payload keys —
+  no collision (`type` is reserved; we don't use it).
+
+### Known limitations / carried forward
+
+- **Deferred fire-points, each with a named reason**: `slip_logged` (four-arm
+  post-save spec sits verbatim in the Architect verdict — its own focused session);
+  `panic_opened` (call sites are hot in the operator's uncommitted Mac panic-fix
+  tree — operator-expected §0); `panic_step_reached` (ADR-6 warm-up tension: once
+  consent can be ON, the first receive could be pre-frame `.breath` during
+  PanicFlowModel construction — needs an init-warm-up design); `erase_all_completed`
+  (fires-after-consent-wipe ordering inside eraseEverything needs its own small
+  design; the named TODO comment stands).
+- **E8.2 owns**: the consent screen writing `AppSettings.analyticsOptIn` + the
+  device-local mirror + replacing the hardwired `isOptedIn: { false }` in
+  RepositoryProvider; the payload-audit doc; dashboards.
+- **E5.1 is unblocked BUT carries a schema tension**: its third named test
+  (`test_ageGate_firesAgeGateBlocked_withNoAgeProperty`) fires an `age_gate_blocked`
+  event that is NOT an MVP §5 row — adding a case is Architect-gated and needs the
+  MVP table amended deliberately (or the test re-specced) BEFORE the red run.
+- Operator-expected: §0 (Mac panic-fix push + device verify + sheet decision) still
+  open; NEW §8 (TelemetryDeck app ID, no urgency); §4 updated (Session 15 used 3
+  runs, 1 burned).
