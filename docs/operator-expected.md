@@ -134,13 +134,18 @@ a live failure. Original context, for the record:
 
 ## 5. TestFlight housekeeping — carried from Sessions 07–09; NOW TIMELY
 
+> **NEW (Session 16, on your request): step-by-step walkthrough in
+> `docs/testflight-tester-guide.md`** — internal group setup, external
+> groups/public link, and both items below, with the Ballast-specific context
+> (CI uploads internal-only; build worth distributing = the `8a0c469` one).
+
 - [ ] Add internal testers (nobody receives builds until a tester group exists).
       **This item just became timely:** tonight uploaded two builds, and the
       newest (from `8a0c469`) is the first with the WORKING Control Center panic
       button + warm-launch sheet + the slip flow — the first build genuinely
-      worth putting in someone else's hands.
+      worth putting in someone else's hands. Follow Part 1 of the guide.
 - [ ] Expire the stray bundle-version-"1" build; answer export compliance only if
-      App Store Connect prompts.
+      App Store Connect prompts (guide Part 3 has the exact answers).
 
 ## 6. Slack webhook rotation — optional hygiene, ~5 min
 
