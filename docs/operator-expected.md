@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (Session 15 CLOSE: E8.1 COMPLETE — the analytics boundary is live and double-gated shut; §0 panic-fix push STILL OPEN; NEW §8 TelemetryDeck app ID) |
+| Last updated | 2026-07-11 (post-Session-15 update: §0 CLOSED — you pushed the panic fix (`8a0c469`, rebased, CI `29132554144` all-green + TestFlight) and device-verified both paths; sheet ruling stands unvetoed. NEW §8 TelemetryDeck app ID) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
 Nothing below blocks the next session (E5.1 age gate — though its agent must
-resolve the `age_gate_blocked` schema tension first, see the resume prompt) — but
-**§0 is urgent in a way the rest isn't**: an uncommitted, device-verified fix
-lives only in your Mac's working tree. Items below §0 are ordered by how much
-they age; check a box by replacing `[ ]` with `[x]` and the next session's agent
-will prune completed items.
+resolve the `age_gate_blocked` schema tension first, see the resume prompt).
+**§0 is CLOSED** (fix pushed + device-verified; only its optional gstack FYI
+remains). Items below §0 are ordered by how much they age; check a box by
+replacing `[ ]` with `[x]` and the next session's agent will prune completed
+items.
 
 > **Session 15 outcome (2026-07-11):** E8.1 is DONE — the closed `AnalyticsEvent`
 > enum (19 MVP §5 events, forbidden properties unrepresentable BY TYPE) +
@@ -33,31 +33,31 @@ will prune completed items.
 > burned — third zero-burn session in a row). Nothing rendered changed: no golden
 > was touched. Your half of the E4.2 acceptance is the §3 checklist signature below.
 
-## 0. ⚠️ Control Center panic fix is UNCOMMITTED on your Mac — push it (Session 15, 2026-07-11)
+## 0. ✅ CLOSED (same day) — Control Center panic fix: pushed, rebased, device-verified
 
-Your device report ("Panic control did nothing") was root-caused and fixed in a
-Mac-side debug session: `OpenPanicControlIntent`/`OpenPanicIntent` were compiled
-only into the widget extension (iOS silently no-ops a control whose
-`openAppWhenRun` intent isn't in the app target), plus a latent warm-launch bug
-(the flag was consumed only in `UnhookedApp.init`). The fix — intents moved to
-`Shared/Sources`, new `App/Sources/WarmPanicEntry.swift` warm gate, new
-`Tests/Unit/PanicWarmLaunchTests.swift` (151/151 unit + 17/17 snapshot on the
-Mac) — exists ONLY in the Mac's working tree. This build machine and
-`origin/main` are at `9f69f2b` WITHOUT it.
+Resolution (2026-07-11): you pushed the fix as **`8a0c469`** (rebased cleanly onto
+the E8.1 session commits — the file sets were kept disjoint on purpose), CI run
+**`29132554144`** went all-green (162/162 unit incl. the 5 new
+`PanicWarmLaunchTests`, 17/17 snapshot, TestFlight uploaded), and you confirmed
+both device paths work (cold CC tap → panic flow; warm CC tap → sheet). The
+sheet-vs-cover ruling stands unvetoed. **CI-history note:** the two ✗ runs from
+the same evening are `29130610823` (burned build, documented in the Session 15
+ledger) and `29130875659` (the E8.1 red-evidence run — red BY DESIGN); neither is
+a live failure. Original context, for the record:
 
-- [ ] **Commit & push the fix from the Mac** (2 moved, 3 edited, 2 new files).
+- [x] **Commit & push the fix from the Mac** (2 moved, 3 edited, 2 new files).
       Until then the verified fix is one careless `git checkout` from being lost,
       and the build installed on your iPhone corresponds to no commit. If
       Session 15 has already pushed E8.1 commits by the time you do this, pull
       and rebase first — the touched file sets were kept disjoint on purpose
       (see the deferral note below). Push protection tripping ⇒ secret-ify,
       never unblock-URL.
-- [ ] **Device-verify both paths** (the debug session's ask): COLD — app not
+- [x] **Device-verify both paths** (the debug session's ask): COLD — app not
       running, tap Control Center "Panic" → app launches straight into the
       panic flow. WARM — app open on the dashboard, pull down Control Center,
       tap Panic → panic flow appears as a sheet over the dashboard. Doing §1's
       latency capture in the same sitting kills two birds.
-- [ ] **Decide the warm-mount presentation:** it ships as a swipe-dismissible
+- [x] **Decide the warm-mount presentation:** it ships as a swipe-dismissible
       SHEET, not a full-screen cover, because the celebration screen has no
       dismiss button and a cover would trap you there. Veto (= you want a hard
       cover + a designed dismiss affordance) or accept; if accepted, silence —
@@ -65,12 +65,11 @@ Mac) — exists ONLY in the Mac's working tree. This build machine and
 - [ ] FYI from that Mac session: `gstack` 1.39 → 1.60 is available —
       `/gstack-upgrade` on the Mac when convenient.
 
-> **Session 15 consequence (already handled, nothing for you to do):** E8.1
-> deliberately does NOT wire the `panic_opened` analytics call site this
-> session — its consumption points (`UnhookedApp` init / `WarmPanicEntry` /
-> `RootPlaceholderView`) are exactly the files hot in your uncommitted Mac
-> tree. The seam stays deferred one more session to keep your push
-> conflict-free; everything else in E8.1 proceeds.
+> **Now-obsolete Session 15 consequence (kept for the record):** E8.1 deferred
+> the `panic_opened` wiring because its call sites were hot in the then-uncommitted
+> Mac tree. With `8a0c469` landed, that guard is RETIRED — `panic_opened` wiring
+> is unblocked for a future wiring session (its `cold_start_ms` VALUE still waits
+> on the §1 latency numbers; the case ships unfired until then).
 
 ## 1. E0.3 panic-latency device measurement — carried since Session 02, load-bearing
 

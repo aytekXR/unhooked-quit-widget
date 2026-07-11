@@ -1821,3 +1821,20 @@ all-green same session (157/157 unit, 17/17 snapshot) + TestFlight upload.
 - Operator-expected: §0 (Mac panic-fix push + device verify + sheet decision) still
   open; NEW §8 (TelemetryDeck app ID, no urgency); §4 updated (Session 15 used 3
   runs, 1 burned).
+
+### Post-close addendum (2026-07-11, same day)
+
+The operator pushed the Mac panic fix as **`8a0c469`** ("fix: control-family
+panic launch — intents gain app-target membership + warm-launch consumption"),
+rebased cleanly onto the session's commits (the disjoint-file-set plan held), plus
+a `[skip ci]` gitignore chore (`5a39b07`). CI run **`29132554144`**: all-green —
+162/162 unit (Session 15's 157 + the fix's 5 `PanicWarmLaunchTests`), 17/17
+snapshot, TestFlight uploaded. Operator device-verified BOTH paths working (cold
+CC tap → panic flow; warm CC tap → sheet over dashboard); the sheet-vs-cover
+ruling stands unvetoed. `operator-expected.md` §0 is CLOSED (only the optional
+gstack FYI remains); resume-prompt standing note 6 (Mac-tree conflict guard) is
+RETIRED — `panic_opened` wiring is unblocked, with `WarmPanicEntry` now a third
+consumption site to instrument when it lands. One operator-support note: the
+Actions list's two same-evening ✗ runs (`29130610823` burned, `29130875659` the
+designed red) read as "CI fails" at a glance — both are documented above; every
+run since is green.

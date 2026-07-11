@@ -50,12 +50,13 @@
    changes (operator rule). Critic/reader agents Write findings to a scratchpad
    file and return a one-line pointer (zero structured-output retry-cap deaths in
    Session 15 — the fix works); salvage path if violated: `agent-*.jsonl`.
-6. **Mac-tree conflict guard (until operator-expected §0 closes):** the operator's
-   uncommitted panic fix owns `UnhookedApp.swift`, `RootPlaceholderView.swift`,
-   `PanicLaunchFlag.swift`, `Shared/Sources` intent files, `WarmPanicEntry.swift`
-   (new), `PanicWarmLaunchTests.swift` (new). Do NOT edit these files; `git fetch`
-   + `git log origin/main` before EVERY push (operator commits mid-session); if the
-   fix lands mid-session, rebase and re-run the parse gate on any overlap.
+6. **RETIRED same day (kept so numbering holds):** the Mac-tree conflict guard.
+   The operator pushed the panic fix as `8a0c469` (rebased; CI `29132554144`
+   all-green + TestFlight; both device paths confirmed working). Its files are
+   ordinary editable surface again, and `panic_opened` wiring is UNBLOCKED (the
+   `cold_start_ms` value still waits on E0.3 numbers — the case ships unfired).
+   The general habit survives the guard: `git fetch` + `git log origin/main`
+   before EVERY push — the operator commits mid-session.
 7. **Privacy-surface gate (agent-workflows §2.2, exercised in Session 15):**
    anything touching stores/`AnalyticsEvent`/outbound gets an Architect-agent
    pre-approval BEFORE implementation; adding an enum case is Architect-gated AND
@@ -77,7 +78,9 @@
   per row transitioning to permanent, post-save, quit-guarded, at logSlip's
   superseded-priors / flush's superseded+lands-finalized / undoSlip past-window /
   finalizePendingSlips window-closed arms; NEVER inside `finalizeRow` — it runs
-  pre-save); `panic_opened` (blocked by standing note 6; consumption sites);
+  pre-save); `panic_opened` (UNBLOCKED — the Mac fix landed as `8a0c469` with
+  `WarmPanicEntry` as a third consumption site; the `cold_start_ms` VALUE still
+  waits on E0.3 numbers, the case ships unfired);
   `panic_step_reached` (ADR-6 warm-up design needed: first consented receive must
   not pay SDK init pre-frame in PanicFlowModel construction);
   `erase_all_completed` (consent-wipe ordering design; TODO comment at the erase
@@ -115,8 +118,9 @@ goal): birth-year entry; under-17 blocked to resources; only a boolean stored.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
-1. **§0 URGENT: the Control Center panic fix is uncommitted on your Mac** — push
-   it; device-verify cold+warm; decide sheet-vs-cover (operator-expected §0).
+1. ~~§0 panic-fix push~~ **CLOSED same day**: `8a0c469` landed (rebased, CI
+   `29132554144` all-green + TestFlight), operator device-verified cold+warm,
+   sheet ruling stands unvetoed. Only the optional gstack FYI remains in §0.
 2. E0.3 device measurement (`docs/spike-panic-latency.md`) — still the only blocker
    on the permanent latency gate.
 3. E3.3 device matrix (operator-expected §7).
@@ -140,9 +144,9 @@ goal): birth-year entry; under-17 blocked to resources; only a boolean stored.
 > (clone pinned tags for SPM deps); docs-only commits `[skip ci]`, no workflows for
 > docs-only work; critics Write findings to files; privacy-surface changes need
 > Architect pre-approval BEFORE implementation; safety-content (the age gate IS
-> one) needs the PM+Brand+QA copy sign-off before code; do NOT touch the
-> Mac-panic-fix file set (resume-prompt standing note 6) until operator-expected
-> §0 closes.
+> one) needs the PM+Brand+QA copy sign-off before code; `git fetch` +
+> `git log origin/main` before every push (the operator commits mid-session —
+> the Session 15 panic fix landed exactly that way, as `8a0c469`).
 > READ FIRST: `docs/implementation-plan.md` E5.1 row + Epic 5, `docs/mvp.md` §5
 > (the closed event table) + §7, `docs/architecture.md` §5.1 + ADR-8,
 > `docs/operator-expected.md` §0/§4/§8, the Session 15 ledger's deferred
