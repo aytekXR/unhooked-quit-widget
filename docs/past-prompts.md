@@ -2324,3 +2324,190 @@ both classes are recorded above); the eight vetoable rulings above.
   same polish batch.
 - `latestSummaryInputs()` is an unindexed fetch — fine at the ≤3-profile scale
   (critic-noted; a sortBy+fetchLimit descriptor is the drop-in if it ever grows).
+
+## Session 19 — 2026-07-11 — E8.2 consent screen + payload-audit doc (COMPLETE, 2 billed runs, zero burned — the streak restarts)
+
+### Objective & outcome
+
+Resume prompt v3.0: E8.2 — the consent screen at the reserved quizConfig slot-3
+seam + `docs/payload-audit.md`, step-0 rulings (a)–(e) FIRST, red-first with the
+two plan-named tests + the render/live-gate/decline/checkpoint-free/resume/erase
+pins. **DONE in exactly the 2 planned billed runs, zero burned:** red commit
+`7bf9595` → **red evidence `29164705316`** (225 tests / 26 suites — EXACTLY the
+39 designed issues across exactly the 14 designed failing tests; the two-lane
+prediction matched issue-for-issue: the pure lane's 34 issues were predicted
+EMPIRICALLY by the Linux harness — the sixth consecutive harness-predicted red —
+and the SwiftData lane's 5 were hand-enumerated; build green, snapshot green, UI
+smoke green, zero collateral) → green commit `b17ce0f` → **final green
+`29165381934`** all-green + TestFlight, same session. The session-open operator
+check (the operator's explicit ask) found NOTHING blocking and it held end to
+end: zero operator input needed open to close.
+
+### Step-0 rulings + the panel rulings (all operator-vetoable, recorded in operator-expected)
+
+1. **(a) The rendered consent step EMITS `quiz_step_completed(3)`** — post-choice
+   (the tap writes durably BEFORE Continue advances), through the generic gate
+   with ZERO special-casing: the live `fire()` gate itself drops it for decliners
+   and passes it for opted-in users. It is the cleanest opt-in-numerator proxy
+   (the first transmittable event = "reached consent AND opted in") and keeps the
+   consenting funnel contiguous 3→4→…→14. Veto = suppress (a documented one-line
+   fork in ConsentGateTests flips test #3 to its inverse).
+2. **(a-consequence, recorded LIMITATION) The opt-in RATE has no event-based
+   denominator:** `onboarding_started` and slots 1–2 fire pre-consent and are
+   gate-dropped for EVERYONE (MVP §5's "fire nothing before the choice", enforced
+   at the one gate) — the measurable funnel BEGINS at slot 3. Numerator ≈
+   `quiz_step_completed(3)` volume; denominator must come from App Store Connect
+   units. No code, a reporting note — the honest reading of ADR-8 once a consent
+   event is forbidden (none may be added; MVP §5 is operator-only).
+3. **(b) BOTH hardwired-off sites retired into ONE live service (Architect
+   Amendment B):** the composition root constructs the single production
+   `AnalyticsService` (real sink + live closure), the repository VENDS it, and
+   `PostGateRootView` consumes the vended service — views never construct sinks
+   or consent reads. The self-reference (closure needs the repository; the
+   service is a repository constructor arg) broke with a 2-line late-bound
+   `ConsentReader` (fail-closed default, weak back-reference — cycle-free). The
+   rejected alternative (raw `mainContext` read in the closure) would have forked
+   the read authority for a privacy-critical field. `AgeGateContainerView` keeps
+   `.disabled` — the age-gate surface stays zero-fire, belt-and-braces.
+4. **(c) The consent choice persists to `AppSettings.analyticsOptIn` AT THE TAP,
+   and can never be a QuizAnswer or checkpoint byte BY TYPE (Architect Amendment
+   A):** slot 3 renders via a NEW `StepKind.consent` — NOT `singleChoice` (whose
+   generic chip toggle records QuizAnswers into the checkpoint) and NOT a
+   seam+owner exception (which would re-open the `visibleSteps` predicate that
+   scope-guard e forbids touching; it stayed byte-identical). The render path
+   calls the new `QuizFlowModel.recordConsent(_:)` ONLY: transient
+   `consentChoice` for Continue-gating (stored `false` is ambiguous between
+   declined/unanswered — never read back), `persistConsent` injected (the
+   onComplete/persistPass precedents; `try?` = fail-closed). Writer =
+   `setAnalyticsOptIn` sharing `fetchOrCreateAppSettings` (Session-16 MUST-FIX
+   #6 honored verbatim); reader = `isAnalyticsOptedIn()` fetch-only `?? false`.
+5. **(d) Resume around slot 3 holds WITHOUT the checkpoint carrying consent:**
+   past-consent resumes past (the choice lives in AppSettings — never re-asked);
+   killed-ON-consent resumes ON it with a fresh deliberate pick required
+   (`consentChoice` nil on every construction — never a pre-selection). The
+   chose-then-killed-before-advance edge is PROVABLY harmless: no event can
+   transmit in the re-decide window (onboarding_started is resume-suppressed AND
+   gate-dropped; slot 3 fires only on the deliberate re-Continue, reading the
+   re-pick). Post-erase: the AppSettings row deletion rebirths default-false —
+   consent resets OFF with ZERO new erase code (test-pinned).
+6. **(e) The consent copy lives IN quizConfig.json slot 3 (in place)** — consent
+   IS an engine-rendered step, so the steps[] hazard cut the OTHER way here.
+   PM+Brand+QA joint sign-off (safety-content gate) BEFORE code; **Brand
+   SIGNED-WITH-CHANGES: "anonymous" STRUCK from title + opt-in label** as the one
+   word the payload audit cannot verify (a legal characterization, not an
+   observable; an asymmetric reassurance riding only the accept button; a
+   "usage"-collision with the helper) → ship copy "Share app usage data?" /
+   "Share usage data" / "No thanks", with the STRONGER audit-backed "never tied
+   to you" folded into the tightened helper ("…never your answers, notes, or the
+   times you log…"). All four strings DRAFT/founder-owned (§3 pass), verified
+   lexicon-clean empirically pre-push, auto-scanned by the reflection corpus.
+7. **The degraded config stays consent-free (Architect Q4, QA-pinned):** a
+   decode-emergency user simply never opts in — fail-closed default-off is the
+   privacy-safe divergence from "prompt in early steps"; an unmeasured emergency
+   path defaulting to no-collection is the right direction. Pinned by
+   `test_degradedConfig_hasNoConsentStep_soDegradedUsersStayOptedOut`.
+8. **`quit_created` DEFERRED AGAIN (QA ruling, scope-guard c exercised):** E8.2
+   is the consent+audit slice of Epic 8, not the event-wiring batch; guard-4 was
+   deliberately left UN-widened because it is PROTECTIVE exactly while consent
+   churns the completion seam; the honest wiring needs its own session (post-save
+   fire, quitIndex 1–3 ordinal pins, multi-quit fixture, the throwing-4th case).
+9. **No new UITest (QA §5):** everything is unit-coverable; goldens stay deferred
+   (founder pass); the one thing a UITest uniquely proves (rendered control →
+   real wire) is exactly the payload audit's job on a REAL device with real TLS.
+   The a11y-id build obligation shipped (`quiz.step.consent`,
+   `quiz.choice.optIn`/`quiz.choice.decline`) so E7's smoke can drive the step.
+10. **No Settings opt-out surface yet (PM recorded candidate):** the copy is
+    correctly SILENT on reversibility (promise nothing unbuilt — Brand commended
+    and flagged "do NOT let it creep back at the founder pass"). A real Settings
+    analytics toggle is the GDPR/revocability fast-follow; roadmap item, not
+    this session.
+
+### What shipped
+
+- **`QuitRepository`:** `isAnalyticsOptedIn()` (fetch-only, fail-closed, the ONE
+  read authority), `setAnalyticsOptIn(_:)` (shared singleton helper + sync save),
+  `analyticsService` (the vend). **`RepositoryProvider.liveRepository`:** the
+  `ConsentReader` late-bound live closure (weak, cycle-free) replaces
+  `isOptedIn: { false }`. **`PostGateRootView`:** vended service + `persistConsent`
+  wiring replaces `analytics: .disabled`.
+- **`QuizFlowModel`:** transient `consentChoice`, defaulted `persistConsent`
+  param, `recordConsent(_:)` (write-at-tap). **`QuizConfig.StepKind.consent`** +
+  the flipped slot-3 JSON entry (signed strings; `_meta` notes updated).
+  **`QuizFlowView`:** the `.consent` control — two EQUAL pill rows (the sibling
+  chip shape exactly; glyph-carried selection; no red; no pre-selection;
+  opt-in first, decline an equal second) + the `.consent` Continue-gating branch.
+- **Tests:** `ConsentGateTests` (10, pure/Linux-harnessable) +
+  `ConsentPersistenceTests` (5, SwiftData; the two PLAN-NAMED tests live here) +
+  the six E5.2-era R4 pins reversed in the red commit. 225 total, 26 suites.
+- **`docs/payload-audit.md`:** the standing operator MITM gate — release-criteria
+  mapping table, mitmproxy setup, ingest-host allowlist (`nom.telemetrydeck.com`,
+  verify-on-first-run note), the 4-path procedure (fresh / zero-before-consent /
+  decliner / opted-in), the code-derived allow-list + HARD-NEVER absence set, a
+  worked FAIL example, the archive checklist producing App-Privacy-label inputs,
+  §7 re-run triggers. §1 states the sequencing precondition prominently: the
+  property half CANNOT run until the operator's §8 app ID ships in a build.
+
+### Process notes (ultracode session)
+
+- **Workflows end to end:** spec+approvals (PM → parallel Architect/Brand/QA, 4
+  agents), 3 green critics — 7 agents, zero deaths, all findings to scratchpad
+  files. Architect PRE-APPROVED-WITH-AMENDMENTS (3 amendments, all honored);
+  Brand SIGNED-WITH-CHANGES (the "anonymous" strike); QA READY (15 tests, the
+  DEFER-quit_created ruling, the no-UITest ruling, the 11-point audit checklist).
+- **THREE lead-agent catches beyond the panel (recorded amendments, Session-18
+  precedent):** (i) the Architect's reversal list named three E5.2 pins but the
+  model-tier trace found SIX — `test_quiz_everyStepAdvance` (the fired-slot
+  array + its parameterized argument list), `test_quiz_backNavigation` (back
+  from frequency now lands on consent), and the resume-checkpoint hop test all
+  flip too; all six rode the red commit and the harness proved them. (ii) The
+  reversed AC10 pin was written ID-BASED (`kind != .seam` + strings-present),
+  NOT `.consent`-kind-based — naming the new enum case at red would have dragged
+  `StepKind.consent` + the exhaustive-switch arm into the red commit (an
+  isolation-blind-class hazard). (iii) QA's stub naming (`analyticsOptIn()`)
+  yielded to the Architect's interface contract (`isAnalyticsOptedIn()`) — the
+  privacy gate owns interface names; QA's mechanics survived unchanged.
+- **The two-lane harness discipline held for the sixth session:** red profile
+  11 failing / 34 issues EMPIRICAL on Linux (the mirrored suite = verbatim
+  shipping bytes of the whole pure lane + byte-identical Codable extracts);
+  green profile 25/25 over the exact shipping bytes INCLUDING an in-harness
+  mirror of the lexicon matcher run over the four new consent strings; the
+  billed red run reported EXACTLY the predicted 39 (34 + 5 hand-enumerated).
+- **Green critics earned their keep as burn-insurance:** the compile critic
+  REPRODUCED the two riskiest Swift-6 constructs under
+  `-strict-concurrency=complete -warnings-as-errors` (the ConsentReader
+  non-Sendable-closure isolation inheritance; the `try?`-in-Void-closure
+  persistConsent) rather than reasoning about them — both EXIT 0. The one
+  cross-critic note (hardcoded `Color.white` on the selected chip vs a
+  brand/onPrimary token that does not exist in-repo) matches the shipping
+  sibling chips byte-for-byte and rides the post-founder-copy polish/golden
+  batch (the Session-18 SHOULD-B class).
+
+### Operator-action record (the session-open check, per the operator's standing ask)
+
+**Nothing blocked the session** — operator-expected.md's header said so and the
+open verified it explicitly: §3 founder pass unchecked → only consequence:
+goldens stay deferred (already scope-guard d); §8 app ID absent → the transport
+stays dormant BY DESIGN (the audit doc's §1 precondition records it); §1/§2/§5/
+§6/§7 carried non-blocking; zero new operator commits on origin/main; the root
+OPERATOR-TODO.md still the pointer. **It held: zero operator input needed open
+to close.** NEW for the operator (all in operator-expected.md): §3 gains the 4
+consent DRAFT strings (one Brand style-fork noted); §8 is now the LAST gate on
+real funnel data and gains the run-the-audit follow-up; §4 the honest 2-run
+count; the ten vetoable rulings above.
+
+### Known limitations / carried forward
+
+- **The payload audit's EXECUTION is operator-owned** and sequenced behind §8:
+  zero-before-consent verifiable now; the property half needs the app ID build.
+- **E7 owns:** the paywall behind the summary CTA seam, `paywall_viewed`, the
+  teaser A/B, scenario-29 re-landed WITH drive diagnostics (UITEST_RESET still
+  has no consumer, stays inert), and driving the consent step in that smoke.
+- **Deferred fire-points unchanged:** `slip_logged`, `panic_opened` (E0.3),
+  `panic_step_reached`, `erase_all_completed`, `quit_created` (ruling 8 — its
+  own wiring session WITH the guard-4 widening).
+- **Settings analytics opt-out** — recorded roadmap candidate (ruling 10).
+- Consent strings DRAFT until the founder pass; Epic-5 goldens (+ the consent
+  step screen now) wait on it; the Color.white/onPrimary polish rides that batch.
+- The dashboard is still `RootPlaceholderView`; E6 owns the widget suite and the
+  real streak surface (`widget-state.json` writer seam ready in
+  `rebuildSnapshots()`).

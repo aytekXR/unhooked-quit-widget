@@ -3,13 +3,33 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (Session 18 CLOSED: E5.3 personalized summary DONE — **Epic 5 is now fully closed** — red evidence `29156626484` (EXACTLY the 31 designed issues, harness-predicted label-for-label on two lanes) → burned `29157369825` (the new XCUITest class missed `@MainActor`; gate now in standing rule #2) → `29157616479` verified the implementation whole (unit 210/210 + snapshot) but the new gate→quiz→summary smoke flaked its FIRST drive → the pre-recorded QA valve fired: scenario-29 defers to E7 → final green `29158183470` + TestFlight, **4 billed runs**. The newest TestFlight build completes the M1 loop: gate → quiz → the SUMMARY PAYOFF (your projected savings + your likely hard window + your words) → dashboard → panic with your words. **The step-0 social-proof ruling: the screen is DEFERRED** (no real reviews exist pre-launch; fabricated ones are banned) — veto path below. Nothing blocks Session 19 = E8.2 consent. Open for you: §1–§8; §3 now also carries the SUMMARY copy rows. Session 16 + 17 + 18 vetoable rulings at the bottom.) |
+| Last updated | 2026-07-11 (Session 19 CLOSED: E8.2 consent + payload-audit doc DONE — red evidence `29164705316` (225 tests, EXACTLY the 39 designed issues / 14 designed failing tests, two-lane-predicted issue-for-issue) → green `29165381934` all-green + TestFlight, **2 billed runs, zero burned — the streak restarts**. The quiz now asks "Share app usage data?" at fixed slot 3 (default OFF, decline a first-class equal, no dark pattern); your choice gates every analytics fire LIVE; the transport stays dormant until your §8 app ID — **§8 is now the LAST gate on real funnel data**, and `docs/payload-audit.md` is your MITM release gate once it lands. Nothing blocks Session 20 = E6.1 widget timeline provider (possibly a ZERO-billed-run session — the package lane is Linux-free). Open for you: §1–§8; §3 gains the 4 consent DRAFT strings. Session 16–19 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E8.2 consent). **§0 is CLOSED**
-(only its optional gstack FYI remains). Items below §0 are ordered by how much
-they age; check a box by replacing `[ ]` with `[x]` and the next session's
-agent will prune completed items.
+Nothing below blocks the next session (E6.1 widget timeline provider). **§0 is
+CLOSED** (only its optional gstack FYI remains). Items below §0 are ordered by
+how much they age; check a box by replacing `[ ]` with `[x]` and the next
+session's agent will prune completed items.
+
+> **Session 19 outcome (2026-07-11):** E8.2 is DONE — the consent step renders at
+> the quiz's fixed slot 3 ("Share app usage data?" — plain-language helper, the
+> two choices visually EQUAL, default off, nothing pre-selected, nothing sent
+> before the choice), your pick persists to `AppSettings.analyticsOptIn` at the
+> tap, and the hardwired consent-off closures are RETIRED: the one production
+> analytics gate now reads your stored choice live on every fire, so an opt-in
+> made mid-quiz governs that same run's later events (the summary's
+> quiz_completed included) while a decline transmits nothing, ever. Post-erase =
+> consent OFF again, re-asked (test-pinned). **`docs/payload-audit.md` is NEW —
+> your operator-run MITM release gate** (mitmproxy procedure, the code-derived
+> allow-list, a worked FAIL example, the archive checklist that feeds the App
+> Privacy label); its §1 explains the sequencing: the property half can only run
+> AFTER your §8 app ID ships in a build (the zero-before-consent half is
+> verifiable even now). **Billed runs: exactly the 2 planned, zero burned**
+> (red evidence `29164705316` matched the two-lane prediction issue-for-issue —
+> the sixth consecutive harness-predicted red → green `29165381934` +
+> TestFlight). Your NEW asks: §3 gains the 4 consent DRAFT strings (one style
+> fork flagged); §8 gains the run-the-audit follow-up and is now the LAST gate
+> on real funnel data. Ten vetoable rulings at the bottom.
 
 > **Session 18 outcome (2026-07-11):** E5.3 is DONE and **Epic 5 is closed** — the
 > personalized summary renders at quiz completion (projected annual savings =
@@ -195,6 +215,23 @@ a live failure. Original context, for the record:
       (b) whether the motivations step should gain an optional free-text
       "why does {motivation} matter to you?" elaboration (enriches the panic
       reasons screen; local-only like all answers) — a copy/UX call, not built yet.
+- [ ] **NEW (Session 19 — THE CONSENT STRINGS, ~5 min, rides the same pass):**
+      quizConfig.json's slot-3 step now carries the 4 consent strings — title
+      "Share app usage data?", the helper ("You'd share which steps you reach and
+      your habit type — never your answers, notes, or the times you log, and
+      never tied to you. It's off until you choose, and nothing's been sent
+      yet."), and the two choice labels "Share usage data" / "No thanks". All
+      DRAFT/founder-owned like their siblings; PM+Brand+QA joint-signed
+      (safety-content gate) with ONE Brand strike already applied: "anonymous"
+      was removed everywhere as an unverifiable overclaim — the payload audit
+      can prove what leaves the device, not that it is "anonymous"; the
+      audit-backed "never tied to you" carries the reassurance instead. Two
+      founder calls ride along: (a) the helper's opener is the conditional
+      "You'd share…" (Brand's marginally-less-nudging pick) vs the imperative
+      "Turn this on to share…" — both register-clean, your call; (b) do NOT let
+      any "change this anytime in Settings" promise creep in — no settings
+      analytics surface exists yet (a recorded roadmap candidate), and the copy
+      must promise nothing unbuilt.
 - [ ] **NEW (Session 18 — THE SUMMARY COPY ROWS, ~10 min, rides the same pass):**
       `App/Resources/Content/summaryCopy.json` — 11 DRAFT strings for the
       summary screen (eyebrow, savings caption + no-spend reframe, the six
@@ -228,8 +265,16 @@ a live failure. Original context, for the record:
       `29158183470`. BOTH closing gates recorded in the resume prompt
       (class-annotation coverage; smokes with unproven drive interactions
       defer until they can land with diagnostics). Session 19 (E8.2 consent)
-      plans **2, with 1 contingency**. Check Settings → Billing → spending
-      limit before the session.
+      used **exactly its 2 planned runs, zero burned** — the zero-burn streak
+      restarts (red evidence `29164705316` = exactly the 39 predicted issues,
+      the sixth consecutive harness-predicted red; the green critics now
+      REPRODUCE risky Swift-6 constructs under warnings-as-errors instead of
+      reasoning about them — that practice caught nothing this time because
+      there was nothing to catch, which is the point). Session 20 (E6.1 widget
+      timeline provider) plans **0–1 billed runs + 1 contingency** — the
+      WidgetToolkit package lane runs on FREE Linux CI, so if the step-0 split
+      keeps app-side work out, this is the first potentially zero-billed-run
+      session. Check Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
@@ -242,12 +287,14 @@ a live failure. Original context, for the record:
 
 - [ ] Add internal testers (nobody receives builds until a tester group exists).
       **This item is now MAXIMALLY timely (Session 17, doubled by Session 18):**
-      the newest build (from `3b091d9`, run `29158183470`) completes the M1
-      loop — a tester installs, passes the gate, answers the quiz, sees THE
-      SUMMARY PAYOFF (their savings figure, their hard window, their words),
-      and gets a real quit whose panic flow speaks their own motivations. That
-      is the product thesis in one hand-off. Follow Part 1 of the guide. (The
-      earlier `8a0c469` note stands superseded.)
+      the newest build (from `b17ce0f`, run `29165381934`) completes the M1
+      loop — a tester installs, passes the gate, answers the quiz (now incl.
+      the calm "Share app usage data?" consent step at its third screen —
+      declining changes nothing about their experience), sees THE SUMMARY
+      PAYOFF (their savings figure, their hard window, their words), and gets a
+      real quit whose panic flow speaks their own motivations. That is the
+      product thesis in one hand-off. Follow Part 1 of the guide. (The earlier
+      `8a0c469` note stands superseded.)
 - [ ] Expire the stray bundle-version-"1" build; answer export compliance only if
       App Store Connect prompts (guide Part 3 has the exact answers).
 
@@ -291,19 +338,30 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
 > registration serves all three and YOU assign placement. Rows 2/4/5 recording
 > `controlCenter` is correct behavior. `.actionButton` stays reserved in the schema.
 
-## 8. TelemetryDeck app ID — the E8.1 transport ships DORMANT until you provide it (~10 min, whenever)
+## 8. TelemetryDeck app ID — NOW THE LAST GATE on real funnel data (~10 min + a ~30 min audit when you're ready)
 
 - [ ] Create the app in the **TelemetryDeck console** (SaaS credentials are
       operator-held by design — agent-workflows §1.3) and paste the app ID into
       `AnalyticsConfiguration.telemetryDeckAppID`
       (`App/Sources/TelemetryDeckSink.swift`). Until then the transport is a Noop
       sink and the SDK is never even initialized — zero bytes leave any build.
-      **No urgency**: consent is independently hardwired OFF until E8.2's consent
-      screen ships, so this is the second half of a double gate.
+      **Status change (Session 19): E8.2's consent step SHIPPED, so this is now
+      the ONLY remaining gate** — the moment a build carries your app ID, opted-in
+      users' funnel events (quiz steps 3–13, quiz_completed, urge_averted,
+      slip_undone) start flowing; decliners still transmit nothing, ever. Still
+      no urgency — but it is now a one-item decision, not half a double gate.
 - [ ] While creating the app, decide the **salt** (optional `Config(appID:salt:)`
       hardening — 64 random chars; TelemetryDeck says set it once and never change
       it, or distinct-user continuity breaks). Record the decision; wiring it is a
       one-line agent edit.
+- [ ] **NEW (Session 19, sequenced AFTER the app ID ships in a TestFlight
+      build): run `docs/payload-audit.md`** — your operator-only MITM release
+      gate (~30 min with the doc open; mitmproxy + the step-by-step §4
+      procedure). Archive the result per its §6 checklist
+      (`docs/audits/payload-audit-<build>.md`) — that archive IS the Epic 8
+      DoD's operator half and the evidence base for the App Privacy label. The
+      zero-before-consent half is verifiable on today's dormant build too, if
+      you want a dry run of the tooling.
 
 ---
 
@@ -434,3 +492,49 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
      read against the caption is YOUR §3 copy call (Brand's alternative
      recorded there); extreme-accessibility hero sizing (stack-vs-shrink)
      rides the post-copy-pass polish/golden batch.
+- **Session 19 (E8.2 consent) — the panel-signed rulings, each vetoable (all
+  held through the green close):**
+  1. **The rendered consent step EMITS `quiz_step_completed(3)`** — post-choice,
+     through the generic gate (decliners are gate-dropped by the gate itself;
+     zero special-casing). It is the cleanest opt-in-numerator proxy and keeps
+     the consenting funnel contiguous 3→14. Veto = suppress the slot-3 fire (a
+     documented one-line test fork; tell Session 20).
+  2. **Recorded LIMITATION, not a bug: the opt-in RATE has no event-based
+     denominator.** `onboarding_started` and quiz slots 1–2 fire BEFORE the
+     consent choice, so the gate drops them for everyone (your mvp.md §5's
+     "fire nothing before the opt-in choice", enforced literally). The
+     measurable funnel begins at slot 3; an opt-in rate needs an external
+     denominator (App Store Connect units). The alternative — a consent event —
+     is forbidden (no §5 row; adding one is yours alone).
+  3. **Both hardwired consent-off sites retired into ONE vended live service**
+     (composition root constructs; repository vends; the quiz model consumes) —
+     an opt-in at slot 3 governs the same run's later fires. The age-gate
+     surface keeps its dead service (zero-fire, belt-and-braces).
+  4. **The consent choice is a device setting, by type:** slot 3 renders via a
+     new `StepKind.consent` whose UI can only call `recordConsent` → your
+     stored `AppSettings.analyticsOptIn` (written AT the tap) — never a
+     QuizAnswer, never the resume checkpoint. Erase resets it OFF (the existing
+     AppSettings row deletion; test-pinned).
+  5. **Brand struck "anonymous" from the consent copy** (title + accept button)
+     as an unverifiable overclaim and an asymmetric nudge; the audit-backed
+     "never tied to you" rides the helper instead. Veto = restore it, but note
+     the payload audit cannot prove the word.
+  6. **The degraded emergency config carries NO consent step** — its users
+     simply never opt in (fail-closed; an unmeasured emergency path defaulting
+     to no-collection is the safe direction). Veto = a hardcoded degraded
+     consent step (needs its own copy sign-off round).
+  7. **`quit_created` deferred AGAIN, deliberately:** guard-4 (the opted-in spy
+     that must see NOTHING at quit creation) was left un-widened precisely
+     because it protected the completion seam while consent churned it. The
+     wiring earns its own session (ordinal pins, multi-quit fixture, the
+     guard-4 widening in the same commit).
+  8. **No new UITest; the payload audit IS the end-to-end wire's gate** (a
+     simulator UITest never touches real TLS or the real SDK's batching). The
+     consent step shipped with stable a11y ids so E7's smoke can drive it.
+  9. **No Settings opt-out surface yet** — the copy promises nothing unbuilt; a
+     real Settings analytics toggle is a recorded roadmap candidate
+     (GDPR/revocability fast-follow). Veto = pull it forward as its own session.
+  10. **The selected consent chip uses the same hardcoded white as every
+      shipping answer chip** (no brand/onPrimary token exists in-repo); the
+      token refactor rides the post-founder-copy polish/golden batch with the
+      Session-18 hero-sizing note.
