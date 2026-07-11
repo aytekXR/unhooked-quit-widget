@@ -56,15 +56,17 @@ inside the window (≈4 months of slack — per roadmap discipline, slack goes t
 distribution content, not scope creep). Remaining build tasks: 14 → at the observed
 ~1–1.5 tasks/session pace, roughly **9–11 sessions** to the full v1.0 scope.
 
-**Production-readiness level:** onboarding-capable (pre-alpha). The product's spine
-is now real from first launch to the soul path: age gate → the data-driven quiz →
-quit creation with the user's own motivations → lock-screen-class panic launch →
-the ~90s flow rendering those motivations verbatim → either exit — averted (quiet
-celebration) or slipped (the two-tap zero-shame slip flow with the live 10-minute
-undo, on both the store-free cold route and the store route). Shipping-quality
-mechanics: CI gates (engine floors, sole-importer lint, 64 snapshot goldens, UI
-smokes, two permanent lexicon gates), signed TestFlight uploads on every green
-merge, clock-integrity + erase + write-buffer + slip/undo semantics adversarially
+**Production-readiness level:** core-loop-complete (alpha). Session 18 closed the
+M1 build half: the product's spine is real from first launch through the PAYOFF —
+age gate → the data-driven quiz → the personalized summary (savings hero, risk
+window, verbatim motivations; quiz_completed fires there, the funnel's north-star
+trigger) → quit creation → lock-screen-class panic launch → the ~90s flow
+rendering those motivations verbatim → either exit — averted (quiet celebration)
+or slipped (the two-tap zero-shame slip flow with the live 10-minute undo, on
+both the store-free cold route and the store route). Shipping-quality mechanics:
+CI gates (engine floors, sole-importer lint, 64 snapshot goldens, UI smokes,
+FOUR permanent lexicon gates), signed TestFlight uploads on every green merge,
+clock-integrity + erase + write-buffer + slip/undo semantics adversarially
 reviewed and pinned; per-source panic attribution live at the platform's ceiling
 (E3.3); the personalization payoff is LIVE (E5.3: the summary's savings hero +
 risk-window hint + verbatim motivation echo; four permanent lexicon gates now: slip, age gate, quiz, summary).
