@@ -38,32 +38,36 @@ specifies local-first, cloud purge last; Session 08 ruling).
 | E4.2 zero-shame copy gate | ✅ DONE | Session 14 (red evidence run 29122473990 — 146 tests, EXACTLY the 2 designed issues → green 29123195424 same session, zero burned): `SlipLexiconTests.test_slipStrings_containNoForbiddenLexicon()` is the PERMANENT unit-lane gate (37-token lexicon — casefold+diacritic-fold+whitespace-collapse, word-boundary `sin`/`cure`; only-grows foundation-floor pin; reflection-driven corpus over decoded `SlipCopy` + degraded fallback + panicScript slipped exit); copy centralized: `slipCopy.json` = THE audited table (+`dashboard` section, byte-identical to shipped literals), `SlipCopy.Dashboard` decode-tolerant, `RootPlaceholderView` table-driven (zero inline slip literals). NO golden changes. Human half (MVP §7 checklist signature) → operator-expected §3. Epic 4 DoD: copy gate in CI ✓; slip→undo→re-slip fuzz vs engine invariants shipped E4.1 (SlipUndoLifecycleTests); post-slip momentum+best shipped E4.1 |
 | E8.1 typed `AnalyticsEvent` + `AnalyticsService` | ✅ DONE | Session 15 (red `b43b03d` burned run 29130610823 — test-file import miss, gate added → red evidence 29130875659: 157 tests, EXACTLY the 23 designed failing cases → green 29131380401 same session + TestFlight): closed enum = 19 MVP §5 cases byte-pinned (model-enum reuse, `custom` the wire ceiling; snake_case `panic_opened` source map — Architect MUST-FIX; no Date/float representable, Mirror-pinned); `AnalyticsService` @MainActor facade, `fire()` = THE consent gate (default OFF, hardwired until E8.2); `AnalyticsSink` seam + SpyAnalyticsSink; TelemetryDeck **2.14.1 exact-pinned** (app target only), lazy post-frame init, SDK SignalCache = the on-device queue, DORMANT behind the operator app ID (operator-expected §8) — the ADR-8 double gate; fire-points LIVE red-first: `urge_averted` (warm+cold arms) + `slip_undone`; deferred by name: `slip_logged` four-arm (Architect-spec'd), `panic_opened` (Mac-tree guard), `panic_step_reached` (ADR-6 warm-up), `erase_all_completed` (consent-wipe ordering) |
 | E5.1 age gate | ✅ DONE | Session 16 (red evidence run 29135328846 — EXACTLY the 7 designed cases / 30 issues, Linux-harness-predicted issue-for-issue → green 29136061287 same session + TestFlight, 2 runs zero burned): the gate is the app's FIRST screen — `AgeGateContainerView` = the normal-route root ABOVE `RootPlaceholderView` (E5.2 mounts inside, inherits the gate), fail-closed through the store-open gap, `root.placeholder` anchor rides the container in every state; conservative boundary (pass iff `currentYear − birthYear ≥ 18`, operator-vetoable); blocked = calm VERIFIED-helplines surface (`appliesTo:"all" AND verified:true` — US 988, TR 112 until the operator verifies ALO 182; unverified-never-renders test-pinned); ONLY `AppSettings.ageGatePassed` persists (schema-walk pin; no App Group mirror); **step-0 RECORDED ADJUSTMENT:** the third named test became `test_ageGate_firesNoAnalyticsEvents()` — `age_gate_blocked` is structurally unfireable (consent lives POST-gate) and privacy-adverse; no mvp.md edit, no enum case (PM+Architect ruling, ledger Session 16); `ageGateCopy.json` = the audited table (lexicon-scanned); safetyCopy/helplines BUNDLED (consuming epic arrived — operator §3); panic route untouched (pre-gate empty pre-cache is the structural guarantee); goldens deferred to the E5.2 batch; Epic-5-DoD navigation XCUITest rides E5.2 (scenario 29) |
-| E5.2–E10.2 (rest) | ☐ not started | Per plan; no scope changes. Next: E5.2 (Session 17 — quiz engine + screens; `createQuit(from profile:)` lands there Architect-gated; consent STEP stays E8.2's — named seam only; quiz copy founder-owned) |
+| E5.2 quiz engine + 12–14 screens | ✅ DONE | Session 17 (red evidence run 29151832001 — build green, EXACTLY the 25 designed cases / 55 issues, Linux-harness-predicted issue-for-issue on the pure lane → green 29152486541 all-green same session + TestFlight; 2 runs zero burned): data-driven quiz from bundled `quizConfig.json` (ADR-9 — the config IS the ONE audited copy table; every string DRAFT/founder-owned, operator-expected §3; lexicon-scanned incl. the degraded fallback; Brand SIGNED-WITH-CHANGES); pure `QuizFlowEngine` + @Observable `QuizFlowModel` (FIXED canonical `step_number` — hidden conditionals/seam emit nothing, UI progress shows the visible position: two honest numbers; back preserves answers; app-standard-defaults resume checkpoint, erase-swept); `createQuit(from profile:)` via a private save-free `insertQuit` core (ONE save/rebuild/reload; motivations VERBATIM user order → pre-cache through the existing rebuild hook; custom-only label, reduce-only allowance; profile inserted + linked + stamped in the same save; Architect privacy pre-approval honored, 10/10 MUST-FIX); `PostGateRootView` mounts quiz-or-placeholder inside the gate container (Epic-5-DoD un-bypassability at the unit tier via `QuizGateRouting`); fire-points LIVE red-first: `onboarding_started` (once, checkpoint-resume-suppressed) + `quiz_step_completed` (post-checkpoint-write, beside the write); **RECORDED ADJUSTMENTS (step-0 class, operator-vetoable, ledger Session 17):** `quiz_completed` NOT fired here — deferred to E5.3's summary render per its canonical MVP §5 trigger ("Personalized summary shown"; a named handoff seam carries habitCategory+goalMode); consent = reserved unrendered slot-3 seam (E8.2's); `quit_created` fire-point assigned to the repository create path, wiring deferred; scenario-29 XCUITest completes at E5.3+ (needs summary/paywall); Epic-5 goldens batch moved post-founder-copy |
+| E5.3–E10.2 (rest) | ☐ not started | Per plan; no scope changes. Next: E5.3 (Session 18 — personalized summary + social proof; `quiz_completed` fires there on the R2 handoff; social-proof content is a step-0 operator question — no fabricated quotes) |
 
-**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 17 done + 1 half-scaffolded
-(E0.3: harness shipped, device measurement operator-owned) = **53%** of build
-tasks (delivery counter: 18/32 = 56% counting the half); milestones: M0 ✅, M1 in
+**Completion ratio (v1.0 scope, E0–E10 = 32 tasks):** 18 done + 1 half-scaffolded
+(E0.3: harness shipped, device measurement operator-owned) = **56%** of build
+tasks (delivery counter: 19/32 = 59% counting the half); milestones: M0 ✅, M1 in
 progress (engine + persistence + the full panic flow + slip/undo/copy-gate + the
-entry-point matrix + the AGE GATE done; the QUIZ is M1's remaining exit
-criterion), M2 not started.
+entry-point matrix + the age gate + THE QUIZ done; E5.3's summary is M1's
+remaining exit criterion — "complete quiz → create quit → see streak" now works
+minus the summary payoff screen), M2 not started.
 **Calendar:** roadmap targets store-approval by week 5–6 with a mid-December 2026
 hard window; Sessions 02–13 ran 2026-07-07 → 07-10, so the build is comfortably
 inside the window (≈4 months of slack — per roadmap discipline, slack goes to
-distribution content, not scope creep). Remaining build tasks: 16 → at the observed
-~1–1.5 tasks/session pace, roughly **10–13 sessions** to the full v1.0 scope.
+distribution content, not scope creep). Remaining build tasks: 15 → at the observed
+~1–1.5 tasks/session pace, roughly **9–12 sessions** to the full v1.0 scope.
 
-**Production-readiness level:** core-loop-complete (pre-alpha). The product's soul
-path is now real END TO END: lock-screen-class panic launch → the ~90s flow → either
-exit — averted (quiet celebration) or slipped (the two-tap zero-shame slip flow with
-the live 10-minute undo, on both the store-free cold route and the store route) —
-with the deferred cold application provably byte-equal to a live log. Shipping-quality
+**Production-readiness level:** onboarding-capable (pre-alpha). The product's spine
+is now real from first launch to the soul path: age gate → the data-driven quiz →
+quit creation with the user's own motivations → lock-screen-class panic launch →
+the ~90s flow rendering those motivations verbatim → either exit — averted (quiet
+celebration) or slipped (the two-tap zero-shame slip flow with the live 10-minute
+undo, on both the store-free cold route and the store route). Shipping-quality
 mechanics: CI gates (engine floors, sole-importer lint, 64 snapshot goldens, UI
-smokes), signed TestFlight uploads on every green merge, clock-integrity + erase +
-write-buffer + slip/undo semantics adversarially reviewed and pinned; per-source
-panic attribution live at the platform's ceiling (E3.3). Not yet product: no
-onboarding/quiz (users cannot create quits from UI), no widget suite beyond the
-skeleton + the two panic controls, no paywall, no analytics — E4.2–E9 are the
-remaining distance to the MVP §7 release gates.
+smokes, two permanent lexicon gates), signed TestFlight uploads on every green
+merge, clock-integrity + erase + write-buffer + slip/undo semantics adversarially
+reviewed and pinned; per-source panic attribution live at the platform's ceiling
+(E3.3). Not yet product: no summary/personalization payoff (E5.3), no widget suite
+beyond the skeleton + the two panic controls, no paywall (E7), no consent step or
+analytics transport (E8.2 + operator app ID) — E5.3–E9 are the remaining distance
+to the MVP §7 release gates.
 
 ---
 

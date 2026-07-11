@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (**Session 17 MID-SESSION status check, operator request** — E5.2 quiz engine IN FLIGHT and ON PLAN: PM spec + Architect privacy pre-approval + Brand copy sign-off + QA test plan all landed unanimous BEFORE code (the stricter-loop gates); red commit `596cb52` pushed — red-evidence run `29151832001` in progress (billed run 1 of 2 planned; designed red = 25 failing cases / 55 issues, Linux-harness-predicted issue-for-issue on the pure lane, 3/3 pre-push critics PASS). Green (engine + config + screens) is being built now and will use billed run 2. **NOTHING IS BLOCKED ON YOU.** New non-blocking asks queued in §3 (the FOUNDER copy pass on `quizConfig.json` — every quiz string is DRAFT by design). Session 17 vetoable rulings at the bottom.) |
+| Last updated | 2026-07-11 (Session 17 CLOSED: E5.2 quiz engine DONE — red evidence `29151832001` (EXACTLY the 25 designed cases / 55 issues, harness-predicted issue-for-issue) → green `29152486541` all-green + TestFlight, **2 billed runs, ZERO burned**. The newest TestFlight build is the first with REAL onboarding end to end: age gate → the quiz → quit creation with your words → the panic flow renders them. Nothing blocks Session 18 = E5.3 summary + social proof (one step-0 content question rides it — see the rulings note). Open for you: §1–§8; the newest item is §3's FOUNDER QUIZ COPY PASS. Session 16 + 17 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
 Nothing below blocks the next session (E5.2 quiz engine). **§0 is CLOSED**
@@ -103,11 +103,14 @@ a live failure. Original context, for the record:
       "Log it" → the forgiveness screen ("Logged." + best/momentum framing, the
       calm NEUTRAL undo banner) → tap Undo within 10 minutes → "Undone. Your
       streak is right where it was."
-- [ ] A plain TestFlight launch now shows the **AGE GATE first** (Session 16 —
-      the app's first screen from here on). Enter a passing year (e.g. 1990) to
-      reach the walking-skeleton root; enter e.g. 2012 to see the blocked
-      resources surface (988 on a US-region device; "Go back" recovers). No
-      quiz exists yet to create quits — that arrives with E5.2.
+- [ ] A plain TestFlight launch now shows the **AGE GATE first**, and (NEW,
+      Session 17) a passing year lands on **THE QUIZ** — answer the 10–12
+      screens (habit → … → readiness) and a real quit is created with your
+      motivations verbatim; the panic flow then renders YOUR words. Enter e.g.
+      2012 instead to see the blocked resources surface (988 on a US-region
+      device; "Go back" recovers). After the quiz you land on the placeholder
+      dashboard — the personalized summary payoff arrives with E5.3. All quiz
+      copy is DRAFT pending your §3 pass.
 
 ## 3. Content tone review — now fully TestFlight-visible — **+ NEW: E4.2 checklist signature (~15 min)**
 
@@ -170,9 +173,10 @@ a live failure. Original context, for the record:
       (E5.1 age gate) used **exactly its 2 planned runs, zero burned** (the
       Linux harness predicted the red run issue-for-issue, and a pre-push
       critic caught a would-be build-breaker in the green views). Session 17
-      (E5.2 quiz — the largest surface yet) plans **2, with 1 contingency**;
-      **mid-session status: run 1 (red evidence `29151832001`) in flight,
-      contingency untouched.**
+      (E5.2 quiz — the largest surface yet) **used exactly its 2 planned runs,
+      zero burned** (red evidence `29151832001` matched the harness prediction
+      issue-for-issue → green `29152486541`; the fourth zero-burn TDD session).
+      Session 18 (E5.3 summary) plans **2, with 1 contingency**.
       Check Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
@@ -185,10 +189,12 @@ a live failure. Original context, for the record:
 > (CI uploads internal-only; build worth distributing = the `8a0c469` one).
 
 - [ ] Add internal testers (nobody receives builds until a tester group exists).
-      **This item just became timely:** tonight uploaded two builds, and the
-      newest (from `8a0c469`) is the first with the WORKING Control Center panic
-      button + warm-launch sheet + the slip flow — the first build genuinely
-      worth putting in someone else's hands. Follow Part 1 of the guide.
+      **This item is now MAXIMALLY timely (Session 17):** the newest build
+      (from `4e69dd0`, run `29152486541`) is the first with REAL onboarding —
+      a tester installs, passes the gate, answers the quiz, and gets a real
+      quit whose panic flow speaks their own motivations. That is the product
+      thesis in one hand-off. Follow Part 1 of the guide. (The earlier
+      `8a0c469` note stands superseded.)
 - [ ] Expire the stray bundle-version-"1" build; answer export compliance only if
       App Store Connect prompts (guide Part 3 has the exact answers).
 
@@ -295,7 +301,12 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
   5. **No discreet variant on the gate screens:** pre-gate no habit context
      exists to hide — "made for adults / 17+" is generic App Store language; a
      shoulder-surfer learns nothing.
-- **Session 17 (E5.2 quiz, mid-session) — the panel-signed rulings, each vetoable:**
+- **Session 17 (E5.2 quiz) — the panel-signed rulings, each vetoable (all held
+  through the green close; one look-ahead: Session 18 opens with a step-0 on
+  SOCIAL-PROOF content — PRD wants "real review quotes", none exist pre-launch,
+  and fabricated ones are banned by MVP §7, so the panel will pick
+  defer-the-screen vs a non-testimonial trust frame; veto by telling Session 18
+  your preference):**
   1. **`quiz_completed` is NOT fired by E5.2 — it moves to E5.3's summary render.**
      Your mvp.md §5 fixes its trigger as "Personalized summary shown", and the
      summary screen is E5.3's; firing it at quiz-questions-complete would inflate

@@ -1964,3 +1964,143 @@ lockout, no discreet variant).
 - Warm-panic listeners are dormant while the gate shows (harmless pre-gate — no
   quits exist, cold panic resolves pre-frame; revisit only if a gated-but-quit
   state ever becomes possible, which today it cannot).
+
+## Session 17 — 2026-07-11 — E5.2 quiz engine + 12–14 screens (COMPLETE, 2 billed runs, zero burned)
+
+### Objective & outcome
+
+Resume prompt v2.8: E5.2 — data-driven quiz + `createQuit(from profile:)`, red
+first with the five plan-named tests. **DONE in exactly the 2 planned billed
+runs, zero burned** (the fourth zero-burn TDD session): red commit `596cb52` →
+**red evidence `29151832001`** (190 tests / 21 suites — EXACTLY the 25 designed
+failing cases / 55 issues; the Linux harness predicted the pure lane
+issue-for-issue at 37/37 BEFORE the push and the SwiftData lane was
+hand-enumerated to the issue; build green, snapshot 17/17, UI smoke green — zero
+collateral) → green `4e69dd0` → **run `29152486541` all-green** (190/190 unit,
+17/17 snapshot, UI smoke, TestFlight uploaded). Mid-session operator status
+check answered with a `[skip ci]` docs commit (`95ab733`) — the Session 16
+precedent.
+
+### Step-0 rulings (PM + Architect, binding; all operator-vetoable, recorded in operator-expected)
+
+1. **`quiz_completed` is NOT E5.2's** — its canonical MVP §5 trigger is
+   "Personalized summary shown" (an E5.3 surface); firing at quiz completion
+   would inflate the ≥70% start→summary metric and corrupt the ≥8% conversion
+   denominator. E5.2 exposes `QuizFlowModel.completion` — a named handoff
+   carrying `(habitCategory, goalMode)` — and E5.3 fires the event on summary
+   render. mvp.md untouched.
+2. **Fixed canonical `step_number` (R1)**: habit=1 … commitment=13, summary=14
+   (E5.3). Hidden conditionals (customName iff custom; allowance iff reduce) and
+   the reserved consent seam emit NOTHING for their slots — numbers never
+   renumber per user. The UI progress bar shows the visible-sequence position
+   (R9): two different numbers, both honest.
+3. **Consent = a reserved, unrendered, stringless seam at slot 3** (`kind:
+   "seam"`, `owner: "E8.2"`) — E8.2 drops the real consent UI in without
+   renumbering; E5.2 never touches `analyticsOptIn` (test-pinned).
+4. **The resume checkpoint lives in app-STANDARD UserDefaults** (`quiz.progress.v1`,
+   architecture §7) — NEVER the App Group suite (§10 pre-unlock readability; the
+   checkpoint may hold the custom habit name). The ONE sanctioned home for
+   in-progress free text; cleared on completion; swept by `eraseEverything`
+   (both test-pinned).
+5. **Goldens: zero for Epic 5; batch point MOVED to post-founder-copy** — the
+   whole table is DRAFT, so recording now guarantees a paid re-record. One
+   deliberate CI-artifact re-record batches E5.1+E5.2+E5.3 after the founder
+   copy pass (refines Session 16's "batch with E5.2" note).
+6. **Scenario-29 XCUITest defers** (as specified it needs summary+paywall);
+   Epic-5-DoD un-bypassability lands at the unit tier NOW
+   (`QuizGateRouting.postGateScreen` + the standing AgeGateRouting pins:
+   content is reachable only through gate → quiz → quit).
+7. **Motivation choiceIDs ARE the display words** (id == label — Architect
+   MUST-FIX: Back re-hydration needs id-match, the panic ReasonsView needs the
+   words, and the repository must stay config-free; habit/goal keep
+   id == rawValue, triggers keep short never-echoed IDs).
+
+### What shipped
+
+- **`quizConfig.json` = the quiz definition AND its ONE audited copy table**
+  (ADR-9; bundled at red like ageGateCopy was): 14-slot map, 13 E5.2 slots, 11
+  always-on + 2 conditional + the consent seam; every string DRAFT/founder-owned
+  (operator-expected §3), lexicon-scanned (SlipLexiconTests reflection walk over
+  the decoded config + `.degraded`; `_meta` decodes only `version` so review
+  notes stay out of the corpus). Brand SIGNED-WITH-CHANGES applied: effects
+  title → "Noticed any of these lately?" (coherence), lowest slider echo →
+  "Taking it slow" ("One day at a time" rejected as AA-coded).
+- **Pure `QuizFlowEngine`** (Foundation-only, Linux-harnessed): visibility
+  filter, slot-firing advance, answer-preserving back, checkpoint codec, resume.
+  **`QuizFlowModel`** (@Observable, NO clock, NO SwiftData): checkpoint-then-fire
+  advance (§1.2 invariant 3 — "post-save" for a step = post-checkpoint-write),
+  `onboarding_started` once + checkpoint-resume-suppressed, completion clears
+  the checkpoint on success only + calm retry surface (Architect SHOULD-4; the
+  slipCopy retryNote precedent).
+- **`createQuit(from profile:)`** via a NEW private save-free `insertQuit` core
+  (Architect MUST-FIX 1): the primitive was rebuilt on it byte-behavior-identical
+  (its 9 consuming suites = the refactor safety net, all green); the quiz form
+  maps answers through pure `QuizProfileMapping` (Linux-verified), ONE save for
+  quit + linked/stamped profile, pre-cache rebuilt with motivations already on
+  the quit (test 5's mechanism), `Locale` currency, max-3 reused. `quit_created`
+  seam comment at the save (fire-point ASSIGNED to the repository create path;
+  wiring deferred, red-first later). `onboardingVariant()` read-only helper.
+  `eraseEverything` sweeps the checkpoint in the infallible block.
+- **UI:** `QuizFlowView` + `QuizStepContent` (one question/screen, indigo
+  visible-progress bar, checkmark chips in selection order, bottom-pinned
+  Continue, quiet 44pt Back, slider echoes in words, `quiz.*` a11y ids for
+  E5.3's XCUITest) + `PostGateRootView` (quiz-or-placeholder router) mounted at
+  BOTH gate-container seams — the gate inherits, its logic untouched, the
+  route-level `root.placeholder` anchor rides the container in every state
+  (smoke lane provably safe).
+
+### Process notes (ultracode session)
+
+- **Workflows end to end:** spec+approvals (PM → parallel Architect/Brand/QA,
+  4 agents), 3 red critics, 3 green critics — 10 agents, zero deaths, all
+  findings to scratchpad files (the standing rule). Architect
+  APPROVED-WITH-CHANGES (10 MUST-FIX, all honored); QA's 24-case red design
+  grew to 25 by promoting the erase pin red-first (Architect MUST-FIX 3 +
+  TDD rule 1 outrank the "note for green" shortcut).
+- **The Linux harness discipline held for the fourth session:** red profile
+  37/37 pure-lane failures label-for-label, green profile 68/68, over the EXACT
+  shipping bytes (engine/model/mapping/config/checkpoint/routing + the real
+  AnalyticsService). The billed runs held zero surprises: 55 issues predicted,
+  55 observed; per-test issue counts matched (9/4/4/3/2/2/2/2 + 7×1 + 10×2).
+- **Structural-over-substring pin:** QA's draft asserted the pre-cache blob
+  contains no "26" — a random UUID hex could false-positive; replaced with a
+  field-name walk over the snapshot card (no spend/trigger/answer-shaped field
+  can exist). Deterministic beats clever.
+- **Green critics earned their keep again:** both SHOULDs applied pre-push
+  (44pt Back target; the completionFailed retry surface actually rendered —
+  the Architect-required affordance was silently missing from the first green).
+- Two SwiftUI files were the only bytes no harness compiled — the compile
+  critic symbol-traced every modifier against the current SDK instead of
+  asserting "looks fine" (the Session 15 lesson).
+
+### Operator-action record (the session-open check, per the operator's standing ask)
+
+**Nothing blocked the session** — operator-expected.md's own header said so and
+it held: zero operator input needed from open to close. Recorded during the
+session (all in operator-expected.md): §3 NEW — the FOUNDER quiz-copy pass
+(whole table DRAFT by design) + the effects-step medical read + the
+motivation-elaboration decision; §4 — Session 17 used exactly its 2 planned
+runs, zero burned; the seven vetoable rulings; §2 — the newest TestFlight build
+now walks gate → QUIZ → dashboard placeholder (first build where creating a
+quit from the UI works). The standing §4 billing-headroom glance stays open
+(non-blocking, ~2 min).
+
+### Known limitations / carried forward
+
+- **E5.3 owns:** the summary + social-proof screens, `quiz_completed` on summary
+  render (the handoff waits on `QuizFlowModel.completion`), projected-savings +
+  risk-window math into the existing QuizProfile fields, the quiz→summary
+  navigation. **Step-0 question for Session 18: social-proof content** — PRD
+  says "real review quotes" and none exist pre-launch; fabricated ones violate
+  MVP §7 + the Honest personality. Resolve BEFORE red.
+- Post-completion the app shows the placeholder dashboard (honest: no summary
+  exists); PostGateRootView's completion branch is E5.3's mount seam.
+- Deferred fire-points unchanged: `slip_logged` (Architect four-arm spec),
+  `panic_opened` (E0.3 latency), `panic_step_reached` (ADR-6 warm-up),
+  `erase_all_completed` (consent-wipe ordering) — PLUS `quit_created`
+  (assigned to the repository create path, this session).
+- E8.2 still owns: consent screen (the reserved slot-3 seam), stored opt-in,
+  retiring the hardwired `isOptedIn: { false }`, payload-audit doc.
+- Quiz copy is DRAFT until the founder pass (§3); goldens wait on it.
+- The commitment slider ships without haptic detents (the haptics-only settings
+  channel is later Epic-5+ work; the seam exists in HapticsPlaying).
