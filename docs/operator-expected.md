@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (post-Session-15 update: §0 CLOSED — you pushed the panic fix (`8a0c469`, rebased, CI `29132554144` all-green + TestFlight) and device-verified both paths; sheet ruling stands unvetoed. NEW §8 TelemetryDeck app ID) |
+| Last updated | 2026-07-11 (Session 15 CLOSED + operator status check: §0 done same-day (`8a0c469` + all-green `29132554144`); nothing blocks Session 16 = E5.1 age gate; open for you: §1–§8 below, §8 TelemetryDeck app ID newest) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
 Nothing below blocks the next session (E5.1 age gate — though its agent must
@@ -132,10 +132,13 @@ a live failure. Original context, for the record:
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
-## 5. TestFlight housekeeping — carried from Sessions 07–09
+## 5. TestFlight housekeeping — carried from Sessions 07–09; NOW TIMELY
 
-- [ ] Add internal testers (nobody receives builds until a tester group exists —
-      the panic **and slip** flows are now genuinely worth testing).
+- [ ] Add internal testers (nobody receives builds until a tester group exists).
+      **This item just became timely:** tonight uploaded two builds, and the
+      newest (from `8a0c469`) is the first with the WORKING Control Center panic
+      button + warm-launch sheet + the slip flow — the first build genuinely
+      worth putting in someone else's hands.
 - [ ] Expire the stray bundle-version-"1" build; answer export compliance only if
       App Store Connect prompts.
 
