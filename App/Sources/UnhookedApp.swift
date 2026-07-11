@@ -70,7 +70,11 @@ struct UnhookedApp: App {
         WindowGroup {
             switch rootKind {
             case .placeholderTabs:
-                RootPlaceholderView()
+                // E5.1: the age-gate container IS the normal root — it hosts
+                // RootPlaceholderView only past a store-truth `ageGatePassed`
+                // (fail-closed; feasibility condition #6: no habit content
+                // reachable pre-gate). The panic branch below never mounts it.
+                AgeGateContainerView()
                     .environment(provider)
                     // Post-first-frame by construction: `.task` runs after the frame
                     // commits — the ONE sanctioned path to store open + the launch

@@ -631,11 +631,26 @@ final class QuitRepository {
     }
 
     /// The ONE writer of `ageGatePassed` — reached only from the gate's pass branch
-    /// (after `AgeGate.evaluate == .pass`). E5.1 RED: deliberately a no-op — the
-    /// designed failure for `test_ageGate_pass_persistsAgeGatePassedTrue`. Green
-    /// implements fetch-or-create (fetch-FIRST so the row stays the singleton;
-    /// E8.2's consent step will share the helper), set true, save.
-    func markAgeGatePassed() throws {}
+    /// (after `AgeGate.evaluate == .pass`). Fires no analytics (E5.1 AC4: the whole
+    /// age-gate surface is zero-fire, test-pinned).
+    func markAgeGatePassed() throws {
+        let settings = try fetchOrCreateAppSettings()
+        settings.ageGatePassed = true
+        try context.save()
+    }
+
+    /// Fetch-FIRST the AppSettings singleton, creating only when absent — so the row
+    /// stays the singleton and E8.2's consent step SHARES this helper instead of
+    /// minting a second row (Architect MUST-FIX #6; no uniqueness constraint may
+    /// exist by the CloudKit checklist).
+    private func fetchOrCreateAppSettings() throws -> AppSettings {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        if let existing = try context.fetch(descriptor).first { return existing }
+        let fresh = AppSettings()
+        context.insert(fresh)
+        return fresh
+    }
 
     // MARK: - Widget reload debounce
 

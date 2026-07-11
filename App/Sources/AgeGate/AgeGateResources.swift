@@ -32,9 +32,13 @@ enum AgeGateResources {
     /// operator verifies it and flips its flag (today: US → 988; TR → 112, with
     /// ALO 182 pending the operator's official-source check).
     static func blocked(region: String, directory: HelplineDirectory) -> AgeGateBlocked {
-        // E5.1 RED: deliberately empty — the designed failure for the
-        // shows-resources assertions. Green implements the predicate above.
-        AgeGateBlocked(emergencyNote: "", rows: [])
+        guard let regionEntry = directory.regions[region] else {
+            return AgeGateBlocked(emergencyNote: "", rows: [])
+        }
+        let rows = regionEntry.resources
+            .filter { $0.appliesTo.contains("all") && $0.verified == true }
+            .map { HelplineRow(name: $0.name, descr: $0.descr, phoneDisplay: $0.phoneDisplay, dialString: $0.dialString) }
+        return AgeGateBlocked(emergencyNote: regionEntry.emergencyNote, rows: rows)
     }
 
     /// Bundle convenience over the shipping directory; a missing/undecodable file

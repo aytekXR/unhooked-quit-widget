@@ -46,6 +46,11 @@ final class AgeGateModel {
         (currentYear - 120)...currentYear
     }
 
+    /// The instance range over this model's injected year (what the wheel renders).
+    var selectableYears: ClosedRange<Int> {
+        Self.selectableYears(currentYear: currentYear)
+    }
+
     /// The CTA action: evaluate the conservative boundary, advance the phase, and —
     /// on pass only — persist the single boolean. Fires no analytics on EITHER
     /// branch (E5.1 AC4: the whole surface is zero-fire; a blocked minor is never

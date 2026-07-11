@@ -14,8 +14,6 @@ enum AgeGateFirstScreen: Equatable, Sendable {
 /// is a unit pin: content is reachable ONLY through a store-truth `true`.
 enum AgeGateRouting {
     static func firstScreen(ageGatePassed: Bool) -> AgeGateFirstScreen {
-        // E5.1 RED: deliberately ignores the flag — the designed failure for the
-        // fail-closed routing pin. Green: `ageGatePassed ? .onward : .ageGate`.
-        .onward
+        ageGatePassed ? .onward : .ageGate
     }
 }

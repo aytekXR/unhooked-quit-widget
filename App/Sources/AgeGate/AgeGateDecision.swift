@@ -19,8 +19,6 @@ enum AgeGate {
     /// minimization, so a difference of exactly 17 — who could still be 16 with a
     /// birthday pending — blocks. "Could be under 17" blocks; nothing else may pass.
     static func evaluate(birthYear: Int, currentYear: Int) -> AgeGateDecision {
-        // E5.1 RED: deliberately routes every year onward — the designed failure for
-        // the boundary assertions. Green: `currentYear - birthYear >= 18 ? .pass : .blocked`.
-        .pass
+        currentYear - birthYear >= 18 ? .pass : .blocked
     }
 }
