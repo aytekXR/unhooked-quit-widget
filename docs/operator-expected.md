@@ -3,15 +3,25 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (mid-Session 16 status check: E5.1 age gate IN FLIGHT and on plan — the `age_gate_blocked` schema tension is RESOLVED with zero operator action (re-spec to zero-fire; no mvp.md edit needed), the PM+Brand+QA safety sign-off + Architect privacy pre-approval are DONE (unanimous — no adjudication needed), the red commit is written and locally verified, 0 of 2 planned billed runs used. NEW for you: §3 gains the E5.1 safety-content notes incl. the ALO 182 verification item; §5 gained the TestFlight tester guide earlier today. Session 16 vetoable rulings at the bottom.) |
+| Last updated | 2026-07-11 (Session 16 CLOSED: E5.1 age gate DONE — red evidence `29135328846` (exactly the 7 designed cases) → green `29136061287` all-green + TestFlight, **2 billed runs, ZERO burned**. The newest TestFlight build now opens on the AGE GATE, not the bare skeleton. Nothing blocks Session 17 = E5.2 quiz engine. Open for you: §1–§8; newest items are §3's ALO-182 flag flip + the now-TestFlight-visible safety files, and §5's tester guide. Session 16 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E5.1 age gate — though its agent must
-resolve the `age_gate_blocked` schema tension first, see the resume prompt).
-**§0 is CLOSED** (fix pushed + device-verified; only its optional gstack FYI
-remains). Items below §0 are ordered by how much they age; check a box by
-replacing `[ ]` with `[x]` and the next session's agent will prune completed
-items.
+Nothing below blocks the next session (E5.2 quiz engine). **§0 is CLOSED**
+(only its optional gstack FYI remains). Items below §0 are ordered by how much
+they age; check a box by replacing `[ ]` with `[x]` and the next session's
+agent will prune completed items.
+
+> **Session 16 outcome (2026-07-11):** E5.1 is DONE — the age gate is the app's
+> FIRST screen (birth-year wheel; conservative boundary `≥ 18` year-difference,
+> vetoable below), under-17 lands on a calm VERIFIED-helplines resources screen
+> (US 988; TR 112 until your §3 ALO-182 check), and exactly ONE boolean persists
+> (`ageGatePassed` — the birth year never lands anywhere, test-pinned). The
+> whole surface fires ZERO analytics — the plan's `age_gate_blocked` event was
+> deliberately NOT created (step-0 ruling, vetoable below; your mvp.md was not
+> touched). **Billed runs: 2, zero burned** (red evidence `29135328846` matched
+> the local harness prediction issue-for-issue → green `29136061287` +
+> TestFlight). Your only NEW asks live in §3; the TestFlight-testers item (§5)
+> is now extra-timely since the newest build is the first with real onboarding.
 
 > **Session 15 outcome (2026-07-11):** E8.1 is DONE — the closed `AnalyticsEvent`
 > enum (19 MVP §5 events, forbidden properties unrepresentable BY TYPE) +
@@ -93,9 +103,11 @@ a live failure. Original context, for the record:
       "Log it" → the forgiveness screen ("Logged." + best/momentum framing, the
       calm NEUTRAL undo banner) → tap Undo within 10 minutes → "Undone. Your
       streak is right where it was."
-- [ ] A plain TestFlight launch still shows the walking-skeleton root: no
-      quiz/onboarding exists yet to create quits, so the new dashboard slip entry
-      has nothing to list. That arrives with E5.
+- [ ] A plain TestFlight launch now shows the **AGE GATE first** (Session 16 —
+      the app's first screen from here on). Enter a passing year (e.g. 1990) to
+      reach the walking-skeleton root; enter e.g. 2012 to see the blocked
+      resources surface (988 on a US-region device; "Go back" recovers). No
+      quiz exists yet to create quits — that arrives with E5.2.
 
 ## 3. Content tone review — now fully TestFlight-visible — **+ NEW: E4.2 checklist signature (~15 min)**
 
@@ -139,11 +151,11 @@ a live failure. Original context, for the record:
 - [ ] Session 15 used **3** billed macOS runs (**1 burned**: a new test file was
       missing an import — TEST BUILD FAILED with no red evidence; the gate that
       closes this class is now standing rule #2 in the resume prompt). Session 16
-      (E5.1 age gate) plans **2** — mid-session status: **0 used so far**; the red
-      commit passed the parse + import-coverage gates and an empirical Linux
-      harness (both red and green profiles) before spending anything, and an
-      adversarial critic pass runs before each push. Check Settings → Billing →
-      spending limit before the session.
+      (E5.1 age gate) used **exactly its 2 planned runs, zero burned** (the
+      Linux harness predicted the red run issue-for-issue, and a pre-push
+      critic caught a would-be build-breaker in the green views). Session 17
+      (E5.2 quiz — the largest surface yet) plans **2, with 1 contingency**.
+      Check Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 

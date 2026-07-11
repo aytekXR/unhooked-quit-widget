@@ -2,192 +2,189 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v2.7 |
-| Last updated | 2026-07-11 (Session 15 close: E8.1 COMPLETE — burned `29130610823` → red evidence `29130875659` → green `29131380401`, 3 billed runs) |
-| Phase | Phase 1 core build — Epics 0–1 CLOSED; E2.1–E2.4 + E3.1–E3.3 + E4.1–E4.2 + E8.1 DONE; delivery 17/32 (53%) |
-| Next session objective | **Session 16: E5.1 — age gate (first screen); resolve the `age_gate_blocked` schema tension BEFORE red (see below)** |
+| Document | Resume Prompt v2.8 |
+| Last updated | 2026-07-11 (Session 16 close: E5.1 COMPLETE — red evidence `29135328846` (7 designed cases / 30 issues, harness-predicted issue-for-issue) → green `29136061287` all-green + TestFlight, 2 billed runs, ZERO burned) |
+| Phase | Phase 1 core build — Epics 0–1 CLOSED; E2.1–E2.4 + E3.1–E3.3 + E4.1–E4.2 + E5.1 + E8.1 DONE; delivery 18/32 (56%) |
+| Next session objective | **Session 17: E5.2 — quiz engine + 12–14 screens (agents scaffold, FOUNDER owns copy — see scope guard 3)** |
 
-> **What changed in Session 15:** E8.1 shipped WHOLE — the closed `AnalyticsEvent`
-> enum (19 MVP §5 cases byte-pinned, no Date/float representable, snake_case
-> `panic_opened` source map), the @MainActor `AnalyticsService` facade whose `fire()`
-> is the ONE consent gate (default OFF), the `AnalyticsSink` seam, TelemetryDeck
-> 2.14.1 exact-pinned with a lazy post-frame dormant transport (empty operator app
-> ID ⇒ NoopSink — the ADR-8 double gate), and the FIRST live fire-points:
-> `urge_averted` (warm + cold flush arms) and `slip_undone` — both red-first, both
-> post-save. One run burned on a missing test-file import (new gate below). ALSO:
-> the operator's Control Center panic fix is UNCOMMITTED on their Mac —
-> `operator-expected.md` §0; it constrains which files agents may touch (see
-> standing note 6). Full ledger: Session 15 in `docs/past-prompts.md`.
+> **What changed in Session 16:** E5.1 shipped WHOLE — the age gate is the app's
+> FIRST screen (conservative boundary: pass iff `currentYear − birthYear ≥ 18`,
+> operator-vetoable), under-17 blocks to a calm VERIFIED-helplines resources
+> surface (predicate `appliesTo:"all" AND verified:true` — US 988; TR 112 until
+> the operator verifies ALO 182), only `AppSettings.ageGatePassed` is ever
+> stored (schema-walk pinned), and the ENTIRE surface fires zero analytics —
+> the plan's `age_gate_blocked` test was re-specced (step-0 ruling: the event is
+> structurally unfireable, consent lives post-gate; no mvp.md edit was needed).
+> `AgeGateContainerView` is now the normal-route ROOT above `RootPlaceholderView`
+> and carries the route-level `root.placeholder` anchor in every state — E5.2
+> mounts INSIDE it and inherits the gate for free. `safetyCopy.json` +
+> `helplines.json` + `ageGateCopy.json` are now bundled (operator tone review
+> moved up — operator-expected §3). ALSO: `docs/testflight-tester-guide.md`
+> (operator request). Full ledger: Session 16 in `docs/past-prompts.md`.
 
 ---
 
 ## Standing tooling rules (permanent, apply to every agent)
 
-1. **CodeGraph**: the repo is indexed (`.codegraph/`, machine-local). Query
-   `codegraph_explore` (shell: `codegraph explore "<symbols or question>"`) BEFORE
-   grep/find or manual reading; pass this instruction into every subagent/workflow
-   prompt; check blast radius before editing public symbols. **Before the
-   session-end commit: `codegraph sync` + confirm `codegraph status` clean.**
+1. **CodeGraph**: query `codegraph_explore` (shell: `codegraph explore "..."`)
+   BEFORE grep/find or manual reading; pass this instruction into every
+   subagent/workflow prompt; check blast radius before editing public symbols.
+   **Before the session-end commit: `codegraph sync` + confirm status clean.**
 2. **Parse gate**: `swiftc -parse` every touched Swift file before every push.
-   **Session 15 lesson — the parse gate is IMPORT-BLIND (syntax-only):** for every
-   NEW test file, copy the import block from the closest proven neighbor
-   (SlipFlushTests for repository harnesses) and grep the file's non-Foundation
-   types against its imports before push — a missing `import StreakEngine` burned
-   run `29130610823` after sailing through parse, harness, AND two critics
-   (a read-only critic's "compiles clean" claim is NOT compile evidence).
-3. **Access-level gate (Session 12):** scan for private types named in non-private
-   signatures (`@Test` methods are internal), and RUN (never just typecheck) a
-   Linux scratch harness over the exact shipping bytes of every pure-Foundation
-   API, with usage-exercise — both red and green profiles when a designed red
-   exists (Session 15: both predictions matched CI test-for-test).
-4. **Docs-check gate (Session 13):** every Darwin-only / AppIntents / SF-Symbol /
-   third-party-SDK member spelling gets verified against official docs BEFORE the
-   code is written. **Session 15 refinement: for SPM deps, ALSO clone the pinned
-   tag and grep the actual source** (product names, signatures, reserved-key lists)
-   — it caught nothing this time only because the web docs-check was right; it is
-   cheap and decisive.
-5. Docs-only commits carry `[skip ci]`; never spawn agent workflows for docs-only
-   changes (operator rule). Critic/reader agents Write findings to a scratchpad
-   file and return a one-line pointer (zero structured-output retry-cap deaths in
-   Session 15 — the fix works); salvage path if violated: `agent-*.jsonl`.
-6. **RETIRED same day (kept so numbering holds):** the Mac-tree conflict guard.
-   The operator pushed the panic fix as `8a0c469` (rebased; CI `29132554144`
-   all-green + TestFlight; both device paths confirmed working). Its files are
-   ordinary editable surface again, and `panic_opened` wiring is UNBLOCKED (the
-   `cold_start_ms` value still waits on E0.3 numbers — the case ships unfired).
-   The general habit survives the guard: `git fetch` + `git log origin/main`
-   before EVERY push — the operator commits mid-session.
-7. **Privacy-surface gate (agent-workflows §2.2, exercised in Session 15):**
-   anything touching stores/`AnalyticsEvent`/outbound gets an Architect-agent
-   pre-approval BEFORE implementation; adding an enum case is Architect-gated AND
-   requires the MVP §5 table row to exist first.
+   PLUS the import-coverage check on every NEW test file (copy the closest
+   proven neighbor's import block; grep non-Foundation types against imports —
+   the parse gate is import-blind; Session 15 burned a run on this).
+3. **Access-level gate + empirical harness:** scan for private types in
+   non-private signatures, and RUN (never just typecheck) a Linux scratch
+   harness over the exact shipping bytes of every pure-Foundation API — both
+   red and green profiles when a designed red exists (Sessions 15 AND 16: the
+   harness predicted the billed red runs issue-for-issue).
+4. **Docs-check gate:** every Darwin-only / AppIntents / SF-Symbol /
+   third-party member spelling verified against official docs BEFORE code; for
+   SPM deps also clone the pinned tag. **Session 16 addition — SwiftUI under
+   warnings-as-errors: use the house `.background(_:in:)` form, NEVER the bare
+   positional `.background(<View>)` (soft-deprecated overload; a green critic
+   caught two sites pre-push).**
+5. Docs-only commits carry `[skip ci]`; never spawn agent workflows for
+   docs-only changes. Critic/reader agents Write findings to scratchpad files
+   and return a one-line pointer. **NEVER `git stash` mid-session** (a Session
+   16 stash briefly reverted the uncommitted red commit; recovered) — commit
+   docs via pathspec with code left dirty.
+6. `git fetch` + `git log origin/main` before EVERY push — the operator commits
+   mid-session.
+7. **Privacy-surface gate:** anything touching stores/`AnalyticsEvent`/outbound
+   gets Architect pre-approval BEFORE implementation; adding an enum case is
+   Architect-gated AND needs the MVP §5 row first (mvp.md is OPERATOR-ONLY).
+   **Safety-content** (slip copy, resources, alcohol notice, age gate,
+   companion) needs the PM+Brand+QA joint copy-table sign-off before code.
 
 ## Where we are
 
-- **The analytics boundary is LIVE**: every future feature instruments against the
-  closed enum (that was E8.1's whole point — "enum lands week 1"). Adding an event
-  = MVP §5 row + Architect approval + case + fixture + whitelist entry (the
-  completeness tests force the last two).
-- **Consent is double-gated shut**: `isOptedIn` hardwired `{ false }` in
-  RepositoryProvider until E8.2's consent step; transport dormant until the
-  operator drops the TelemetryDeck app ID (`AnalyticsConfiguration`,
-  operator-expected §8). Zero events can leave any build today.
-- **Deferred fire-points (each named, none forgotten):** `slip_logged` — the
-  four-arm post-save placement is spec'd VERBATIM in the Session 15 Architect
-  verdict (scratchpad is gone; the ledger's Process notes summarize it: fire once
-  per row transitioning to permanent, post-save, quit-guarded, at logSlip's
-  superseded-priors / flush's superseded+lands-finalized / undoSlip past-window /
-  finalizePendingSlips window-closed arms; NEVER inside `finalizeRow` — it runs
-  pre-save); `panic_opened` (UNBLOCKED — the Mac fix landed as `8a0c469` with
-  `WarmPanicEntry` as a third consumption site; the `cold_start_ms` VALUE still
-  waits on E0.3 numbers, the case ships unfired);
-  `panic_step_reached` (ADR-6 warm-up design needed: first consented receive must
-  not pay SDK init pre-frame in PanicFlowModel construction);
-  `erase_all_completed` (consent-wipe ordering design; TODO comment at the erase
-  seam stands).
-- **StreakEngine 1.2.0** — untouched. **TestFlight LIVE** through green
-  `29131380401`. CI signing read-only; never re-enable MATCH_BOOTSTRAP; macOS
-  minutes bill 10x.
-- Brand kit load-bearing: no red anywhere; slip strings CI-gated (SlipLexiconTests);
+- **The age gate stands.** Every future normal-route surface mounts INSIDE
+  `AgeGateContainerView` — no habit content is reachable pre-gate, fail-closed,
+  and that stays true through E5.2 with zero extra work. The blocked surface is
+  the verified-helplines screen; unverified rows can never render there
+  (test-pinned).
+- **The analytics boundary is LIVE** (E8.1): closed 19-case enum, `fire()` the
+  one consent gate (hardwired OFF until E8.2), TelemetryDeck dormant behind the
+  operator app ID. The age gate fires NOTHING by design; `onboarding_started`
+  belongs to E5.2's first quiz screen and `quiz_step_completed` /
+  `quiz_completed` cases already exist in the enum (no schema work needed for
+  E5.2's named tests — fire-point wiring only, spy tests inject opted-IN).
+- **StreakEngine 1.2.0 untouched. TestFlight LIVE** through green `29136061287`
+  — the newest build shows the AGE GATE first (operator-expected §2/§5 updated).
+  CI signing read-only; never re-enable MATCH_BOOTSTRAP; macOS minutes bill 10x.
+- Brand kit load-bearing: no red anywhere; slip strings CI-gated; age-gate
+  strings CI-gated (SlipLexiconTests scans `ageGateCopy.json` + degraded);
   discreet variants neutral; motivations VERBATIM.
 
 ## Next session objective (one session, definition of done below)
 
-**Session 16 — E5.1 age gate (first screen)** (implementation-plan row, verbatim
-goal): birth-year entry; under-17 blocked to resources; only a boolean stored.
+**Session 17 — E5.2 quiz engine + 12–14 screens** (implementation-plan row,
+verbatim goal): data-driven quiz (screens from a config array, one question
+each, progress bar) capturing habit/frequency/spend/triggers/motivations/goal;
+answers → `QuizProfile` + quit creation.
 
-0. **BEFORE red — resolve the schema tension:** the plan's third named test
-   `test_ageGate_firesAgeGateBlocked_withNoAgeProperty()` fires `age_gate_blocked`,
-   which is NOT an MVP §5 row, and the enum is closed + Architect-gated + byte-pinned
-   (adding a case without a fixture/whitelist row fails the completeness tests BY
-   DESIGN). Path: PM-style decision recorded in the ledger + MVP §5 row added
-   deliberately + Architect approval + case/fixture/whitelist in the SAME red — or
-   re-spec the test against an existing event. Do not silently invent the event.
-1. **Red first** (billed run 1): the three plan-named tests —
-   `test_ageGate_under17_blocksAndShowsResources()`,
-   `test_ageGate_birthYearNeverPersisted()` (AppSettings gains ONLY `ageGatePassed`),
-   the third per the step-0 decision.
-2. **Green** (billed run 2): the gate screen (first screen, before ANY habit
-   content — feasibility condition #6), resources routing for under-17, boolean-only
-   persistence.
-3. Scope guards: safety-content sign-off applies (age gate is on the
-   agent-workflows §2.2 stricter-loop list — PM+Brand+QA copy table before code;
-   operator adjudicates disagreement); no quiz screens beyond the gate (E5.2); no
-   birth year in ANY store, file, or payload (test-pinned).
-4. Budget: 2 billed runs (+ check operator-expected §4 headroom — Session 15 used 3).
+1. **Red first** (billed run 1): the five plan-named tests —
+   `test_quiz_everyStepAdvance_firesQuizStepCompleted(step:)`,
+   `test_quiz_answersPersistLocallyOnly()`,
+   `test_quiz_backNavigation_preservesAnswers()`,
+   `test_quizCompletion_createsQuitWithMotivationsAndSpend()`,
+   `test_quizCompletion_writesMotivationsPreCache()`.
+2. **Green** (billed run 2): the engine + config + screens, mounted INSIDE the
+   age-gate container's passed branch (replacing `RootPlaceholderView` as the
+   post-gate content or wrapping it — Architect decides; the gate itself is
+   NOT touched).
+3. Scope guards: (a) `createQuit(from profile:)` lands here (the architecture
+   §5.1 note says the quiz's form arrives with E5 — repository change ⇒
+   Architect privacy pre-approval BEFORE code); (b) `quiz_step_completed` /
+   `quiz_completed` / `onboarding_started` fire-points are post-save,
+   spy-pinned opted-IN, red-first — NO new enum cases needed or allowed;
+   (c) **the consent STEP is E8.2's, not E5.2's** — leave a named seam in the
+   quiz config for it (MVP §5: the opt-in prompt lives in the quiz's early
+   steps), do not build the consent screen; (d) **quiz COPY is founder-owned**
+   (roadmap: "agents scaffold screens, copy owned by founder") — scaffold with
+   draft copy in ONE audited table (the ageGateCopy precedent), lexicon-scan
+   it, and flag the operator copy pass in operator-expected §3; per-question
+   PM copy table at spec time (agent-workflows §2.2 step 1); (e) custom habit
+   name never leaves the device (test-pinned per the plan);
+   (f) batch the E5.1+E5.2 snapshot goldens in ONE deliberate CI-artifact
+   re-record IF goldens are added — E5.1 shipped none.
+4. Also fold in (small, same session if it fits red/green cleanly): the Epic-5
+   DoD navigation XCUITest (age gate un-bypassable end-to-end) — it needs quiz
+   screens to exist (scenario 29) and may claim an E2E slot per test-suite §1.6.
+5. Budget: 2 billed runs planned (+1 contingency — the quiz is the largest
+   single surface yet; check operator-expected §4 headroom).
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
-1. ~~§0 panic-fix push~~ **CLOSED same day**: `8a0c469` landed (rebased, CI
-   `29132554144` all-green + TestFlight), operator device-verified cold+warm,
-   sheet ruling stands unvetoed. Only the optional gstack FYI remains in §0.
-2. E0.3 device measurement (`docs/spike-panic-latency.md`) — still the only blocker
-   on the permanent latency gate.
-3. E3.3 device matrix (operator-expected §7).
-4. Content tone review + E4.2 copy-audit checklist signature (operator-expected §3).
-5. GitHub Actions billing headroom (§4 — Session 15 used 3 runs, 1 burned).
-6. TestFlight housekeeping (§5); Slack webhook rotation (§6, optional).
-7. NEW §8: TelemetryDeck app ID whenever convenient (transport stays dormant and
-   harmless without it).
+1. E0.3 device measurement (`docs/spike-panic-latency.md`) — still the only
+   blocker on the permanent latency gate (and on `panic_opened`'s
+   `cold_start_ms`).
+2. E3.3 device matrix (operator-expected §7).
+3. Content tone review (§3) — NOW INCLUDES: safetyCopy/helplines (TestFlight-
+   visible since E5.1), `ageGateCopy.json`, the ALO 182 verify→flip-flag task,
+   and the E4.2 checklist signature.
+4. GitHub Actions billing headroom (§4 — Session 16 used exactly its 2).
+5. TestFlight testers (§5 — guide written; the age-gate build is live).
+6. TelemetryDeck app ID (§8, no urgency); Slack webhook rotation (§6, optional).
 
 ## Resume prompt (copy-paste for next session)
 
-> You are the lead build agent for **unhooked-quit-widget** (app name **Ballast**,
-> org `com.beyondkaira`). E8.1 is DONE (green `29131380401`); Session 16 = E5.1
-> age gate — but FIRST resolve the `age_gate_blocked` schema tension (objective
-> step 0 above: MVP §5 has no such row; the enum is closed, byte-pinned, and
-> Architect-gated). Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`.
-> **Standing gates:** CodeGraph query-first + sync at close; `swiftc -parse` every
-> touched file + the NEW import-coverage check on every new test file (copy the
-> closest proven neighbor's import block — Session 15 burned a run on this);
-> access-level scan + Linux harness RUN empirically; docs-check every SDK spelling
-> (clone pinned tags for SPM deps); docs-only commits `[skip ci]`, no workflows for
-> docs-only work; critics Write findings to files; privacy-surface changes need
-> Architect pre-approval BEFORE implementation; safety-content (the age gate IS
-> one) needs the PM+Brand+QA copy sign-off before code; `git fetch` +
-> `git log origin/main` before every push (the operator commits mid-session —
-> the Session 15 panic fix landed exactly that way, as `8a0c469`).
-> READ FIRST: `docs/implementation-plan.md` E5.1 row + Epic 5, `docs/mvp.md` §5
-> (the closed event table) + §7, `docs/architecture.md` §5.1 + ADR-8,
-> `docs/operator-expected.md` §0/§4/§8, the Session 15 ledger's deferred
-> fire-point list, `docs/session-rules.md`.
-> **This session:** step-0 schema decision → red (the three named tests) → THE
-> red-evidence run → green (gate screen + boolean-only persistence + resources
-> routing) → verify all-green → flag operator-owned items.
-> **At session end:** append the Session 16 ledger, overwrite this resume prompt
-> (next objective per `roadmap.md` — likely E5.2 quiz engine or E8.2 consent
-> screen; E8.2 also retires the hardwired `isOptedIn: { false }`), update
-> `docs/operator-expected.md`, `codegraph sync`, commit `[skip ci]`, push,
-> `gh run watch` green.
+> You are the lead build agent for **unhooked-quit-widget** (app name
+> **Ballast**, org `com.beyondkaira`). E5.1 is DONE (green `29136061287`);
+> Session 17 = E5.2 quiz engine + screens. Local Swift toolchain:
+> `. ~/.local/share/swiftly/env.sh`.
+> **Standing gates:** CodeGraph query-first + sync at close; `swiftc -parse`
+> every touched file + import-coverage on every new test file; access-level
+> scan + Linux harness RUN empirically (red AND green profiles); docs-check
+> every SDK spelling (SwiftUI: house `.background(_:in:)` form only);
+> docs-only commits `[skip ci]`, no workflows for docs-only work; critics
+> Write findings to files; NEVER `git stash`; privacy-surface changes
+> (incl. `createQuit(from profile:)`) need Architect pre-approval BEFORE code;
+> quiz copy tables get the PM sign-off at spec time and the FOUNDER owns final
+> copy; `git fetch` + `git log origin/main` before every push.
+> READ FIRST: `docs/implementation-plan.md` E5.2 row + Epic 5 DoD,
+> `docs/mvp.md` §5 (quiz events exist — no schema work) + §2,
+> `docs/architecture.md` §5.1 (createQuit from-profile note) + §3,
+> `docs/operator-expected.md` §3/§4, the Session 16 ledger (the gate container
+> E5.2 mounts inside; the E5.2 scope guards in resume-prompt v2.8),
+> `docs/session-rules.md`, `docs/frontend-brandkit.md`.
+> **This session:** Architect pre-approval (repository + quiz architecture) →
+> PM copy tables (draft, founder-flagged) → red (the five named tests) → THE
+> red-evidence run → green (engine + config + screens inside the gate
+> container) → verify all-green → flag operator items (copy pass!).
+> **At session end:** append the Session 17 ledger, overwrite this resume
+> prompt (next per `roadmap.md` — likely E5.3 summary screen or E8.2 consent),
+> update `docs/operator-expected.md`, `codegraph sync`, commit `[skip ci]`,
+> push, `gh run watch` green.
 
 ## Standing rules reminders (do not relearn these)
 
-- Analytics ONLY via the closed `AnalyticsEvent` enum (LIVE since E8.1); zero
-  events before opt-in (the gate is `AnalyticsService.fire`, the one and only);
-  never a generic track; adding a case = MVP §5 row + Architect + fixture +
-  whitelist (completeness tests enforce). Analytics never pre-frame on the panic
-  path (ADR-6); fires are post-save, BESIDE writes, never inside (invariant 3).
-- No shame copy (slip strings CI-gated; lexicon only GROWS); no medical claims; no
-  red anywhere in UI; discreet variants mandatory; motivations VERBATIM in user
-  order.
-- Monotonic fields never decrease — undo is the ONE sanctioned exemption (§9r3);
-  streaks freeze, never inflate (ADR-7); `Quit.totalCleanSeconds` is BANKED-only.
-- WITNESS discipline: three advance paths only; erase clears it; flush/undo never
-  advance it; deferred slips apply with the SLIP-TIME witness, windows with nil.
-- Erase discipline: local-first; key sweep; owned file-set sweep; cloud purge last;
-  `logSlip` stays synchronous-local.
-- Panic path stays thin (ADR-6): panic surfaces NEVER open the store; single-writer
-  pre-cache pin; single store; no accounts (ADR-2).
-- E3.3 attribution ceiling is a RECORDED ADJUSTMENT (control family →
-  `.controlCenter`); the analytics wire map covers all five PanicSource cases
-  snake_case — never fabricate `.actionButton`.
-- Never weaken a QA assertion; TDD red first (red evidence = the CI run on the red
-  commit; build failures are NOT evidence — Session 15 paid to relearn this);
-  `cloudKitDatabase` stays `.none` until the §4.3 flip (undone-slip tombstoning
-  designs with it).
-- Snapshot goldens: pinned in-test geometry (.iPhone13) + AX5 axis; re-record
-  deliberately via the CI artifact; SnapshotTesting 1.19.3 + TelemetryDeck 2.14.1
-  exact-pinned.
+- Analytics ONLY via the closed enum; zero events before opt-in; never a
+  generic track; adding a case = MVP §5 row (OPERATOR) + Architect + fixture +
+  whitelist. Fires post-save, BESIDE writes, never inside; never pre-frame on
+  the panic path (ADR-6). The age-gate surface fires NOTHING (test-pinned).
+- No shame copy (slip AND age-gate strings CI-gated; lexicon only GROWS); no
+  medical claims; no red anywhere; discreet variants mandatory where habit
+  context exists; motivations VERBATIM in user order.
+- Monotonic fields never decrease — undo is the ONE exemption (§9r3); streaks
+  freeze, never inflate (ADR-7); `totalCleanSeconds` is BANKED-only.
+- WITNESS discipline: three advance paths only; erase clears it; flush/undo
+  never advance; deferred slips apply with the SLIP-TIME witness.
+- Erase discipline: local-first; key sweep; owned file-set; cloud purge last;
+  post-erase relaunch = fresh install ⇒ the AGE GATE returns (by design).
+- Panic path stays thin: panic surfaces NEVER open the store; the panic route
+  never consults the gate (pre-gate its pre-cache is empty by construction —
+  the structural guarantee, resolver-pinned); single store; no accounts.
+- Control-family attribution ceiling stands (`.controlCenter`); never fabricate
+  `.actionButton`.
+- Never weaken a QA assertion; TDD red first (red evidence = the CI run on the
+  red commit; build failures are NOT evidence); `cloudKitDatabase` stays
+  `.none` until the §4.3 flip.
+- Snapshot goldens: pinned geometry (.iPhone13) + AX5; re-record deliberately
+  via the CI artifact; SnapshotTesting 1.19.3 + TelemetryDeck 2.14.1 pinned.
 - Carried product notes: store-route SlipFraming passes momentum/motivation nil
-  (dashboard epic feeds real values); dashboard-half slip XCUITest waits for the
-  fixture-seeding session.
+  (dashboard epic feeds real values); dashboard-half slip XCUITest waits for
+  the fixture-seeding session; E5.1 screens have NO goldens yet (batch with
+  E5.2's).

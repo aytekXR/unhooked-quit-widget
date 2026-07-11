@@ -1838,3 +1838,129 @@ consumption site to instrument when it lands. One operator-support note: the
 Actions list's two same-evening ✗ runs (`29130610823` burned, `29130875659` the
 designed red) read as "CI fails" at a glance — both are documented above; every
 run since is green.
+
+## Session 16 — 2026-07-11 — E5.1 age gate (COMPLETE, 2 billed runs, zero burned) + TestFlight tester guide (operator request)
+
+### Objective & outcome
+
+Resume prompt v2.7: E5.1 age gate, with the step-0 `age_gate_blocked` schema
+tension resolved BEFORE red. **DONE in exactly the 2 planned billed runs, zero
+burned**: red evidence `29135328846` (172 tests / 19 suites — EXACTLY the 7
+designed failing cases / 30 issues, predicted issue-for-issue by the Linux
+harness; snapshot 17/17 and UI smoke green — zero collateral) → green `0054cea`
+run `29136061287` all-green (172/172 unit, 17/17 snapshot, TestFlight uploaded).
+Session-open operator request delivered first: `docs/testflight-tester-guide.md`
+(`bab473a`) — internal groups, external groups/public link, expire-stray-build +
+export-compliance answers; operator-expected §5 points at it.
+
+### Step-0 ruling (PM + Architect, binding; operator-vetoable)
+
+**The third plan test was RE-SPECCED to `test_ageGate_firesNoAnalyticsEvents()`
+(both branches, opted-IN spy). No `age_gate_blocked` case, no mvp.md §5 edit, no
+enum change.** Grounds, each independently verified: (1) structurally unfireable —
+`AnalyticsService.fire` is consent-gated, consent is hardwired false until E8.2,
+and the ONLY consent writer (the quiz consent step) is POST-gate, so a blocked
+user can never be opted in; (2) privacy-adverse — the event would mark a device
+as a blocked minor, exactly the vulnerable-user data this posture refuses to
+hold; (3) the add-path is operator-only twice over (canonical mvp.md edit +
+Architect-gated closed enum whose completeness tests fail by design). Block-rate
+stays recoverable at the aggregate as `installs − onboarding_started`. The
+implementation-plan E5.1 row rename is the sanctioned living-doc edit (Architect
+co-signed under the safety-content gate; landed with this session's close).
+
+### What shipped
+
+- **The conservative boundary (operator-vetoable):** PASS iff `currentYear −
+  birthYear ≥ 18`; a difference of exactly 17 could still be a 16-year-old
+  (birthday pending) and BLOCKS. Pure `AgeGate.evaluate` (LaunchRouter
+  precedent); `currentYear` derives from LiveClock at the composition root —
+  no `Date()` in production code.
+- **Fail-closed routing:** pure `AgeGateRouting.firstScreen`;
+  `AgeGateContainerView` is the NORMAL-ROUTE ROOT above `RootPlaceholderView`
+  (E5.2's replacement inherits the gate for free): neutral non-habit frame while
+  the store opens → gate until store-truth `ageGatePassed` → content. The
+  route-level `root.placeholder` anchor moved UP to the container (present in
+  every state; the skeleton's byte-pinned anchor untouched; every smoke
+  assertion holds — the panic-side ones are AssertFalse and the container never
+  mounts on that route).
+- **Storage: ONE defaulted boolean.** `AppSettings.ageGatePassed` (CloudKit
+  checklist green); repository `isAgeGatePassed()` fail-closed read +
+  `markAgeGatePassed()` via fetch-FIRST `fetchOrCreateAppSettings()` (E8.2's
+  consent step shares the helper). NO App Group mirror (Architect MUST-FIX #3);
+  the birth year exists only as a transient model input — the schema-walk pin
+  (`PersistentStore.schema`, not Mirror — a `@Model` reflects `_$backingData`,
+  QA catch) asserts the exact 6-attribute set. Post-erase the gate returns =
+  fresh-install state, by design.
+- **Blocked surface = a calm resources screen (zero taps to support):**
+  verbatim `helplines.json` rows via the predicate `appliesTo:"all" AND
+  verified:true` — session hardening of Architect MUST-FIX #1 grounded in the
+  directory's own `_meta` ruling (it deliberately EXCLUDED an unverified US
+  line); US → 988, TR → 112 until the operator verifies ALO 182 (flag flip =
+  automatic inclusion; `test_ageGate_blockedSurface_neverShowsUnverifiedNumbers`
+  pins it). Emergency note renders as CALM text (Brand binding: zero red;
+  SF Symbols only — calendar/lifepreserver/phone.fill). "Go back" +
+  relaunch-re-ask = never a permanent lockout (nothing persisted on block).
+- **Content:** NEW audited `ageGateCopy.json` (8 strings, panel-signed, Brand a2
+  polish adopted, Flag-2 resolved: no intro subheader — the body keeps its full
+  reassurance line) + `AgeGateCopy` loader with lexicon-clean `.degraded`;
+  `SlipLexiconTests` gained the reflection-driven age-gate scan (the joint
+  sign-off is CI-pinned). **`safetyCopy.json` + `helplines.json` are BUNDLED for
+  the first time** (E5.1 is their consuming epic) — operator §3 review moved up.
+- **Zero analytics from the entire surface** (blocked AND passed; spy-pinned
+  opted-IN). `onboarding_started` stays E5.2's event.
+
+### Process notes (ultracode session)
+
+- **The stricter-loop gates ran as designed and were unanimous:** PM spec →
+  parallel Architect (privacy pre-approval + step-0 ruling + technical plan,
+  7 MUST-FIX all honored) + Brand (per-string sign-off; caught the spec's
+  NAMI/SAMHSA `appliesTo:"all"` misread — so did QA and the Architect,
+  independently) + QA (4 mechanic fixes incl. the Mirror→schema-walk correction
+  and the opted-IN spy polarity; AC2 persist pin lives in QuitRepositoryTests
+  because AgeGateTests deliberately carries NO StreakEngine import).
+- **The Linux harness predicted the CI red issue-for-issue (30/30)** and ran the
+  green bodies 27/27 BEFORE they shipped — the billed runs held zero surprises.
+- **Critics paid for themselves twice:** red critics 3/3 PASS (the compile
+  critic isolated-compiled the labeled-tuple `@Test(arguments:)` pattern under
+  strict concurrency + warnings-as-errors rather than assert it); the green
+  SwiftUI critic caught TWO bare `.background(<composed View>)` sites — the
+  soft-deprecated positional overload, a warnings-as-errors burn risk — fixed
+  pre-push to the house `.background(_:in:)` form. **New micro-rule: SwiftUI
+  backgrounds use `.background(_:in:)`, never the bare positional View
+  overload.**
+- **Tooling incident (lesson):** a `git stash push` during a mid-session docs
+  commit briefly reverted the uncommitted red-commit edits from the working
+  tree; popped immediately, verified intact. Rule going forward: NEVER stash
+  mid-session — commit docs-only changes via pathspec (`git add <file>`) with
+  the code left dirty.
+- E5.1 snapshot goldens deliberately NOT recorded this session (no golden
+  infrastructure for the two new screens yet) — batch with E5.2's screens in
+  one deliberate CI-artifact re-record.
+- Doc-drift FYI (canonical docs untouched, operator's call): roadmap says "age
+  gate = feasibility condition #6" but feasibility §7's condition 6 is the
+  Quit-All tracking item — numbering drift only; the substance (age gate as the
+  minors/App-Review mitigation) is unambiguous.
+
+### Operator-action record (the session-open check the operator asked for)
+
+**Nothing blocked the session** — the step-0 path was chosen specifically so no
+canonical-doc edit was needed. Recorded during the session (all in
+`operator-expected.md`): §5 TestFlight tester guide (timely — and the NEWEST
+build now shows the AGE GATE as first screen, not the bare skeleton); §3 NEW —
+safetyCopy/helplines now TestFlight-visible + the ALO 182 verify-and-flip task;
+§4 Session 16 used 2/2 planned runs, zero burned; five vetoable rulings on
+record (boundary, zero-fire re-spec, verified-only helplines, no permanent
+lockout, no discreet variant).
+
+### Known limitations / carried forward
+
+- Epic-5 DoD navigation XCUITest (gate un-bypassable end-to-end) rides E5.2's
+  quiz (scenario 29) — the pre-gate half is unit-pinned this session.
+- Deferred fire-points unchanged: `slip_logged` (four-arm Architect spec),
+  `panic_opened` (cold_start_ms waits on E0.3), `panic_step_reached` (ADR-6
+  warm-up design), `erase_all_completed` (consent-wipe ordering).
+- E8.2 still owns: consent screen + stored opt-in + retiring the hardwired
+  `isOptedIn: { false }` + payload-audit doc.
+- Warm-panic listeners are dormant while the gate shows (harmless pre-gate — no
+  quits exist, cold panic resolves pre-frame; revisit only if a gated-but-quit
+  state ever becomes possible, which today it cannot).
