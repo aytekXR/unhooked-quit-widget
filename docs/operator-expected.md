@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (Session 15 CLOSED + operator status check: §0 done same-day (`8a0c469` + all-green `29132554144`); nothing blocks Session 16 = E5.1 age gate; open for you: §1–§8 below, §8 TelemetryDeck app ID newest) |
+| Last updated | 2026-07-11 (mid-Session 16 status check: E5.1 age gate IN FLIGHT and on plan — the `age_gate_blocked` schema tension is RESOLVED with zero operator action (re-spec to zero-fire; no mvp.md edit needed), the PM+Brand+QA safety sign-off + Architect privacy pre-approval are DONE (unanimous — no adjudication needed), the red commit is written and locally verified, 0 of 2 planned billed runs used. NEW for you: §3 gains the E5.1 safety-content notes incl. the ALO 182 verification item; §5 gained the TestFlight tester guide earlier today. Session 16 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
 Nothing below blocks the next session (E5.1 age gate — though its agent must
@@ -120,15 +120,30 @@ a live failure. Original context, for the record:
       fails; must stay calm, zero-shame, retryable (`REVIEW.md` item 3).
 - [ ] Pre-ship (unchanged): clinician/legal pass on `safetyCopy.json`; verify the
       flagged helplines; TR L10n review (`App/Resources/Content/REVIEW.md`).
+- [ ] **NEW (Session 16 — E5.1 makes two more content files TestFlight-visible):**
+      the age gate's blocked screen renders `safetyCopy.json`'s resourcesScreen
+      framing and `helplines.json` rows, so BOTH files now ship in every build
+      (previously unbundled drafts). Their clinician/legal + verification passes
+      above move up your queue accordingly — same posture as when panicScript/
+      slipCopy started shipping. Also review the NEW `ageGateCopy.json` (8 strings,
+      both gate screens; panel-signed, CI-scanned against the shame lexicon).
+- [ ] **NEW (Session 16 — ALO 182, ~5 min):** the blocked-minors surface shows only
+      `appliesTo:"all"` rows with `verified: true`, so TR currently shows ONLY 112 —
+      `tr_crisis` (ALO 182) is `verified: false` pending your official-source check
+      (Sağlık Bakanlığı page; the file's own `_meta` MUST_VERIFY item). Verify it,
+      flip its `verified` flag to `true`, and 182 joins the surface automatically
+      (a unit test pins that unverified rows can never render there).
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
 - [ ] Session 15 used **3** billed macOS runs (**1 burned**: a new test file was
       missing an import — TEST BUILD FAILED with no red evidence; the gate that
       closes this class is now standing rule #2 in the resume prompt). Session 16
-      (E5.1 age gate) plans **2**. The TelemetryDeck SPM dependency resolved
-      cleanly on CI (no extra runs from the new-dependency risk class). Check
-      Settings → Billing → spending limit before the session.
+      (E5.1 age gate) plans **2** — mid-session status: **0 used so far**; the red
+      commit passed the parse + import-coverage gates and an empirical Linux
+      harness (both red and green profiles) before spending anything, and an
+      adversarial critic pass runs before each push. Check Settings → Billing →
+      spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
@@ -226,3 +241,27 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
   attributes `.lockscreenWidget` exactly as the old hardcode did. The control
   intent is NOT discoverable (the discreet "Reset" control rides it — a Shortcuts
   row titled "Panic" would leak what it hides).
+- **Session 16 (E5.1 age gate) — the panel-signed rulings, each vetoable:**
+  1. **Conservative age boundary:** birth-year-only entry (deliberate PII
+     minimization) ⇒ PASS only when `currentYear − birthYear ≥ 18`; a difference
+     of exactly 17 could still be a 16-year-old and BLOCKS. Costs a genuine
+     17-year-old born late in the year a temporary block; duty-of-care-safe
+     direction. Veto paths: literal `≥ 17`, or collect month+year.
+  2. **The `age_gate_blocked` analytics event was NOT added** (the plan's third
+     test was re-specced): consent lives POST-gate and is hardwired off until
+     E8.2, so the event could never legally fire from a blocked user — and it
+     would mark a device as a blocked minor, exactly the data this app refuses
+     to hold. Instead a test pins the ENTIRE age-gate surface fires ZERO
+     analytics. No mvp.md §5 edit happened (canonical, yours). Veto = tell the
+     next session to propose the §5 row for you to add.
+  3. **Verified-only helplines for blocked minors:** the blocked screen renders
+     only `appliesTo:"all"` + `verified:true` rows (US → 988; TR → 112 until you
+     verify 182, §3 above). An unverified number never faces a minor — the
+     directory's own `_meta` posture, now test-pinned.
+  4. **A blocked user is never locked out permanently:** nothing is persisted on
+     block (the storage rule allows only the `ageGatePassed` boolean), so
+     relaunch re-asks — the App-Review-standard self-attestation bar; a "Go back"
+     on the blocked screen recovers a fat-fingered year in-session.
+  5. **No discreet variant on the gate screens:** pre-gate no habit context
+     exists to hide — "made for adults / 17+" is generic App Store language; a
+     shoulder-surfer learns nothing.
