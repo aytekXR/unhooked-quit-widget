@@ -1,4 +1,5 @@
 import AppIntents
+import Foundation
 
 /// The product's headline interaction (architecture §5.1): the lock-screen WIDGET
 /// button intent that opens the app straight into the panic route. The intent's only
@@ -25,6 +26,7 @@ struct OpenPanicIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         PanicLaunchFlag.set(source: .lockscreenWidget, quitID: quit?.id)
+        NotificationCenter.default.post(name: PanicLaunchFlag.warmLaunchRequested, object: nil)
         return .result()
     }
 }

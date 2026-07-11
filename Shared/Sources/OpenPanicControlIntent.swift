@@ -1,4 +1,5 @@
 import AppIntents
+import Foundation
 
 /// The control-family panic intent: Control Center, the lock-screen control slots, and
 /// the Action button all run the control the user placed there — ONE registration
@@ -26,6 +27,7 @@ struct OpenPanicControlIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         PanicLaunchFlag.set(source: .controlCenter, quitID: quit?.id)
+        NotificationCenter.default.post(name: PanicLaunchFlag.warmLaunchRequested, object: nil)
         return .result()
     }
 }

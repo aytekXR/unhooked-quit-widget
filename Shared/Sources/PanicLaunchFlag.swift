@@ -22,6 +22,14 @@ enum PanicLaunchFlag {
     /// clear() sweeps it with the other two keys.
     static let sourceKey = "panic.launch.source"
 
+    /// In-process signal for a panic launch that lands while the app is ALREADY running:
+    /// with the intents compiled into both targets, iOS runs `perform()` in the app's own
+    /// process when the app is alive (not the extension's), so the init-time flag read
+    /// (ADR-6) never sees it. `perform()` posts this after the flag write; in the widget
+    /// extension the post is a no-op (no observers). Scene-phase activation covers the
+    /// remaining warm case (extension ran `perform()` while the app was suspended).
+    static let warmLaunchRequested = Notification.Name("panic.launch.warmRequested")
+
     private static var groupDefaults: UserDefaults? {
         UserDefaults(suiteName: AppIdentifiers.appGroupID)
     }

@@ -21,6 +21,11 @@ struct RootPlaceholderView: View {
     /// (placeholder-grade: no observation plumbing on this throwaway surface yet).
     @State private var refreshToken = 0
     @State private var inAppPanic: InAppPanicPresentation?
+    /// A panic launch that landed while the app was already running (control/widget
+    /// tap on a warm app) — the init-time root decision can't see it, so this surface
+    /// consumes it: on scene activation (extension wrote the flag while we were
+    /// suspended) and on the in-process signal (iOS ran `perform()` in OUR process).
+    @State private var warmPanic: WarmPanicPresentation?
 
     /// E4.2: every slip string this surface renders comes from the ONE audited table
     /// (implementation-plan §E4.2), never a view-inline literal — byte-identical to
@@ -44,6 +49,23 @@ struct RootPlaceholderView: View {
                 _ = provider?.repository?.finalizePendingSlips()
                 refreshToken += 1
             }
+            if phase == .active {
+                presentWarmPanicIfRequested()
+            }
+        }
+        .onReceive(
+            NotificationCenter.default
+                .publisher(for: PanicLaunchFlag.warmLaunchRequested)
+                .receive(on: DispatchQueue.main)
+        ) { _ in
+            presentWarmPanicIfRequested()
+        }
+        .sheet(item: $warmPanic) { item in
+            // A sheet, not a fullScreenCover (the in-app panic entry precedent): the
+            // flow's celebration exit has no dismiss affordance, so the mount must
+            // stay swipe-dismissible. The mounted view consumes the flag keys in its
+            // onAppear, exactly like the cold route.
+            PanicPlaceholderView(presentation: item.presentation, source: item.source)
         }
         .sheet(item: $presentation) { presented in
             SlipFlowView(
@@ -83,6 +105,18 @@ struct RootPlaceholderView: View {
     /// opens the store, even when the store is warm), attributes `.inApp`, and presents
     /// as a sheet (swipe-dismissable; the real dashboard PanicEntryButton chrome is E5+
     /// work). Brandkit Component 3 semantics: 56pt target, teal, wind glyph + "Panic".
+    /// Idempotent warm-panic gate: mounts the panic route when a launch flag is
+    /// pending and nothing panic-shaped is already up. Reads the pre-cache on the
+    /// same terms as the cold route (ADR-6 — never the store).
+    private func presentWarmPanicIfRequested() {
+        guard !WarmPanicEntry.isHostingUnitTests else { return }
+        guard warmPanic == nil, inAppPanic == nil else { return }
+        guard let resolved = WarmPanicEntry.resolve(
+            snapshot: PanicSnapshotStore.appGroup()?.read()
+        ) else { return }
+        warmPanic = resolved
+    }
+
     private var panicEntry: some View {
         Button {
             inAppPanic = InAppPanicPresentation(
