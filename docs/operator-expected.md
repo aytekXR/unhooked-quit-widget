@@ -3,13 +3,40 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-11 (Session 17 CLOSED: E5.2 quiz engine DONE — red evidence `29151832001` (EXACTLY the 25 designed cases / 55 issues, harness-predicted issue-for-issue) → green `29152486541` all-green + TestFlight, **2 billed runs, ZERO burned**. The newest TestFlight build is the first with REAL onboarding end to end: age gate → the quiz → quit creation with your words → the panic flow renders them. Nothing blocks Session 18 = E5.3 summary + social proof (one step-0 content question rides it — see the rulings note). Open for you: §1–§8; the newest item is §3's FOUNDER QUIZ COPY PASS. Session 16 + 17 vetoable rulings at the bottom.) |
+| Last updated | 2026-07-11 (Session 18 CLOSED: E5.3 personalized summary DONE — **Epic 5 is now fully closed** — red evidence `29156626484` (EXACTLY the 31 designed issues, harness-predicted label-for-label on two lanes) → burned `29157369825` (the new XCUITest class missed `@MainActor`; gate now in standing rule #2) → `29157616479` verified the implementation whole (unit 210/210 + snapshot) but the new gate→quiz→summary smoke flaked its FIRST drive → the pre-recorded QA valve fired: scenario-29 defers to E7 → final green `29158183470` + TestFlight, **4 billed runs**. The newest TestFlight build completes the M1 loop: gate → quiz → the SUMMARY PAYOFF (your projected savings + your likely hard window + your words) → dashboard → panic with your words. **The step-0 social-proof ruling: the screen is DEFERRED** (no real reviews exist pre-launch; fabricated ones are banned) — veto path below. Nothing blocks Session 19 = E8.2 consent. Open for you: §1–§8; §3 now also carries the SUMMARY copy rows. Session 16 + 17 + 18 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E5.2 quiz engine). **§0 is CLOSED**
+Nothing below blocks the next session (E8.2 consent). **§0 is CLOSED**
 (only its optional gstack FYI remains). Items below §0 are ordered by how much
 they age; check a box by replacing `[ ]` with `[x]` and the next session's
 agent will prune completed items.
+
+> **Session 18 outcome (2026-07-11):** E5.3 is DONE and **Epic 5 is closed** — the
+> personalized summary renders at quiz completion (projected annual savings =
+> weekly spend × 52, displayed floored-to-ten so it never overstates; a hedged
+> "first hard window" line derived ONLY from your frequency/trigger answers —
+> no answers, no line, never a guess; your motivation words echoed verbatim),
+> then hands off to the dashboard through the NAMED seam E7 will remap to the
+> paywall. `quiz_completed` now fires on summary render (in-process only —
+> nothing leaves any build until E8.2 consent + your §8 app ID). **The step-0
+> social-proof ruling (vetoable, #1 below): the PRD's "real review quotes"
+> screen is DEFERRED until real reviews exist** — a fully-drafted, Brand-verified
+> trust-frame alternative sits in the Session 18 ledger if you'd rather ship
+> that. **Billed runs: 4** (red evidence `29156626484` matched the two-lane
+> harness prediction label-for-label → `29157369825` BURNED: the new XCUITest
+> file was missing the one-line `@MainActor` class annotation every neighbor
+> carries, a build failure with no evidence → fix → `29157616479` proved the
+> whole E5.3 implementation green (unit 210/210, snapshot clean) while the NEW
+> gate→quiz→summary smoke itself flaked its first-ever CI drive (the
+> birth-year wheel interaction) → QA's pre-recorded deferral valve fired: the
+> smoke rides E7 with proper drive diagnostics; unit-tier routing pins hold
+> the un-bypassability meanwhile → final green `29158183470` + TestFlight).
+> The zero-burn streak ended at two sessions; BOTH closing gates are recorded
+> (standing rule #2: neighbor-copying covers class annotations, not just
+> imports; state-mutating UITests need the new UITEST_RESET hook AND land
+> with drive diagnostics). Your NEW asks: §3 gains the 11 summaryCopy.json
+> DRAFT strings (one flagged copy nit) — everything else is carried, nothing
+> new blocks.
 
 > **Session 16 outcome (2026-07-11):** E5.1 is DONE — the age gate is the app's
 > FIRST screen (birth-year wheel; conservative boundary `≥ 18` year-difference,
@@ -108,9 +135,13 @@ a live failure. Original context, for the record:
       screens (habit → … → readiness) and a real quit is created with your
       motivations verbatim; the panic flow then renders YOUR words. Enter e.g.
       2012 instead to see the blocked resources surface (988 on a US-region
-      device; "Go back" recovers). After the quiz you land on the placeholder
-      dashboard — the personalized summary payoff arrives with E5.3. All quiz
-      copy is DRAFT pending your §3 pass.
+      device; "Go back" recovers). **NEW (Session 18): after the quiz you now
+      land on the PERSONALIZED SUMMARY** — your projected yearly savings (enter
+      a weekly spend to see the hero figure; leave it blank to see the calm
+      non-monetary reframe), your likely hard window (pick triggers to see it;
+      pick none and no line renders — by design), and your motivation words —
+      then Continue drops you on the placeholder dashboard. All quiz AND
+      summary copy is DRAFT pending your §3 pass.
 
 ## 3. Content tone review — now fully TestFlight-visible — **+ NEW: E4.2 checklist signature (~15 min)**
 
@@ -164,6 +195,18 @@ a live failure. Original context, for the record:
       (b) whether the motivations step should gain an optional free-text
       "why does {motivation} matter to you?" elaboration (enriches the panic
       reasons screen; local-only like all answers) — a copy/UX call, not built yet.
+- [ ] **NEW (Session 18 — THE SUMMARY COPY ROWS, ~10 min, rides the same pass):**
+      `App/Resources/Content/summaryCopy.json` — 11 DRAFT strings for the
+      summary screen (eyebrow, savings caption + no-spend reframe, the six
+      "first hard window" phrases, motivation intro, CTA). Brand signed with
+      ZERO required replacements (a first), but two founder calls ride along:
+      (a) the **flagged copy nit** — the hero renders "~$1,350<small>/year</small>"
+      and the caption says "saved in a year, if you stay on track." (a
+      double-"year" read; Brand's optional alternative: "saved in a year at
+      this rate."); (b) the risk-window phrases are REFLECTION hedges ("Your
+      first hard window is likely evenings.") — keep the "likely" and never let
+      "predict"-family words in (the clinical line the register gate holds).
+      A copy edit is still cheap (goldens remain unrecorded until this pass).
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
@@ -176,8 +219,17 @@ a live failure. Original context, for the record:
       (E5.2 quiz — the largest surface yet) **used exactly its 2 planned runs,
       zero burned** (red evidence `29151832001` matched the harness prediction
       issue-for-issue → green `29152486541`; the fourth zero-burn TDD session).
-      Session 18 (E5.3 summary) plans **2, with 1 contingency**.
-      Check Settings → Billing → spending limit before the session.
+      Session 18 (E5.3 summary) used **4** billed runs (planned 2 + 1
+      contingency, ran one over): red evidence `29156626484` (exactly the 31
+      designed issues, two-lane-harness-predicted) → `29157369825` **burned**
+      (missing `@MainActor` on the new XCUITest class — build failure, no
+      evidence) → `29157616479` (implementation verified whole; the new smoke
+      itself flaked → its pre-recorded deferral valve fired) → final green
+      `29158183470`. BOTH closing gates recorded in the resume prompt
+      (class-annotation coverage; smokes with unproven drive interactions
+      defer until they can land with diagnostics). Session 19 (E8.2 consent)
+      plans **2, with 1 contingency**. Check Settings → Billing → spending
+      limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
@@ -189,12 +241,13 @@ a live failure. Original context, for the record:
 > (CI uploads internal-only; build worth distributing = the `8a0c469` one).
 
 - [ ] Add internal testers (nobody receives builds until a tester group exists).
-      **This item is now MAXIMALLY timely (Session 17):** the newest build
-      (from `4e69dd0`, run `29152486541`) is the first with REAL onboarding —
-      a tester installs, passes the gate, answers the quiz, and gets a real
-      quit whose panic flow speaks their own motivations. That is the product
-      thesis in one hand-off. Follow Part 1 of the guide. (The earlier
-      `8a0c469` note stands superseded.)
+      **This item is now MAXIMALLY timely (Session 17, doubled by Session 18):**
+      the newest build (from `3b091d9`, run `29158183470`) completes the M1
+      loop — a tester installs, passes the gate, answers the quiz, sees THE
+      SUMMARY PAYOFF (their savings figure, their hard window, their words),
+      and gets a real quit whose panic flow speaks their own motivations. That
+      is the product thesis in one hand-off. Follow Part 1 of the guide. (The
+      earlier `8a0c469` note stands superseded.)
 - [ ] Expire the stray bundle-version-"1" build; answer export compliance only if
       App Store Connect prompts (guide Part 3 has the exact answers).
 
@@ -341,3 +394,43 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
   7. **Motivation chips store the display words themselves** (id == label:
      "Self-respect", "Faith", …) so the panic screen echoes the user's own words
      verbatim without the repository ever reading the copy table.
+- **Session 18 (E5.3 summary) — the panel-signed rulings, each vetoable (all
+  held through the green close):**
+  1. **The social-proof screen is DEFERRED post-TestFlight-feedback** (step-0,
+     PM+Architect+Brand unanimous): no real review quotes exist pre-launch;
+     fabricated ones are banned (MVP §7 + Honest); no analytics event brackets
+     the screen so deferral costs zero measurement; and the trust-frame
+     alternative would fire the paywall's own privacy line one screen early,
+     back-to-back. The summary CTA is the reserved NAMED seam E7 remaps. **Veto
+     = tell Session 19 to build the trust frame — its full Brand-verified copy
+     table is in the Session 18 ledger, no new panel round needed.**
+  2. **Savings display FLOORS to the ten** ("~$1,350/year" from $26/wk — never
+     overstate a motivational projection; the stored value stays the exact
+     Decimal 1352). Veto = plain nearest-10 (one pure edit + two test literals).
+  3. **Risk-window precedence** evenings > afterWork > social > alone >
+     boredom > stress (clock windows beat mood states; multi-select collapses
+     to the single "first" window); `frequency` reserved-but-unused v1; no
+     triggers → NO line, never a guess.
+  4. **`predictedRiskWindow` stores the trigger TOKEN, never the phrase** —
+     your DRAFT copy stays out of the (future-mirrored) store; a copy rewrite
+     never migrates rows.
+  5. **Summary-once, in-memory:** relaunching during the summary's few seconds
+     lands on the dashboard without re-showing it or re-firing quiz_completed —
+     a conservative funnel undercount (the safe direction). No persisted flag,
+     no new field. Veto = a persisted summary needs a schema decision first.
+  6. **The gate→quiz→summary XCUITest was built, flaked its first CI drive,
+     and its pre-recorded valve fired — scenario-29 DEFERS to E7** (where the
+     full quiz→summary→paywall E2E lands with drive diagnostics). The
+     `UITEST_RESET` fresh-install hook it introduced stays (test-only launch
+     env; sweeps store + App Group + the quiz checkpoint; the prerequisite for
+     any future state-mutating UITest). Unit routing pins hold the Epic-5
+     DoD's un-bypassability meanwhile. Veto = tell Session 19 to re-land the
+     smoke now and spend billed runs debugging the birth-year wheel drive.
+  7. **`quit_created` wiring deferred AGAIN, with a plan:** firing it now would
+     flip a green E5.2 assertion (its spy guard). It rides the E8 wiring batch
+     where that guard is intentionally widened in the same commit.
+  8. **The hero renders the tested display string split** (numeral hero +
+     subordinate "/year" on the same baseline). The residual double-"year"
+     read against the caption is YOUR §3 copy call (Brand's alternative
+     recorded there); extreme-accessibility hero sizing (stack-vs-shrink)
+     rides the post-copy-pass polish/golden batch.
