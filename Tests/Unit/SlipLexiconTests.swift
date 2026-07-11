@@ -222,6 +222,49 @@ struct SlipLexiconTests {
         }
     }
 
+    // MARK: - The E5.3 summary gate (Session 18 — summaryCopy.json is the summary
+    // screen's audited copy table, its own file + type BY DESIGN (Architect Q1:
+    // nothing in it can become an engine-rendered quiz step); every string DRAFT/
+    // founder-owned; shipping + degraded both walked; ships at red — the house
+    // content precedent, so this gate is green from the red commit onward.)
+
+    @Test func test_summaryStrings_containNoForbiddenLexicon() throws {
+        let copy = try #require(
+            SummaryCopy.loadShipping(),
+            "the audited summary table is the shipping summaryCopy.json — it must be bundled and decode as-is (§3.2)"
+        )
+        let corpus = Self.reflectedStrings(of: copy) + Self.reflectedStrings(of: SummaryCopy.degraded)
+
+        // Non-vacuity floor: 11 shipping strings today (eyebrow, 2 savings, 6
+        // window phrases, motivation intro, cta).
+        #expect(
+            Self.reflectedStrings(of: copy).count >= 11,
+            "the reflected summary corpus collapsed — the scan would be vacuous"
+        )
+
+        // Every risk-window token maps to a real phrase (the token is what
+        // persistence stores; a missing row would silently drop the hint)…
+        for token in ["evenings", "afterWork", "social", "alone", "boredom", "stress"] {
+            #expect(
+                copy.phrase(forToken: token)?.isEmpty == false,
+                "every risk-window token must map to a non-empty phrase: \(token)"
+            )
+        }
+        // …and an unknown token renders NOTHING (the defensive arm of AC5).
+        #expect(
+            copy.phrase(forToken: "predicted") == nil,
+            "an unknown window token renders nothing — never a guessed line"
+        )
+
+        for string in corpus {
+            let violation = Self.firstViolation(in: string)
+            #expect(
+                violation == nil,
+                "forbidden lexicon '\(violation ?? "?")' must never appear on the summary — the payoff screen reflects the user's answers back, never a verdict (brandkit §1.2): \(string)"
+            )
+        }
+    }
+
     // MARK: - Table completeness (the audit-found inline strings, byte-exact)
 
     @Test func test_slipTable_carriesDashboardStrings_byteExactWithRenderedCopy() throws {

@@ -90,6 +90,12 @@ targets:
       # SlipLexiconTests on every run.
       - path: App/Resources/Content/quizConfig.json
         buildPhase: resources
+      # E5.3 (personalized summary) is the consuming epic: summaryCopy.json is the
+      # summary screen's ONE audited copy table — deliberately its own file, never a
+      # quizConfig steps[] entry (Architect Q1, Session 18) — every string DRAFT/
+      # founder-owned (operator-expected §3), lexicon-scanned by SlipLexiconTests.
+      - path: App/Resources/Content/summaryCopy.json
+        buildPhase: resources
       # AppIcon is the brandkit single-size set (light + dark + tinted 1024): actool
       # generates every size, incl. the iPad 152/167 App Store validation requires
       # even for an iPhone-only app (upload error 90023 without it). The light 1024

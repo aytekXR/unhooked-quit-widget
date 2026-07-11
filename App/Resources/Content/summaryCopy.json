@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "version": 1,
+    "audit": "DRAFT — founder copy pass required (roadmap: agents scaffold screens, copy is founder-owned; operator-expected §3). This file is the summary screen's ONE audited copy table (ADR-9), deliberately SEPARATE from quizConfig.json (Architect Q1, Session 18: nothing in this file can become an engine-rendered quiz step). Panel-signed Session 18: PM authored, Brand SIGNED with zero required replacements (two optional founder alternatives recorded in the session ledger: savingsCaption alt 'saved in a year at this rate.'; window-absent stays omit-entirely). Lexicon-scanned by SlipLexiconTests on every CI run, shipping AND degraded. Register rules honored: the risk-window phrases are reflection hedges over the user's own trigger answers ('likely', never a clinical prediction — 'predicted' stays quarantined to the internal field name); the savings caption is an Honest hedge (the figure is floored, never overstated); no shame token, no medical claim, no urgency, no exclamation mark, no fabricated statistic.",
+    "review_status": "DRAFT — founder copy pass pending"
+  },
+  "eyebrow": "Based on your answers",
+  "savingsCaption": "saved in a year, if you stay on track.",
+  "savingsAbsent": "Every clean day is time and focus back — we'll count the streak that matters to you.",
+  "windowEvenings": "Your first hard window is likely evenings.",
+  "windowAfterWork": "Your first hard window is likely just after work.",
+  "windowSocial": "Your first hard window is likely around social plans.",
+  "windowAlone": "Your first hard window is likely in quiet moments alone.",
+  "windowBoredom": "Your first hard window is likely when things get idle.",
+  "windowStress": "Your first hard window is likely when stress spikes.",
+  "motivationIntro": "You're doing this for:",
+  "cta": "Continue"
+}

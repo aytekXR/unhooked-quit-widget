@@ -111,6 +111,13 @@ final class QuizFlowModel {
         analytics.fire(.onboardingStarted(variant: variant))
     }
 
+    /// E5.3 — the summary-render fire-point (R2's canonical trigger, Architect
+    /// Q4/Session 18): the summary view calls this in `.onAppear`.
+    /// RED STUB — fires nothing (green: guarded once-per-completion
+    /// quiz_completed carrying exactly the handoff's habitCategory + goalMode;
+    /// no completion in hand → nothing, never a fabricated fire).
+    func onSummaryAppear() {}
+
     /// Completion: hand the ordered answers to the repository (the one QuizProfile
     /// assembler), expose the E5.3 handoff, and clear the checkpoint ONLY on
     /// success — a failed save keeps every answer recoverable.
