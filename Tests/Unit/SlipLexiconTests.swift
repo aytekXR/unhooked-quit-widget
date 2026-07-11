@@ -164,6 +164,34 @@ struct SlipLexiconTests {
         }
     }
 
+    // MARK: - The E5.1 age-gate gate (Session 16 — QA change #4: the age-gate strings
+    // are not slip strings, so without this scan the no-shame gate would not cover
+    // them; the joint PM+Brand+QA sign-off is CI-pinned here)
+
+    @Test func test_ageGateStrings_containNoForbiddenLexicon() throws {
+        let copy = try #require(
+            AgeGateCopy.loadShipping(),
+            "the audited table is the shipping ageGateCopy.json — it must be bundled and decode as-is (§3.2)"
+        )
+        // Both gate screens' shipping copy AND the degraded fallback (it renders
+        // too), by the same reflection walk — a new field can never dodge the scan.
+        let corpus = Self.reflectedStrings(of: copy) + Self.reflectedStrings(of: AgeGateCopy.degraded)
+
+        // Non-vacuity floor: 8 shipping strings today (5 gate + 3 blocked).
+        #expect(
+            Self.reflectedStrings(of: copy).count >= 8,
+            "the reflected age-gate corpus collapsed — the scan would be vacuous"
+        )
+
+        for string in corpus {
+            let violation = Self.firstViolation(in: string)
+            #expect(
+                violation == nil,
+                "forbidden lexicon '\(violation ?? "?")' must never appear on the age gate — the blocked screen is a calm resource surface, not a verdict (brandkit §1.2, agent-workflows §2.3 safety-content gate): \(string)"
+            )
+        }
+    }
+
     // MARK: - Table completeness (the audit-found inline strings, byte-exact)
 
     @Test func test_slipTable_carriesDashboardStrings_byteExactWithRenderedCopy() throws {

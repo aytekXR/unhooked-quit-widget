@@ -617,6 +617,26 @@ final class QuitRepository {
         }
     }
 
+    // MARK: - Age gate (E5.1)
+
+    /// The fail-closed age-gate read: only a store-truth `true` opens habit content —
+    /// a missing row, a fresh row, or a failed fetch all read NOT passed (Architect
+    /// MUST-FIX #6, Session 16). Store-only by design: no App Group mirror exists or
+    /// may be added (MUST-FIX #3), so the panic route stays structurally unable to
+    /// read (or need) gate state.
+    func isAgeGatePassed() -> Bool {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor).first?.ageGatePassed) ?? false
+    }
+
+    /// The ONE writer of `ageGatePassed` — reached only from the gate's pass branch
+    /// (after `AgeGate.evaluate == .pass`). E5.1 RED: deliberately a no-op — the
+    /// designed failure for `test_ageGate_pass_persistsAgeGatePassedTrue`. Green
+    /// implements fetch-or-create (fetch-FIRST so the row stays the singleton;
+    /// E8.2's consent step will share the helper), set true, save.
+    func markAgeGatePassed() throws {}
+
     // MARK: - Widget reload debounce
 
     /// Trailing debounce: every write replaces the pending reload; only a quiet tail

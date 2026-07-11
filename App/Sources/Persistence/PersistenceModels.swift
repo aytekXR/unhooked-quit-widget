@@ -140,6 +140,11 @@ final class QuizProfile {
 final class AppSettings {
     /// Default FALSE until answered in the quiz — zero events before consent (ADR-8).
     var analyticsOptIn: Bool = false
+    /// E5.1 — the age gate's ENTIRE persistent footprint: a yes-or-no answer, default
+    /// fail-closed. The birth year it derives from is a transient in-memory input and
+    /// may NEVER land in any store, file, or payload (AgeGateTests pins this field set;
+    /// Session 16 Architect pre-approval).
+    var ageGatePassed: Bool = false
     var discreetIconId: String?
     var hapticOnlyBreathPacer: Bool = false
     var onboardingVariant: String = ""

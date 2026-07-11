@@ -363,6 +363,28 @@ struct QuitRepositoryTests {
         #expect(value.elapsedSeconds == 100 * day + cap)
     }
 
+    // MARK: - E5.1 age gate (the AC2 persist pin — QA change #3, Session 16; lives
+    // here because it needs the repository harness, and AgeGateTests deliberately
+    // carries no StreakEngine import)
+
+    /// The ONE writer of `ageGatePassed` and the fail-closed read. RED: the writer
+    /// is a no-op — one of the 7 designed failures on the red commit.
+    @Test func test_ageGate_pass_persistsAgeGatePassedTrue() throws {
+        let h = try Harness()
+        #expect(h.repository.isAgeGatePassed() == false, "fresh store: fail-closed default")
+
+        try h.repository.markAgeGatePassed()
+
+        #expect(h.repository.isAgeGatePassed() == true)
+        // Durable on the singleton row, not an in-memory echo.
+        let context = ModelContext(h.container)
+        let row = try #require(
+            try context.fetch(FetchDescriptor<AppSettings>()).first,
+            "the pass must create the AppSettings singleton durably"
+        )
+        #expect(row.ageGatePassed == true)
+    }
+
     @Test func test_lastKnownGood_isDeviceLocal_notInSwiftDataStore() throws {
         let h = try Harness()
         let reading = MonotonicAnchor(bootID: bootA, uptime: 51_000, wallClock: epoch + 1_000)

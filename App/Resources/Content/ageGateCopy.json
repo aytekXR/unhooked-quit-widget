@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "version": 1,
+    "audit": "E5.1 age-gate copy — the ONE audited table for both gate screens (the slipCopy precedent; strings render verbatim, never view-inline literals). Signed by the Session 16 PM+Brand+QA safety-content panel: zero-shame, no medical claims, no habit words on either screen, no age-shame framing (the constraint lands on the app, never on the user), resource-forward, never a dead end. Scanned against the forbidden lexicon by SlipLexiconTests on every CI run. The blocked surface additionally renders resourcesScreen.footerDisclaimer (safetyCopy.json) and the region's verified appliesTo-all helpline rows (helplines.json) — both pre-audited, reused verbatim."
+  },
+  "gate": {
+    "title": "A quick age check",
+    "body": "Ballast is made for adults — it's rated 17+ on the App Store. Choose the year you were born so we can confirm your age. We keep only a yes-or-no answer. Your birth year is never saved.",
+    "yearLabel": "Year of birth",
+    "continueLabel": "Continue",
+    "footer": "No account, no sign-up. This stays on your device."
+  },
+  "blocked": {
+    "title": "Support is here for you",
+    "body": "Because Ballast is rated 17+, we can't open the full app for you yet. That said — if anything feels hard right now, these free, confidential lines are here. You don't have to be in a crisis to reach out.",
+    "goBackLabel": "Go back"
+  }
+}
