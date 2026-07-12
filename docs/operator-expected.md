@@ -3,17 +3,35 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-12 (**Session 22 CLOSED: E6.3 discreet mode + alternate icons + the app-switcher shield DONE — every widget family now hides its habit on demand.** Toggle a quit discreet and its lock-screen widget shows "Day N" + a neutral "Reset" arrow — no money, no wind glyph; the app-switcher card goes blank; two new innocuous app icons ("Calendar style" / "Timer style") switch from the new one-screen settings sheet; one-tap erase now also puts the ORIGINAL icon back (OS icon state survives a data wipe — we reset it, plus a launch self-heal). **Billed runs: exactly the 2 planned, zero burned, contingency unused — the zero-burn streak restarts** (red evidence `29183485997` matched the prediction name-for-name, the 8th consecutive; green `29184196211` all-green + TestFlight). **Three things worth your eye:** (1) §3 gains the 8 DRAFT settings strings AND the two DRAFT GENERATED app icons — agents drew them to your brandkit's spec (pure-geometry tiles; regenerate anytime with `brandkit/branding-assets/generate-alt-icons.py`); veto or replace at will; (2) §3 also carries a REAL decision: your brandkit contradicts itself on whether the discreet icons may appear in App Store screenshots (§9.1 says never, §9.2's frame 3 shows one) — the panel says NEVER (one public exposure makes the "innocuous" icon reverse-image-linkable to Ballast forever); you own ASO, so you decide; (3) the veto list gains the Session 22 rulings — the most product-visible: the app-switcher cover only protects DISCREET users (the plan's spec); making it universal is a one-line change if you want banking-app-style protection for everyone. Session 23 = E7.1 PaywallKit.) |
+| Last updated | 2026-07-12 (**Session 23 CLOSED: E7.1 PACKAGE HALF DONE — the app now has an entitlement BRAIN (PaywallKit 1.0.0), and nothing was needed from you, open to close.** The four-state machine (`never|trial|active|lapsed`) ships pure: no clock (offline can NEVER flip a paying user to locked-out — your architecture's anti-Quittr grace rule, enforced by construction), no persisted bytes (the "cache" is in-memory; RevenueCat's SDK owns durable caching app-side, later), no prices or SKUs (the state machine knows monthly-vs-annual and nothing else). Nothing renders it yet — no paywall screen exists; that is Session 24's job, and it is deliberate (the same package-half-first split your E6.1→E6.2 widget sessions used). **Billed runs: exactly the 1 planned, zero burned, contingency unused** (red evidence was FREE — the local Linux package lane predicted all 11 failing tests / 17 issues issue-for-issue, the 9th consecutive; red+green rode ONE push, CI `29192612869`). **Nothing new is expected from you** — §3 gains no strings (the package has no user-facing surface). One forward heads-up in §8: Session 24 wires RevenueCat DORMANT behind your RC key, exactly like the TelemetryDeck pattern you already know — your RC account + App Store Connect products become blocking only at sandbox-verification time, not for the build. Five vetoable rulings at the bottom; the one worth your eye is the OFFLINE GRACE call: a lapsed-while-offline trial keeps premium until the device next reaches RevenueCat — the direction your docs mandate, but it is a real product call now enforced by tests.) |
+| Superseded header (S22) | 2026-07-12 (**Session 22 CLOSED: E6.3 discreet mode + alternate icons + the app-switcher shield DONE — every widget family now hides its habit on demand.** Toggle a quit discreet and its lock-screen widget shows "Day N" + a neutral "Reset" arrow — no money, no wind glyph; the app-switcher card goes blank; two new innocuous app icons ("Calendar style" / "Timer style") switch from the new one-screen settings sheet; one-tap erase now also puts the ORIGINAL icon back (OS icon state survives a data wipe — we reset it, plus a launch self-heal). **Billed runs: exactly the 2 planned, zero burned, contingency unused — the zero-burn streak restarts** (red evidence `29183485997` matched the prediction name-for-name, the 8th consecutive; green `29184196211` all-green + TestFlight). **Three things worth your eye:** (1) §3 gains the 8 DRAFT settings strings AND the two DRAFT GENERATED app icons — agents drew them to your brandkit's spec (pure-geometry tiles; regenerate anytime with `brandkit/branding-assets/generate-alt-icons.py`); veto or replace at will; (2) §3 also carries a REAL decision: your brandkit contradicts itself on whether the discreet icons may appear in App Store screenshots (§9.1 says never, §9.2's frame 3 shows one) — the panel says NEVER (one public exposure makes the "innocuous" icon reverse-image-linkable to Ballast forever); you own ASO, so you decide; (3) the veto list gains the Session 22 rulings — the most product-visible: the app-switcher cover only protects DISCREET users (the plan's spec); making it universal is a one-line change if you want banking-app-style protection for everyone. Session 23 = E7.1 PaywallKit.) |
 | Superseded header (S21) | 2026-07-12 (**Session 21 CLOSED: E6.2 widget families + the widget feed DONE — a REAL five-family streak widget now ships on TestFlight.** The lock screen shows "Day N" + money saved + the panic button, self-ticking, timezone-fixed, erased clean by one-tap erase. **Billed runs: 4 — the planned 2 + the contingency + ONE over** (§4 has the honest accounting: one burned on a deprecated-API build failure the neighbor-copy rule should have caught — its closing gate is now standing; one spent on a single stale test fixture the new timezone field legitimately flipped, 243/244 green). **Two things worth your eye:** (1) the widget gallery now shows REAL strings ("Streak" / "Your streak, on your lock screen…") — they are DRAFT and join your §3 pass, alongside milestones.json which now ships in-bundle; (2) the veto list below gains six Session 21 rulings — the StandBy deferral and the SkeletonWidget retirement are the two most user-visible: **your testers' placed widgets vanished with the retirement; they re-add "Streak" once.** Session 22 = E6.3 discreet mode.) |
 | Superseded header (S20) | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E7.1 PaywallKit — the package half
-needs neither your RevenueCat account nor App Store Connect products; those
-become §-items when the paywall's APP half lands).
+Nothing below blocks the next session (Session 24 = E7.1's APP half: the
+RevenueCat wiring builds DORMANT behind your RC key — the TelemetryDeck
+precedent — so it needs neither your RevenueCat account nor App Store Connect
+products to build; those become blocking §-items only at sandbox-verification
+time, and the RC-key item itself lands at Session 24's close).
 **§0 is CLOSED** (only its optional gstack FYI remains). Items below §0 are
 ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the
 next session's agent will prune completed items.
+
+> **Session 23 outcome (2026-07-12):** E7.1's PACKAGE half is DONE — PaywallKit
+> 1.0.0 owns the entitlement state machine. What that means concretely: the
+> logic that will decide "show the paywall or the dashboard" now exists, is
+> 98.21%-covered behind a new CI-enforced 90% floor on the FREE Linux lane,
+> and was adversarially reviewed (a reentrancy probe ran 1,600 concurrent
+> refreshes against a slow event sink — the trial-start event fired exactly
+> once, every time; three deliberate mutants were planted and every one was
+> killed by the shipped tests). A new panel role born from Session 22's
+> UIWindow lesson — the docs-verifier — checked every RevenueCat claim
+> against the SDK's actual source and killed two pieces of folklore before
+> any code used them. **Nothing from you was needed, and nothing new is
+> asked** — no strings, no device rows, no decisions. The five Session 23
+> rulings are in the veto list; the offline-grace one is the real product
+> call.
 
 > **Session 22 outcome (2026-07-12):** E6.3 is DONE — discreet mode is REAL on
 > every family. The discreet flag rides the widget feed additively (Architect-
@@ -431,9 +449,20 @@ a live failure. Original context, for the record:
       extension compile error, JSONEncoder key-order randomization that would
       have made byte-equality pins flake, and a docs-unconfirmed
       UIWindow.Level operator spelling — any of the last three was a burned
-      run. Session 23 (E7.1 PaywallKit, package lane) plans **1 billed run +
-      1 contingency**. Check Settings → Billing → spending limit before the
-      session.
+      run. Session 23 (E7.1 PaywallKit, package lane) planned **1 billed run +
+      1 contingency** and used **exactly 1, zero burned, contingency unused —
+      the zero-burn streak continues**: red evidence was FREE (the local Linux
+      package lane, 11 designed-failing / 17 issues predicted issue-for-issue,
+      the 9th consecutive harness-predicted red) → red `14b1593` + green
+      `098d087` pushed together → ONE CI run `29192612869` at HEAD (the new
+      PaywallKit coverage gate went green in 41s on the free lane). The
+      pre-push critics reproduced every lane locally before the push — and the
+      free-lane/macOS-lane WARNINGS gap they closed (the free package lane
+      runs no warnings-as-errors) is now a standing resume-prompt gate.
+      Session 24 (E7.1 app half — RevenueCat wiring + paywall) plans
+      **2 billed runs + 1 contingency**; the new SPM dependency makes the
+      first macOS build the risk point. Check Settings → Billing → spending
+      limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
@@ -532,6 +561,14 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
       one-tap erase → the icon reverts to the primary "surfaced breath".
 
 ## 8. TelemetryDeck app ID — NOW THE LAST GATE on real funnel data (~10 min + a ~30 min audit when you're ready)
+
+> **Heads-up added Session 23 (no action yet):** Session 24 wires RevenueCat
+> the same DORMANT way this TelemetryDeck item works — the adapter is never
+> constructed until you paste your RC public SDK key, so no build talks to
+> RevenueCat until you act. The concrete key item lands here at Session 24's
+> close. Your RevenueCat account + App Store Connect products/offerings
+> become blocking only at sandbox-verification time (the MVP §7 purchase
+> matrix), not for any build half.
 
 - [ ] Create the app in the **TelemetryDeck console** (SaaS credentials are
       operator-held by design — agent-workflows §1.3) and paste the app ID into
@@ -844,3 +881,38 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
   6. **The two alternate icons are agent-generated DRAFT art** (see §3) —
      your veto is the intended review path; behavior tests pin
      switch/persist/reset/fire, never pixels.
+- **Session 23 (E7.1 PaywallKit package half) — the panel-signed rulings,
+  each vetoable (all held through the green close; the docs-verifier role —
+  every RevenueCat claim checked against SDK source, no tutorials — is now a
+  standing panel seat for SDK-facing sessions):**
+  1. **⚠️ THE ONE WORTH YOUR ATTENTION — offline grace: the entitlement
+     mapper has NO clock.** If a trial or subscription expires while the
+     device is offline, the app keeps honoring the last state RevenueCat
+     reported until it can reach RevenueCat again — it can never locally
+     flip a paying user to locked-out (your architecture §8's own
+     "never lock a paying user out because the network is down", the
+     anti-Quittr rule; RevenueCat's SDK additionally enforces its own
+     ~3-day grace ceiling app-side). The cost: a lapsed-while-offline trial
+     keeps premium until next contact. The alternative (local expiry math)
+     was proposed by QA and STRUCK by lead arbitration as contradicting
+     your canon. Veto = tell Session 24 you want local expiry — it is a
+     mapper change + new pins, cheap now, and it changes who gets locked
+     out when.
+  2. **The package persists ZERO bytes** — the "cached entitlement store"
+     is in-memory only; durable caching is RevenueCat's SDK (your §3
+     "entitlement state is never a data model of ours", now structural:
+     nothing in the package is even Codable). A future entitlement bit in
+     any pre-unlock file (widget feed / panic snapshot) is gated: Architect
+     §10 pre-approval, presence-only Bool ceiling, never product/expiry.
+  3. **`trial(product:)` carries NO expiry date** (privacy: no Date payload
+     anywhere in the public API — nothing to tempt a future wire into
+     transmitting a purchase instant). Trial-countdown UI, if ever wanted,
+     is a named additive decision with its own privacy look.
+  4. **PaywallKit bumped 0.0.1-skeleton → 1.0.0** (first real content, the
+     WidgetToolkit precedent; tag `paywallkit-v1.0.0` at your convenience)
+     and its 90% coverage floor is CI-live on the free lane (98.21% actual).
+  5. **purchases-ios pinned by RECORD at 5.80.3** (exact-pin precedent) but
+     NOT added to the project this session — the SDK is Darwin-only and a
+     linked-but-unconfigured network SDK is a supply-chain surface with no
+     consent wiring. It enters project.yml in Session 24, DORMANT behind
+     your RC key (the TelemetryDeck §8 pattern).

@@ -3018,3 +3018,185 @@ Full findings in the session scratchpad; rulings binding:
   behavior; not suppressible).
 - widget_added → E8 (R22.6). Epic-6 DoD now closes MINUS StandBy (R7, v1.1)
   and MINUS widget_added (E8), with the device matrix operator-owned.
+
+## Session 23 — E7.1: PaywallKit + the entitlement state machine, PACKAGE HALF (2026-07-12)
+
+**Objective (resume prompt v3.5):** E7.1 [PKG:PaywallKit] — step-0 rulings
+(a)–(e) (the Linux-lane protocol seam load-bearing), red with the four
+plan-named tests via the FREE local package lane, green = state machine +
+cached-entitlement store + the protocol seam. Budget: 1 billed run + 1
+contingency.
+**Outcome: DONE in exactly the 1 planned billed run, zero burned, contingency
+unused — the zero-burn streak continues.** Red evidence = the LOCAL package
+lane per session-rules.md:84-85 (**11 designed-failing tests / 17 issues,
+manifest-matched issue-for-issue — the 9th consecutive harness-predicted red;
+zero crashes, zero build errors**) → green 16/16 local, **98.21% lines vs the
+new CI-enforced 90% floor**, TZ-invariant under UTC/Berlin/Kiritimati,
+strict-concurrency+warnings-as-errors clean. Red `14b1593` + green `098d087`
+pushed TOGETHER (the S20 lever) → CI run `29192612869` at HEAD.
+**Session-open operator check: NOTHING required (operator-expected.md's own
+header pre-cleared E7.1's package half — neither the RevenueCat account nor
+App Store Connect products), and it held open-to-close.** Delivery 25/32 = 78%.
+
+### The step-0 panel (6 agents + lead arbitration → rulings R23.1–R23.9)
+
+Panel: Architect, PM, QA + adversarial privacy critic, adversarial burn-risk
+critic (REPRODUCE-not-reason), and a NEW docs-verifier role (the S22
+UIWindow.Level anti-folklore lesson institutionalized — RevenueCat semantics
+verified against purchases-ios 5.80.3 source/docs with URLs, no tutorials).
+Full findings in the session scratchpad; rulings binding:
+
+- **R23.1 — the seam (a).** Two protocols + a pure mapper + one concrete
+  actor, all Foundation-free (ZERO imports in Sources — the package needs
+  nothing, not even Foundation): `EntitlementProviding` (the test-suite §3.1
+  consumer seam, honored verbatim: currentState/refresh/restore/reset, all
+  vending `EntitlementState`) + `EntitlementSource` (the seam the ~20-line
+  Darwin-only RevenueCat adapter fills app-side, ADR-4) +
+  `EntitlementStateMapper.state(from: EntitlementSnapshot?)` (pure) +
+  `CachingEntitlementProvider` (actor). The DTO is the package's OWN minimal
+  CustomerInfo mirror: {product tier, periodType, isActive, willRenew} —
+  nil ⇒ never; present+inactive ⇒ lapsed; `periodType == .trial` splits
+  trial from active (docs-verified: RC PeriodType = normal|intro|trial|
+  prepaid; `.trial` is the ONLY trial gate — whether $0 paid-intros report
+  `.intro` is docs-UNCONFIRMED, so `.intro` deliberately maps ACTIVE).
+  FORBIDDEN in the DTO by privacy ruling: RC anonymous IDs, receipts,
+  purchase history, management URLs, prices, currencies — and ALL Dates.
+  The docs-verifier killed one folklore member pre-code:
+  `CustomerInfo.allExpirationDates` does not exist in v5.
+- **R23.2 — the session's head-on arbitration: NO CLOCK in the mapper.**
+  QA proposed time-injected expiry math (offline expired cache ⇒ lapsed,
+  boundary probes at the expiry instant); the Architect proposed trusting
+  RC's `isActive` verdict with no Date anywhere. **Architect won on canon:**
+  architecture §8 + test-suite §4.3 both fix the grace policy — "with
+  network down, cached entitlement still reports .active … never lock a
+  paying user out" (the anti-Quittr principle). Locally expiring a cached
+  entitlement is exactly the forbidden failure mode. "Lapsed at expiry,
+  never mid-trial" is honored STRUCTURALLY: the mapper ignores `willRenew`
+  (pinned — a cancelled trial stays trial until the source says otherwise)
+  and a lapse only ever arrives as RC's next snapshot. Consequences: zero
+  Date/Calendar/TimeZone in the package (TZ-invariance is structural, still
+  proven empirically by running the shipping suite under three host zones),
+  and QA's expiry-boundary reds were STRUCK as contradicting canon.
+- **R23.3 — the "cached-entitlement store" is IN-MEMORY ONLY (privacy
+  MUST-FIX #1).** The resume prompt's phrase resolves to the provider
+  actor's `lastKnown` — the package persists ZERO bytes (no file, no App
+  Group, no UserDefaults, and no Codable conformance anywhere as the
+  structural pin). Architecture §3+§7 double-bind it ("entitlement state is
+  never persisted by us"); durable/reinstall caching is the RC SDK's
+  documented job app-side ("CustomerInfo will be returned while offline");
+  the pre-unlock mirror stays the app-side PanicSnapshot BOOLEAN (a future
+  widget-feed entitlement bit is a §10 field-set change needing Architect
+  pre-approval — guard recorded so E7.x/E9 cannot slide it in). Erase adds
+  NOTHING this session; E2.4's "RevenueCat clear → E7 seam" now exists by
+  name: `EntitlementProviding.reset()` — local clear FIRST, the fallible
+  source step last, its error propagating for retry (the E2.4 order,
+  test-pinned incl. the throwing-source arm).
+- **R23.4 — trial_started (c).** The package emits the DOMAIN event
+  `EntitlementEvent.trialStarted(product:)` via its own
+  `EntitlementEventSink` seam — EDGE-triggered on the transition into
+  `.trial` (RC's customerInfoStream replays state every cold start; only a
+  diff is honest). Payload = product TIER only (no price, no currency, no
+  Date — privacy MUST-FIX: the API must not tempt the app with a wall-clock
+  instant). The app maps it to the PRE-EXISTING closed
+  `AnalyticsEventKind.trialStarted` behind the ONE consent gate at the
+  wiring session, and OWNS cross-launch at-most-once dedup (the package
+  diffs per-process only). All four plan-named tests kept their LITERAL
+  `test_` names — PM refuted the "packages drop the prefix" claim against
+  the actual neighbor files, so no recorded adjustment was needed; the
+  "Event" in `test_trialStart_firesTrialStartedEvent` is the domain event.
+- **R23.5 — SDK pinning (b).** RevenueCat does NOT enter project.yml this
+  session (Darwin-only — docs-grounded: purchases-ios Package.swift declares
+  no Linux platform; a linked-but-unconfigured network SDK is also a
+  supply-chain surface with no consent wiring). The exact pin is RECORDED
+  for the wiring session: **purchases-ios 5.80.3** (released 2026-07-08;
+  the docs-verifier refuted a WebFetch-hallucinated "2024" date against the
+  GitHub releases API). Requirements (Xcode 15+/iOS 13+) conflict with
+  nothing.
+- **R23.6 — pricing is config (d).** The package carries ZERO SKU/price
+  constants; `Product` is the {monthly, annual} TIER taxonomy (set-pinned),
+  and both annual A/B arms map to `.annual` — the $29.99-vs-$39.99 arm
+  rides `paywall_viewed.price_test` app-side (vocabularies disjoint; the
+  state machine has zero price knowledge). Future config home recorded:
+  `App/Resources/Ballast.storekit` (display prices, 3-day annual trial —
+  the test-suite §4.3 StoreKitTest tier) + `App/Sources/Monetization/
+  ProductCatalog.swift` (SKU↔tier + the entitlement key), wiring session.
+- **R23.7 — version.** PaywallKit `0.0.1-skeleton` → **1.0.0** (first real
+  content; the WidgetToolkit precedent). THREE literals moved in the green
+  commit — source constant + the package skeleton test + `Tests/Unit/
+  WalkingSkeletonTests.swift` on the BILLED macOS lane (the S20 L9 class,
+  burn-critic rank-1, reproduced pre-code).
+- **R23.8 — the coverage floor lands NOW.** test-suite §2 fixes PaywallKit
+  at 90% lines and §7's preamble binds floors to the FIRST merged version
+  (the E6.1 precedent). ci.yml gains the PaywallKit gate as a byte-identical
+  copy of the WidgetToolkit shape (pollution guard + TOTAL fail-closed both
+  kept — the burn critic diffed the blocks mechanically: zero delta beyond
+  the module token) — reproduced locally BEFORE push: 98.21%, exit 0. The
+  "thin SDK-adapter shims exempt" clause is moot (the adapter is app-side;
+  the package is 100% pure logic).
+- **R23.9 — budget (e).** Package red is free and local; red+green pushed
+  together = ONE billed run at HEAD (ci.yml has no per-job path filter and
+  cancel-in-progress is false on main — two pushes would be two full runs;
+  the red commit alone never becomes a push HEAD).
+
+### What the critics caught / reproduced (the practice keeps earning its keep)
+
+- Pre-code: the 3-literal version blast radius (a missed WalkingSkeletonTests
+  literal = a burned 10x run); the free-lane/macOS-lane WARNINGS gap
+  (`swift test` on the free lane does NOT run warnings-as-errors — the
+  pre-push gate `swift build --build-tests -Xswiftc -strict-concurrency=complete
+  -Xswiftc -warnings-as-errors` closes it, now used); `.iso8601` JSON dates
+  flagged MUST-AVOID (Linux/Darwin fractional-second divergence) — mooted by
+  the zero-Codable design; the `@MainActor` implicit-init nonisolated nuance
+  (recorded, unused).
+- The docs-verifier killed TWO folklore claims before code: `allExpirationDates`
+  (does not exist in v5) and "Promotional" as a periodType (it is a Store
+  value). Both would have shipped a dishonest DTO.
+- Post-green (both critics SAFE_TO_PUSH with reproduced evidence): the FULL
+  4×4 transition matrix of the trialStarted edge audited (fires only into
+  `.trial` from non-trial; `trial→active` conversion correctly silent;
+  `active/lapsed→trial` fire — RC-unreachable, defensible); actor-reentrancy
+  double-fire probed 200×8 concurrent refreshes against a slow sink —
+  exactly one fire always (adopt's synchronous prefix decides before the
+  await); restore-throw leaves lastKnown untouched (reproduced); THREE
+  mutants (mapper trial→active, reset order swap, edge→level) all KILLED by
+  the shipped tests — no tautologies; every CI lane reproduced at HEAD
+  (PaywallKit 16/16, WidgetToolkit 21/21, StreakEngine 84/84, the coverage
+  gate verbatim exit 0).
+
+### Run accounting
+
+- **Billed run 1 — `29192612869`** (HEAD `098d087`, red `14b1593` riding
+  under it): the ONE planned run — **ALL 8 JOBS GREEN + TestFlight upload**
+  (the new PaywallKit coverage gate green in 41s on the free lane; app lanes
+  11m46s; the WalkingSkeleton 1.0.0 pin held on the billed lane exactly as
+  swept). Red evidence was local and free
+  (11 designed-failing / 17 issues, predicted issue-for-issue; the two
+  flagged coincidental-pass safety pins — offline-no-prior and
+  no-events-without-transition — behaved exactly as designed and are pins,
+  not red evidence).
+- Contingency: UNUSED. Zero burned.
+
+### Known limitations / carried (the wiring session inherits a named list)
+
+- **The app half of E7.1 is deliberately deferred** (the E6.1→E6.2 [PKG:]
+  precedent): the RevenueCat adapter conforming to `EntitlementSource`
+  (~20 lines over Purchases, exact-pin 5.80.3 into project.yml), the
+  `EntitlementEventSink` conformer mapping to `AnalyticsEventKind.trialStarted`
+  behind consent + cross-launch dedup, `ProductCatalog` + `Ballast.storekit`,
+  the app-wide entitlement model, erase wiring to `reset()`, and the
+  summary-CTA paywall handoff. The build half proceeds DORMANT behind the
+  operator's RC key (the TelemetryDeck precedent); sandbox verification is
+  operator-owned later.
+- `EntitlementState.trial` carries NO expiry BY RULING — trial-countdown UI
+  is a named future decision (additive, with its own privacy look).
+- The seam contract nuance is doc-bound, not type-bound: an adapter mapping
+  lapsed→nil (instead of present+inactive) would silently read as `.never` —
+  documented twice (EntitlementSource + EntitlementSnapshot); the adapter
+  session should pin it against the real SDK mapping.
+- Non-blocking critic notes recorded: concurrent reset+refresh race
+  (erase is terminal — unexercised); a pre-existing tracked
+  `coverage-report.txt` at repo root (committed in E6.1, unrelated to this
+  session) is a future hygiene cleanup.
+- `purchase`/`paywall_viewed` fire-points, Superwall (E7.2), win-back (E7.3):
+  untouched, per scope guards (verified by grep: no Superwall/RevenueCat/
+  trial_started/price tokens in Sources — comment mentions only).
