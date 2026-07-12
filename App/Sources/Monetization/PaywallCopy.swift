@@ -49,6 +49,28 @@ struct PaywallCopy: Codable, Equatable, Sendable {
     /// re-present: states the fact, reassures nothing was lost, applies no
     /// pressure — never a countdown, never loss framing (brandkit §6.8).
     var teaserExpiryEyebrow: String
+    /// E7.3 (R26.9) — the win-back offer surface's copy, NON-OPTIONAL by the
+    /// same R25.8 ruling (a String? child dodges the Mirror lexicon walk);
+    /// the OPTIONAL is the composition (`PaywallViewData.winbackOffer`, nil
+    /// unless `source == .winback`). The 50%-off is a REAL App Store Connect
+    /// promotional offer, so "half price" is §6.8-honest — but never a
+    /// countdown, never "one-time", never we-miss-you framing (a trial-lapse
+    /// user may never have paid — "Reactivate"/"Come back" are fact-wrong).
+    var winbackOfferLine: String
+    /// The disclosure-grade mechanics line: TWO `%@` slots — the discounted
+    /// first-year price, then the standard renewal price (3.1.2(c) applied
+    /// to discounts: the price paid now AND the price that follows, one
+    /// line). Both bind from ProductCatalog constants — never copy literals.
+    var winbackMechanicsLineFmt: String
+    /// Zero-shame reassurance (the teaserExpiryEyebrow register): states
+    /// that nothing was lost, applies no pressure.
+    var winbackReassurance: String
+    /// The dismiss affordance (R26.6): the win-back presentation is an
+    /// OFFER, not a wall — a lapsed user must always be able to reach the
+    /// dashboard (Epic 7 DoD: the paywall never traps). Exists ONLY on
+    /// `source == .winback`; the hard onboarding wall and the teaser
+    /// re-present stay close-free (R24.9 untouched).
+    var winbackDismissLabel: String
 
     /// Decodes the shipping file from the app bundle. `nil` when missing or
     /// undecodable — the screen then renders `.degraded` (the guideline-3.1.1
@@ -85,6 +107,10 @@ struct PaywallCopy: Codable, Equatable, Sendable {
         restoreSuccess: "You're all set — your subscription is active.",
         teaserEscapeLabel: "Look around for a day",
         teaserEscapeNote: "One day of full access, then this screen returns.",
-        teaserExpiryEyebrow: "Your free day is done. Everything you set up is still here."
+        teaserExpiryEyebrow: "Your free day is done. Everything you set up is still here.",
+        winbackOfferLine: "Your annual plan, now at half price.",
+        winbackMechanicsLineFmt: "%@ for your first year, then %@ per year. Cancel anytime.",
+        winbackReassurance: "Everything you set up is still here.",
+        winbackDismissLabel: "Not now"
     )
 }

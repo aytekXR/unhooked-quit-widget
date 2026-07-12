@@ -58,4 +58,24 @@ enum ProductCatalog {
     /// drift pin).
     static let monthlyDisplayPrice = "$6.99"
     static let annualControlDisplayPrice = "$29.99"
+
+    /// E7.3 (R26.2/R26.8) — the win-back offer's config constants. The offer
+    /// is an App Store Connect PROMOTIONAL offer (pay-up-front, 1 year,
+    /// $14.99 = 50% of the control annual) on the SAME `ballast.annual` SKU
+    /// — a discounted price, never a new product, so `purchase.product`
+    /// stays inside the audited {ballast.monthly, ballast.annual} domain
+    /// (R25.6 unchanged). Apple win-back offers were REJECTED on evidence:
+    /// ASC eligibility is months-granular (min 1 month) + requires prior
+    /// PAID duration — structurally unable to express "7 days post
+    /// TRIAL-lapse" (docs-verified, Session 26).
+    ///
+    /// `winbackOfferID` is the ASC promotional-offer identifier AND the
+    /// closed analytics `offer` value-domain (single-member, S15; test-suite
+    /// §4.2's canonical spelling). NO price in the id (R24.5 — ids are
+    /// immutable; `winback_50`/`…2499` forms rejected).
+    static let winbackOfferID = "winback_annual"
+    /// The discounted first-year display price for the DORMANT/offline
+    /// composed line (50% of the $29.99 control; the operator's ASC offer
+    /// pins the real price at sandbox time).
+    static let annualWinbackDisplayPrice = "$14.99"
 }

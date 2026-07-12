@@ -161,6 +161,16 @@ final class AppSettings {
     /// Superwall assignment — the dormant and bundled-fallback paths never
     /// write it, so A/B denominators stay pristine (R24.4 refined).
     var paywallVariantAssigned: String = ""
+    /// E7.3 (R26.1, §7-approved in-panel): the FIRST app-side observation of
+    /// an entitlement lapse — the win-back 7-day clock's origin (Apple/RC
+    /// cannot compute a 7-day trial-lapse window server-side; docs-verified).
+    /// nil = no lapse ever observed (the dormant/fresh state); written ONLY
+    /// by `recordLapseObserved()` on the live entitlement branch, nil→set
+    /// once per lapse era. Observed-lapse is fail-SAFE (late-only). NOT a
+    /// purchase instant; CloudKit-mirrors like its AppSettings siblings
+    /// (reinstall edge flagged vetoable, the R25.5 shape); erase-swept with
+    /// the row; NEVER enters any pre-unlock file (§10).
+    var lapseObservedAt: Date?
 
     init() {}
 }

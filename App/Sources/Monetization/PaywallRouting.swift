@@ -37,10 +37,19 @@ enum PaywallRouting {
     /// teaser also lands on the dashboard: the re-entry gate only ever acts
     /// on a taken-and-expired grant — non-teaser users are governed by the
     /// summary-CTA wall alone (never a surprise wall on re-entry).
+    ///
+    /// E7.3 (R26.6): `winbackEligible` slots the win-back OFFER between the
+    /// entitled guard and the teaser rules — precedence entitled > winback
+    /// (`.lapsed` only) > teaser-expiry. The default `false` keeps every
+    /// E7.2 call site byte-compatible, and false is exactly what a dormant
+    /// build always passes (R26.10: no keys ⇒ no lapse observed ⇒ never
+    /// eligible), so `.paywall(source: .winback)` is unreachable dormant.
     static func reentryDestination(
-        state: EntitlementState, teaserExpiresAt: Date?, now: Date
+        state: EntitlementState, teaserExpiresAt: Date?,
+        winbackEligible: Bool = false, now: Date
     ) -> ReentryDestination {
         guard !state.isEntitled else { return .dashboard }
+        // E7.3 red: inert seam — the winback branch lands green.
         guard teaserExpiresAt != nil else { return .dashboard }
         return TeaserPolicy.isExpired(teaserExpiresAt, now: now)
             ? .paywall(source: .teaserExpiry)

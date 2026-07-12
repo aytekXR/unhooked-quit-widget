@@ -50,6 +50,22 @@ enum PaywallPresenter {
         }
     }
 
+    /// E7.3 (R26.7) — the win-back impression fire for ONE presentation:
+    /// `winback_shown(offer:)` (the offer-scoped funnel node) FIRST, then
+    /// the composed paywall_viewed closure (the universal node with
+    /// `source: .winback`) — surface-scoped → universal, the pinned order.
+    /// Both ride the model's single didFire presentation guard, so the
+    /// dual-funnel co-fires exactly once per presentation (honest ONLY
+    /// under strict source segmentation — recorded, R26.7).
+    static func makeFireWinbackShown(
+        offer: String,
+        analytics: AnalyticsService,
+        firePaywallViewed: @escaping () -> Void
+    ) -> () -> Void {
+        // E7.3 red: inert seam — the composed dual fire lands green.
+        { }
+    }
+
     /// The purchase-completion fire (R25.6): `purchase` is a USER-INITIATED
     /// IN-APP PAID completion — fires ONLY when the completed state is
     /// `.active` (paid). A `.trial` completion fires NOTHING here
@@ -59,11 +75,21 @@ enum PaywallPresenter {
     /// only). No dedupe marker by ruling: the fire is structurally
     /// at-most-once per completed purchase, and a marker would suppress an
     /// honest re-subscribe.
+    ///
+    /// E7.3 (R26.7): `winbackOfferID` non-nil marks the WIN-BACK surface's
+    /// completion — a paid `.active` completion then ALSO fires
+    /// `winback_converted(offer:)` BEFORE `purchase` (different funnels; no
+    /// mutual exclusion, no dedupe — suppressing either would under-count).
+    /// A win-back re-subscribe is PAID, never a trial, so the `.active`
+    /// guard keeps R25.6's trial ⊕ purchase exclusion intact for free.
     static func makeOnPurchaseCompleted(
-        analytics: AnalyticsService
+        analytics: AnalyticsService,
+        winbackOfferID: String? = nil
     ) -> (PaywallModel.Plan, EntitlementState) -> Void {
         { plan, state in
             guard case .active = state else { return }
+            // E7.3 red: winbackOfferID is plumbed but inert — the
+            // winback_converted co-fire lands green.
             let product: Product = switch plan {
             case .monthly: .monthly
             case .annual: .annual

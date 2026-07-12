@@ -44,8 +44,12 @@ struct AnalyticsEventTests {
         .discreetModeEnabled: .discreetModeEnabled(component: .widget),
         .resourcesViewed: .resourcesViewed(source: .slipFlow),
         .eraseAllCompleted: .eraseAllCompleted,
-        .winbackShown: .winbackShown(offer: "winback_50"),
-        .winbackConverted: .winbackConverted(offer: "winback_50"),
+        // E7.3 (R26.8): the offer value-domain is the single ASC promotional-
+        // offer id `winback_annual` (test-suite §4.2 canonical; the
+        // `winback_50` placeholder predated the pin and encoded the discount
+        // — the R24.5 no-price-in-id rule applies to offer ids too).
+        .winbackShown: .winbackShown(offer: "winback_annual"),
+        .winbackConverted: .winbackConverted(offer: "winback_annual"),
     ]
 
     private static let whitelistedKeys: [AnalyticsEventKind: Set<String>] = [

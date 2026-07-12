@@ -845,6 +845,27 @@ final class QuitRepository {
         return try? context.fetch(descriptor).first?.teaserExpiresAt
     }
 
+    /// E7.3 (R26.1) — the ONE writer of `AppSettings.lapseObservedAt`: the
+    /// first app-side observation of an entitlement lapse stamps the
+    /// injected clock's now, nil→set ONLY (a still-lapsed re-observation
+    /// never moves the stamp — the 7-day clock runs from the FIRST
+    /// sighting; fail-safe, late-only). Reached ONLY from the live
+    /// entitlement branch's refresh-adoption edge (dormant builds never
+    /// construct that path — R26.10). A bare settings save (the
+    /// `enterTeaser` shape): the stamp feeds NO cache — win-back state may
+    /// never enter a pre-unlock file (§10).
+    func recordLapseObserved() throws {
+        // E7.3 red: inert seam — the nil→set stamp lands green.
+    }
+
+    /// E7.3 (R26.1) — fetch-only read for the win-back eligibility check
+    /// (`nil` = no lapse ever observed; the `teaserExpiresAt()` twin).
+    func lapseObservedAt() -> Date? {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return try? context.fetch(descriptor).first?.lapseObservedAt
+    }
+
     /// E7.2 (R25.5) — the ONE writer of `AppSettings.paywallVariantAssigned`
     /// (the live-Superwall assignment echo, test-suite §4.4). Reached ONLY
     /// from the live presentation path's echo closure — the dormant and

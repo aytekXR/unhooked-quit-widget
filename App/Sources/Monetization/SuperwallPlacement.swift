@@ -14,6 +14,14 @@ enum SuperwallPlacement {
     /// must carry a matching trigger (operator-expected §8).
     static let postSummary = "quiz_completed"
 
+    /// E7.3 (R26.8) — the second placement (architecture §5.2's
+    /// `register(placement:)` vocabulary: `quiz_completed`, `winback`). Its
+    /// OWN pinned constant — a Superwall dashboard trigger id, an analytics
+    /// wire name, and `PaywallSource.winback.rawValue` all happen to read
+    /// "winback" but are DIFFERENT namespaces; a rename of one must never
+    /// silently drift the others (the postSummary discipline).
+    static let winback = "winback"
+
     /// The operator-owned dashboard mapping: Superwall's opaque
     /// `experiment.variant.id` → our semantic `{teaser, hard}` wire labels
     /// (R25.3). EMPTY until the operator builds the experiment; filled

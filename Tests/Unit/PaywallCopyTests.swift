@@ -82,11 +82,12 @@ struct PaywallCopyTests {
             )
         }
         // Non-vacuity floor (the reproduced R9 trap): PaywallCopy is a STRUCT
-        // of 20 STORED strings — a collapse below 20 means the walk (or the
-        // type's shape) silently broke and the scan is vacuous.
+        // of 27 STORED strings (20 + 3 teaser, S25 + 4 winback, S26/R26.9) —
+        // a collapse below 27 means the walk (or the type's shape) silently
+        // broke and the scan is vacuous.
         #expect(
-            collected.count >= 20,
-            "the Mirror walk collapsed (<20 strings) — the scan would pass vacuously"
+            collected.count >= 27,
+            "the Mirror walk collapsed (<27 strings) — the scan would pass vacuously"
         )
     }
 

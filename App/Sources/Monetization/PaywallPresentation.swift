@@ -9,6 +9,18 @@ struct TeaserEscapeData: Equatable, Sendable {
     var note: String
 }
 
+/// E7.3 (R26.9) — the win-back offer block, as DATA: non-nil ⇒ the paywall
+/// renders the offer line, the two-price mechanics line (discounted AND
+/// renewal — the 3.1.2(c)-grade disclosure), the reassurance, and the
+/// dismiss affordance (R26.6: an OFFER is dismissible; the walls stay
+/// close-free). Composed ONLY on `source == .winback`.
+struct WinbackOfferData: Equatable, Sendable {
+    var offerLine: String
+    var mechanicsLine: String
+    var reassurance: String
+    var dismissLabel: String
+}
+
 /// What the bundled default paywall actually renders (the SummaryViewData
 /// precedent: the view is a thin renderer over composed data). The
 /// guideline-3.1.1/3.1.2(c) disclosures — plan titles, billing period +
@@ -48,6 +60,11 @@ struct PaywallViewData: Equatable, Sendable {
     /// Non-nil ONLY on the teaser-expiry re-present (source `.teaserExpiry`):
     /// the zero-shame acknowledgment eyebrow above the headline.
     var expiryEyebrow: String?
+    /// E7.3 (R26.9): non-nil ONLY on the win-back surface (source
+    /// `.winback`) — unreachable dormant (no keys ⇒ no lapse ⇒ never
+    /// composed, R26.10). The teaser escape never co-composes with it
+    /// (fork isolation).
+    var winbackOffer: WinbackOfferData?
 }
 
 /// Pure copy+catalog → view data assembly (the SummaryPresentation twin —
@@ -92,7 +109,9 @@ enum PaywallPresentation {
             teaserEscape: variant == .teaser && source != .teaserExpiry
                 ? TeaserEscapeData(label: copy.teaserEscapeLabel, note: copy.teaserEscapeNote)
                 : nil,
-            expiryEyebrow: source == .teaserExpiry ? copy.teaserExpiryEyebrow : nil
+            expiryEyebrow: source == .teaserExpiry ? copy.teaserExpiryEyebrow : nil,
+            // E7.3 red: inert — the .winback composition fork lands green.
+            winbackOffer: nil
         )
     }
 

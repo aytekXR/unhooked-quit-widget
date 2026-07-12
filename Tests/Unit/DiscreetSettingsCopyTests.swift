@@ -86,12 +86,13 @@ struct DiscreetSettingsCopyTests {
             )
         }
 
-        // Non-vacuity floor: DiscreetSettingsCopy is a STRUCT of 8 STORED strings, never a
-        // computed-property enum whose Mirror yields nothing — a collapse below 8 means the
-        // walk (or the type's shape) silently broke and the scan is vacuous.
+        // Non-vacuity floor: DiscreetSettingsCopy is a STRUCT of 9 STORED strings (8 +
+        // the E7.3 winbackRowLabel, R26.9), never a computed-property enum whose Mirror
+        // yields nothing — a collapse below 9 means the walk (or the type's shape)
+        // silently broke and the scan is vacuous.
         #expect(
-            collected.count >= 8,
-            "the Mirror walk collapsed (<8 strings) — a computed-property style would scan nothing and pass forever"
+            collected.count >= 9,
+            "the Mirror walk collapsed (<9 strings) — a computed-property style would scan nothing and pass forever"
         )
     }
 }

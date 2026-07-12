@@ -27,6 +27,12 @@ struct DiscreetSettingsCopy: Sendable {
     /// Accessibility label of the RootPlaceholderView entry point (a `gearshape`
     /// glyph button — the label is what VoiceOver reads).
     let settingsEntryAccessibilityLabel: String
+    /// E7.3 (R26.6/R26.9) — the win-back settings row (visible ONLY when the
+    /// eligibility check passes; visibility is view-gated, never an optional
+    /// String — the Mirror-walk rule). Habit-name-free by the shoulder-surface
+    /// discipline; neutral register ("Reactivate"/"Come back" rejected —
+    /// fact-wrong for a trial-lapse who may never have paid). DRAFT/§3.
+    let winbackRowLabel: String
 
     static let shipping = DiscreetSettingsCopy(
         screenTitle: "Discreet Mode",
@@ -36,6 +42,7 @@ struct DiscreetSettingsCopy: Sendable {
         iconRowDefault: "Default",
         iconRowCalendar: "Calendar style",
         iconRowTimer: "Timer style",
-        settingsEntryAccessibilityLabel: "Settings"
+        settingsEntryAccessibilityLabel: "Settings",
+        winbackRowLabel: "See your plan options"
     )
 }
