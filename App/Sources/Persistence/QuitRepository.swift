@@ -53,6 +53,17 @@ final class QuitRepository {
     /// debounceSleep/analytics precedent). Erase must sweep it (relaunch =
     /// fresh install).
     private let quizProgressStore: QuizProgressStore
+    /// E7.1 — the trial_started analytics dedupe marker (R24.6): app-STANDARD
+    /// defaults like the quiz checkpoint above, so the App Group sweep cannot
+    /// reach it and erase step 2 clears it EXPLICITLY (post-erase = a fresh
+    /// tracking era whose trial may fire again).
+    private let trialDedupeStore: TrialAnalyticsDedupeStore
+    /// E7.1 — the erase→entitlement seam (R24.7): calls
+    /// `EntitlementProviding.reset()` on the live branch; the dormant default
+    /// is a no-op, so erase behaves byte-identically until the operator key
+    /// lands. Injected as a closure (the analytics/debounceSleep precedent) —
+    /// the repository never imports PaywallKit.
+    private let resetEntitlement: () async throws -> Void
     private let debounceSleep: @Sendable (Duration) async -> Void
     private var pendingReload: Task<Void, Never>?
 
@@ -65,6 +76,8 @@ final class QuitRepository {
         appGroupDefaults: UserDefaults,
         panicSnapshotStore: PanicSnapshotStore,
         quizProgressStore: QuizProgressStore = QuizProgressStore(),
+        trialDedupeStore: TrialAnalyticsDedupeStore = TrialAnalyticsDedupeStore(),
+        resetEntitlement: @escaping () async throws -> Void = {},
         debounceSleep: @escaping @Sendable (Duration) async -> Void = { try? await Task.sleep(for: $0) },
         analytics: AnalyticsService = .disabled
     ) {
@@ -83,6 +96,8 @@ final class QuitRepository {
             directoryURL: panicSnapshotStore.fileURL.deletingLastPathComponent()
         )
         self.quizProgressStore = quizProgressStore
+        self.trialDedupeStore = trialDedupeStore
+        self.resetEntitlement = resetEntitlement
         self.debounceSleep = debounceSleep
         self.analytics = analytics
     }
