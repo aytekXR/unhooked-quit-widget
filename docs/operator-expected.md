@@ -3,6 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
+| Session 20 open check (2026-07-12) | **NO OPERATOR ACTION REQUIRED to run Session 20 (E6.1 widget timeline provider).** Verified at session open: `origin/main` == local `801c88e`, tree clean, no operator commits mid-session; §3 founder copy pass still unchecked → the ONLY consequence is that snapshot goldens stay deferred (already a scope guard, and E6.1 ships no new copy); §8 app ID still absent → the analytics transport stays dormant BY DESIGN and E6.1 wires no events; §1/§2/§5/§6/§7 all carried, none blocking. **One CORRECTION to the Session-19 close (see §4):** the "possibly ZERO billed macOS runs" hope was wrong — `.github/workflows/ci.yml` puts NO path filter on the macOS `app` job, so *any* push touching `Packages/**` triggers it. Session 20 plans **1 billed run**, not 0. |
 | Last updated | 2026-07-11 (Session 19 CLOSED: E8.2 consent + payload-audit doc DONE — red evidence `29164705316` (225 tests, EXACTLY the 39 designed issues / 14 designed failing tests, two-lane-predicted issue-for-issue) → green `29165381934` all-green + TestFlight, **2 billed runs, zero burned — the streak restarts**. The quiz now asks "Share app usage data?" at fixed slot 3 (default OFF, decline a first-class equal, no dark pattern); your choice gates every analytics fire LIVE; the transport stays dormant until your §8 app ID — **§8 is now the LAST gate on real funnel data**, and `docs/payload-audit.md` is your MITM release gate once it lands. Nothing blocks Session 20 = E6.1 widget timeline provider (possibly a ZERO-billed-run session — the package lane is Linux-free). Open for you: §1–§8; §3 gains the 4 consent DRAFT strings. Session 16–19 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
@@ -271,10 +272,18 @@ a live failure. Original context, for the record:
       REPRODUCE risky Swift-6 constructs under warnings-as-errors instead of
       reasoning about them — that practice caught nothing this time because
       there was nothing to catch, which is the point). Session 20 (E6.1 widget
-      timeline provider) plans **0–1 billed runs + 1 contingency** — the
-      WidgetToolkit package lane runs on FREE Linux CI, so if the step-0 split
-      keeps app-side work out, this is the first potentially zero-billed-run
-      session. Check Settings → Billing → spending limit before the session.
+      timeline provider) plans **1 billed run + 1 contingency**. **This CORRECTS
+      the Session-19 close's "possibly zero billed runs" hope, which was wrong:**
+      the WidgetToolkit package lane does run on free Linux CI, but
+      `.github/workflows/ci.yml` applies NO path filter to the macOS `app` job —
+      its only exclusion is `paths-ignore: docs/**, **.md`. So *any* push that
+      touches `Packages/**` spins the 10x macOS lane too, whether or not a single
+      app file changed. Only DOCS-only pushes are truly free. The mitigation
+      Session 20 uses instead: the package lane's red evidence is produced LOCALLY
+      and free (`swift test` on Linux — the sanctioned package-lane evidence per
+      test-suite §7 rule 1), and the red + green commits are pushed TOGETHER, so
+      CI runs once at HEAD instead of twice. Check Settings → Billing → spending
+      limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
