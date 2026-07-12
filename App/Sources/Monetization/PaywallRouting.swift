@@ -15,8 +15,31 @@ enum PostSummaryDestination: Equatable, Sendable {
     case dashboard
 }
 
+/// E7.2 (R25.7) — the post-gate root's re-entry decision (the dashboard
+/// branch, re-evaluated on task/scenePhase, live-model builds only): where a
+/// returning user lands given entitlement + the teaser grant. Distinct from
+/// `PostSummaryDestination` because the re-present carries its SOURCE (the
+/// second-impression funnel split C1/R25.4 exists for).
+enum ReentryDestination: Equatable, Sendable {
+    case dashboard
+    case paywall(source: PaywallSource)
+}
+
 enum PaywallRouting {
     static func postSummaryDestination(state: EntitlementState) -> PostSummaryDestination {
         state.isEntitled ? .dashboard : .paywall
+    }
+
+    /// E7.2 (R25.7): entitled WINS (checked first — a purchase never meets a
+    /// stale teaser); an unexpired teaser grants the dashboard; an expired
+    /// teaser re-presents the paywall with source `.teaserExpiry`. `now` is
+    /// injected — no ambient clock (the TeaserPolicy discipline).
+    ///
+    /// RED (Session 25): inert — always the dashboard; the expiry
+    /// re-present pins fail by design until green.
+    static func reentryDestination(
+        state: EntitlementState, teaserExpiresAt: Date?, now: Date
+    ) -> ReentryDestination {
+        .dashboard
     }
 }

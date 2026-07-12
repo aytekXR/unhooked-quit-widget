@@ -821,6 +821,45 @@ final class QuitRepository {
     /// their own sink or consent read.
     var analyticsService: AnalyticsService { analytics }
 
+    // MARK: - Teaser + variant echo (E7.2)
+
+    /// E7.2 (R25.7) — the ONE writer of `AppSettings.teaserExpiresAt`:
+    /// stamps the 1-day grant (`TeaserPolicy.expiry(from: clock.now)` — the
+    /// injected clock is the one sanctioned Date reader) at the teaser take.
+    /// A bare settings save (the `setAnalyticsOptIn` shape — the grant feeds
+    /// NO cache: teaser state may never enter a pre-unlock file, §10).
+    ///
+    /// RED (Session 25): inert — stamps nothing until green.
+    func enterTeaser() throws {
+    }
+
+    /// E7.2 (R25.7) — fetch-only read for the re-entry decision (`nil` = no
+    /// teaser was ever taken; the `isAnalyticsOptedIn` fail-closed shape —
+    /// a missing row reads as no grant, and the entitled-wins ordering means
+    /// absence can never lock anyone out).
+    func teaserExpiresAt() -> Date? {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return try? context.fetch(descriptor).first?.teaserExpiresAt
+    }
+
+    /// E7.2 (R25.5) — the ONE writer of `AppSettings.paywallVariantAssigned`
+    /// (the live-Superwall assignment echo, test-suite §4.4). Reached ONLY
+    /// from the live presentation path's echo closure — the dormant and
+    /// bundled-fallback paths never call it (A/B denominators stay pristine).
+    ///
+    /// RED (Session 25): inert — writes nothing until green.
+    func setPaywallVariantAssigned(_ variant: String) throws {
+    }
+
+    /// E7.2 — fetch-only read of the assignment echo ("" = never assigned;
+    /// the `onboardingVariant` idiom).
+    func paywallVariantAssigned() -> String {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor).first?.paywallVariantAssigned) ?? ""
+    }
+
     /// E6.3 — the ONE writer of `Quit.discreetMode` (R22.7, Architect MUST). This is
     /// a FULL mutating write, not a bare settings save: the flag feeds BOTH caches
     /// (the panic pre-cache label strip AND the widget feed's discreet flag), so the

@@ -1,7 +1,7 @@
 {
   "_meta": {
     "status": "DRAFT — agents scaffolded, founder owns the words (operator-expected §3)",
-    "audit": "Session 24 PM+Brand+QA joint safety-content sign-off (R24.9). Scanned by PaywallCopyTests against the STANDARD dual lexicon (shame + habit-leak) with a 20-string non-vacuity floor on every CI run. Prices are NEVER stored here: the *Fmt fields carry one %@ slot bound from ProductCatalog's static control-arm constants (dormant/offline) or live StoreKit prices (operator-keyed path) — a copy rewrite can never drift the pricing.",
+    "audit": "Session 24 PM+Brand+QA joint safety-content sign-off (R24.9); the three teaser* fields joined under the Session 25 joint sign-off (R25.8 — factual duration, no countdown, no loss framing; founder alternatives in the S25 ledger). Scanned by PaywallCopyTests against the STANDARD dual lexicon (shame + habit-leak) with a 20-string non-vacuity floor on every CI run. Prices are NEVER stored here: the *Fmt fields carry one %@ slot bound from ProductCatalog's static control-arm constants (dormant/offline) or live StoreKit prices (operator-keyed path) — a copy rewrite can never drift the pricing.",
     "positioningNote": "R24.9/S19 register rule: the MVP §6 verbatim canon ('No server. Nothing to leak. … cancel or refund in one tap.') is deliberately NOT placed on this RevenueCat-brokered surface — 'No server' one tap before an RC-mediated purchase is unprovable here, and Apple refunds are requested, never one-tap. The audit-safe register below promises only what the payload audit proves. Restoring the canon verbatim is the founder's call (operator-expected §3).",
     "legalNote": "autoRenewDisclosure wording + the Terms of Use (EULA) / Privacy Policy destinations are operator/legal-owned. Verify Apple's current required boilerplate ('Apple Account' terminology) in App Store Connect before submission; the labels below must gain functional links (Schedule 2 / guideline 3.1.2(c)) in the session that wires the URLs."
   },
@@ -25,5 +25,8 @@
   "retryCta": "Try again",
   "restoreEmpty": "No previous purchase found on this Apple Account.",
   "restoreSuccess": "You're all set — your subscription is active.",
+  "teaserEscapeLabel": "Look around for a day first",
+  "teaserEscapeNote": "Full access for one day. Then this screen returns.",
+  "teaserExpiryEyebrow": "Your free day wrapped up. Everything you set up is still here.",
   "_comment": "degraded parity: PaywallCopy.degraded ships the same strings at birth (the disclosures must survive a decode failure verbatim); founder edits THIS file freely — the degraded fallback only needs to stay disclosure-complete, not word-identical."
 }

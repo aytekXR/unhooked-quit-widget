@@ -1,5 +1,14 @@
 import Foundation
 
+/// E7.2 (R25.7/R25.8) — the teaser variant's escape affordance, as DATA:
+/// present ⇒ the teaser arm's first impression renders the QuietButton escape
+/// below the CTA; nil ⇒ the hard variant OR the single-use re-present (the
+/// escape never returns — "Then this screen returns." must stay true).
+struct TeaserEscapeData: Equatable, Sendable {
+    var label: String
+    var note: String
+}
+
 /// What the bundled default paywall actually renders (the SummaryViewData
 /// precedent: the view is a thin renderer over composed data). The
 /// guideline-3.1.1/3.1.2(c) disclosures — plan titles, billing period +
@@ -33,6 +42,12 @@ struct PaywallViewData: Equatable, Sendable {
     var retryCta: String
     var restoreEmpty: String
     var restoreSuccess: String
+    /// Non-nil ONLY on the teaser arm's FIRST impression (R25.7 single-use;
+    /// the hard variant and every re-present are close-free — R24.9 carried).
+    var teaserEscape: TeaserEscapeData?
+    /// Non-nil ONLY on the teaser-expiry re-present (source `.teaserExpiry`):
+    /// the zero-shame acknowledgment eyebrow above the headline.
+    var expiryEyebrow: String?
 }
 
 /// Pure copy+catalog → view data assembly (the SummaryPresentation twin —
@@ -41,7 +56,19 @@ struct PaywallViewData: Equatable, Sendable {
 /// renders offline/dormant); the live operator-keyed path may later upgrade
 /// the lines to localized StoreKit display prices — never the other way.
 enum PaywallPresentation {
-    static func make(copy: PaywallCopy) -> PaywallViewData {
+    /// E7.2 (R25.8): `variant`/`source` drive the teaser fork — defaults keep
+    /// every E7.1 call site (and its pins) byte-compatible: `.hard` +
+    /// `.onboarding` compose exactly the S24 screen. The teaser arm's first
+    /// impression adds the escape; the `.teaserExpiry` re-present adds the
+    /// eyebrow and NEVER the escape (single-use, R25.7).
+    ///
+    /// RED (Session 25): the fork is inert — escape and eyebrow stay nil; the
+    /// teaser-composition pins fail by design until green.
+    static func make(
+        copy: PaywallCopy,
+        variant: PaywallVariant = .hard,
+        source: PaywallSource = .onboarding
+    ) -> PaywallViewData {
         PaywallViewData(
             headline: copy.headline,
             subhead: copy.subhead,
@@ -62,7 +89,9 @@ enum PaywallPresentation {
             failureBanner: copy.failureBanner,
             retryCta: copy.retryCta,
             restoreEmpty: copy.restoreEmpty,
-            restoreSuccess: copy.restoreSuccess
+            restoreSuccess: copy.restoreSuccess,
+            teaserEscape: nil,
+            expiryEyebrow: nil
         )
     }
 

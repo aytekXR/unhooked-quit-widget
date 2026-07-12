@@ -136,4 +136,54 @@ struct PaywallCopyTests {
         #expect(!data.retryCta.isEmpty && !data.failureBanner.isEmpty, "the never-trap failure surface exists")
         #expect(!data.planMonthlyTitle.isEmpty && !data.planAnnualTitle.isEmpty)
     }
+
+    // MARK: - E7.2 (R25.8): the teaser strings + the variant fork
+
+    /// E7.2 D1 (born-green — the three teaser fields land WITH this test, in
+    /// both the shipping JSON and `.degraded`; non-optional BY RULING so the
+    /// Mirror lexicon walk above covers them like their 20 siblings): every
+    /// teaser string is present and non-empty in both tables.
+    @Test func test_paywallCopy_teaserStrings_presentAndNonEmpty() throws {
+        let shipping = try #require(PaywallCopy.loadShipping())
+        for copy in [shipping, .degraded] {
+            #expect(!copy.teaserEscapeLabel.isEmpty)
+            #expect(!copy.teaserEscapeNote.isEmpty)
+            #expect(!copy.teaserExpiryEyebrow.isEmpty)
+        }
+    }
+
+    /// E7.2 D2 (designed-red): the TEASER variant's first impression
+    /// composes the escape (label + note, the §6.2 QuietButton data) AND
+    /// still carries every 3.1.1/3.1.2(c) disclosure — the escape is
+    /// additive, never a displacement (test-suite §4.4: both variants'
+    /// rendered paywalls contain price, trial length, renewal terms).
+    @Test func test_paywallComposed_teaserVariant_carriesEscapeAndAllDisclosures() throws {
+        let copy = try #require(PaywallCopy.loadShipping())
+        let data = PaywallPresentation.make(copy: copy, variant: .teaser, source: .onboarding)
+
+        let escape = try #require(data.teaserEscape, "the teaser arm's first impression renders the escape")
+        #expect(escape.label == copy.teaserEscapeLabel)
+        #expect(escape.note == copy.teaserEscapeNote)
+        #expect(data.expiryEyebrow == nil, "no eyebrow on a first impression")
+        #expect(data.trialMechanicsLine.contains("$29.99") && data.autoRenewDisclosure.contains("renews automatically"),
+                "the escape never sheds a disclosure")
+        #expect(data.restoreLabel == "Restore purchases")
+    }
+
+    /// E7.2 D2b (designed-red): the teaser-EXPIRY re-present is close-free
+    /// (single-use escape — "Then this screen returns." must stay true) and
+    /// carries the zero-shame eyebrow; the hard variant composes NEITHER.
+    @Test func test_paywallComposed_teaserExpiryRepresent_eyebrowNoEscape_hardComposesNeither() throws {
+        let copy = try #require(PaywallCopy.loadShipping())
+
+        let represent = PaywallPresentation.make(copy: copy, variant: .teaser, source: .teaserExpiry)
+        #expect(represent.teaserEscape == nil, "the escape is SINGLE-USE — the re-present is the hard form (R25.7)")
+        #expect(represent.expiryEyebrow == copy.teaserExpiryEyebrow)
+        #expect(represent.autoRenewDisclosure.contains("renews automatically"),
+                "the re-present keeps the full disclosure set")
+
+        let hard = PaywallPresentation.make(copy: copy, variant: .hard, source: .onboarding)
+        #expect(hard.teaserEscape == nil, "the hard variant stays close-free (R24.9 carried)")
+        #expect(hard.expiryEyebrow == nil)
+    }
 }

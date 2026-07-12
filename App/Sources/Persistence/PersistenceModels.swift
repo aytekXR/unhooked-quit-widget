@@ -155,6 +155,12 @@ final class AppSettings {
     var hapticOnlyBreathPacer: Bool = false
     var onboardingVariant: String = ""
     var teaserExpiresAt: Date?
+    /// E7.2 (R25.5, §7-approved): the local echo of Superwall's sticky
+    /// per-install variant assignment — test-suite §4.4's named field. "" =
+    /// never assigned (the onboardingVariant idiom); written ONLY by a live
+    /// Superwall assignment — the dormant and bundled-fallback paths never
+    /// write it, so A/B denominators stay pristine (R24.4 refined).
+    var paywallVariantAssigned: String = ""
 
     init() {}
 }

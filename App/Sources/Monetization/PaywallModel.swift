@@ -43,6 +43,20 @@ final class PaywallModel {
 
     private let purchase: (Plan) async -> PurchaseOutcome
     private let restore: () async -> PurchaseOutcome
+    /// E7.2 (R25.5) — the paywall_viewed fire for THIS presentation, built by
+    /// `PaywallPresenter.makeFirePaywallViewed` (assignment + source + the
+    /// live-only echo baked in). Defaulted inert so every E7.1 call site (and
+    /// M24a–e) stays byte-untouched.
+    private let firePaywallViewed: () -> Void
+    /// E7.2 (R25.6) — the purchase-path completion hand-off. Invoked ONLY
+    /// from `purchaseSelectedPlan()`'s adopt (user-initiated; restore NEVER
+    /// reaches it) — the conformer fires `purchase` for PAID states only.
+    private let onPurchaseCompleted: (Plan, EntitlementState) -> Void
+    /// E7.2 (R25.7) — the teaser take: fire teaser_entered + stamp the grant
+    /// + dismiss. Single-use per presentation (didTakeTeaser).
+    private let onTeaserTaken: () -> Void
+    private var didFirePresentation = false
+    private var didTakeTeaser = false
 
     private(set) var phase: Phase = .idle
     /// Annual pre-selected (brandkit §6.8) — the trial-carrying plan leads.
@@ -50,10 +64,31 @@ final class PaywallModel {
 
     init(
         purchase: @escaping (Plan) async -> PurchaseOutcome,
-        restore: @escaping () async -> PurchaseOutcome
+        restore: @escaping () async -> PurchaseOutcome,
+        firePaywallViewed: @escaping () -> Void = {},
+        onPurchaseCompleted: @escaping (Plan, EntitlementState) -> Void = { _, _ in },
+        onTeaserTaken: @escaping () -> Void = {}
     ) {
         self.purchase = purchase
         self.restore = restore
+        self.firePaywallViewed = firePaywallViewed
+        self.onPurchaseCompleted = onPurchaseCompleted
+        self.onTeaserTaken = onTeaserTaken
+    }
+
+    /// The ONE presentation fire-point (R25.5): the mount path calls this
+    /// once the screen is up; the guard makes body re-renders and repeat
+    /// calls inert (MVP §5 "Paywall rendered" = once per presentation).
+    ///
+    /// RED (Session 25): inert — fires nothing until green.
+    func paywallPresented() {
+    }
+
+    /// The teaser escape's action (R25.7): single-use, fires teaser_entered
+    /// through the composition closure, then the host dismisses.
+    ///
+    /// RED (Session 25): inert — takes nothing until green.
+    func takeTeaser() {
     }
 
     func purchaseSelectedPlan() async {

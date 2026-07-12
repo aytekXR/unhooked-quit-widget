@@ -42,8 +42,14 @@ enum ColdStartBucket: String, CaseIterable, Sendable {
 }
 
 /// Where a paywall was presented from (MVP §5 `paywall_viewed.source`).
+/// `teaserExpiry` is E7.2's second-impression value (R25.4): the teaser A/B
+/// is un-analyzable if the post-expiry re-present collapses into
+/// `onboarding` — test-suite §1.4 sc.36 + the plan's E7.2 row name it
+/// verbatim. mvp.md §5's source row predates it; the vocabulary addition is
+/// the operator's ratification item (the R24.9 flagged-deviation shape).
 enum PaywallSource: String, CaseIterable, Sendable {
     case onboarding, settings, winback
+    case teaserExpiry = "teaser_expiry"
 }
 
 /// The annual price A/B arm (MVP §6: $29.99 vs $39.99 from day one).

@@ -130,7 +130,8 @@ struct AgeGateTests {
         #expect(
             attributeNames == [
                 "analyticsOptIn", "discreetIconId", "hapticOnlyBreathPacer",
-                "onboardingVariant", "teaserExpiresAt", "ageGatePassed",
+                "onboardingVariant", "teaserExpiresAt", "paywallVariantAssigned",
+                "ageGatePassed",
             ],
             "AppSettings gains ONLY the ageGatePassed boolean — the birth year is a transient input, never a row"
         )
