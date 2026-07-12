@@ -66,6 +66,12 @@ final class Quit {
     var currencyCode: String = "USD"
     var startAt: Date = Date.distantPast
     var createdAt: Date = Date.distantPast
+    /// E6.2 (ADR-11): the quit's FIXED day-boundary zone, stamped once at creation
+    /// (`TimeZone.current.identifier`) and never rewritten — a westward flight or a
+    /// two-tap Settings zone change must not mint a free day. A String identifier by
+    /// the persistence convention (raw scalars; CloudKit-mirror-safe defaulted field);
+    /// "" = a pre-E6.2 row awaiting its one-time launch backfill.
+    var startTimeZoneIdentifier: String = ""
     /// Persisted clock-integrity anchor (the engine's Codable value; ADR-7).
     var monotonicAnchor: MonotonicAnchor?
     var bestStreakSeconds: Int = 0

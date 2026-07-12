@@ -86,6 +86,7 @@ public struct StreakTimelinePlanner: Sendable {
         reading reader: some StreakWidgetStateReading,
         now: Date,
         horizonDays: Int,
+        milestones: [Date] = [],
         graceWindow: TimeInterval = StreakTimelinePlanner.defaultGraceWindow
     ) -> StreakWidgetTimelinePlan {
         // Exactly one read per plan — the seam is a file read in production, and a re-entrant

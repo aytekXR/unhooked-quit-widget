@@ -22,6 +22,14 @@ struct PanicQuitEntity: AppEntity {
         id = card.id
         title = card.label ?? "Your goal"
     }
+
+    /// E6.2: the streak widget's panic button builds its intent from the label-FREE
+    /// widget feed (§10 keeps labels out of widget-state.json), so the entity carries
+    /// the configured quit's id with the neutral title. `perform()` reads only the id.
+    init(id: UUID, title: String) {
+        self.id = id
+        self.title = title
+    }
 }
 
 /// Resolves panic quits for the intent parameter over the pre-cache. Injected-location

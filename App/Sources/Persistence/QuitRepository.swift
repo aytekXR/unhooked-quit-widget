@@ -37,6 +37,11 @@ final class QuitRepository {
     /// injected pre-cache location places the buffer too — tests land in the same
     /// temp directory, production in the real container, with zero extra wiring.
     private let panicOutcomeBuffer: PanicOutcomeBuffer
+    /// E6.2 — the widget feed's store, derived from the pre-cache's directory exactly
+    /// like the outcome buffer above: all App Group artifacts live in the container
+    /// root (architecture §4), so tests land in the same temp directory and
+    /// production in the real container with zero extra wiring.
+    private let widgetStateStore: WidgetStateStore
     /// The E8.1 analytics seam (ADR-8): events fire BESIDE the durable writes —
     /// post-save, never inside or blocking one (Architect ruling, Session 15; §1.2
     /// invariant 3). Defaulted to the transmit-nothing service, so construction
@@ -72,6 +77,9 @@ final class QuitRepository {
         self.appGroupDefaults = appGroupDefaults
         self.panicSnapshotStore = panicSnapshotStore
         self.panicOutcomeBuffer = PanicOutcomeBuffer(
+            directoryURL: panicSnapshotStore.fileURL.deletingLastPathComponent()
+        )
+        self.widgetStateStore = WidgetStateStore(
             directoryURL: panicSnapshotStore.fileURL.deletingLastPathComponent()
         )
         self.quizProgressStore = quizProgressStore

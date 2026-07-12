@@ -142,6 +142,15 @@ targets:
     sources:
       - Widgets/Sources
       - Shared/Sources
+    dependencies:
+      # E6.2: Shared/Sources now compiles the family views/composer, which import
+      # WidgetToolkit (planner/entries) and StreakEngine (the ONE money formula —
+      # deliberate deviation from the inherited list's WidgetToolkit-only minimum,
+      # recorded in the Session 21 ledger: formula parity beats duplicating money
+      # math in the extension). Without these the extension build fails with
+      # "no such module" — a burned billed run.
+      - package: WidgetToolkit
+      - package: StreakEngine
     info:
       path: Widgets/Info.plist
       properties:
@@ -189,6 +198,10 @@ targets:
       # E3.2: the panic-flow snapshot fixtures conform to ClockProviding, whose
       # MonotonicNow value type lives in StreakEngine.
       - package: StreakEngine
+      # E6.2: the widget family snapshot fixtures construct StreakWidgetEntry values
+      # (MANDATORY, not conditional — the panel's budget adversary flagged the missing
+      # dep as the primary burned-run threat).
+      - package: WidgetToolkit
 
   UnhookedUITests:
     type: bundle.ui-testing

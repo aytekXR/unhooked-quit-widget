@@ -80,4 +80,57 @@ struct PersistenceStoreTests {
         )
         #expect(FileManager.default.fileExists(atPath: storeURL.path))
     }
+
+    /// E6.2 rule-9 sweep (A5): the ADR-11 `startTimeZoneIdentifier` is a DEFAULTED,
+    /// MIRRORED Quit column — it round-trips through the store keeping its "" default
+    /// for a bare (pre-E6.2) row and a stamped value for a real one, and stays
+    /// CloudKit-safe (non-unique). Extends the schema/round-trip pins so the field can
+    /// never silently become unique or lose its default. Green from the red commit
+    /// (the field ships in the red-commit persistence model).
+    @Test func test_quitStartTimeZoneIdentifier_isDefaultedMirroredField_roundTrips() throws {
+        let container = try ModelContainer(
+            for: PersistentStore.schema,
+            configurations: [ModelConfiguration(isStoredInMemoryOnly: true)]
+        )
+        let context = ModelContext(container)
+
+        // A bare row keeps the "" default (a pre-E6.2 row awaiting its launch backfill).
+        let bare = Quit()
+        context.insert(bare)
+        // A stamped row carries a real zone identifier.
+        let stamped = Quit()
+        stamped.startTimeZoneIdentifier = "America/New_York"
+        context.insert(stamped)
+        try context.save()
+
+        // A FRESH context proves the field is durable, not an in-memory echo.
+        let fresh = ModelContext(container)
+        let bareID = bare.id
+        let stampedID = stamped.id
+        let reloadedBare = try #require(
+            try fresh.fetch(FetchDescriptor<Quit>(predicate: #Predicate { $0.id == bareID })).first
+        )
+        let reloadedStamped = try #require(
+            try fresh.fetch(FetchDescriptor<Quit>(predicate: #Predicate { $0.id == stampedID })).first
+        )
+        #expect(
+            reloadedBare.startTimeZoneIdentifier == "",
+            "the defaulted field round-trips as \"\" — the CloudKit-safe default for a pre-E6.2 row awaiting backfill"
+        )
+        #expect(
+            reloadedStamped.startTimeZoneIdentifier == "America/New_York",
+            "a stamped zone identifier round-trips through the mirrored store"
+        )
+
+        // Schema half: the field must be a mirrored, NON-unique attribute (the CloudKit
+        // checklist the sibling test enforces across all attributes, pinned by name here).
+        let quitEntity = try #require(
+            PersistentStore.schema.entities.first { $0.name == "Quit" }
+        )
+        let attribute = try #require(
+            quitEntity.attributes.first { $0.name == "startTimeZoneIdentifier" },
+            "startTimeZoneIdentifier must be a mirrored Quit attribute"
+        )
+        #expect(!attribute.isUnique, "startTimeZoneIdentifier must not be unique (CloudKit checklist)")
+    }
 }
