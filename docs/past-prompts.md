@@ -3742,3 +3742,133 @@ Full findings + the binding arbitration in the session scratchpad
   attribution-only; operator-vetoable — R25.5).
 - Reinstall/erase re-grants the teaser (AppSettings wiped ⇒ a re-onboarded
   user can take a fresh teaser day) — fresh-install semantics, accepted.
+
+## Session 26 — E7.3: win-back offer (config) — Epic 7's build half CLOSED (2026-07-12)
+
+**Objective (resume prompt v3.8):** E7.3 — 50%-off annual win-back 7 days post trial-lapse
+via RevenueCat offer, no push dependency; the three plan-named tests VERBATIM; step-0 rulings
+(a)–(f). Budget: 2 billed runs + 1 contingency.
+**Outcome: DONE in 2 billed runs, ZERO burned, contingency unused.** Red evidence = CI run
+`29209285506` on `b146774`: 11 designed-failing / 13 issues, manifest-matched NAME-FOR-NAME —
+the 12th consecutive harness-predicted red (the pure 10-test/11-issue subset verified on the
+FREE Linux harness first, TZ-invariant under UTC/Berlin/Kiritimati ×3 full runs, built under
+-strict-concurrency=complete -warnings-as-errors). Green = `2ba3a35` — all 11 flips verified
+in run `29209801255` (ALL-9-JOBS green + TestFlight).
+**Session-open operator check: NOTHING required** (operator-expected's own header pre-cleared
+Session 26; recorded at open, held open-to-close). **The operator's session-open bug report
+(lock-screen day counter) was TRIAGED, not coded:** the 2-days-ago binary (07-10, `7905db0`
+E3.3-era) predates E6.2's real widget — its SkeletonWidget renders a HARDCODED static "Day 0"
+by design, and the S21 kind retirement means the placed widget must be RE-ADDED once on the
+newest build (documented S21 R12). Operator steps + the escalation path recorded in §7. No
+code change warranted; zero billed runs spent on it. Delivery 28/32 = 87.5%.
+
+### The step-0 panel (6 seats + lead arbitration → rulings R26.1–R26.15)
+
+Panel: Architect, PM, QA, Brand, adversarial burn-risk critic (REPRODUCE-not-reason),
+docs-verifier. Full findings in the session scratchpad (RULINGS-R26.md + SEAT-*.md); the rulings:
+
+- **R26.1 — the lapse clock is an APP-SIDE observed-lapse stamp.** The docs-verifier KILLED
+  the server-side primary with primary sources: Apple win-back offers are months-granular
+  (ASC "Time Since Last Subscribed" minimum = 1 MONTH) AND require prior PAID duration — a
+  7-day TRIAL-lapse cohort fails both; RC Targeting has no subscription/lapse-cohort condition
+  (custom attrs/country/app/version/platform only); and QA independently showed a pure
+  server-side oracle is incompatible with the plan's failing-unit-test-first mandate. NEW
+  `AppSettings.lapseObservedAt: Date?` (§7-approved in-panel): ONE writer
+  `recordLapseObserved()` (nil→set only, injected clock), fed by the live branch's
+  refresh-adoption edge (dormant-safe by construction); CloudKit-mirrors (reinstall edge
+  flagged vetoable, R25.5 shape); erase-swept; AgeGateTests exact-set expanded SAME-COMMIT;
+  §10-excluded. Observed-lapse is fail-SAFE (late-only).
+- **R26.2 — the offer MECHANISM is an ASC promotional offer, NOT an Apple win-back offer.**
+  Pay-up-front, 1 year, $14.99 on the SAME `ballast.annual` SKU, id `winback_annual`,
+  RC-signed (the operator uploads the In-App Purchase Key to RC — NEW §8 item). purchases-ios
+  5.80.3 exact spellings recorded (eligibleWinBackOffers is iOS 18+ AND months-gated — rejected;
+  promotionalOffer(forProductDiscount:product:) → purchase(package:promotionalOffer:) is the
+  live path). The LIVE signed-purchase call is DEFERRED BY NAME to the StoreKit-config/contract
+  session. WinBackOffer/PromotionalOffer are Sendable at 5.80.3 — no @preconcurrency needed.
+- **R26.3 — 7-day window = wall-clock DURATION (604,800s), INCLUSIVE boundary.** ADR-11 is
+  scoped to displayed Day-N; the teaser R25.7 duration reasoning applies; TZ-invariant by
+  construction, ×3-zone-proven.
+- **R26.4 — ANY `.lapsed` tier is eligible (vetoable).** The machine deliberately has no
+  trial-vs-paid history (S23), so "post trial-lapse" is honestly implementable only as "post
+  lapse"; lapsed-monthly meets the annual offer as an upsell. Restricting to .annual is a
+  one-line operator veto.
+- **R26.5 — v1 win-back is IN-APP ONLY; the notification is a NAMED future add.** The plan's
+  acceptance wins the C1 conflict: a landed test-suite §7 static check asserts NO
+  UNUserNotificationCenter authorization request in the v1.0 target (verified zero on disk);
+  plan + test-suite (3 places) already read mvp §6 as "no push permission". mvp.md UNTOUCHED;
+  the §6 "local notification" deviation rides the R24.9 ratification shape (§3). Honest cost
+  recorded: eligible→shown is NOT measurable in-app-only — the operator's data argument for
+  the future notification session.
+- **R26.6 — surfaces: reentry auto-present (once per process, DISMISSIBLE) + settings row.**
+  Precedence entitled > winback (lapsed-only) > teaser-expiry via a defaulted
+  `winbackEligible` param on the pure `reentryDestination` (E7.2 call sites byte-compatible);
+  the shim renamed `teaserReentry` → `paywallReentry`. THE TRAP CATCH: a lapsed user reaches
+  the dashboard today, so an unclosable re-present would TRAP them (Epic 7 DoD) — the winback
+  presentation is an OFFER with a "Not now" dismiss (no event fires — dismissal is not funnel
+  vocabulary); the hard onboarding wall and the teaser re-present stay close-free (R24.9
+  untouched). Auto-present cadence = once per process, in-memory (vetoable); the settings row
+  (visible only when eligible, view-gated) is the persistent path back.
+- **R26.7 — the fire-set.** SHOWN: `winback_shown(offer)` then `paywall_viewed(source:
+  .winback)` co-fire once per presentation (the model's didFire guard) — intentional
+  dual-funnel, honest only under strict source segmentation (recorded). CONVERTED:
+  `winback_converted(offer)` then `purchase(ballast.annual, annual)` — BOTH (different
+  funnels; no dedupe); NEVER trial_started (the .active guard keeps R25.6's exclusion for
+  free). Order pinned: surface-scoped → universal.
+- **R26.8 — value-domains.** offer = {`winback_annual`} closed single-member (S15); the landed
+  `winback_50` fixture drift REALIGNED same-commit (keys-only whitelist = free); `…2499` forms
+  rejected (no-price-in-id, R24.5) — test-suite §3.2 sc.26 renamed at close.
+  `ProductCatalog.winbackOfferID` + `annualWinbackDisplayPrice ("$14.99")`;
+  `SuperwallPlacement.winback = "winback"` (own constant, namespace discipline).
+- **R26.9 — copy: exactly FIVE new non-optional fields (DRAFT/founder-owned, §3).**
+  PaywallCopy: winbackOfferLine / winbackMechanicsLineFmt (TWO %@ slots — discounted AND
+  renewal price, 3.1.2(c)-grade) / winbackReassurance / winbackDismissLabel;
+  DiscreetSettingsCopy: winbackRowLabel. Lexicon-verified CLEAN (dual lexicon, actually run);
+  "Reactivate"/"Come back" REJECTED (fact-wrong for trial-lapse + we-miss-you register);
+  the REAL discount makes "half price" §6.8-honest; floors bumped 20→27 and 8→9. The OPTIONAL
+  is the composition (`PaywallViewData.winbackOffer`, nil unless source == .winback); the
+  teaser escape never co-composes with winback (fork isolation, pinned).
+- **R26.10 — dormancy pinned two ways.** Pure negative (nil stamp / false eligibility can
+  never surface .winback) + composition (the lapse edge lives ONLY on the live RC-key branch;
+  EntitlementModel is constructed only there). No keys ⇒ no winback events, ever.
+- **R26.11 — PaywallKit UNTOUCHED; panic route untouched; no §10 change.** No new
+  RepositoryProvider surface ⇒ the panic init-order spy needed NO edit.
+- **R26.12 — burn-gate follow-through.** The pure-policy path reproduced burn-free (probe
+  exit 0 under strict flags); the RC importer-lint anchor upgraded to the attr-prefix form
+  (the #3d latent gap the burn-critic REPRODUCED — a bare `^import` anchor was vacuous on
+  `@preconcurrency import RevenueCat`; planted-violation-tested) — rides the green commit.
+- **R26.13 — red/green split (R25.13 shape), as run.**
+- **R26.14 — deferred BY NAME:** the live promotional-offer application (fetch + signed
+  purchase, spellings recorded); the sandbox win-back matrix (§4.2/sc.26/§6-row-9 — operator
+  tier, Epic 7 DoD's operator half); winback goldens (post-founder-copy batch); the
+  local-notification channel (own permission-surface session, operator-vetoable).
+- **R26.15 — operator asks:** §3 (5 DRAFT strings + the mvp §6 ratification + the any-lapse
+  flag + the 3.1.1 winback disclosure rider); §8 (ASC promotional offer + In-App Purchase Key
+  upload to RC); §7 (the lock-screen day-counter row).
+
+### Epic 7 DoD check at close (honest split)
+BUILD-TIER (done): PaywallKit seam + machine (S23); RC adapter + paywall + catalog (S24);
+Superwall variant brain (S25); win-back eligibility/surfacing/fires (S26). Superwall isolated
+behind the seam ✓; paywall never traps ✓ (winback dismiss + retry/restore pins).
+OPERATOR-TIER (carried, sequenced in §8): the sandbox purchase matrix incl. win-back
+time-travel (needs RC+SW keys, ASC products, the promotional offer + IAP key); the 3.1.1
+checklist signature (§3, incl. the winback disclosure row + the remote-B-arm rider).
+Epic 7 is BUILD-COMPLETE; its DoD closes at the operator's sandbox pass.
+
+### Run accounting (§4-honest)
+- Run 1 — `29209285506` (`b146774`): red evidence. App unit lane: 11 designed failures /
+  13 issues — manifest-matched name-for-name (the 12th consecutive predicted red); all other
+  lanes green.
+- Run 2 — `29209801255` (`2ba3a35`): all 11 flips verified green; ALL-9-JOBS green +
+  TestFlight upload.
+Total: exactly the 2 planned, ZERO burned, contingency UNUSED.
+
+### Known limitations / carried
+- The live promotional-offer purchase call (R26.14) — the winback CTA currently rides the
+  standard purchase path; applying the SIGNED discount is the StoreKit-config/contract
+  session's, unexercisable dormant (no keys ⇒ unreachable; recorded, not a gap).
+- The lapse edge fires at the LAUNCH refresh only (the one wired refresh site) — a
+  foreground-refresh lapse observation lands whenever the foreground refresh itself does
+  (the E7.2-inherited pull-based cadence).
+- Scenario-29 diagnosis + event-spy sink + goldens: unchanged carries (S25).
+- Winback auto-present cadence (once per process) + any-lapse eligibility + the CloudKit
+  lapse-stamp mirror: operator-vetoable (R26.4/R26.6/R26.1).

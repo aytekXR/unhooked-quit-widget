@@ -74,7 +74,7 @@ Target ratio: roughly **70 / 20 / 4 / 3 / 3** by test count (unit / integration 
 - **Example test cases:**
   24. `storekit_threeDayTrialOnAnnual_convertsToPaid_entitlementActiveProductAnnual` — StoreKitTest accelerated-time renewal; PaywallKit maps to `.active(product: .annual)`.
   25. `storekit_restoreAfterSimulatedReinstall_recoversEntitlementWithZeroUserInput` — MVP feature #4 AC "entitlement state survives reinstall."
-  26. `revenuecat_winbackOffer2499_eligibleAtTrialLapsePlus7Days_notBefore` — sandbox cohort clock; win-back must not require push permission (asserted: offer surfaces on foreground fetch alone).
+  26. `revenuecat_winbackOfferAnnual_eligibleAtTrialLapsePlus7Days_notBefore` — sandbox cohort clock; win-back must not require push permission (asserted: offer surfaces on foreground fetch alone). *(Renamed from `…Offer2499…` in Session 26 — "2499" matched no live price and violated the no-price-in-id rule; the offer id is `winback_annual`, R26.8.)*
   27. `telemetrydeck_interceptedPayloadForFullSessionContainsOnlyWhitelistedEventNamesAndProperties` — the release-gate payload audit (MVP §7) automated: run a scripted session, capture outbound bodies via the recording `URLProtocol`, diff against the §5 event table; ANY extra key fails.
   28. `companion_crisisInputReturnsFixedVersionedTemplate_kindCrisis_coachingEnds` — Worker contract + EvalHarness crisis-recall golden set (§3.4/§4.1); safety is a P0 acceptance test per PRD §13 even though the feature ships v1.2 — the contract suite exists from the week the Worker does.
 - **Target count:** ~25 contract assertions across 5 dependencies at v1.0 (grows to ~40 with the v1.2 companion). Runtime budget 8 min (sandbox latency dominates); nightly, not per-commit.
