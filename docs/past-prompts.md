@@ -3200,3 +3200,258 @@ Full findings in the session scratchpad; rulings binding:
 - `purchase`/`paywall_viewed` fire-points, Superwall (E7.2), win-back (E7.3):
   untouched, per scope guards (verified by grep: no Superwall/RevenueCat/
   trial_started/price tokens in Sources — comment mentions only).
+
+## Session 24 — E7.1: RevenueCat wiring (DORMANT) + the bundled default paywall, APP HALF (2026-07-12)
+
+**Objective (resume prompt v3.6):** E7.1 APP HALF — step-0 rulings (a)–(f)
+(scope: is the paywall SCREEN in?), red (app-lane manifest per panel), green =
+the RC adapter DORMANT behind the operator key (purchases-ios 5.80.3 exact) +
+ProductCatalog + Ballast.storekit + EntitlementModel + the trial_started wire +
+erase wiring + the bundled default paywall at the summary CTA seam. Budget:
+2 billed runs + 1 contingency.
+**Outcome: DONE in 4 billed runs — the planned 2 + the contingency + ONE over,
+with TWO burned (honest §4 accounting below; the S18/S21 shape — the zero-burn
+streak ends at two sessions and BOTH burn classes are now permanent gates).**
+Red evidence = CI run `29197338715` on `2ac4893`: **28 designed-failing / 47
+issues, manifest-matched NAME-FOR-NAME and issue-for-issue — the 10th
+consecutive harness-predicted red** (the pure 18-test/35-issue subset was
+verified on the FREE local Linux harness first, TZ-invariant under
+UTC/Berlin/Kiritimati ×3 full runs; the issue model summed to the observed
+counts exactly on both the harness AND CI). Green = `88b32a6` + the shadowing
+fix `966f067` (run `29198309877`). **Session-open operator check: NOTHING required
+(operator-expected's own header pre-cleared the app half — neither the RC
+account nor ASC products; held open-to-close; the RC-key §8 item lands at THIS
+close as scheduled).** Delivery 26/32 = 81%.
+
+### The step-0 panel (6 seats + lead arbitration → rulings R24.1–R24.12)
+
+Panel: Architect, PM, QA, Brand, adversarial burn-risk critic
+(REPRODUCE-not-reason), docs-verifier (the S23 seat, kept for every SDK-facing
+session). Full findings + the binding arbitration in the session scratchpad
+(RULINGS-R24.md); the rulings:
+
+- **R24.1 — scope (a).** The paywall SCREEN is IN (PM: it is the objective's
+  named payoff; Brand's copy sign-off completed in-panel; a further split =
+  three sessions). TWO PM riders overruled on cross-seat evidence: NO
+  snapshot goldens (S17 R5's DRAFT-copy batch point extends to the paywall;
+  the post-founder-copy batch now = age gate + quiz + summary + paywall) and
+  scenario-29 DEFERS to E7.2 on three independent grounds — (i) its
+  `…→ paywall_viewed` analytics tail is E7.2's by R24.4, so the smoke's own
+  assertion set cannot pass this session; (ii) its purchase leg cannot run on
+  CI (xcodebuild never engages a scheme's StoreKit configuration — RC docs
+  ground truth; xcodegen's storeKitConfiguration is run-action-only); (iii)
+  a flaky wheel-drive on a 1-contingency session is the largest avoidable
+  burn (QA). The S18 valve debt carries BY NAME. A DEBUG-only
+  `UITEST_PAYWALL=1` render override substitutes as the operator review path.
+- **R24.2 — the DORMANT gate (b).** `RevenueCatConfiguration.revenueCatAPIKey
+  = ""` (the AnalyticsConfiguration mirror). The live branch lives INSIDE
+  `startIfNeeded`'s success block: configure-once (Builder, device-ID
+  collection OFF) → adapter → `CachingEntitlementProvider`(+sink) →
+  `EntitlementModel`, published as `RepositoryProvider.entitlementModel:
+  EntitlementModel?`. DORMANT constructs NOTHING — nil model IS the CTA
+  fall-through; the `Purchases` symbol is never referenced at runtime
+  (docs-verified: configure alone fetches CustomerInfo+Offerings from
+  api.revenuecat.com and persists `$RCAnonymousID` — dormancy is a privacy
+  requirement, not hygiene). Pull-based refresh v1 (construction +
+  post-purchase/restore; NO customerInfoStream subscription — green-minimal).
+  Panic purity explicitly pinned: the init-order spy now also asserts
+  `entitlementModel == nil` on the panic route.
+- **R24.3 — the adapter seam (QA × docs-verifier synthesis).** A plain struct
+  DTO `CustomerEntitlementView` (NOT a protocol — RC's own `periodType`
+  member name would collide) + the pure `RevenueCatEntitlementMapper`. RED
+  pinned the mapper RC-free/Linux-harnessable; GREEN added
+  `Contract_RevenueCat.swift` on REAL SDK values via the public "unit
+  testing" inits — the docs-verifier KILLED QA's "not test-constructible"
+  premise against 5.80.3 source (folklore list #1) and the S23 carried
+  "pin the adapter against the real SDK mapping" item is PAID. The extraction
+  reads `entitlements.all` (never `.active`): present-but-inactive ⇒
+  `isActive:false` NEVER nil ⇒ `.lapsed`, contract-pinned. An unknown SKU
+  still honors an active entitlement (defaults `.annual` — the §8
+  when-in-doubt grace applied to config gaps; lead-added red pin).
+- **R24.4 — paywall_viewed DEFERRED to E7.2** (PM: MVP §5 fixes `variant` as
+  "(Superwall id)" — a bundled-fallback constant does not fit the
+  operator-only row's vocabulary ⇒ fit-or-defer; A/B denominators stay
+  pristine; dormant routing has no honest live impression anyway). The
+  `purchase` analytics fire-point also NOT wired (not in the S24 manifest;
+  E7.2 carries it with its own ruling — renewals are not client-honest). No
+  `AppSettings.paywallVariantAssigned` (Superwall's field, E7.2, §7-gated).
+- **R24.5 — pricing config (d).** SKUs `com.beyondkaira.ballast.monthly` /
+  `.annual` (CONTROL $29.99 + the bundled arm) / `.annual.hi` ($39.99,
+  Superwall-only) — no price in ids (ASC ids are immutable; PM's naming beat
+  the Architect's price-suffixed sketch). Entitlement key `"premium"`.
+  **G0 correction (PM's material catch): the rename gate CLEARED 2026-07-08**
+  (AppIdentifiers.swift's dated header; real registered com.beyondkaira
+  identity) — the resume-prompt's "placeholder bundle IDs" fact was STALE;
+  project.yml's G0 comment block corrected in green. Ballast.storekit is a
+  **UnhookedTests resource** (a dev/test artifact never ships in the app
+  bundle), hand-authored on Linux to the docs-verifier's minimal structure
+  with an "open it once in Xcode 26" operator rider; parse-pinned (key-SET)
+  against MVP §6 AND against ProductCatalog (two config homes, one drift
+  pin). Static display prices live in the CATALOG; the copy table carries
+  `%@` templates only (Brand's data-bound rule reconciled with §8's static
+  fallback mandate).
+- **R24.6 — the trial_started wire (e).** Wire values = the catalog's
+  canonical ids `ballast.monthly`/`ballast.annual` (reconciling the
+  ALREADY-committed E8.1 fixture — the enum's owed value-domain pin landed).
+  Dedup = a bare Bool in app-STANDARD UserDefaults (never App Group, never
+  synced, no Date/product/price), **marked ONLY on a consented actual send**
+  (QA's rule over the Architect's mark-on-observe: a decliner persists ZERO
+  bytes, and a later opt-in while still trialing counts exactly once — RC
+  replays state every cold start, so the next consented replay fires).
+  Erase sweeps the marker via an explicit step-2 clear — **the App Group
+  sweep can NEVER reach an app-standard key (the Architect's load-bearing
+  catch)**. The resume-prompt's "seed from RC's cached state" mechanism was
+  RETIRED as redundant (the durable bit swallows the replay entirely);
+  reinstall-during-trial may double-fire — recorded accepted limitation.
+- **R24.7 — erase wiring (f).** `resetEntitlement` = a defaulted-closure init
+  param + the ONE post-init late-bind (`bindEntitlementReset`, the
+  ConsentReader precedent — the sink needs the repository's analytics, so the
+  entitlement stack builds after it). Runs INSIDE `eraseEverything` as the
+  NEW step 5 — after `scheduleWidgetReload` (widgets drop regardless of both
+  remote steps), BEFORE the CloudKit purge (§10 order) — throws SURFACE for
+  retry. QA's EraseFlow-level placement REJECTED (would sequence after the
+  cloud purge). The L665 TODO's "anonymous-ID reset" promise SOFTENED per the
+  docs-verifier: **v5.80.3 has NO public anonymous-ID reset** (`logOut()`
+  throws code 22 for anonymous users — our only kind); honest `reset()` =
+  `invalidateCustomerInfoCache()`; entitlements are Apple-account-level and
+  survive erase BY DESIGN (a wipe is not a cancellation).
+- **R24.8 — SPM dep placement: GREEN, never red.** Red stayed RC-free so red
+  evidence could not be burned by dep resolution; the burn critic REPRODUCED
+  the full pin graph locally (`swift package resolve`: RC 5.80.3 +
+  SnapshotTesting 1.19.3 + TelemetryDeck 2.14.1 → exit 0; our pins win; RC's
+  test-only deps pruned; no binary targets; link product "RevenueCat" only).
+  5.80.3 re-confirmed latest at session open by THREE seats independently.
+  Now a standing rule.
+- **R24.9 — the copy.** `paywallCopy.json` → `PaywallCopy` struct (stored
+  properties, `.degraded` disclosure-complete fallback; the summaryCopy
+  audited-lane precedent beat Brand's in-code lean). Brand's 23-string DRAFT
+  table adopted with the S19-class register fix: the paywall ships
+  **"No account. No sign-up. Apple handles billing — cancel in one tap."** +
+  the provable "Your notes and journal never leave your device." — the MVP §6
+  verbatim canon ("No server. Nothing to leak … refund in one tap") is NOT
+  placed on this RevenueCat-brokered surface ("No server" one tap before an
+  RC-mediated purchase is unprovable there; Apple refunds are requested,
+  never one-tap — the brandkit's own caption precedent). mvp.md UNTOUCHED;
+  the deviation is the operator's §3 decision. **NO close affordance** (MVP
+  §6 hard-ish canon; the sanctioned escape is E7.2's teaser; Brand's
+  App-Review soft-wall caution recorded for the operator). PM+Brand+QA joint
+  safety-content sign-off recorded at step-0 close; strings stay
+  DRAFT/founder-owned.
+- **R24.10 — screen architecture.** `PaywallPresentation.make(copy:)` (the
+  SummaryPresentation twin — pure, composes every 3.1.1/3.1.2(c) disclosure)
+  + `PaywallModel` phases (working/failed/restoredEmpty/unlocked; cancel is
+  NOT a failure — userCancelled returns to idle wordlessly) + `PaywallView`
+  (teal CTA, checkmark selection never color-alone, amber+symbol never-trap
+  failure with retry, restore + legal as quiet text, no red/countdowns/fake
+  discounts; annual pre-selected). Live purchase/restore =
+  `RevenueCatPurchaser` in the SAME sole RC-importing file (offerings →
+  match by catalog SKU → purchase(package:); the bundled fallback offers
+  monthly + CONTROL annual ONLY — never the $39.99 arm).
+- **R24.11 — CI guard.** New FREE-lane `monetization-importer-lint`
+  (swiftdata-lint byte-shape): `^import RevenueCat|Purchases` allowed in
+  exactly {the adapter file, Contract_RevenueCat}; `^import Superwall`
+  banned outright (the E7.2 scope guard). The regex ANCHORS `^import` — the
+  unanchored draft matched a comment during local reproduction (now a
+  standing lint rule).
+- **R24.12 — budget shape.** As run (accounting below).
+
+### What the critics caught / reproduced (the practice keeps earning its keep)
+
+- Pre-push (green): the composed-but-NEVER-RENDERED auto-renew disclosure —
+  the 3.1.2(c) statement was string-presence-pinned in DATA while invisible
+  on the SCREEN (false confidence); FIXED in green (`paywall.renewalTerms`
+  renders, caption floor, no truncation). The missing explicit panic-route
+  entitlement pin — ADDED (additive strengthening of the init-order spy).
+  The RC-spelling verifier re-verified EVERY SDK member in both RC files
+  against freshly-fetched 5.80.3 raw source (zero mismatches; the
+  `@unknown default` warning question MECHANICALLY reproduced clean via a
+  two-package mockup; the EntitlementInfo test-init argument ORDER validated
+  as a legal defaulted-params subset). The green-diff critic mechanically
+  reproduced: the M8 storekit assertions in python (pass), the dual-lexicon
+  scan over all 20 rendered copy fields (0 violations), the erase ordering,
+  all 28 red→green flips side-by-side, YAML validity, both lint greps, the
+  §10 field-set non-touch, and Tests/ byte-untouched beyond the additions.
+- Pre-red: the Linux harness predicted the pure subset 18/35 issue-for-issue
+  (validated twice — harness AND CI summed identically); the
+  strict-concurrency gate reproduced the green shapes (the @MainActor sink
+  conformance, the stored reset closure) BEFORE they shipped.
+- The docs-verifier's green-relevant kills: `logOut()`-resets-anonymous-users
+  folklore (throws code 22 — the erase TODO overpromised),
+  `customerInfo(fetchPolicy: .fromCacheOnly)`-returns-nil folklore (it
+  THROWS; `cachedCustomerInfo` is the nil-safe peek), RC-synthesizes-offerings
+  -from-.storekit folklore (dashboard products required), and
+  StoreKit-config-under-xcodebuild (Xcode-run only — this ground truth
+  re-scoped scenario-29's deferral).
+
+### Run accounting (§4-honest)
+
+- **Run 1 — `29196899754` (`1fe5828`): BURNED.** Test-target build failure,
+  no red evidence: ONE spurious `await` on a same-actor synchronous call in
+  the NEW erase-wiring test file (a non-Sendable closure literal inherits
+  the enclosing @MainActor isolation → the marked call is sync → warning →
+  error under warnings-as-errors). Not catchable by `swiftc -parse`
+  (semantic) nor the harness (SwiftData files aren't harnessable). The app
+  TARGET compiled clean — strong green signal. **Closing gate (standing
+  rule): the spurious-await class is permanently shape-pinned in the Linux
+  strict gate (ClosureIsolationShapeChecks), and new closure-into-seam
+  shapes in non-harnessable files get mockup-typechecked under strict flags.**
+- **Run 2 — `29197338715` (`2ac4893`): the red-evidence run.** App job unit
+  lane: 291 tests, **28 designed failures / 47 issues — manifest-matched
+  name-for-name and issue-for-issue** (the 10th consecutive predicted red);
+  build-for-testing clean; 7 born-green safety pins + all existing tests
+  passed; snapshot + UI-smoke lanes green; every free lane green.
+- **Run 3 — `29197958414` (`88b32a6`): BURNED.** The green push's app-target
+  build failed on ONE error in the Darwin-only adapter: `PaywallKit.PeriodType`
+  — the PaywallKit MODULE exports an enum ALSO named `PaywallKit` (the S23
+  version marker), so the module-qualified name resolved to the ENUM
+  ("'PeriodType' is not a member type of enum 'PaywallKit.PaywallKit'"). The
+  adapter HAD to qualify (it imports both SDKs; the bare name is ambiguous
+  against `RevenueCat.PeriodType`), and as the one file that only compiles on
+  Darwin, its first compile was CI. **Post-hoc Linux reproduction: the
+  identical error reproduces on the free toolchain WITHOUT RevenueCat** — a
+  one-file PaywallKit-importing probe fails byte-identically, so this burn
+  was locally catchable. **Closing gate (standing): a Darwin-only file's
+  NON-SDK qualified type references get Linux-probed before push; both-SDK
+  files use an alias declared where the bare name is exact
+  (`EntitlementPeriodType`), never the module-qualified form.** The dreaded
+  dep-resolution class did NOT fire (SPM resolved 5.80.3 clean, exactly as
+  the local reproduction predicted); the designed risk point burned on OUR
+  module quirk instead. The new `monetization-importer-lint` went green on
+  its first run here.
+- **Run 4 — `29198309877` (`966f067`): the green run.** The three-line alias
+  fix, reproduced clean under strict flags on Linux BOTH ways (failing form =
+  the CI error verbatim; fixed form = exit 0) before the push.
+  Total: **4 = the 2 planned + 1 contingency + 1 over** (the S18/S21
+  precedent shape), two burned, none unaccounted. The critics' pre-push
+  catches (the unanchored lint regex, the unrendered 3.1.2(c) disclosure,
+  the missing panic pin) and the two local reproductions (the full pin-graph
+  resolve; 26/26 harness ×3 TZ) kept it from being worse.
+
+### Known limitations / carried (E7.2 inherits a named list)
+
+- **paywall_viewed + purchase fire-points, variant assignment,
+  `AppSettings.paywallVariantAssigned`, scenario-29 (with the S18-owed drive
+  diagnostics + its analytics tail), 3.1.1 both-variant copy review** — all
+  E7.2's by name (R24.1/R24.4).
+- The paywall goldens ride the post-founder-copy batch (S17 R5 extended);
+  the screen's only render proofs today are the composed-string pins + the
+  DEBUG override. PaywallView hand-rolls the brandkit button idioms (visual
+  pass rides the golden batch/E7.2).
+- Terms of Use / Privacy Policy render as pre-link LABELS (operator/legal
+  owns the URLs + the auto-renew boilerplate wording check against current
+  Apple terminology) — MUST become functional links before submission
+  (Schedule 2); recorded in §3/§8.
+- `Ballast.storekit` is hand-authored (Apple publishes no formal schema);
+  the "open once in Xcode 26" validation is an operator rider. The runtime
+  SKTestSession display-price tier stays deferred to the named
+  StoreKitTest/RC-sandbox contract session (V-K split: the config-drift
+  purpose is fully served by the parse pins).
+- Reinstall-during-trial may double-fire trial_started (both caches wiped;
+  no server-side dedup exists by design). A trial started while consent is
+  off fires on the next consented replay observation — the fire is honest
+  but late; both recorded.
+- `EntitlementModel` foreground refresh is deferred (pull-based v1:
+  construction + post-purchase/restore); the `customerInfoStream`
+  subscription is a named future enhancement.
+- `restoreSuccess` copy is composed but unrendered (the unlocked path
+  dismisses); founder-table completeness kept.

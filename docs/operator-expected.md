@@ -3,20 +3,42 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-12 (**Session 23 CLOSED: E7.1 PACKAGE HALF DONE — the app now has an entitlement BRAIN (PaywallKit 1.0.0), and nothing was needed from you, open to close.** The four-state machine (`never|trial|active|lapsed`) ships pure: no clock (offline can NEVER flip a paying user to locked-out — your architecture's anti-Quittr grace rule, enforced by construction), no persisted bytes (the "cache" is in-memory; RevenueCat's SDK owns durable caching app-side, later), no prices or SKUs (the state machine knows monthly-vs-annual and nothing else). Nothing renders it yet — no paywall screen exists; that is Session 24's job, and it is deliberate (the same package-half-first split your E6.1→E6.2 widget sessions used). **Billed runs: exactly the 1 planned, zero burned, contingency unused** (red evidence was FREE — the local Linux package lane predicted all 11 failing tests / 17 issues issue-for-issue, the 9th consecutive; red+green rode ONE push, CI `29192612869`). **Nothing new is expected from you** — §3 gains no strings (the package has no user-facing surface). One forward heads-up in §8: Session 24 wires RevenueCat DORMANT behind your RC key, exactly like the TelemetryDeck pattern you already know — your RC account + App Store Connect products become blocking only at sandbox-verification time, not for the build. Five vetoable rulings at the bottom; the one worth your eye is the OFFLINE GRACE call: a lapsed-while-offline trial keeps premium until the device next reaches RevenueCat — the direction your docs mandate, but it is a real product call now enforced by tests.) |
+| Last updated | 2026-07-12 (**Session 24 CLOSED: E7.1 APP HALF DONE — the whole monetization vertical now exists in the app, fully DORMANT until you act.** purchases-ios 5.80.3 is linked, but with your RevenueCat key EMPTY (the shipping state) the SDK is literally never initialized — zero network, no anonymous ID minted, and the quiz-summary Continue button still goes straight to the dashboard: **TestFlight behaves byte-identically to last session's build.** When you paste your RC public key (the NEW §8 item), the summary routes non-subscribers to a real paywall screen — $6.99/mo + $29.99/yr with the 3-day trial (the $39.99 test arm waits for Superwall next session), restore + retry always reachable, the Apple-required renewal disclosures rendered on-screen. The trial-start analytics event fires once per install era, only after consent, and one-tap erase now also clears the entitlement caches (honest note: a data wipe can NEVER revoke a subscription — entitlements live on the Apple account, and that is correct behavior, not a gap). **Billed runs: 4 — the planned 2 + the contingency + ONE over, with TWO burned** (§4 has the honest accounting: a one-word Swift concurrency mistake in a NEW test file, then a module-naming collision in the one file that can only compile on Apple hardware — BOTH turned out to be reproducible on the free Linux box after the fact, and both classes are now permanently gated so neither can recur). **Your NEW asks: §3 gains the 20 DRAFT paywall strings + one REAL register decision (your mvp.md's "No server. Nothing to leak." canon was deliberately NOT placed on the RevenueCat-brokered purchase screen — read §3), and §8 gains the RC-key item.** Seven vetoable rulings at the bottom — the hard-wall-no-close and the erase-cannot-revoke rulings are the two worth your eye. Session 25 = E7.2 Superwall variants.) |
+| Superseded header (S23) | 2026-07-12 (**Session 23 CLOSED: E7.1 PACKAGE HALF DONE — the app now has an entitlement BRAIN (PaywallKit 1.0.0), and nothing was needed from you, open to close.** The four-state machine (`never|trial|active|lapsed`) ships pure: no clock (offline can NEVER flip a paying user to locked-out — your architecture's anti-Quittr grace rule, enforced by construction), no persisted bytes (the "cache" is in-memory; RevenueCat's SDK owns durable caching app-side, later), no prices or SKUs (the state machine knows monthly-vs-annual and nothing else). Nothing renders it yet — no paywall screen exists; that is Session 24's job, and it is deliberate (the same package-half-first split your E6.1→E6.2 widget sessions used). **Billed runs: exactly the 1 planned, zero burned, contingency unused** (red evidence was FREE — the local Linux package lane predicted all 11 failing tests / 17 issues issue-for-issue, the 9th consecutive; red+green rode ONE push, CI `29192612869`). **Nothing new is expected from you** — §3 gains no strings (the package has no user-facing surface). One forward heads-up in §8: Session 24 wires RevenueCat DORMANT behind your RC key, exactly like the TelemetryDeck pattern you already know — your RC account + App Store Connect products become blocking only at sandbox-verification time, not for the build. Five vetoable rulings at the bottom; the one worth your eye is the OFFLINE GRACE call: a lapsed-while-offline trial keeps premium until the device next reaches RevenueCat — the direction your docs mandate, but it is a real product call now enforced by tests.) |
 | Superseded header (S22) | 2026-07-12 (**Session 22 CLOSED: E6.3 discreet mode + alternate icons + the app-switcher shield DONE — every widget family now hides its habit on demand.** Toggle a quit discreet and its lock-screen widget shows "Day N" + a neutral "Reset" arrow — no money, no wind glyph; the app-switcher card goes blank; two new innocuous app icons ("Calendar style" / "Timer style") switch from the new one-screen settings sheet; one-tap erase now also puts the ORIGINAL icon back (OS icon state survives a data wipe — we reset it, plus a launch self-heal). **Billed runs: exactly the 2 planned, zero burned, contingency unused — the zero-burn streak restarts** (red evidence `29183485997` matched the prediction name-for-name, the 8th consecutive; green `29184196211` all-green + TestFlight). **Three things worth your eye:** (1) §3 gains the 8 DRAFT settings strings AND the two DRAFT GENERATED app icons — agents drew them to your brandkit's spec (pure-geometry tiles; regenerate anytime with `brandkit/branding-assets/generate-alt-icons.py`); veto or replace at will; (2) §3 also carries a REAL decision: your brandkit contradicts itself on whether the discreet icons may appear in App Store screenshots (§9.1 says never, §9.2's frame 3 shows one) — the panel says NEVER (one public exposure makes the "innocuous" icon reverse-image-linkable to Ballast forever); you own ASO, so you decide; (3) the veto list gains the Session 22 rulings — the most product-visible: the app-switcher cover only protects DISCREET users (the plan's spec); making it universal is a one-line change if you want banking-app-style protection for everyone. Session 23 = E7.1 PaywallKit.) |
 | Superseded header (S21) | 2026-07-12 (**Session 21 CLOSED: E6.2 widget families + the widget feed DONE — a REAL five-family streak widget now ships on TestFlight.** The lock screen shows "Day N" + money saved + the panic button, self-ticking, timezone-fixed, erased clean by one-tap erase. **Billed runs: 4 — the planned 2 + the contingency + ONE over** (§4 has the honest accounting: one burned on a deprecated-API build failure the neighbor-copy rule should have caught — its closing gate is now standing; one spent on a single stale test fixture the new timezone field legitimately flipped, 243/244 green). **Two things worth your eye:** (1) the widget gallery now shows REAL strings ("Streak" / "Your streak, on your lock screen…") — they are DRAFT and join your §3 pass, alongside milestones.json which now ships in-bundle; (2) the veto list below gains six Session 21 rulings — the StandBy deferral and the SkeletonWidget retirement are the two most user-visible: **your testers' placed widgets vanished with the retirement; they re-add "Streak" once.** Session 22 = E6.3 discreet mode.) |
 | Superseded header (S20) | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (Session 24 = E7.1's APP half: the
-RevenueCat wiring builds DORMANT behind your RC key — the TelemetryDeck
-precedent — so it needs neither your RevenueCat account nor App Store Connect
-products to build; those become blocking §-items only at sandbox-verification
-time, and the RC-key item itself lands at Session 24's close).
+Nothing below blocks the next session (Session 25 = E7.2 Superwall variants:
+the Superwall SDK lands DORMANT behind its own operator key, the same pattern
+as RevenueCat and TelemetryDeck — your Superwall account becomes a §-item only
+when its key item lands at that session's close; the RC items in §8 stay
+non-blocking until sandbox-verification time).
 **§0 is CLOSED** (only its optional gstack FYI remains). Items below §0 are
 ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the
 next session's agent will prune completed items.
+
+> **Session 24 outcome (2026-07-12):** E7.1 is DONE — both halves. What that
+> means concretely: the app now contains the complete purchase machinery
+> (the RevenueCat adapter, the product catalog, the entitlement model, the
+> paywall screen at the quiz-summary seam, the consent-gated trial analytics,
+> the erase hook) and ALL of it is dormant — the panel's standing rule is
+> that the SDK is never even initialized until you paste your key, because
+> the SDK's own `configure` call phones home and mints an anonymous ID the
+> moment it runs (verified against the SDK's source, not its marketing).
+> The red evidence run matched the panel's 28-test prediction name-for-name
+> and issue-for-issue (the 10th consecutive predicted red). TWO runs WERE
+> burned (a spurious `await` in a new test file, then a module-name
+> collision in the one Darwin-only file — both warning/build classes are now
+> permanently gated, and both turned out to be locally reproducible, which
+> is exactly why the gates will hold). **Your NEW asks: §3 (the paywall copy
+> pass + the positioning register decision + two legal riders) and §8 (the
+> RC key + dashboard, when you're ready to test purchases).** The paywall is
+> invisible to testers until then — no golden screenshots exist yet BY
+> RULING (they'd bake your unreviewed DRAFT copy; they ride your §3 pass),
+> so if you want to SEE the screen: run from Xcode with launch env
+> `UITEST_PAYWALL=1`, or wait for E7.2's smoke.
 
 > **Session 23 outcome (2026-07-12):** E7.1's PACKAGE half is DONE — PaywallKit
 > 1.0.0 owns the entitlement state machine. What that means concretely: the
@@ -374,6 +396,38 @@ a live failure. Original context, for the record:
       generator (`brandkit/branding-assets/generate-alt-icons.py`) is
       deterministic, so a tweak is a parameter edit + re-run, and NO snapshot
       golden pins icon pixels (behavior is pinned, art is yours).
+- [ ] **NEW (Session 24 — THE PAYWALL COPY PASS, ~15 min, rides the same pass):**
+      `App/Resources/Content/paywallCopy.json` is the bundled paywall's ONE
+      audited copy table — 20 strings, ALL DRAFT/founder-owned (headline
+      "Keep your momentum.", plan titles, the trial-mechanics line, CTAs,
+      the never-trap failure strings). CI-scanned against BOTH lexicons on
+      every run, PM+Brand+QA joint-signed. Prices are NEVER in this file
+      (the `%@` slots bind `ProductCatalog`'s constants), so rewrite freely —
+      a copy edit cannot drift the pricing, and no goldens exist yet so
+      edits are still cheap. Three decisions ride along:
+      (a) **THE REGISTER DECISION (the real one):** your mvp.md §6 fixes the
+      paywall positioning canon VERBATIM as "No account. No server. Nothing
+      to leak. Apple handles billing — cancel or refund in one tap." The
+      panel shipped the audit-safe variant instead: **"No account. No
+      sign-up. Apple handles billing — cancel in one tap."** + "Your notes
+      and journal never leave your device." Grounds (the Session-19
+      "anonymous" precedent): the paywall is the ONE screen literally
+      brokered by RevenueCat's servers, so "No server" one tap before an
+      RC-mediated purchase is the most self-contradictory possible placement
+      (your own brandkit §7 already softened it to "No cloud we control");
+      "Nothing to leak" is unprovable in the absolute; Apple refunds are
+      REQUESTED at reportaproblem.apple.com, never a one-tap in-app action
+      (your brandkit's own screenshot caption dropped "refund"). Restore the
+      canon verbatim by saying so — mvp.md was not touched; this is your
+      call alone.
+      (b) **Legal riders (operator/legal-owned):** the Terms of Use (EULA) +
+      Privacy Policy links render as LABELS today — they MUST become
+      functional links before App Store submission (Apple Schedule 2), and
+      the auto-renewal boilerplate should be re-checked against Apple's
+      current required wording ("Apple Account" terminology) in App Store
+      Connect when you set up the products.
+      (c) The screen has **NO "Not now" close** (vetoable ruling below —
+      your mvp.md's hard-ish wall; the sanctioned escape is E7.2's teaser).
 - [ ] **NEW (Session 22 — THE STORE-SCREENSHOT DECISION, R22.10, ~2 min):**
       brandkit §9.1 says "NEVER use the discreet alternates in store
       marketing"; §9.2's screenshot plan frame 3 shows the Calendar icon on a
@@ -459,10 +513,41 @@ a live failure. Original context, for the record:
       pre-push critics reproduced every lane locally before the push — and the
       free-lane/macOS-lane WARNINGS gap they closed (the free package lane
       runs no warnings-as-errors) is now a standing resume-prompt gate.
-      Session 24 (E7.1 app half — RevenueCat wiring + paywall) plans
-      **2 billed runs + 1 contingency**; the new SPM dependency makes the
-      first macOS build the risk point. Check Settings → Billing → spending
-      limit before the session.
+      Session 24 (E7.1 app half — RevenueCat wiring + paywall) planned
+      **2 billed runs + 1 contingency** and used **3 (1 burned)**:
+      `29196899754` BURNED — ONE spurious `await` on a same-actor synchronous
+      call in the NEW erase-wiring test file (a non-Sendable closure literal
+      inherits its suite's @MainActor isolation, so the marked call was
+      synchronous; the warning became a build failure under
+      warnings-as-errors, with zero red evidence). Neither `swiftc -parse`
+      (syntax-only) nor the Linux harness (SwiftData test files can't compile
+      there) could catch it; the closing gate is now standing: the
+      closure-isolation shape is permanently pinned in the local
+      strict-concurrency gate, and every new closure-into-seam shape in a
+      non-harnessable file gets mockup-typechecked before push.
+      `29197338715` = the red evidence (28 designed failures / 47 issues,
+      manifest-matched name-for-name — the 10th consecutive predicted red;
+      the first burn's one silver lining: it proved the app target compiled
+      clean a run early). `29197958414` BURNED — the session's designed risk
+      point (the first macOS build with the new purchases-ios dependency)
+      fired, but NOT on dependency resolution (that had been reproduced
+      clean on Linux, full pin graph): it fired on OUR OWN module quirk —
+      the PaywallKit package exports an enum named PaywallKit (its version
+      marker), so the adapter's `PaywallKit.PeriodType` resolved to the enum
+      instead of the module, and the one Darwin-only file met its first
+      compiler on CI. Post-hoc: the identical error reproduces on the free
+      Linux toolchain in a one-file probe — locally catchable, now a
+      standing pre-push gate (Darwin-only files get their qualified
+      non-SDK type names Linux-probed; a typealias replaces the qualified
+      form). `29198309877` = green + TestFlight (the three-line alias fix,
+      Linux-verified both ways first). RUN 4 IS ONE OVER the 2+1 envelope —
+      the same honest overrun shape as Sessions 18 and 21. NEW STANDING
+      RULES from the arbitration: SPM dependencies land in the GREEN commit,
+      never red (red evidence must be un-burnable by dependency resolution);
+      grep-lint regexes anchor `^import`. Session 25 (E7.2 Superwall) plans
+      **2 billed runs + 1 contingency**; the Superwall SPM dep follows the
+      same green-side rule. Check Settings → Billing → spending limit before
+      the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
@@ -562,13 +647,42 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
 
 ## 8. TelemetryDeck app ID — NOW THE LAST GATE on real funnel data (~10 min + a ~30 min audit when you're ready)
 
-> **Heads-up added Session 23 (no action yet):** Session 24 wires RevenueCat
-> the same DORMANT way this TelemetryDeck item works — the adapter is never
-> constructed until you paste your RC public SDK key, so no build talks to
-> RevenueCat until you act. The concrete key item lands here at Session 24's
-> close. Your RevenueCat account + App Store Connect products/offerings
-> become blocking only at sandbox-verification time (the MVP §7 purchase
-> matrix), not for any build half.
+> **Heads-up added Session 23, LANDED Session 24:** the RevenueCat wiring now
+> exists and is DORMANT exactly like this TelemetryDeck item — see the new
+> RC block below.
+
+- [ ] **NEW (Session 24 — THE REVENUECAT KEY, the vertical's wake switch,
+      ~10 min when you're ready):** create the app in the **RevenueCat
+      dashboard** (SaaS credentials are operator-held by design —
+      agent-workflows §1.3) and paste the PUBLIC SDK key into
+      `RevenueCatConfiguration.revenueCatAPIKey`
+      (`App/Sources/Monetization/RevenueCatConfiguration.swift`). Until then
+      the SDK is never initialized — zero network, no anonymous ID, and the
+      summary CTA routes to the dashboard exactly as today. The moment a
+      build carries the key: non-subscribers hit the paywall after the quiz
+      summary, and RevenueCat starts caching entitlements (its own privacy
+      manifest declares Purchase History only, not linked, not tracking —
+      recorded for your App Privacy label; the wiring also switches the
+      SDK's automatic device-identifier collection OFF).
+- [ ] **Sequenced AFTER the key (sandbox-verification time, the MVP §7
+      purchase matrix — THIS is where your accounts become blocking):** in
+      the RC dashboard create the entitlement **"premium"** + the three
+      products matching `ProductCatalog` EXACTLY —
+      `com.beyondkaira.ballast.monthly` ($6.99), `com.beyondkaira.ballast.annual`
+      ($29.99, 3-day trial — the control + bundled arm),
+      `com.beyondkaira.ballast.annual.hi` ($39.99, 3-day trial — the
+      Superwall B arm) — attach all three to "premium", build an offering
+      with monthly + the control annual, and create the same products in
+      App Store Connect. The sandbox matrix (trial start, trial→paid,
+      monthly, restore, reinstall, cancellation) is your half of the Epic 7
+      acceptance.
+- [ ] **NEW (Session 24, ~5 min, rides any Mac sitting):** open
+      `App/Resources/Ballast.storekit` in Xcode 26 once — it was
+      hand-authored on the Linux box against Apple's documented structure
+      (Apple publishes no formal schema), and a one-time open-and-save in
+      the real editor validates/normalizes it. Also worth the same sitting:
+      run the app with launch env `UITEST_PAYWALL=1` to eyeball the paywall
+      screen (it is unreachable any other way until your key lands).
 
 - [ ] Create the app in the **TelemetryDeck console** (SaaS credentials are
       operator-held by design — agent-workflows §1.3) and paste the app ID into
@@ -916,3 +1030,64 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
      linked-but-unconfigured network SDK is a supply-chain surface with no
      consent wiring. It enters project.yml in Session 24, DORMANT behind
      your RC key (the TelemetryDeck §8 pattern).
+- **Session 24 (E7.1 app half — RevenueCat DORMANT + the bundled paywall) —
+  the panel-signed rulings, each vetoable (all held through the green close;
+  the docs-verifier seat verified every SDK member against the 5.80.3 tagged
+  source, twice — pre-red and pre-green):**
+  1. **⚠️ WORTH YOUR EYE — the bundled paywall is a HARD wall: no "Not now",
+     no close.** Your mvp.md §6 says "hard-ish … nothing past the summary
+     without trial/purchase, except the A/B'd 1-day teaser" — and the teaser
+     is Superwall's variant (next session), so the bundled default ships with
+     no free pass to the dashboard. Brand's recorded caution: a zero-dismiss
+     onboarding paywall carries App-Review scrutiny risk; a visible "Not now"
+     is the safer posture and the copy for it ("Not now", quiet button)
+     already exists unused in the table. Zero live impact today (the screen
+     is dormant-unreachable) — decide before the key lands. Veto = one line
+     + the closeLabel wiring.
+  2. **⚠️ WORTH YOUR EYE — one-tap erase CANNOT revoke a subscription, by
+     design and by platform.** The erase flow now clears the entitlement
+     caches (new step 5, before the CloudKit purge), but entitlements live on
+     the APPLE ACCOUNT: StoreKit restores them on the next receipt sync, and
+     purchases-ios 5.80.3 has NO anonymous-identity reset at all (`logOut()`
+     literally throws for anonymous users — verified in source; the original
+     erase TODO's "anonymous-ID reset" promise was softened to match
+     reality). "Fresh install" after erase means fresh DATA — a paying user
+     who erases stays a paying user. This is correct (a wipe is not a
+     cancellation) but it is now permanent, documented behavior.
+  3. **The dormant gate constructs NOTHING without your key** — not even the
+     never-source model (the CTA gate is `entitlementModel == nil`, the
+     strongest possible fall-through). The composition fork is spy-pinned
+     both ways; `Purchases.configure` is unreachable on the empty-key branch.
+     Veto path: none needed (flipping the key IS the veto).
+  4. **trial_started's dedupe marker is written ONLY on a consented send**
+     (QA's rule, chosen over mark-on-observe): a decliner's device persists
+     ZERO bytes about their trial, and a user who opts in mid-trial still
+     counts exactly once (RevenueCat replays state each launch; the next
+     consented replay fires). Consequences: a trial that starts AND ends
+     entirely while consent is off is never counted (correct — zero before
+     consent), and a reinstall during a trial may double-count (both caches
+     wiped; no server-side dedup exists in this architecture). Veto = the
+     mark-on-observe alternative (undercounts late opt-ins instead).
+  5. **An UNRECOGNIZED product SKU still honors an active entitlement**
+     (mapped to the annual tier for display/analytics granularity only) —
+     your §8 "when in doubt, honor the entitlement" applied to catalog gaps:
+     a future SKU added in the RC dashboard before an app update can never
+     lock a paying user out. Veto = strict mapping (unknown ⇒ not entitled)
+     — the direction that locks users out on config drift.
+  6. **paywall_viewed and purchase analytics do NOT fire this session** —
+     your mvp.md §5 defines `variant` as "(Superwall id)", so a
+     bundled-fallback constant doesn't fit the row's vocabulary
+     (fit-or-defer; mvp.md untouched). Both fire-points land with E7.2's
+     variant assignment; the A/B denominators stay pristine by construction.
+     Veto = tell Session 25 to backfill a "bundled_default" variant
+     vocabulary (needs your §5 row edit first — yours alone).
+  7. **scenario-29 (the quiz→summary→paywall E2E smoke) defers to E7.2 a
+     second time, on NEW grounds:** its analytics tail (paywall_viewed) is
+     E7.2's by ruling 6; its purchase leg cannot run on CI at all
+     (xcodebuild never engages a scheme's StoreKit configuration — verified
+     against RC's own docs, not assumed); and a historically-flaky UI drive
+     on a one-contingency session is the largest avoidable burn. The S18
+     drive-diagnostics debt carries with it BY NAME. Meanwhile the paywall
+     mount is unit-pinned and the render is string-pinned (every
+     guideline-3.1.1 disclosure). Veto = tell Session 25 to land the smoke
+     first, before Superwall.
