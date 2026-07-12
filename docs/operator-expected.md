@@ -15,6 +15,21 @@ Nothing below blocks the next session (Session 26 = E7.3 win-back: pure
 config + seams over the machinery Sessions 23–25 built — no new SDK, no new
 key; your §8 key items stay non-blocking until sandbox-verification time,
 and the win-back OFFER config joins §8 only at that session's close).
+
+> **Runway to launch (updated Session 25, delivery 27/32 = 84%).** Build
+> side: ~4–6 agent sessions to a submission-ready build — S26 E7.3 win-back
+> (closes Epic 7's build half) → E9.1 helplines/resources (+E9.2 content
+> audit, batchable) → E9.3 accessibility pass → the named
+> StoreKit-config/contract session (scenario-29 diagnosis from the preserved
+> artifact + the event-spy sink + the goldens batch — the goldens also need
+> your §3 copy pass FIRST) → E10.2 submission-package prep. E10.1 (external
+> beta, ≥15 testers) runs on YOUR clock in parallel. **Going LIVE is gated
+> on the operator critical path, not on agent sessions:** the §3 copy pass
+> (gates the golden batch), the two §8 keys + RC/Superwall dashboards + the
+> sandbox purchase matrix (gates Epic 7's DoD), the TelemetryDeck app ID +
+> §8 payload audit (gates Epic 8's DoD half), the §2/§7 device rows + E0.3
+> latency measurement (gates the release criteria), then E10.1 beta and
+> submission. None of it is urgent today; all of it is sequenced above.
 **§0 is CLOSED** (only its optional gstack FYI remains). Items below §0 are
 ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the
 next session's agent will prune completed items.
