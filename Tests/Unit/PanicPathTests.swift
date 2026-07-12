@@ -516,6 +516,10 @@ struct PanicPathTests {
         )
         let quit = Quit()
         quit.motivations = ["morning clarity"]
+        // E6.2: "clean" now includes a stamped ADR-11 zone — a directly-inserted row
+        // with the "" default is a pre-E6.2 row the launch pass legitimately
+        // backfills (a mutation), which would mask the refresh this test isolates.
+        quit.startTimeZoneIdentifier = TimeZone.current.identifier
         container.mainContext.insert(quit)
         try container.mainContext.save()
 
