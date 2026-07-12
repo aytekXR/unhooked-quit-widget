@@ -18,6 +18,16 @@ import WidgetToolkit
 // would pin fiction (panel-verified). Plus ONE `.unavailable` golden (rectangular,
 // light): the calm "Ready when you are." line, no ticker, no fabricated "Day 0".
 //
+// Discreet matrix (E6.3 D1-D5, R22.9): the SAME five families re-rendered over a
+// `discreet: true` fixture — identical field-for-field to `quit` bar the flag. D1
+// rectangular · D2 circular · D3 inline (light + dark, 2 goldens each), D4 small ·
+// D5 medium (light/dark + AX5, 4 goldens each) = 14 new goldens. Predicted renders:
+// D1 DROPS the money line and swaps the panic glyph to `arrow.counterclockwise`
+// (a11y label "Reset"); D5 DROPS money + "saved" and BARES the milestone bar (no
+// "next milestone" label); D2/D3/D4 read no discreet flag and are expected
+// byte-identical to their normal goldens (regression guards). Every non-discreet
+// fixture keeps `discreet` nil, so the committed E6.2 goldens are untouched.
+//
 // Geometry: `.image(layout: .fixed(width:height:))` with TEST-OWNED canvas constants
 // (below) that APPROXIMATE the WidgetKit canvases on the pinned 6.1" device class —
 // they are documented approximations, NOT system truth (WidgetKit's real canvases are
@@ -80,6 +90,22 @@ struct StreakWidgetSnapshotTests {
         bankedCleanSeconds: 0,
         momentumPercent: 82,
         milestoneHours: [12, 24, 72, 168, 336, 720, 2160, 8760]
+    )
+
+    /// The discreet-mode DTO — `quit` field-for-field, plus the E6.3 `discreet: true`
+    /// flag (R22.1, presence-only). Seeds the D1-D5 discreet render branches; every
+    /// other fixture leaves `discreet` nil, so `isDiscreet` is false there and the
+    /// committed E6.2 goldens render byte-identically.
+    private static let discreetQuit = WidgetQuitState(
+        id: quitID,
+        streakStart: streakStart,
+        timeZoneIdentifier: "America/New_York",
+        weeklySpend: "26.5",
+        currencyCode: "USD",
+        bankedCleanSeconds: 0,
+        momentumPercent: 82,
+        milestoneHours: [12, 24, 72, 168, 336, 720, 2160, 8760],
+        discreet: true
     )
 
     /// The streak entry: Day 34 sitting in the full 2025-07-14 NY local day.
@@ -216,6 +242,56 @@ struct StreakWidgetSnapshotTests {
         assertFamily(
             .rectangular, canvas: Canvas.rectangular,
             entry: Self.unavailableEntry, quit: nil, axes: [("light", false, false)]
+        )
+    }
+
+    // MARK: - Discreet matrix (D1-D5) — Session 22
+
+    @Test func snapshot_rectangularFamily_discreet() {
+        // D1 — lock-screen flagship, discreet: Day 34 + the reset panic button
+        // (`arrow.counterclockwise`, a11y "Reset"); the money line is DROPPED
+        // (`showsMoney(for:)` is false under discreet).
+        assertFamily(
+            .rectangular, canvas: Canvas.rectangular,
+            entry: Self.streakEntry, quit: Self.discreetQuit, axes: Self.lightDark
+        )
+    }
+
+    @Test func snapshot_circularFamily_discreet() {
+        // D2 — the day ring reads no discreet flag: expected VISUALLY IDENTICAL to the
+        // normal circular golden (regression guard that discreet leaves it untouched).
+        assertFamily(
+            .circular, canvas: Canvas.circular,
+            entry: Self.streakEntry, quit: Self.discreetQuit, axes: Self.lightDark
+        )
+    }
+
+    @Test func snapshot_inlineFamily_discreet() {
+        // D3 — one line "Day 34"; the inline body reads no discreet flag, so this is
+        // expected IDENTICAL to the normal inline golden (regression guard).
+        assertFamily(
+            .inline, canvas: Canvas.inline,
+            entry: Self.streakEntry, quit: Self.discreetQuit, axes: Self.lightDark
+        )
+    }
+
+    @Test func snapshot_smallFamily_discreet() {
+        // D4 — Day 34 + frozen ticker + momentum ring; the small body reads no discreet
+        // flag, so this is expected IDENTICAL to the normal small golden (regression
+        // guard). AX5 included: home-screen families do not clamp Dynamic Type.
+        assertFamily(
+            .small, canvas: Canvas.small,
+            entry: Self.streakEntry, quit: Self.discreetQuit, axes: Self.lightDarkAX5
+        )
+    }
+
+    @Test func snapshot_mediumFamily_discreet() {
+        // D5 — home medium, discreet: money and "saved" ABSENT; the milestone bar is
+        // present but BARE — its "next milestone" label is dropped
+        // (`showsMilestoneLabel(for:)` is false under discreet).
+        assertFamily(
+            .medium, canvas: Canvas.medium,
+            entry: Self.streakEntry, quit: Self.discreetQuit, axes: Self.lightDarkAX5
         )
     }
 }

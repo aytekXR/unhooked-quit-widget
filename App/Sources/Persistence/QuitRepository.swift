@@ -781,6 +781,39 @@ final class QuitRepository {
     /// their own sink or consent read.
     var analyticsService: AnalyticsService { analytics }
 
+    /// E6.3 — the ONE writer of `Quit.discreetMode` (R22.7, Architect MUST). This is
+    /// a FULL mutating write, not a bare settings save: the flag feeds BOTH caches
+    /// (the panic pre-cache label strip AND the widget feed's discreet flag), so the
+    /// ADR-6 dual-representation invariant demands save → rebuild → reload — the
+    /// `createQuit` tail verbatim, unlike `setAnalyticsOptIn` which touches no cache.
+    func setDiscreetMode(quitID: UUID, enabled: Bool) throws {
+        let quit = try fetchQuit(quitID)
+        quit.discreetMode = enabled
+        try context.save()
+        rebuildSnapshots()
+        scheduleWidgetReload()
+    }
+
+    /// E6.3 — the ONE writer of `AppSettings.discreetIconId` (the alternate-icon
+    /// selection; `nil` = primary). A bare settings save — the icon id feeds NO
+    /// cache (it is deliberately absent from both App Group files), so this is the
+    /// `setAnalyticsOptIn` shape, not the mutating-write shape. Reached only through
+    /// the AppIconSwitcher seam (R22.3).
+    func setDiscreetIconId(_ iconID: String?) throws {
+        let settings = try fetchOrCreateAppSettings()
+        settings.discreetIconId = iconID
+        try context.save()
+    }
+
+    /// E6.3 — fetch-only read of the persisted icon selection (picker state + the
+    /// launch reconciliation's input). Fail-closed to `nil` (= primary), the
+    /// `isAgeGatePassed` precedent.
+    func discreetIconId() -> String? {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor).first?.discreetIconId) ?? nil
+    }
+
     /// E5.2 — read-only lookup for `onboarding_started`'s variant (R3: read verbatim,
     /// "" until E7/Superwall writes it — E5.2 fabricates nothing). Fetch-only, never
     /// creates the settings row (the fail-closed `isAgeGatePassed` read precedent).

@@ -38,6 +38,24 @@ struct StreakWidgetStyle: Sendable {
     /// Accessibility label for the rectangular family's panic button (the shipped
     /// SkeletonWidget precedent, carried forward verbatim).
     let panicAccessibilityLabel: String
+    /// The panic button's NORMAL glyph — lifted from the view literal in E6.3 so both
+    /// variants live in this scanned table. MUST stay byte-exactly "wind": the 15
+    /// committed E6.2 goldens compare (never re-record) under `.missing`, so any
+    /// drift here fails the snapshot lane (Session 22 burn-critic, rank 2).
+    let panicGlyph: String
+    /// The panic button's DISCREET glyph (E6.3, R22.2) — mirrors
+    /// `PanicControlStyle.discreet.symbolName` ("arrow.counterclockwise", the E3.3
+    /// panel-signed neutral; NEVER `wind`, the category-adjacent brand breath glyph).
+    /// Kept as a stored field HERE (not referenced from PanicControlStyle) because
+    /// that type is a computed-property enum the Mirror walk cannot scan (R9); the
+    /// mirror relationship means the two neutrals must never drift apart.
+    let panicGlyphDiscreet: String
+    /// Accessibility label for the panic button when the BOUND QUIT is discreet —
+    /// exactly "Reset" (brandkit §1.2/§6-item-3/§8 literal; mirrors
+    /// `PanicControlStyle.discreet.title`, same no-drift note as the glyph above).
+    /// Session 22 PM+Brand+QA joint-signed; the descriptive-parity alternative is
+    /// flagged in the operator's §3 queue.
+    let panicAccessibilityLabelDiscreet: String
 
     /// The one shipping table. "Day N" itself renders from the entry's number under
     /// ADR-11 — it is data, not copy, and deliberately not a member here.
@@ -50,6 +68,9 @@ struct StreakWidgetStyle: Sendable {
         milestoneLabel: "next milestone",
         unavailableText: "Ready when you are.",
         placeholderDayText: "Day 7",
-        panicAccessibilityLabel: "Panic — opens a full-screen reset"
+        panicAccessibilityLabel: "Panic — opens a full-screen reset",
+        panicGlyph: "wind",
+        panicGlyphDiscreet: "arrow.counterclockwise",
+        panicAccessibilityLabelDiscreet: "Reset"
     )
 }

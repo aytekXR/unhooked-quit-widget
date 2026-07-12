@@ -8,9 +8,10 @@ import Foundation
 /// §10 privacy gate (Session 21 step-0, Architect-ruled): `widget-state.json` is an
 /// App Group file, readable PRE-UNLOCK, so the ABSENCE set is the point — NO habit
 /// category, NO label of any kind, NO motivations, NO slip data or timestamps, NO
-/// anchors, NO discreet flag (nothing renders habit-differently until E6.3; the flag
-/// joins additively under the same schemaVersion when its consumer exists). Every
-/// field below earns its place by a family that renders it (brandkit item 14).
+/// anchors. Every field below earns its place by a family that renders it (brandkit
+/// item 14). The `discreet` flag joined in E6.3 exactly as this comment always
+/// reserved: additively, under the SAME schemaVersion, with its consumer (the
+/// discreet render branches) — Session 22 step-0 R22.1, Architect pre-approved.
 struct WidgetQuitState: Codable, Sendable, Equatable {
     var id: UUID
     /// The guard-corrected origin of the CURRENT streak (ADR-7 runs app-side at write
@@ -41,6 +42,14 @@ struct WidgetQuitState: Codable, Sendable, Equatable {
     /// single-bit category signal — only vape carries a 12h rung — is an accepted,
     /// recorded trade-off.)
     var milestoneHours: [Int]
+    /// Per-quit discreet flag (E6.3, R22.1 — additive under the SAME schemaVersion,
+    /// the PanicSnapshot Optional precedent). PRESENCE-ONLY by writer contract:
+    /// `quit.discreetMode ? true : nil` — a non-discreet card carries NO key
+    /// (encodeIfPresent omits nil), so non-discreet feeds keep the exact E6.2 key
+    /// set; a pre-E6.3 file decodes with nil (= normal render). MUST stay the LAST
+    /// stored property: the trailing memberwise default keeps every positional
+    /// construction site compiling unchanged.
+    var discreet: Bool?
 }
 
 /// The widget feed (architecture §3/§7/ADR-6): plain Codable JSON in the App Group,

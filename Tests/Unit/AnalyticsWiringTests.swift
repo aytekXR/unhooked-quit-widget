@@ -16,6 +16,13 @@ import Testing
 // param exists but no repository write fires an event yet, so the three wiring
 // tests fail through their DESIGNED spy-empty assertion (never a compile error).
 //
+// E6.3 (Session 22) EXTENDS this file with the discreet-mode wiring pins (I3/I4/I5)
+// over the SAME concrete gated-facade harness: `setDiscreetMode` fires
+// `discreet_mode_enabled(component: .widget)`; the AppIconSwitcher's `fireIconEnabled`
+// closure fires `(component: .icon)` through the same gated service. I3/I4 are
+// DESIGNED-RED (the setter and `select` are inert at red); I5 is born-green — the
+// enable-only posture (toggle-OFF, `select(nil)`, `resetToPrimary`) fires nothing.
+//
 // Harness/ManualClock/SpyWidgetRefresher/StubCloudSync are the E2.2 conventions from
 // QuitRepositoryTests; the buffer shares the pre-cache directory exactly the way the
 // repository derives it (the SlipFlushTests precedent). Fixture epoch is the
@@ -209,6 +216,68 @@ struct AnalyticsWiringTests {
         #expect(
             harness.analyticsSpy.received.isEmpty,
             "opted-out, the seams transmit nothing — zero events before consent is the ADR-8 hard rule, enforced at the ONE gate the seams share"
+        )
+    }
+
+    // MARK: - I3 · discreet widget toggle ON fires discreet_mode_enabled(component: .widget)
+
+    @Test func test_discreetWidgetToggleOn_firesDiscreetModeEnabled_widget() throws {
+        let harness = try Harness()
+        let quit = try harness.repository.createQuit(habitCategory: .vape)
+
+        try harness.repository.setDiscreetMode(quitID: quit.id, enabled: true)
+
+        #expect(
+            harness.analyticsSpy.received == [.discreetModeEnabled(component: .widget)],
+            "toggling a quit's widget discreet mode ON fires discreet_mode_enabled(component: .widget) post-save (MVP §5) — at red setDiscreetMode saves + rebuilds but fires NOTHING (the analytics wiring is the green commit)"
+        )
+    }
+
+    // MARK: - I4 · alternate-icon selection fires discreet_mode_enabled(component: .icon)
+
+    @Test func test_altIconSelected_firesDiscreetModeEnabled_icon() async throws {
+        let harness = try Harness()
+        // The switcher's fireIconEnabled closure fires .icon through the SAME gated
+        // service the repository seams use (opted-in harness) — so this exercises gate +
+        // seam together, exactly the way the composition root wires it.
+        let switcher = AppIconSwitcher(
+            persist: { _ in },
+            apply: { _ in },
+            fireIconEnabled: {
+                harness.repository.analyticsService.fire(.discreetModeEnabled(component: .icon))
+            }
+        )
+
+        try await switcher.select("AppIconCalendar")
+
+        #expect(
+            harness.analyticsSpy.received == [.discreetModeEnabled(component: .icon)],
+            "selecting an alternate icon fires discreet_mode_enabled(component: .icon) — at red select is inert and never calls fireIconEnabled, so nothing fires"
+        )
+    }
+
+    // MARK: - I5 · the enable-only floor: toggle-off, select(nil), resetToPrimary fire nothing
+
+    @Test func test_discreetToggleOff_andIconReset_fireNothing() async throws {
+        let harness = try Harness()
+        let quit = try harness.repository.createQuit(habitCategory: .alcohol)
+        // A switcher whose fireIconEnabled WOULD fire .icon if ever called — so a stray
+        // enable on the reset paths would be caught (the assertion is meaningful at green).
+        let switcher = AppIconSwitcher(
+            persist: { _ in },
+            apply: { _ in },
+            fireIconEnabled: {
+                harness.repository.analyticsService.fire(.discreetModeEnabled(component: .icon))
+            }
+        )
+
+        try harness.repository.setDiscreetMode(quitID: quit.id, enabled: false)
+        try await switcher.select(nil)
+        try await switcher.resetToPrimary()
+
+        #expect(
+            harness.analyticsSpy.received.isEmpty,
+            "enable-only semantics (R22.6): a discreet toggle OFF, a select(nil), and a resetToPrimary all fire NOTHING — only affirmative enables are events (born-green: inert at red, enable-gated at green)"
         )
     }
 }

@@ -93,17 +93,75 @@ struct StreakWidgetStyleTests {
             }
         }
 
-        // Non-vacuity floor: the table is a STRUCT of STORED strings (9 today), never a
-        // computed-property enum whose Mirror yields nothing — a collapse below 7 means
-        // the walk (or the type's shape) silently broke and the scan is vacuous.
+        // Non-vacuity floor: the table is a STRUCT of STORED strings (12 today after E6.3
+        // lifted the two discreet-panic strings + the normal glyph into the table), never a
+        // computed-property enum whose Mirror yields nothing — a collapse below 12 means
+        // the walk (or the type's shape) silently broke and the scan is vacuous. RAISED
+        // from 7 with E6.3's three new members (strengthening — never lowered).
         #expect(
-            collected.count >= 7,
-            "the Mirror walk collapsed (<7 strings) — a computed-property style would scan nothing and pass forever"
+            collected.count >= 12,
+            "the Mirror walk collapsed (<12 strings) — a computed-property style would scan nothing and pass forever"
         )
         #expect(
             StreakWidgetStyle.shipping.widgetKind == "StreakWidget",
             "the registered widget kind is pinned — SkeletonWidget is retired with this table (R12)"
         )
+    }
+
+    // MARK: - G2 · the DISCREET-render corpus leaks no habit/tracker vocabulary (plan-named)
+
+    /// The EXPANDED discreet lexicon (R22.2): habit nouns + tracker/recovery vocabulary +
+    /// category synonyms. CRITICAL scoping: it applies ONLY to the discreet-render corpus
+    /// below — NEVER to the gallery strings, where "Streak"/"streak"/"next milestone" live
+    /// LEGITIMATELY (displayName, galleryDescription, milestoneLabel). A shoulder-surfer
+    /// reading a discreet lock-screen widget — or its VoiceOver — must see no abstinence
+    /// signal, so this corpus is strictly the strings a discreet render actually surfaces.
+    private static let discreetLexicon: [String] = [
+        // habit nouns (the §10 leak list)
+        "vape", "vaping", "porn", "alcohol", "weed", "doomscroll",
+        "smoke", "drink", "sober", "addiction", "relapse",
+        // tracker / recovery vocabulary
+        "panic", "urge", "quit", "habit", "streak", "milestone",
+        // category synonyms
+        "nicotine", "cigarette", "cig", "beer", "wine", "booze",
+        "cannabis", "marijuana", "pot", "scrolling", "screentime",
+        "nofap", "gambling", "bet",
+    ]
+
+    @Test func test_discreetWidgets_accessibilityLabels_containNoHabitTerms() {
+        // The discreet-render corpus: every "…Discreet"-suffixed member (the strings a
+        // discreet render actually shows) PLUS unavailableText (reachable in any render).
+        // Collected by Mirror LABEL, so the scoping is explicit and the gallery strings are
+        // structurally excluded from this stricter lexicon.
+        var corpus: [String] = []
+        var discreetSuffixedCount = 0
+        for child in Mirror(reflecting: StreakWidgetStyle.shipping).children {
+            guard let label = child.label, let value = child.value as? String else { continue }
+            if label.hasSuffix("Discreet") {
+                corpus.append(value)
+                discreetSuffixedCount += 1
+            } else if label == "unavailableText" {
+                corpus.append(value)
+            }
+        }
+
+        // Non-vacuity floor: the two discreet-suffixed members (panicGlyphDiscreet,
+        // panicAccessibilityLabelDiscreet) must be present — a Mirror collapse or a rename
+        // would empty this corpus and pass the scan vacuously (the reproduced R9 trap).
+        #expect(
+            discreetSuffixedCount >= 2,
+            "the discreet-suffixed corpus collapsed (<2 members) — the scan would pass vacuously"
+        )
+
+        for value in corpus {
+            let haystack = Self.folded(value)
+            for token in Self.discreetLexicon {
+                #expect(
+                    !haystack.contains(token),
+                    "a discreet-render string leaks the tracker/habit token '\(token)': \(value)"
+                )
+            }
+        }
     }
 
     // MARK: - D1 · the rectangular panic button carries the configured quit id (plan-named)
@@ -128,6 +186,42 @@ struct StreakWidgetStyleTests {
         #expect(
             StreakWidgetDisplay.panicIntent(for: nil).quit == nil,
             "a nil quit falls back to the intent's own picker path — no fabricated id"
+        )
+    }
+
+    // MARK: - W1 · the panic button swaps glyph AND a11y label with the bound quit's mode
+
+    @Test func test_panicButton_discreetSelection_swapsGlyphAndLabel() {
+        let base = WidgetQuitState(
+            id: UUID(),
+            streakStart: Date(timeIntervalSince1970: 1_783_425_600),
+            timeZoneIdentifier: "America/New_York",
+            weeklySpend: "26",
+            currencyCode: "USD",
+            bankedCleanSeconds: 0,
+            momentumPercent: 50,
+            milestoneHours: []
+        )
+        var discreetCard = base
+        discreetCard.discreet = true
+        let normalCard = base // discreet defaults nil ⇒ normal render (presence-only)
+
+        let style = StreakWidgetStyle.shipping
+
+        #expect(
+            StreakWidgetDisplay.panicGlyph(for: discreetCard, style: style) == "arrow.counterclockwise"
+                && StreakWidgetDisplay.panicAccessibilityLabel(for: discreetCard, style: style) == "Reset",
+            "a discreet card selects the neutral reset pair (arrow.counterclockwise / \"Reset\") — no breath glyph, no descriptive panic label (R22.2)"
+        )
+        #expect(
+            StreakWidgetDisplay.panicGlyph(for: normalCard, style: style) == "wind"
+                && StreakWidgetDisplay.panicAccessibilityLabel(for: normalCard, style: style) == "Panic — opens a full-screen reset",
+            "a normal card keeps the shipped panic pair (wind / the descriptive label)"
+        )
+        #expect(
+            StreakWidgetDisplay.panicGlyph(for: nil, style: style) == "wind"
+                && StreakWidgetDisplay.panicAccessibilityLabel(for: nil, style: style) == "Panic — opens a full-screen reset",
+            "a nil quit (the .unavailable state) carries no discreet flag ⇒ the normal pair by construction"
         )
     }
 }

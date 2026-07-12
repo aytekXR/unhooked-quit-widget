@@ -14,6 +14,13 @@ import Testing
 // not yet own widget-state.json — so A1–A4/E1/E4 fail honestly; A5-shaped born-green
 // pins (E2 sibling-survives, C1 selector) guard the boundaries they land on.
 //
+// E6.3 (Session 22, R22.1) ADDS test A6: the per-quit `discreet` flag rides the feed
+// ADDITIVELY (presence-only — `encodeIfPresent`, SAME schemaVersion). A6 is DESIGNED-RED
+// here: the E6.2 writer maps only the 8 ruled keys, so a discreet quit's card still
+// carries 8 keys and no "discreet" (green wires the mapping). A1 (the ruled key set) and
+// A2 (forbidden key names, incl. "discreet") are UNCHANGED born-green minimization guards
+// — A2 still holds because a NON-discreet quit omits the key entirely (encodeIfPresent).
+//
 // This lane CANNOT run locally (it needs the simulator/SwiftData); its evidence is the
 // parse-gate + the predicted red manifest. Every fixture instant is a fixed literal
 // (test-suite §3.1: no production Date() in fixtures).
@@ -188,6 +195,53 @@ struct WidgetFeedTests {
                 "the forbidden key name '\(key)' must be physically absent from the widget feed (R1 absence set)"
             )
         }
+    }
+
+    // MARK: - A6 · the discreet flag (E6.3, R22.1) — presence-only: the discreet card
+    //             carries it true, the normal card omits it (the E6.2 key set preserved)
+
+    @Test func test_widgetStateFile_discreetQuit_carriesDiscreetTrue_normalQuitOmitsIt() throws {
+        let h = try Harness()
+        let discreetQuit = try h.repository.createQuit(habitCategory: .vape, weeklySpend: 26)
+        let normalQuit = try h.repository.createQuit(habitCategory: .porn, weeklySpend: 26)
+        try h.repository.setDiscreetMode(quitID: discreetQuit.id, enabled: true)
+
+        // Raw JSON bytes (JSONSerialization), asserted with KEY-SET semantics — NEVER
+        // byte-equality: JSONEncoder key order is hash-randomized, so only the SET of a
+        // card's keys is a stable contract.
+        let data = try #require(
+            try? Data(contentsOf: h.widgetStore.fileURL),
+            "widget-state.json must exist after setDiscreetMode's mutating rebuild (save → rebuild → reload)"
+        )
+        let top = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let quits = try #require(top["quits"] as? [[String: Any]])
+
+        let ruledKeys: Set<String> = [
+            "id", "streakStart", "timeZoneIdentifier", "weeklySpend", "currencyCode",
+            "bankedCleanSeconds", "momentumPercent", "milestoneHours",
+        ]
+
+        let discreetCard = try #require(
+            quits.first(where: { ($0["id"] as? String) == discreetQuit.id.uuidString }),
+            "the discreet quit has an active card in the feed"
+        )
+        #expect(
+            Set(discreetCard.keys) == ruledKeys.union(["discreet"]),
+            "a discreet quit's card carries the 8 ruled keys PLUS \"discreet\" (R22.1 presence-only) — at red the writer maps only the E6.2 8 keys, so \"discreet\" is absent (8 ≠ 9)"
+        )
+        #expect(
+            discreetCard["discreet"] as? Bool == true,
+            "the discreet flag serializes as boolean true — at red there is no \"discreet\" key at all, so this reads nil"
+        )
+
+        let normalCard = try #require(
+            quits.first(where: { ($0["id"] as? String) == normalQuit.id.uuidString }),
+            "the normal quit has an active card in the feed"
+        )
+        #expect(
+            Set(normalCard.keys) == ruledKeys,
+            "a NON-discreet quit's card stays EXACTLY the E6.2 8 keys — encodeIfPresent omits the nil flag, keeping the E6.2 key set intact (the born-green half of A6, and why A2's \"discreet\"-forbidden scan still holds for normal quits)"
+        )
     }
 
     // MARK: - A3 · uncorrected read ⇒ the written streakStart is the STORED startAt, exactly

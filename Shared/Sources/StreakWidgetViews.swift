@@ -78,12 +78,54 @@ enum StreakWidgetDisplay {
         guard let quit else { return OpenPanicIntent() }
         return OpenPanicIntent(quit: PanicQuitEntity(id: quit.id, title: "Your goal"))
     }
+
+    // MARK: Discreet render-time selection (E6.3, R22.2)
+    //
+    // Pure data selection the family bodies call — architecture §11's "render-time
+    // branches, not separate timelines" with the branch itself unit-pinnable (W1),
+    // not only golden-provable. A nil quit (the `.unavailable` state) has no discreet
+    // flag and selects the normal strings by construction.
+
+    /// True iff the bound quit rides the feed's discreet flag (absent key ⇒ normal —
+    /// the presence-only writer contract, R22.1).
+    static func isDiscreet(_ quit: WidgetQuitState?) -> Bool {
+        quit?.discreet == true
+    }
+
+    /// The panic button's SF Symbol name for this quit's mode.
+    static func panicGlyph(for quit: WidgetQuitState?, style: StreakWidgetStyle) -> String {
+        isDiscreet(quit) ? style.panicGlyphDiscreet : style.panicGlyph
+    }
+
+    /// The panic button's accessibility label for this quit's mode ("Reset" when
+    /// discreet — brandkit literal; the full descriptive label otherwise).
+    static func panicAccessibilityLabel(for quit: WidgetQuitState?, style: StreakWidgetStyle) -> String {
+        isDiscreet(quit) ? style.panicAccessibilityLabelDiscreet : style.panicAccessibilityLabel
+    }
+
+    /// Whether the money line renders. Discreet drops it entirely (figure AND the
+    /// "saved" micro-label): a currency figure beside a day count reads as an
+    /// abstinence-savings tracker — the outing signal discreet mode exists to
+    /// suppress (R22.2; the money DATA stays in the feed — this is a shoulder-surfer
+    /// defense, and the file's field set is separately §10-ruled).
+    static func showsMoney(for quit: WidgetQuitState?) -> Bool {
+        !isDiscreet(quit)
+    }
+
+    /// Whether the systemMedium milestone bar carries its "next milestone"
+    /// micro-label. Discreet keeps the BARE bar (a generic progress bar is neutral)
+    /// but drops the word — "milestone" is recovery-culture vocabulary that
+    /// strengthens the tracker gestalt (R22.2, privacy-panel amendment).
+    static func showsMilestoneLabel(for quit: WidgetQuitState?) -> Bool {
+        !isDiscreet(quit)
+    }
 }
 
 /// One view, five families (brandkit item 14, minus the mvp §3-cut StandBy pair —
-/// step-0 ruling R7). E6.2 renders NO habit content in any family — E6.3's discreet
-/// variants then only strip the flame-adjacent glyphs and neutralize nothing, because
-/// nothing habit-identifying exists here to begin with. Accessory families are
+/// step-0 ruling R7). E6.2 renders NO habit content in any family, so E6.3's discreet
+/// variants are render-time branches over the SAME entries (architecture §11): swap
+/// the panic glyph/label to the neutral pair, drop money, bare the milestone bar —
+/// selection through the pure `StreakWidgetDisplay` helpers above. Accessory families are
 /// luminance-only (brandkit §2.4: the system tints; meaning lives in glyph + text,
 /// never hue). Animation is banned — the only motion is system-driven
 /// `Text(timerInterval:)` / `ProgressView(timerInterval:)` ticking, both explicitly
@@ -121,16 +163,17 @@ struct StreakWidgetView: View {
         HStack {
             VStack(alignment: .leading) {
                 primaryDayLine(font: .headline)
-                if let quit, let money = StreakWidgetDisplay.moneyText(for: quit, at: entry.date) {
+                if StreakWidgetDisplay.showsMoney(for: quit), let quit,
+                   let money = StreakWidgetDisplay.moneyText(for: quit, at: entry.date) {
                     Text("\(money) \(style.savedLabel)")
                         .font(.caption2)
                 }
             }
             Spacer()
             Button(intent: StreakWidgetDisplay.panicIntent(for: quit)) {
-                Image(systemName: "wind")
+                Image(systemName: StreakWidgetDisplay.panicGlyph(for: quit, style: style))
             }
-            .accessibilityLabel(style.panicAccessibilityLabel)
+            .accessibilityLabel(StreakWidgetDisplay.panicAccessibilityLabel(for: quit, style: style))
         }
     }
 
@@ -188,7 +231,8 @@ struct StreakWidgetView: View {
             Spacer()
             VStack(alignment: .leading, spacing: 4) {
                 if let quit {
-                    if let money = StreakWidgetDisplay.moneyText(for: quit, at: entry.date) {
+                    if StreakWidgetDisplay.showsMoney(for: quit),
+                       let money = StreakWidgetDisplay.moneyText(for: quit, at: entry.date) {
                         Text(money)
                             .font(.title3.weight(.semibold).monospacedDigit())
                         Text(style.savedLabel)
@@ -196,8 +240,10 @@ struct StreakWidgetView: View {
                     }
                     if let progress = StreakWidgetDisplay.milestoneProgress(for: quit, at: entry.date) {
                         ProgressView(value: progress)
-                        Text(style.milestoneLabel)
-                            .font(.caption2)
+                        if StreakWidgetDisplay.showsMilestoneLabel(for: quit) {
+                            Text(style.milestoneLabel)
+                                .font(.caption2)
+                        }
                     }
                 }
             }
