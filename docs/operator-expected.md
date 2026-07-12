@@ -3,14 +3,41 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
+| Last updated | 2026-07-12 (**Session 21 CLOSED: E6.2 widget families + the widget feed DONE — a REAL five-family streak widget now ships on TestFlight.** The lock screen shows "Day N" + money saved + the panic button, self-ticking, timezone-fixed, erased clean by one-tap erase. **Billed runs: 4 — the planned 2 + the contingency + ONE over** (§4 has the honest accounting: one burned on a deprecated-API build failure the neighbor-copy rule should have caught — its closing gate is now standing; one spent on a single stale test fixture the new timezone field legitimately flipped, 243/244 green). **Two things worth your eye:** (1) the widget gallery now shows REAL strings ("Streak" / "Your streak, on your lock screen…") — they are DRAFT and join your §3 pass, alongside milestones.json which now ships in-bundle; (2) the veto list below gains six Session 21 rulings — the StandBy deferral and the SkeletonWidget retirement are the two most user-visible: **your testers' placed widgets vanished with the retirement; they re-add "Streak" once.** Session 22 = E6.3 discreet mode.) |
+| Superseded header (S20) | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
 | Superseded header | 2026-07-11 (Session 19 CLOSED: E8.2 consent + payload-audit doc DONE — red evidence `29164705316` (225 tests, EXACTLY the 39 designed issues / 14 designed failing tests, two-lane-predicted issue-for-issue) → green `29165381934` all-green + TestFlight, **2 billed runs, zero burned — the streak restarts**. The quiz now asks "Share app usage data?" at fixed slot 3 (default OFF, decline a first-class equal, no dark pattern); your choice gates every analytics fire LIVE; the transport stays dormant until your §8 app ID — **§8 is now the LAST gate on real funnel data**, and `docs/payload-audit.md` is your MITM release gate once it lands. Nothing blocks Session 20 = E6.1 widget timeline provider. ~~possibly a ZERO-billed-run session~~ — **STRUCK at the Session 20 close: that was wrong, see §4. There is no such thing as a zero-billed-run code session; free lanes exist, free runs do not.** Open for you: §1–§8; §3 gains the 4 consent DRAFT strings. Session 16–19 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E6.2 widget families + the widget feed).
+Nothing below blocks the next session (E6.3 discreet mode + alternate icons + privacy overlay).
 **§0 is CLOSED** (only its optional gstack FYI remains). Items below §0 are
 ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the
 next session's agent will prune completed items.
+
+> **Session 21 outcome (2026-07-12):** E6.2 is DONE — the widget is REAL. Every
+> mutating write now also rewrites `widget-state.json` (a deliberately minimal,
+> label-free file: your habit category, motivations, and notes are NEVER in it —
+> it is readable before first unlock, so its field set was privacy-ruled before
+> code). Each quit remembers the timezone it was created in, so "Day N" rolls at
+> YOUR midnight and a flight can never mint a free day. The widget gallery
+> offers "Streak" in five sizes (lock-screen rectangular with the panic button,
+> the day ring, the one-liner, and the two home sizes with money + momentum +
+> the milestone bar); a per-widget selector binds each widget to ONE quit by id,
+> so an erased or archived quit shows a calm "Ready when you are." instead of
+> silently switching to another habit. One-tap erase removes the widget file in
+> the same sweep (test-pinned in three places).
+>
+> **What earned its keep:** the adversarial critics caught TWO would-be burned
+> runs before they happened (a missing cross-import that would have failed every
+> target, and a timezone-decode inversion that passed on a Berlin-zone machine
+> and failed on CI's UTC runner — reproduced, fixed, verified under three host
+> zones). One run WAS burned anyway (a deprecated API in a new test file — the
+> gate that closes that class is now permanent), and one more went to a single
+> stale fixture (243/244 green). Honest total: 4.
+>
+> **Your NEW asks: §3 gains the widget gallery strings + milestones.json (both
+> DRAFT, both now shipping); §7 gains the tinted-mode + widget device rows.**
+> Six vetoable rulings at the bottom — StandBy deferral and SkeletonWidget
+> retirement are the product-visible two.
 
 > **Session 20 outcome (2026-07-12):** E6.1 is DONE — the **widget's brain**
 > shipped. `WidgetToolkit` (the portfolio package that was a stub since Session 01)
@@ -257,6 +284,23 @@ a live failure. Original context, for the record:
       any "change this anytime in Settings" promise creep in — no settings
       analytics surface exists yet (a recorded roadmap candidate), and the copy
       must promise nothing unbuilt.
+- [ ] **NEW (Session 21 — THE WIDGET GALLERY STRINGS, ~5 min, rides the same pass):**
+      `Shared/Sources/StreakWidgetStyle.swift` is the streak widget's ONE audited
+      string table (9 strings: gallery name "Streak" + description, the
+      "today"/"saved"/"next milestone" micro-labels, the empty-state line
+      "Ready when you are.", the "Day 7" gallery sample, the panic button's
+      accessibility label). All DRAFT/founder-owned; PM+Brand+QA joint-signed;
+      CI-scanned against BOTH the shame lexicon AND a habit-leak lexicon on
+      every run. NOTE: the in-widget micro-copy is baked into the 15 recorded
+      snapshot goldens — a rewrite re-records those goldens (cheap, batch it
+      with the rest of this pass).
+- [ ] **NEW (Session 21 — MILESTONES.JSON NOW SHIPS, ~10 min, rides the same pass):**
+      `App/Resources/Content/milestones.json` is now bundled (the widget feed
+      maps each quit's milestone ladder from it — hours only; its titles/bodies
+      never reach the widget). Its ~40 milestone strings ("commonly reported"
+      framing, per its own _meta audit note) are DRAFT and will first RENDER on
+      the E9 dashboard — review them with the same medical-claims eye as the
+      effects step: experiential, never clinical promises.
 - [ ] **NEW (Session 18 — THE SUMMARY COPY ROWS, ~10 min, rides the same pass):**
       `App/Resources/Content/summaryCopy.json` — 11 DRAFT strings for the
       summary screen (eyebrow, savings caption + no-spend reframe, the six
@@ -309,10 +353,21 @@ a live failure. Original context, for the record:
       package lane's red evidence LOCALLY and free (`swift test` on Linux — the
       sanctioned package-tier form per session-rules.md), then push the red and
       green commits TOGETHER so CI fires ONCE at HEAD instead of twice. Session 21
-      (E6.2 — widget families + the app-side feed) plans **2 billed runs + 1
-      contingency**: app-lane red evidence genuinely requires a CI run on the red
-      commit, because there is no Xcode or simulator on the build machine. Check
-      Settings → Billing → spending limit before the session.
+      (E6.2 — widget families + the app-side feed) planned **2 billed runs + 1
+      contingency** and used **4 (1 burned)**: `29178893738` BURNED — a
+      deprecated API (`UITraitCollection(traitsFrom:)`) in the NEW snapshot test
+      file turned warnings-as-errors into a build failure with zero evidence
+      (the closing gate is now standing rule #2 in the resume prompt: new API
+      forms no neighbor uses get their docs DEPRECATION metadata checked);
+      `29179114316` = the red evidence, manifest-matched name-for-name (the
+      seventh consecutive harness-predicted red) AND the run whose artifact
+      recorded the 15 widget goldens; `29179524777` = green 243/244 (ONE
+      pre-existing fixture legitimately flipped by the new timezone backfill);
+      `29179855734` = final all-green + TestFlight. The two would-be burns the
+      critics caught BEFORE pushing (the cross-import overlay, the
+      timezone-decode inversion) would have made it 6. Session 22 (E6.3) plans
+      **2 billed runs + 1 contingency**. Check Settings → Billing → spending
+      limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
@@ -335,6 +390,11 @@ a live failure. Original context, for the record:
       `8a0c469` note stands superseded.)
 - [ ] Expire the stray bundle-version-"1" build; answer export compliance only if
       App Store Connect prompts (guide Part 3 has the exact answers).
+- [ ] **NEW (Session 21): re-add the widget once.** SkeletonWidget was retired
+      for the real "Streak" widget (new kind — a placed placeholder widget
+      disappears from the lock screen). Long-press → add "Streak"; the
+      rectangular size carries the panic button. Any tester who had the old
+      placeholder placed must re-add too (one-time; veto ruling #6 below).
 
 ## 6. Slack webhook rotation — optional hygiene, ~5 min
 
@@ -375,6 +435,19 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
 > Control Center vs lock-screen slot vs Action button apart — one control
 > registration serves all three and YOU assign placement. Rows 2/4/5 recording
 > `controlCenter` is correct behavior. `.actionButton` stays reserved in the schema.
+
+- [ ] **NEW (Session 21 — the E6.2 widget rows, ~15 min, same sitting works):**
+      (a) **Tinted mode** (mvp feature 6's third render mode): tinted home
+      screens cannot be host-snapshotted, so this is device-only QA — set a
+      tinted home screen, add systemSmall/Medium "Streak", confirm legibility
+      (the templates are luminance-only by design). (b) **The day ring
+      mid-fill**: the circular family's ring fills across YOUR local day
+      (goldens could only pin the full-ring state — ProgressView's timer form
+      has no freeze seam). (c) **Freshness**: log an urge/slip, confirm the
+      widget updates within ~60s. (d) **Selector binding**: with 2+ quits,
+      long-press → Edit Widget → pick a quit; archive/erase that quit and
+      confirm the widget shows "Ready when you are." — never another habit's
+      streak.
 
 ## 8. TelemetryDeck app ID — NOW THE LAST GATE on real funnel data (~10 min + a ~30 min audit when you're ready)
 
@@ -619,3 +692,42 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
      to add your widget today reads **"Walking-skeleton placeholder widget."** —
      it has been shipping to TestFlight since Session 01. Real strings are
      safety-content-gated copy and join your §3 founder pass in Session 21.
+- **Session 21 (E6.2 widget feed + families) — the panel-signed rulings, each
+  vetoable (all held through the final green):**
+  1. **StandBy is DEFERRED to v1.1** — your mvp.md §3 explicitly cuts it ("ship
+     in v1.1 with Live Activity work") even though the implementation plan's
+     E6.2 row and one test name assumed it; mvp.md is canonical, so the
+     plan-named StandBy test was re-specced out (the Session-16 precedent) and
+     the safety-gated "made it through the evening" copy defers with it. Veto =
+     tell Session 22 to build the StandBy pair (it needs its own copy
+     sign-off round).
+  2. **The widget feed's field set (R1)** — per-quit: id, streak start, fixed
+     timezone id, weekly spend + currency, banked clean seconds, momentum %,
+     milestone hours. The ABSENCE list is the point (no habit category, no
+     label, no motivations, no slip data). One accepted trade-off: only the
+     vape ladder carries a 12h rung, so a sharp eye reading the raw file could
+     infer "maybe vape" from the ladder — a single low-confidence bit, accepted
+     to keep the milestone bar honest. Veto = flatten every ladder to a common
+     rung set (loses per-category pacing).
+  3. **"Day N" semantics on the ring/ticker (R6):** the circular family renders
+     the DAY RING — the ring is progress through YOUR CURRENT DAY (it completes
+     at your midnight, when the number flips), not progress toward a milestone;
+     milestones live on the systemMedium bar. Veto = a milestone-progress ring
+     on the lock screen (re-opens the ladder-leak and a stale-bar problem).
+  4. **widget_added stays unwired; the mechanism is now RULED (R8):** the
+     extension writes a tiny App-Group breadcrumb (widget kind + discreet flag
+     + first-render time) and the APP transmits it later, behind your consent
+     gate — the extension itself still can never send anything. Building it is
+     E6.3's call (it needs one more privacy review + a fourth erase site).
+     Veto = drop the breadcrumb idea entirely, or pull it forward.
+  5. **WidgetToolkit bumped to 1.1.0** (the planner grew a milestone-crossings
+     parameter + a decode-hardening fix; semver-minor; tag
+     `widgettoolkit-v1.1.0` at your convenience).
+  6. **SkeletonWidget RETIRED for the real "StreakWidget" kind** — the E0.2
+     placeholder (hardcoded "Day 0", dev-jargon gallery text) is gone; placed
+     placeholder widgets vanish and testers re-add "Streak" once (§5). The
+     panic button carried into the rectangular family. Veto = resurrect the old
+     kind as an alias (not recommended: two "Streak" cards in the gallery).
+  7. **The extension links StreakEngine** (beyond the plan's WidgetToolkit-only
+     note) so money-saved renders through the ONE engine formula everywhere —
+     recorded deviation, Foundation-only, no privacy surface change.

@@ -2688,3 +2688,169 @@ its extra `seenFiles != 2` check — worth remembering if that gate is ever edit
   structurally CANNOT transmit: no TelemetryDeck dep, and consent lives in SwiftData
   behind ADR-6; its fire-point needs its own step-0). Goldens still wait on the
   founder copy pass.
+
+## Session 21 — 2026-07-12 — E6.2 widget families + the app half of the widget feed (COMPLETE, 4 billed runs: 1 burned + red evidence + green-with-one-stale-pin + final green)
+
+### Objective & outcome
+
+Resume prompt v3.2: E6.2 — the widget-state.json writer + privacy field set +
+Quit start-timezone + erase membership (3 sites) + the five family templates +
+project.yml deps + milestone-crossing entries + gallery strings; step-0 rulings
+(a)–(e) FIRST. **DONE. Billed runs: 4 — the planned 2 + the contingency + ONE
+over** (honest accounting: `29178893738` BURNED — a deprecation-as-error in the
+new snapshot test file, `UITraitCollection(traitsFrom:)` deprecated iOS 17,
+fatal under warnings-as-errors, while the app + extension targets compiled
+clean; red evidence `29179114316` matched the manifest NAME-FOR-NAME — 12
+designed unit failures + 6 recording snapshot tests + 7 born-green pins + build
+green, the seventh consecutive harness-predicted red, and recorded the 15
+goldens in its own artifact per the step-0 R10 flow; green `29179524777` came
+back **243/244** — snapshot lane compared all 15 goldens clean, UI smoke green,
+package lane 21/21 + the 90% floor, ONE existing E3.1 fixture stale under the
+new schema; final green `29179855734` after the 4-line fixture stamp).
+Session-open operator check: nothing blocking, held end to end.
+
+### The step-0 panel (16 agents: 4 specs + 12 adversaries, zero deaths) + lead arbitration R1–R12
+
+Adversaries BROKE or WEAKENED rulings in every domain; the lead's arbitration
+(R1–R12) resolved every break:
+
+1. **R1 THE FIELD SET** — the QA-vs-Architect "3-key state vs money/momentum/
+   milestone" collision dissolved by layering: the app DTO
+   `WidgetFeed{schemaVersion, generatedAt, quits:[WidgetQuitState{id,
+   streakStart, timeZoneIdentifier:String, weeklySpend:String(decimal, MAJOR
+   units — adversary rename from "weeklySpendMinor"), currencyCode,
+   bankedCleanSeconds, momentumPercent, milestoneHours:[Int]}]}` is the
+   §10-gated pre-unlock surface (ABSENCE set: no label, category, motivations,
+   slip data, discreet flag, anchors); the domain-neutral 3-field
+   `StreakWidgetState` is the PLANNER's input only; the templates read
+   money/momentum/milestone from the DTO at entry.date. The milestone-ladder
+   single-bit vape signal (the only 12h rung) accepted + recorded. The String
+   identifier structurally closes the Codable decode hole.
+2. **R2 startTimeZoneIdentifier** — `String = ""` (CloudKit-defaulted), stamped
+   in the ONE creator funnel (BOTH public creators pinned — the adversary's
+   createQuit(from:) catch), one-time launch backfill in recomputeDerivedState
+   BEFORE the snapshot refresh; the writer's residual fallback is
+   TimeZone.current NEVER GMT; two-device backfill race = recorded limitation.
+3. **R3 writer** — `rebuildSnapshots()` (architecture §5.1's own name) writes
+   BOTH files in one guarded pass; zero active quits ⇒ the widget file is
+   REMOVED, never present-empty (the planner's nil-read ⇒ ONE .unavailable
+   entry is what clears an erased streak off the lock screen — test-pinned
+   divergence from the panic pre-cache); sub-second amendment: a .normal read
+   writes the STORE's startAt byte-for-byte (the adversary's reproduced
+   sub-second-pre-midnight forever-under-count).
+4. **R4 planner 1.1.0** — `milestones: [Date]` crossings interleave, FUSE on
+   equal instants, and extend refreshAfter (max boundary); THREE pins flip in
+   lockstep — the package constant + WidgetToolkitTests:13 +
+   WalkingSkeletonTests:51 ("two pins" was wrong and ":47" a stale cite,
+   grep-verified by three adversaries independently).
+5. **R5 multi-quit** — bind by quit UUID never position (the config intent
+   reuses PanicQuitEntity/PanicQuitQuery over the panic pre-cache, where the
+   brand-safe label lives — the widget feed stays label-free); vanished id ⇒
+   .unavailable (no cross-contamination); nil config ⇒ deterministic first;
+   the composer lives in SHARED as the provider's unit-tested core (the
+   extension links into no test bundle); the stale ":241 bind by position"
+   comment fixed.
+6. **R6 families** — Rect: Day N + money + the carried panic button; Circular:
+   the DAY RING (center Day N, ring = ProgressView(timerInterval: tickWindow,
+   countsDown: false) — zero extra fields, no lock-screen milestone consumer,
+   no ladder leak); Inline "Day 34"; Small: Day N + ticking duration + the
+   MOMENTUM ring (rules brandkit §11 Q3); Medium: + money + the milestone bar
+   (computed in-template from the DTO). BOTH ticking initializers default
+   `countsDown` to TRUE — both pass false.
+7. **R7 StandBy DEFERRED to v1.1** (mvp §3's cut is canonical; the plan-named
+   standby test re-specced out via the Session-16 age_gate_blocked precedent;
+   the safety-gated "made it through" copy defers with it; TINTED verification
+   is not host-snapshottable and routes to the operator §7 device matrix;
+   goldens = light/dark ×5 + AX5 for home families ONLY — WidgetKit CLAMPS
+   accessory Dynamic Type, so an AX5 accessory golden would pin fiction).
+   OPERATOR-VETOABLE.
+8. **R8 widget_added DEFERRED to E6.3, mechanism RULED** (extension breadcrumb
+   {kind, discreet, firstRenderAt} → the app fires once behind consent; the
+   enum case and mvp §5 row already exist; the Epic-6 DoD's "widget_active"
+   confirmed a typo by three adversaries). OPERATOR-VETOABLE.
+9. **R9 gallery strings** — `StreakWidgetStyle` is a STRUCT with STORED
+   properties: the panel REPRODUCED that Mirror yields NOTHING over
+   computed-property enums, so a PanicControlStyle-shaped table would make the
+   lexicon walk vacuously green forever. Dual-lexicon gate (shame + habit-leak)
+   with a non-vacuity floor (G1, permanent). All strings DRAFT → operator §3.
+10. **R10 goldens in-budget** — Run 1 = red + record with the views FINAL at
+    red; artifact → goldens committed with green; green run compares. Worked
+    exactly as designed (after the burn).
+11. **R11 erase** — widget-state.json joined ALL THREE enumeration sites in the
+    SAME commit + the zero-quits-refresh-DELETES pin.
+12. **R12 wiring** — the extension gains WidgetToolkit AND StreakEngine (a
+    deliberate, recorded deviation from inherited-item-4's WidgetToolkit-only
+    minimum: money renders through the ONE engine formula on every surface);
+    UnhookedSnapshotTests' WidgetToolkit dep MANDATORY; the family views live
+    in Shared with an EXPLICIT family parameter (the widgetFamily environment
+    key is get-only — REPRODUCED: injection does not compile);
+    SkeletonWidget RETIRED for the new kind "StreakWidget" (OPERATOR-VETOABLE:
+    testers re-add once; the panic button carried into the rectangular family).
+
+### The critics: four reproduced catches, one burned-run lesson, one escaped pin
+
+1. **The cross-import overlay catch (red compile critic — would have burned a
+   run):** `Button(intent:)` lives in the SwiftUI↔AppIntents cross-import
+   overlay, which is FILE-granular (reproduced: a sibling's import does not
+   rescue a file); the views file imported neither AppIntents nor WidgetKit ⇒
+   every target would have failed to build. `swiftc -parse` is structurally
+   blind to this class (no import resolution).
+2. **The decode-repin inversion (green diff critic — would have burned the
+   LAST budgeted run):** the first `init(from:)` decoded `TimeZone.self`;
+   autoupdating bytes materialize `.autoupdatingCurrent` whose `.identifier`
+   is already the READING host's zone, so the "re-pin" silently bound to the
+   wrong zone and P5 passed only on a Berlin-zone host (REPRODUCED under
+   TZ=UTC: 20/1 vs 21/21). Fixed by decoding the identifier STRING; the suite
+   verified under Berlin/UTC/Kiritimati hosts.
+3. **The boundary battery (green boundary critic):** 14 planner probes + 15
+   composer probes + 28 catalog probes + the A1 key-set assertions run verbatim
+   over the real bytes — zero defects.
+4. **THE BURN (run 29178893738) and its gate:** the snapshot writer's manifest
+   CLAIMED neighbor-mirroring while deviating (a `UITraitCollection(traitsFrom:)`
+   merge no neighbor carries — deprecated iOS 17 = a build failure under
+   warnings-as-errors). **NEW STANDING GATE: any API form in a new test file
+   that no neighbor uses is a docs-check item, and the docs check must read the
+   DEPRECATION metadata (metadata.platforms deprecated/deprecatedAt), not just
+   existence.**
+5. **THE ESCAPED PIN (run 29179524777, 243/244):** the E3.1
+   non-mutating-launch fixture inserts `Quit()` directly — a bare row now
+   carries the pre-E6.2 "" zone the backfill legitimately heals, so the
+   `recomputeDerivedState() == false` pin flipped. Fixture repaired ("clean"
+   now includes a stamped zone; the pin's mutant-killing meaning unchanged).
+   **LESSON: a new mutation source in a shared pass must sweep the FUNCTION's
+   return-value pins, not just the changed field's schema pins.**
+   Also: one critic died mid-run on an API error and was re-run as a single
+   agent (its replacement reproduced every born-green claim + fixture literal).
+
+### What shipped
+
+- Shared: WidgetFeed/WidgetQuitState/WidgetStateStore (+remove()),
+  StreakWidgetStyle (the signed DRAFT string table), StreakWidgetViews (five
+  families, explicit-family param, pauseDate golden seam), StreakWidgetComposer,
+  PanicQuitEntity.init(id:title:).
+- App: the rebuildSnapshots() dual writer, tz stamp + launch backfill, erase in
+  3 sites, MilestoneCatalog (+ milestones.json BUNDLED — its DRAFT copy is now
+  TestFlight-shipping → operator §3), the stale-comment fix.
+- WidgetToolkit 1.1.0: the milestones param + the decode-door re-pin (21 tests,
+  90% floor held).
+- Extension: StreakWidget (per-widget quit selector via AppIntentConfiguration;
+  the provider is a shim over the Shared composer); SkeletonWidget retired.
+- Tests: +31 (6 package / 19 unit / 6 snapshot) + 15 goldens recorded via the
+  red run's own artifact; existing goldens byte-identical (verified no drift).
+
+### Known limitations / carried forward (E6.3 inherits)
+
+- The discreet flag joins WidgetQuitState ADDITIVELY in E6.3 (nothing renders
+  habit-differently yet — every family is label-free by construction, so E6.3
+  is additive: drop the wind glyph where needed + neutral gallery variants).
+- widget_added: the R8 breadcrumb mechanism is ruled and waiting (needs its own
+  privacy field-set look + a FOURTH erase site).
+- Milestone crossings surface only within the provider's 2-day horizon + 1-day
+  cap — later rungs appear at later refills (by design; refreshAfter renews).
+- ProgressView(timerInterval:) has NO pauseTime — the circular goldens pin the
+  fully-elapsed ring (2025 fixtures); mid-fill state is device-matrix QA (§7).
+- Tinted rendering mode is not host-snapshottable → operator §7 row.
+- Home-family bars/rings render the system accent (no brand tokens exist
+  in-repo); the token pass rides the post-founder-copy polish/golden batch.
+- The two-device backfill race (R2) and the vape-ladder single bit (R1):
+  accepted, recorded.
