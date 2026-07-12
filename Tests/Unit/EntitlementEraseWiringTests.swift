@@ -119,7 +119,11 @@ struct EntitlementEraseWiringTests {
     /// the CloudKit purge (§10: RC reset → CloudKit LAST).
     @Test func test_erase_resetsEntitlementOnce_beforeCloudPurge() async throws {
         let log = OrderLog()
-        let h = try Harness(log: log, resetEntitlement: { await log.append("reset") })
+        // NOTE: no `await` on the append — the non-Sendable literal inherits
+        // this suite's @MainActor isolation, so the call is synchronous; a
+        // spurious `await` marker is a warning, and warnings are errors on
+        // the app lane (the Session 24 burned-run lesson, now shape-gated).
+        let h = try Harness(log: log, resetEntitlement: { log.append("reset") })
         _ = try h.repository.createQuit(habitCategory: .vape)
 
         try await h.repository.eraseEverything()
