@@ -1,15 +1,16 @@
 # XcodeGen project definition — the .xcodeproj is generated, never committed.
 # Generate with: xcodegen generate   (CI does this on every run)
 #
-# ── Gate G0 (rename) sweep list ──────────────────────────────────────────────
-# "Unhooked" is a working title; bundle/App Group IDs below are PLACEHOLDERS and
-# must NEVER be registered in App Store Connect / developer portal (feasibility §7
-# condition 1; architecture naming note). When the rename clears, sweep:
-#   1. PRODUCT_BUNDLE_IDENTIFIER values below (app + widget extension)
-#   2. The application-groups entitlement values below (2 targets)
-#   3. CFBundleDisplayName info properties below (app + widget extension)
-#   4. Shared/Sources/AppIdentifiers.swift (appGroupID + loggingSubsystem)
-#   5. Target/scheme names in this file (optional — internal only)
+# ── Gate G0 (rename): CLEARED 2026-07-08 ─────────────────────────────────────
+# "Ballast" (org com.beyondkaira) is the REAL registered identity — App ID,
+# widget App ID, App Group, and iCloud container registered in the developer
+# portal 2026-07-08 (see Shared/Sources/AppIdentifiers.swift's dated header;
+# the former dev.placeholder.quitwidget ids were never registered). The old
+# sweep list is retired; "Unhooked" survives only as internal target/scheme
+# names. STILL OPERATOR-OWNED: the App Store Connect listing + in-app-purchase
+# products (ProductCatalog SKUs) do not exist yet — ASC product creation is a
+# sandbox-verification-time task (operator-expected §7/§8), and the product
+# ids in App/Sources/Monetization/ProductCatalog.swift must match exactly then.
 # ─────────────────────────────────────────────────────────────────────────────
 name: Unhooked
 options:
@@ -27,6 +28,20 @@ packages:
     path: Packages/WidgetToolkit
   PaywallKit:
     path: Packages/PaywallKit
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios
+    # EXACT pin (E7.1 app half, R23.5/R24.8): 5.80.3 re-confirmed latest at
+    # session open (released 2026-07-08; three seats verified independently
+    # against the GitHub releases API). Same rationale as the pins below: no
+    # committed Package.resolved, so a range re-resolves every CI run. Link
+    # product "RevenueCat" ONLY (never RevenueCatUI / the
+    # CustomEntitlementComputation variant); its test-only deps (nimble,
+    # snapshot-testing 1.18.9) are pruned by SPM — our SnapshotTesting 1.19.3
+    # pin is unaffected (reproduced with `swift package resolve` pre-push).
+    # App target + UnhookedTests (Contract_RevenueCat) ONLY — NEVER the widget
+    # extension (a payments/network SDK has no business in a pre-unlock
+    # surface; the TelemetryDeck placement precedent).
+    exactVersion: "5.80.3"
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     # EXACT pin (E3.2): no Package.resolved is committed (the .xcodeproj is
@@ -104,6 +119,16 @@ targets:
       # precedent.
       - path: App/Resources/Content/milestones.json
         buildPhase: resources
+      # E7.1 (Session 24) is the consuming epic: paywallCopy.json is the bundled
+      # default paywall's ONE audited copy table (R24.9 — the summaryCopy.json
+      # precedent): every string DRAFT/founder-owned (operator-expected §3),
+      # dual-lexicon-scanned by PaywallCopyTests on every run; prices are NEVER
+      # stored in it (the %@ templates bind ProductCatalog's control-arm
+      # constants — pricing is config, not copy). NOTE: Ballast.storekit is
+      # deliberately NOT here — it is a UnhookedTests resource (a dev/test
+      # artifact must never ship in the app bundle).
+      - path: App/Resources/Content/paywallCopy.json
+        buildPhase: resources
       # AppIcon is the brandkit single-size set (light + dark + tinted 1024): actool
       # generates every size, incl. the iPad 152/167 App Store validation requires
       # even for an iPhone-only app (upload error 90023 without it). The light 1024
@@ -115,6 +140,12 @@ targets:
       - package: WidgetToolkit
       - package: PaywallKit
       - package: TelemetryDeck
+      # E7.1 app half: DORMANT behind RevenueCatConfiguration.revenueCatAPIKey
+      # (empty ⇒ configure never runs, zero network — the TelemetryDeck
+      # precedent). Explicit product: purchases-ios vends several SPM products;
+      # only the core SDK is wanted.
+      - package: RevenueCat
+        product: RevenueCat
     info:
       path: App/Info.plist
       properties:
@@ -184,6 +215,13 @@ targets:
     platform: iOS
     sources:
       - Tests/Unit
+      # E7.1 (R24.5): the StoreKitTest configuration is a TEST-bundle resource
+      # — MonetizationConfigTests parse-pins its prices/trials against MVP §6
+      # and ProductCatalog; it must never ship in the app bundle (dev/test
+      # artifact). The runtime SKTestSession tier stays deferred to the named
+      # StoreKitTest/RC-sandbox contract session.
+      - path: App/Resources/Ballast.storekit
+        buildPhase: resources
     settings:
       base:
         GENERATE_INFOPLIST_FILE: "YES"
@@ -192,6 +230,11 @@ targets:
       - package: StreakEngine
       - package: WidgetToolkit
       - package: PaywallKit
+      # E7.1: Contract_RevenueCat constructs REAL SDK values via the public
+      # "unit testing" inits (5.80.3-source-verified) — value construction
+      # only, zero network (configure is never called by any test).
+      - package: RevenueCat
+        product: RevenueCat
 
   UnhookedSnapshotTests:
     type: bundle.unit-test

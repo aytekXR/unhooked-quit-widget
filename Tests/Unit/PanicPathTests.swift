@@ -421,6 +421,13 @@ struct PanicPathTests {
             "the PANIC route never opens the store — pre- or post-frame (E3.1 init-order pin)"
         )
         #expect(provider.repository == nil)
+        // E7.1 (R24.2, additive strengthening): the entitlement stack lives
+        // strictly INSIDE the guarded normal-route block above the store work
+        // — the panic route constructs no adapter, no SDK, no model, ever.
+        #expect(
+            provider.entitlementModel == nil,
+            "the PANIC route never constructs the entitlement stack (E7.1 panic purity)"
+        )
     }
 
     @Test func test_launch_normalRoute_opensStoreOnce_recomputes_andRefreshesPreCache() throws {

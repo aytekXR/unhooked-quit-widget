@@ -62,8 +62,9 @@ final class QuitRepository {
     /// `EntitlementProviding.reset()` on the live branch; the dormant default
     /// is a no-op, so erase behaves byte-identically until the operator key
     /// lands. Injected as a closure (the analytics/debounceSleep precedent) —
-    /// the repository never imports PaywallKit.
-    private let resetEntitlement: () async throws -> Void
+    /// the repository never imports PaywallKit. `var` for the ONE late-bind
+    /// below; tests keep injecting through init.
+    private var resetEntitlement: () async throws -> Void
     private let debounceSleep: @Sendable (Duration) async -> Void
     private var pendingReload: Task<Void, Never>?
 
@@ -100,6 +101,14 @@ final class QuitRepository {
         self.resetEntitlement = resetEntitlement
         self.debounceSleep = debounceSleep
         self.analytics = analytics
+    }
+
+    /// E7.1 composition seam (R24.7, the ConsentReader late-bind precedent):
+    /// the live entitlement stack is built AFTER this repository exists (its
+    /// event sink needs `analyticsService`), so the composition root binds the
+    /// erase→reset closure here. Tests inject through init and never call this.
+    func bindEntitlementReset(_ reset: @escaping () async throws -> Void) {
+        resetEntitlement = reset
     }
 
     // MARK: - E3.2/E4.1 · panic write-buffer flush (§9 rule 2)
@@ -664,6 +673,11 @@ final class QuitRepository {
         // infallible local clears (app-standard defaults; relaunch = fresh install,
         // and the age gate + quiz both return by design).
         quizProgressStore.clear()
+        // E7.1 (R24.6): the trial_started dedupe marker — app-STANDARD defaults,
+        // which the App Group sweep below can NEVER reach, so this explicit clear
+        // is load-bearing (post-erase = a fresh tracking era whose trial may fire
+        // again; a surviving marker would silently undercount it forever).
+        trialDedupeStore.clear()
 
         // 3. Defaults sweep (infallible) + owned App Group files + store file set
         //    (the fallible local steps) — shared verbatim with the launch-time smoke
@@ -677,17 +691,28 @@ final class QuitRepository {
             appGroupDefaults: appGroupDefaults
         )
 
-        // E7 seam (named TODO, not a stub): RevenueCat anonymous-ID reset + SDK cache
-        // clear wires here once the SDK exists — after the local erase, with restore
-        // still one StoreKit call away (architecture §3).
         // E8 seam (named TODO, not a stub): the final `erase_all_completed` fires here
         // IF opted in, once the closed AnalyticsEvent enum exists (E8.1) — zero events
         // before consent, and none after erase in the same process lifetime.
 
-        // 4. Widgets must drop their streaks regardless of the cloud outcome.
+        // 4. Widgets must drop their streaks regardless of EITHER remote step below.
         scheduleWidgetReload()
 
-        // 5. The one fallible REMOTE step goes last (Session 08 spec-review ruling —
+        // 5. E7.1 (R24.7) — the entitlement reset, ordered AFTER the widget reload
+        //    (widgets drop no matter what) and BEFORE the CloudKit purge (§10: the
+        //    RevenueCat step precedes "purge CloudKit LAST"). Local-first inside:
+        //    `EntitlementProviding.reset()` clears the in-memory state before its
+        //    fallible source step, and a throw SURFACES for retry exactly like the
+        //    cloud arm below. HONESTY NOTE (docs-verified against purchases-ios
+        //    5.80.3): v5 has NO public anonymous-ID reset (`logOut()` throws for
+        //    anonymous users — our only kind), so the live closure's SDK-side step
+        //    is `invalidateCustomerInfoCache()` — a cache clear, not an identity
+        //    reset. Entitlements are Apple-account-level and survive erase BY
+        //    DESIGN: a wipe is not a cancellation, and StoreKit restores them on
+        //    the next receipt sync. Dormant builds inject the default no-op.
+        try await resetEntitlement()
+
+        // 6. The one fallible CLOUD step goes last (Session 08 spec-review ruling —
         //    inverts the architecture §10 sketch, corrected there): iCloud OFF is
         //    first-class, skip and never fail (architecture §8); an available
         //    account's purge failure SURFACES after local completion, so the caller

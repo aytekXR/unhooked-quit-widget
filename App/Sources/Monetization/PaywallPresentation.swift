@@ -36,19 +36,39 @@ struct PaywallViewData: Equatable, Sendable {
 }
 
 /// Pure copy+catalog → view data assembly (the SummaryPresentation twin —
-/// Foundation-only, Linux-harnessable).
-///
-/// RED (Session 24): inert — vends empty strings, so the guideline-3.1.1
-/// presence pins in `PaywallCopyTests` fail by design until green.
+/// Foundation-only, Linux-harnessable). The `%@` templates bind the catalog's
+/// static CONTROL-arm display prices (architecture §8: the bundled fallback
+/// renders offline/dormant); the live operator-keyed path may later upgrade
+/// the lines to localized StoreKit display prices — never the other way.
 enum PaywallPresentation {
     static func make(copy: PaywallCopy) -> PaywallViewData {
         PaywallViewData(
-            headline: "", subhead: "", positioning: "", positioningNotes: "",
-            planMonthlyTitle: "", planAnnualTitle: "", trialBadge: "",
-            priceMonthlyLine: "", priceAnnualLine: "", trialMechanicsLine: "",
-            autoRenewDisclosure: "", termsLabel: "", privacyLabel: "",
-            ctaTrial: "", ctaMonthly: "", restoreLabel: "", failureBanner: "",
-            retryCta: "", restoreEmpty: "", restoreSuccess: ""
+            headline: copy.headline,
+            subhead: copy.subhead,
+            positioning: copy.positioning,
+            positioningNotes: copy.positioningNotes,
+            planMonthlyTitle: copy.planMonthlyTitle,
+            planAnnualTitle: copy.planAnnualTitle,
+            trialBadge: copy.trialBadge,
+            priceMonthlyLine: bind(copy.priceMonthlyFmt, ProductCatalog.monthlyDisplayPrice),
+            priceAnnualLine: bind(copy.priceAnnualFmt, ProductCatalog.annualControlDisplayPrice),
+            trialMechanicsLine: bind(copy.trialMechanicsLineFmt, ProductCatalog.annualControlDisplayPrice),
+            autoRenewDisclosure: copy.autoRenewDisclosure,
+            termsLabel: copy.termsLabel,
+            privacyLabel: copy.privacyLabel,
+            ctaTrial: copy.ctaTrial,
+            ctaMonthly: copy.ctaMonthly,
+            restoreLabel: copy.restoreLabel,
+            failureBanner: copy.failureBanner,
+            retryCta: copy.retryCta,
+            restoreEmpty: copy.restoreEmpty,
+            restoreSuccess: copy.restoreSuccess
         )
+    }
+
+    /// One `%@` slot, bound without a locale pass — the display price is a
+    /// catalog CONSTANT (already a rendered string), not a number to format.
+    private static func bind(_ template: String, _ price: String) -> String {
+        template.replacingOccurrences(of: "%@", with: price)
     }
 }

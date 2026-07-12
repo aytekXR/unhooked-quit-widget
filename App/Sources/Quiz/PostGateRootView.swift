@@ -18,6 +18,20 @@ import SwiftUI
 struct PostGateRootView: View {
     @Environment(RepositoryProvider.self) private var provider: RepositoryProvider?
     @State private var model: QuizFlowModel?
+    /// E7.1 — non-nil mounts the bundled default paywall over the summary
+    /// seam (set ONLY by the CTA remap below; the paywall never appears on
+    /// any other route, and the panic route never reaches this view at all).
+    @State private var paywall: PaywallModel?
+
+    /// The UITEST_RESET-hook precedent (S18): a DEBUG-only launch-env switch,
+    /// inert in every release build BY CONSTRUCTION.
+    private static var paywallDebugOverride: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_PAYWALL"] == "1"
+        #else
+        false
+        #endif
+    }
 
     var body: some View {
         ZStack {
@@ -38,16 +52,48 @@ struct PostGateRootView: View {
     /// relaunch lands on the dashboard (summary-once; a conservative funnel
     /// undercount, never a re-fire).
     @ViewBuilder private var content: some View {
-        if let model {
+        if let paywall {
+            PaywallView(
+                data: PaywallPresentation.make(copy: PaywallCopy.loadShipping() ?? .degraded),
+                model: paywall,
+                onUnlocked: {
+                    // Entitled (purchase or restore) — fall through to the
+                    // dashboard; the entitlement model already adopted the
+                    // post-purchase state via the action's completed outcome.
+                    self.paywall = nil
+                    self.model = nil
+                }
+            )
+        } else if let model {
             if model.isComplete {
                 QuizSummaryView(
                     model: model,
                     data: summaryData(),
                     onContinue: {
-                        // AC8 — the NAMED paywall seam: E7 remaps this dismiss to
-                        // PaywallView; this session it falls to the placeholder
-                        // dashboard below.
-                        self.model = nil
+                        // AC8 — the NAMED paywall seam, REMAPPED by E7.1
+                        // (R24.2): a LIVE entitlement model (operator RC key
+                        // present) gates the hard-ish wall; DORMANT or
+                        // already-entitled falls through to the dashboard
+                        // exactly as before this session — no tester is ever
+                        // trapped on a build whose purchases cannot work.
+                        if let entitlement = provider?.entitlementModel,
+                           PaywallRouting.postSummaryDestination(state: entitlement.state) == .paywall {
+                            paywall = PaywallModel(
+                                purchase: { await RevenueCatPurchaser.purchase(plan: $0) },
+                                restore: { await RevenueCatPurchaser.restore() }
+                            )
+                        } else if Self.paywallDebugOverride {
+                            // R24.1: the DEBUG-only render path (UITEST_PAYWALL=1)
+                            // — the operator's Xcode review substitute for the
+                            // deferred goldens, and E7.2's future smoke hook.
+                            // Inert actions exercise the never-trap surface.
+                            paywall = PaywallModel(
+                                purchase: { _ in .failed },
+                                restore: { .failed }
+                            )
+                        } else {
+                            self.model = nil
+                        }
                     }
                 )
             } else {

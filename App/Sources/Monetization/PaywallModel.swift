@@ -23,9 +23,6 @@ enum PurchaseOutcome: Equatable, Sendable {
 /// purchase/restore actions + the never-trap failure phase. Thin BY RULE —
 /// entitlement truth lives in `EntitlementModel`; this model owns only the
 /// screen's own moment.
-///
-/// RED (Session 24): inert — actions never run, the phase never leaves
-/// `.idle`, so `PaywallModelTests`' never-trap pins fail by design.
 @MainActor
 @Observable
 final class PaywallModel {
@@ -60,8 +57,28 @@ final class PaywallModel {
     }
 
     func purchaseSelectedPlan() async {
+        phase = .working
+        adopt(await purchase(selectedPlan))
     }
 
     func restorePurchases() async {
+        phase = .working
+        adopt(await restore())
+    }
+
+    private func adopt(_ outcome: PurchaseOutcome) {
+        switch outcome {
+        case .completed(let state):
+            // Restore with nothing behind it reports a non-entitled state —
+            // the CALM empty surface (subscribe + restore both still live),
+            // never the failure banner (a fact is not an error).
+            phase = state.isEntitled ? .unlocked : .restoredEmpty
+        case .cancelled:
+            // A deliberate cancel returns to the calm idle screen, wordlessly
+            // (blame-free; purchases-ios reports it as an outcome, not error).
+            phase = .idle
+        case .failed:
+            phase = .failed
+        }
     }
 }

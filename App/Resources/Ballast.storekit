@@ -1,0 +1,112 @@
+{
+  "identifier" : "B0A11A57-0000-4000-8000-BA11A5700024",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_comment" : "E7.1 (Session 24, R24.5): the StoreKitTest configuration mirroring ProductCatalog — MVP §6 pricing as CONFIG ($6.99/mo; annual A/B $29.99 control vs $39.99; 3-day free trial on ANNUAL only). A UnhookedTests RESOURCE, never an app-bundle member (dev/test artifact). Hand-authored on the Linux box against the docs-verifier's minimal structure; RE-VALIDATE by opening in Xcode 26 before the operator's sandbox session (recorded rider). Products are NOT registered in App Store Connect by this session — that is the operator's sandbox-time task, ids must match exactly then."
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "BA11A570-0001-4000-8000-000000000001",
+      "localizations" : [
+
+      ],
+      "name" : "Ballast Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "6.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "BA11A570-0002-4000-8000-000000000002",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Full access, billed monthly.",
+              "displayName" : "Ballast Premium Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.beyondkaira.ballast.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Monthly",
+          "subscriptionGroupID" : "BA11A570-0001-4000-8000-000000000001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "BA11A570-0003-4000-8000-000000000003",
+          "introductoryOffer" : {
+            "internalID" : "BA11A570-0004-4000-8000-000000000004",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "Full access, billed yearly. 3-day free trial.",
+              "displayName" : "Ballast Premium Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.beyondkaira.ballast.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Yearly (control)",
+          "subscriptionGroupID" : "BA11A570-0001-4000-8000-000000000001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "39.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "BA11A570-0005-4000-8000-000000000005",
+          "introductoryOffer" : {
+            "internalID" : "BA11A570-0006-4000-8000-000000000006",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "Full access, billed yearly. 3-day free trial.",
+              "displayName" : "Ballast Premium Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.beyondkaira.ballast.annual.hi",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Yearly (price-test B arm — Superwall-only, E7.2)",
+          "subscriptionGroupID" : "BA11A570-0001-4000-8000-000000000001",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

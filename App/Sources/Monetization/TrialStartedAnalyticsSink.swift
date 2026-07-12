@@ -16,10 +16,8 @@ import PaywallKit
 ///
 /// @MainActor: the conformance hop — `AnalyticsService` and every house fire
 /// site are main-actor-isolated, and an async requirement may be witnessed by
-/// an isolated method (the actor hop is the await the protocol already pays).
-///
-/// RED (Session 24): inert — records nothing, so `TrialStartedWireTests`
-/// stays red until green.
+/// an isolated method (the actor hop is the await the protocol already pays;
+/// the shape was reproduced under -strict-concurrency=complete pre-push).
 @MainActor
 final class TrialStartedAnalyticsSink: EntitlementEventSink {
     private let analytics: AnalyticsService
@@ -31,5 +29,14 @@ final class TrialStartedAnalyticsSink: EntitlementEventSink {
     }
 
     func record(_ event: EntitlementEvent) async {
+        guard case .trialStarted(let product) = event else { return }
+        // At-most-once, marked ONLY on a consented actual send (R24.6): a
+        // decliner persists nothing — RC's next cold-start replay re-offers
+        // the edge, so an opt-in made while still trialing counts exactly
+        // once. The service's own fire() gate re-checks consent; this read
+        // exists so the MARKER stays honest, not as a second gate.
+        guard !dedupe.hasFired, analytics.isOptedIn() else { return }
+        analytics.fire(.trialStarted(product: ProductCatalog.wireProductID(for: product)))
+        dedupe.markFired()
     }
 }

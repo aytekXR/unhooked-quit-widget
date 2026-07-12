@@ -189,6 +189,35 @@ jobs:
           fi
           echo "sole-importer check passed"
 
+  monetization-importer-lint:
+    name: "E7.1 lint · the adapter is the sole RevenueCat importer; no Superwall yet"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: grep gate
+        run: |
+          set -euo pipefail
+          # R24.11 (the swiftdata-importer-lint shape): RevenueCat is Darwin-only
+          # and DORMANT — exactly ONE app-side adapter file (plus the contract
+          # test) may import it; Shared/Sources compiles into the widget
+          # extension and Packages ride the free Linux lane, so an import
+          # anywhere else is a build failure or a privacy-surface leak.
+          violations=$(grep -rl --include='*.swift' -E '^import (RevenueCat|Purchases)' . \
+            | grep -vE '^(\./)?(App/Sources/Monetization/RevenueCatEntitlementSource\.swift|Tests/Unit/Contract_RevenueCat\.swift)$' || true)
+          if [ -n "$violations" ]; then
+            echo "::error::import RevenueCat outside the sole adapter + contract file (R24.11):"
+            echo "$violations"
+            exit 1
+          fi
+          # E7.2 scope guard: no Superwall symbol may land before its session.
+          superwall=$(grep -rl --include='*.swift' -E '^import Superwall' . || true)
+          if [ -n "$superwall" ]; then
+            echo "::error::import Superwall found — Superwall is E7.2's, not yet in scope:"
+            echo "$superwall"
+            exit 1
+          fi
+          echo "monetization importer check passed"
+
   app:
     name: "App lanes · build + unit + snapshot + UI smoke"
     runs-on: macos-26

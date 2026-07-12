@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "status": "DRAFT — agents scaffolded, founder owns the words (operator-expected §3)",
+    "audit": "Session 24 PM+Brand+QA joint safety-content sign-off (R24.9). Scanned by PaywallCopyTests against the STANDARD dual lexicon (shame + habit-leak) with a 20-string non-vacuity floor on every CI run. Prices are NEVER stored here: the *Fmt fields carry one %@ slot bound from ProductCatalog's static control-arm constants (dormant/offline) or live StoreKit prices (operator-keyed path) — a copy rewrite can never drift the pricing.",
+    "positioningNote": "R24.9/S19 register rule: the MVP §6 verbatim canon ('No server. Nothing to leak. … cancel or refund in one tap.') is deliberately NOT placed on this RevenueCat-brokered surface — 'No server' one tap before an RC-mediated purchase is unprovable here, and Apple refunds are requested, never one-tap. The audit-safe register below promises only what the payload audit proves. Restoring the canon verbatim is the founder's call (operator-expected §3).",
+    "legalNote": "autoRenewDisclosure wording + the Terms of Use (EULA) / Privacy Policy destinations are operator/legal-owned. Verify Apple's current required boilerplate ('Apple Account' terminology) in App Store Connect before submission; the labels below must gain functional links (Schedule 2 / guideline 3.1.2(c)) in the session that wires the URLs."
+  },
+  "headline": "Keep your momentum.",
+  "subhead": "Your full plan — every widget, every panic tool.",
+  "positioning": "No account. No sign-up. Apple handles billing — cancel in one tap.",
+  "positioningNotes": "Your notes and journal never leave your device.",
+  "planMonthlyTitle": "Monthly",
+  "planAnnualTitle": "Yearly",
+  "trialBadge": "3-day free trial",
+  "priceMonthlyFmt": "%@ / month",
+  "priceAnnualFmt": "%@ / year",
+  "trialMechanicsLineFmt": "Free for 3 days, then %@ per year. Cancel anytime.",
+  "autoRenewDisclosure": "Payment is charged to your Apple Account when you confirm. Your subscription renews automatically unless you cancel at least 24 hours before the period ends. Manage or cancel anytime in your App Store account settings.",
+  "termsLabel": "Terms of Use",
+  "privacyLabel": "Privacy Policy",
+  "ctaTrial": "Start free trial",
+  "ctaMonthly": "Subscribe",
+  "restoreLabel": "Restore purchases",
+  "failureBanner": "That didn't go through. You can try again, or restore a previous purchase.",
+  "retryCta": "Try again",
+  "restoreEmpty": "No previous purchase found on this Apple Account.",
+  "restoreSuccess": "You're all set — your subscription is active.",
+  "_comment": "degraded parity: PaywallCopy.degraded ships the same strings at birth (the disclosures must survive a decode failure verbatim); founder edits THIS file freely — the degraded fallback only needs to stay disclosure-complete, not word-identical."
+}

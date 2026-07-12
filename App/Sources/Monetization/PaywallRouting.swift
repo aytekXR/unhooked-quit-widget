@@ -15,10 +15,8 @@ enum PostSummaryDestination: Equatable, Sendable {
     case dashboard
 }
 
-/// RED (Session 24): inert — always `.dashboard`, so
-/// `test_summaryCTA_whenNotEntitled_routesToPaywall` fails by design.
 enum PaywallRouting {
     static func postSummaryDestination(state: EntitlementState) -> PostSummaryDestination {
-        .dashboard
+        state.isEntitled ? .dashboard : .paywall
     }
 }

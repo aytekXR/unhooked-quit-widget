@@ -7,8 +7,6 @@ import PaywallKit
 /// PRESENT but inactive maps to `isActive: false` — NEVER nil — so downstream
 /// `EntitlementStateMapper` reads `.lapsed`, never a silent `.never`.
 ///
-/// RED (Session 24): inert — always nil, so every mapping pin in
-/// `RevenueCatMappingTests` fails by design until green.
 enum RevenueCatEntitlementMapper {
     /// `nil` view (no "premium" entitlement has ever existed) ⇒ nil snapshot
     /// (⇒ `.never`). A present view ALWAYS yields a snapshot, whatever its
@@ -17,6 +15,12 @@ enum RevenueCatEntitlementMapper {
     /// user must never be locked out by a catalog gap; tier defaults to the
     /// primary `.annual` for display/analytics granularity only).
     static func snapshot(from view: CustomerEntitlementView?) -> EntitlementSnapshot? {
-        nil
+        guard let view else { return nil }
+        return EntitlementSnapshot(
+            product: ProductCatalog.tier(forSKU: view.productIdentifier) ?? .annual,
+            periodType: view.periodType,
+            isActive: view.isActive,
+            willRenew: view.willRenew
+        )
     }
 }

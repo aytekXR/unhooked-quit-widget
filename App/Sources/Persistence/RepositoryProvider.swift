@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import PaywallKit
 import SwiftData
 
 /// Post-first-frame owner of the persistent graph (E3.1, ADR-6): the app's ONE path
@@ -25,6 +26,12 @@ final class RepositoryProvider {
     /// apply → the ONE UIApplication touch point; fire → the consent-gated
     /// service). `nil` until the deferred start completes, like `repository`.
     private(set) var appIconSwitcher: AppIconSwitcher?
+    /// E7.1 (R24.2) — the app-wide entitlement model. `nil` while DORMANT (no
+    /// operator RC key) — which IS the summary-CTA fall-through guarantee —
+    /// and nil on the panic route forever (constructed only in the deferred
+    /// start's live branch, post-frame, normal route). In-memory only (R23.3):
+    /// this property is the whole app-side "entitlement store".
+    private(set) var entitlementModel: EntitlementModel?
 
     private let storeOpener: () throws -> ModelContainer
     private let makeRepository: @MainActor (ModelContainer) -> QuitRepository
@@ -79,6 +86,35 @@ final class RepositoryProvider {
                 persistedIconID: repository.discreetIconId()
             ) == .resetToPrimary {
                 Task { try? await switcher.resetToPrimary() }
+            }
+            // E7.1 (R24.2) — the DORMANT gate, the TelemetryDeck double-gate's
+            // sibling: with no operator key NOTHING below exists — no
+            // `Purchases.configure` (which alone fires network + persists an
+            // anonymous ID, docs-verified 5.80.3), no adapter, no model — and
+            // the summary CTA falls through to the dashboard. Live: configure
+            // exactly once (post-frame, normal route only), the adapter behind
+            // PaywallKit's caching provider, the consent-gated trial_started
+            // sink (R24.6), and the erase→reset late-bind (R24.7 — the
+            // ConsentReader precedent: the sink needs the repository's
+            // analytics, so the entitlement stack builds AFTER the repository).
+            let apiKey = RevenueCatConfiguration.revenueCatAPIKey
+            if !apiKey.isEmpty {
+                let source = MonetizationComposition.makeEntitlementSource(
+                    apiKey: apiKey,
+                    configureRevenueCat: { RevenueCatEntitlementSource.configure(apiKey: apiKey) },
+                    makeAdapter: { RevenueCatEntitlementSource() }
+                )
+                let entitlementProvider = CachingEntitlementProvider(
+                    source: source,
+                    events: TrialStartedAnalyticsSink(
+                        analytics: repository.analyticsService,
+                        dedupe: TrialAnalyticsDedupeStore()
+                    )
+                )
+                repository.bindEntitlementReset { try await entitlementProvider.reset() }
+                let model = EntitlementModel(provider: entitlementProvider)
+                entitlementModel = model
+                Task { await model.refresh() }
             }
         } catch {
             // §9 blocking class: a store that cannot open (or recompute) leaves the

@@ -13,8 +13,6 @@ import PaywallKit
 /// dormant builds have no instance at all, which IS the CTA fall-through
 /// guarantee. Never constructed on the panic route (route guard by contract).
 ///
-/// RED (Session 24): inert — `refresh()` never consults the provider, so
-/// `EntitlementModelTests` stays red until green.
 @MainActor
 @Observable
 final class EntitlementModel {
@@ -29,11 +27,13 @@ final class EntitlementModel {
 
     @discardableResult
     func refresh() async -> EntitlementState {
-        state
+        state = await provider.refresh()
+        return state
     }
 
     @discardableResult
     func restore() async throws -> EntitlementState {
-        state
+        state = try await provider.restore()
+        return state
     }
 }
