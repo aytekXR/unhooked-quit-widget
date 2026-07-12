@@ -25,6 +25,9 @@ private let epoch = Date(timeIntervalSince1970: 1_783_425_600)
 
 private let newYork = TimeZone(identifier: "America/New_York")!
 private let istanbul = TimeZone(identifier: "Europe/Istanbul")! // permanent UTC+3, no DST — the control
+/// Springs forward AT midnight (2027-09-05: 00:00 → 01:00), so local 00:00:00 DOES NOT EXIST
+/// that day and `startOfDay` lands on 01:00. The zone that breaks duration-based day math.
+private let santiago = TimeZone(identifier: "America/Santiago")!
 
 /// A wall-clock instant, spelled as a local date in a named zone. Fixtures read as the user
 /// would experience them ("2027-03-14, 10:00, New York"), never as opaque epoch integers.
@@ -264,6 +267,119 @@ struct StreakTimelinePlannerTests {
 
         #expect(plan.entries.count == 5) // now + four midnights
         #expect(plan.refreshAfter == plan.entries.last?.date)
+    }
+
+    /// The day local midnight DOES NOT EXIST. America/Santiago springs forward at 00:00 on
+    /// 2027-09-05, so `startOfDay` for that date is 01:00. A user who quits THAT day gets a
+    /// 01:00 origin, and duration-based day math (`dateComponents([.day], from:to:)`, which asks
+    /// "how many whole 24-hour days fit") then comes up one hour short of every subsequent day
+    /// boundary — the streak would read one day low FOREVER. Ordinal day indices ask "which
+    /// calendar day is this" instead, and are immune. Found by an adversarial probe, not by the
+    /// four plan-named tests; this pin is why it can never come back.
+    @Test("a quit that starts on a day with no local midnight still counts days correctly")
+    func test_dayNumber_quitStartedOnDayWithNoLocalMidnight_doesNotUndercountForever() {
+        // 2027-09-05, Santiago: the clock jumps 00:00 → 01:00. The user quits at 10:00 that day.
+        let start = local(2027, 9, 5, 10, 0, in: santiago)
+        // Sanity: this really is a no-midnight day — the fixture is worthless otherwise.
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = santiago
+        #expect(calendar.dateComponents([.hour], from: calendar.startOfDay(for: start)).hour == 1)
+
+        // Day 1 is the quit day; each following local day is exactly one more.
+        for (offset, expected) in [(0, 1), (1, 2), (2, 3), (5, 6), (30, 31)] {
+            let noon = local(2027, 9, 5 + offset, 12, 0, in: santiago)
+            let plan = StreakTimelinePlanner().plan(
+                reading: SpyReader(state(streakStart: start, timeZone: santiago, generatedAt: noon)),
+                now: noon, horizonDays: 1
+            )
+            #expect(plan.entries.first?.dayNumber == expected)
+        }
+    }
+
+    // MARK: - The green-critic catches (each reproduced before it was fixed)
+
+    /// A device clock set BACK past the streak's start must never render "Day 0" or a negative
+    /// day. The widget's `now` is the raw device clock and the widget runs no clock guard of its
+    /// own (ADR-6: the guard runs app-side and corrects `streakStart`, not the widget's `now`),
+    /// so this input is reachable from Settings in two taps. Unfloored it rendered "Day -399".
+    @Test("a clock rolled back before the streak began still floors at Day 1 — never Day 0")
+    func test_dayNumber_clockRolledBackBeforeStreakStart_floorsAtDayOne() {
+        let start = local(2027, 6, 10, 12, 0, in: newYork)
+        for setback in [1, 5, 400] {
+            let now = start.addingTimeInterval(-Double(setback) * 86_400)
+            let plan = StreakTimelinePlanner().plan(
+                reading: SpyReader(state(streakStart: start, generatedAt: start)),
+                now: now, horizonDays: 1
+            )
+            #expect(plan.entries.first?.dayNumber == 1)
+        }
+    }
+
+    /// Freshness is judged at each entry's RENDER time, not once at plan time. A plan is rendered
+    /// across its whole horizon without re-running, so a plan-time verdict would stamp `.fresh` on
+    /// a boundary three days out — leaving the flag permanently `.fresh` in exactly the scenario
+    /// stale-grace exists to detect (the write path died and nothing refreshes the state).
+    @Test("entries far in the plan's future go stale on their own render date")
+    func test_staleGrace_isJudgedPerEntry_notOnceAtPlanTime() {
+        let start = local(2027, 3, 1, 9, 0, in: newYork)
+        let now = local(2027, 3, 2, 15, 0, in: newYork)
+        // The state is written NOW — fresh at plan time, by definition.
+        let plan = StreakTimelinePlanner().plan(
+            reading: SpyReader(state(streakStart: start, generatedAt: now)),
+            now: now, horizonDays: 5
+        )
+
+        #expect(plan.entries.first?.freshness == .fresh) // renders immediately: fresh
+        // ...but the boundaries beyond the 24h grace render from a state that is by then stale.
+        let stale = plan.entries.filter { $0.freshness == .staleGrace }
+        #expect(!stale.isEmpty)
+        for entry in stale {
+            #expect(entry.date.timeIntervalSince(now) > StreakTimelinePlanner.defaultGraceWindow)
+        }
+        // ...and they still carry a live day number and a live ticker: stale-grace shows the
+        // last-known streak STILL COUNTING (brandkit item 14), it does not freeze or blank it.
+        #expect(stale.allSatisfy { $0.dayNumber != nil && $0.tickWindow != nil })
+    }
+
+    /// `refreshAfter` must be a real future rollover, never `now`. With a zero horizon the last
+    /// ENTRY is the `now` entry, and asking WidgetKit to reload at an instant already past means
+    /// "reload immediately" — a hot loop against the refresh budget (§11).
+    @Test("a zero horizon still schedules its renewal at the next real rollover, never at now")
+    func test_zeroHorizon_refreshesAtNextRollover_notImmediately() {
+        let start = local(2027, 3, 1, 9, 0, in: newYork)
+        let now = local(2027, 3, 2, 15, 0, in: newYork)
+        let reader = SpyReader(state(streakStart: start, generatedAt: now))
+
+        for horizon in [0, -1] {
+            let plan = StreakTimelinePlanner().plan(reading: reader, now: now, horizonDays: horizon)
+            #expect(plan.entries.count == 1)
+            #expect(plan.refreshAfter == local(2027, 3, 3, in: newYork))
+            #expect(plan.refreshAfter != now)
+        }
+    }
+
+    /// `TimeZone.autoupdatingCurrent` re-binds itself to whatever device reads it — and it SURVIVES
+    /// Codable, so a widget-state.json whose bytes say "America/New_York" would decode to Istanbul
+    /// on an Istanbul device, silently defeating the travel-immunity the fixed anchor exists for.
+    /// The state pins it to a fixed zone at the door.
+    @Test("an autoupdating timezone is pinned to a fixed zone on the way in")
+    func test_state_pinsAutoupdatingTimeZone_soPersistenceCannotRebindIt() throws {
+        let pinned = StreakWidgetState(
+            streakStart: epoch, timeZone: .autoupdatingCurrent, generatedAt: epoch
+        )
+        #expect(pinned.timeZone == TimeZone(identifier: TimeZone.current.identifier))
+
+        // The encoded bytes must not carry the autoupdating flag — that is what re-binds on read.
+        let json = try JSONEncoder().encode(
+            StreakWidgetState(streakStart: epoch, timeZone: newYork, generatedAt: epoch)
+        )
+        let text = try #require(String(data: json, encoding: .utf8))
+        #expect(!text.contains("autoupdating"))
+
+        // ...and the state round-trips through JSON with its zone intact (the E6.2 feed depends
+        // on exactly this).
+        let decoded = try JSONDecoder().decode(StreakWidgetState.self, from: json)
+        #expect(decoded.timeZone.identifier == "America/New_York")
     }
 
     /// A DST-less zone is the control: the boundaries are plain 24-hour steps, proving the

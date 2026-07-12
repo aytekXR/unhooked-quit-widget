@@ -88,8 +88,49 @@ jobs:
         package: [WidgetToolkit, PaywallKit]
     steps:
       - uses: actions/checkout@v4
-      - name: swift test
-        run: swift test --package-path "Packages/${{ matrix.package }}"
+      - name: swift test (coverage-instrumented)
+        run: swift test --package-path "Packages/${{ matrix.package }}" --enable-code-coverage
+
+      # WidgetToolkit's test-suite §2 floor (90% lines). §7's preamble binds it NOW: "the §2
+      # floors apply to the FIRST merged version of every module, not a future aspiration" —
+      # and E6.1 is WidgetToolkit's first real content. Same shape as the StreakEngine gate
+      # above (ubuntu, 1x — no macOS minutes).
+      #
+      # FAILS CLOSED on an unmeasurable report, which needs TWO guards, not one. When the
+      # `Sources/` filter MATCHES, llvm-cov shortens each path to a bare basename. When it MISSES
+      # (a rename, a restructure), llvm-cov does NOT emit an empty report — it warns on stderr,
+      # then reports every file in the mapping (Tests/**, .build/**) WITH a valid TOTAL row and
+      # exit 0. So a present TOTAL row proves nothing on its own: test files are ~100% covered by
+      # construction, and a polluted TOTAL would drift comfortably above the floor while the
+      # source coverage it claims to measure rots unseen. Hence the pollution guard below.
+      - name: Coverage floor (WidgetToolkit — lines ≥90%)
+        if: matrix.package == 'WidgetToolkit'
+        working-directory: Packages/WidgetToolkit
+        # The container's default step shell is dash (`sh -e`); pipefail is a bashism.
+        shell: bash
+        run: |
+          set -euo pipefail
+          LLVM_COV="$(dirname "$(readlink -f "$(command -v swift)")")/llvm-cov"
+          "$LLVM_COV" report .build/debug/WidgetToolkitPackageTests.xctest \
+            -instr-profile=.build/debug/codecov/default.profdata \
+            Sources/ | tee coverage-report.txt
+          awk '
+            $1 ~ /^(Tests|\.build)\// {
+              print "::error::coverage report contains non-Sources rows (" $1 ") — the Sources/ path filter did not apply; gate cannot measure, failing closed"
+              polluted = 1
+            }
+            $1 == "TOTAL" {
+              seenTotal = 1
+              lineCov = ($8 - $9) / $8 * 100
+              printf "package line coverage: %.2f%% (floor 90)\n", lineCov
+              if (lineCov < 90) { print "::error::WidgetToolkit package line coverage fell below the 90% floor (test-suite §2)"; fail = 1 }
+            }
+            END {
+              if (!seenTotal) { print "::error::coverage report had no TOTAL row — gate cannot measure, failing closed"; exit 2 }
+              if (polluted) { exit 2 }
+              exit fail
+            }
+          ' coverage-report.txt
 
   # ── E2.2 acceptance lint: the repository is the sole SwiftData importer ──────
   # implementation-plan E2.2: "repository is the sole SwiftData importer outside

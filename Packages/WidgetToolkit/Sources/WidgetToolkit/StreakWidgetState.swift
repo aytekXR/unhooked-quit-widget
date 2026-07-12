@@ -22,7 +22,12 @@ public struct StreakWidgetState: Sendable, Equatable, Hashable, Codable {
 
     public init(streakStart: Date, timeZone: TimeZone, generatedAt: Date) {
         self.streakStart = streakStart
-        self.timeZone = timeZone
+        // PINNED to a fixed zone at the door. `TimeZone.autoupdatingCurrent` re-binds itself to
+        // whatever device reads it — and it SURVIVES Codable: a widget-state.json whose bytes say
+        // "America/New_York" decodes to Istanbul on a device in Istanbul, silently defeating the
+        // travel-immunity this whole type exists to provide. Re-resolving through the identifier
+        // strips the autoupdating behavior and stabilizes the encoded JSON.
+        self.timeZone = TimeZone(identifier: timeZone.identifier) ?? timeZone
         self.generatedAt = generatedAt
     }
 }
