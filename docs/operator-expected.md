@@ -3,21 +3,41 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-12 (**Session 24 CLOSED: E7.1 APP HALF DONE — the whole monetization vertical now exists in the app, fully DORMANT until you act.** purchases-ios 5.80.3 is linked, but with your RevenueCat key EMPTY (the shipping state) the SDK is literally never initialized — zero network, no anonymous ID minted, and the quiz-summary Continue button still goes straight to the dashboard: **TestFlight behaves byte-identically to last session's build.** When you paste your RC public key (the NEW §8 item), the summary routes non-subscribers to a real paywall screen — $6.99/mo + $29.99/yr with the 3-day trial (the $39.99 test arm waits for Superwall next session), restore + retry always reachable, the Apple-required renewal disclosures rendered on-screen. The trial-start analytics event fires once per install era, only after consent, and one-tap erase now also clears the entitlement caches (honest note: a data wipe can NEVER revoke a subscription — entitlements live on the Apple account, and that is correct behavior, not a gap). **Billed runs: 4 — the planned 2 + the contingency + ONE over, with TWO burned** (§4 has the honest accounting: a one-word Swift concurrency mistake in a NEW test file, then a module-naming collision in the one file that can only compile on Apple hardware — BOTH turned out to be reproducible on the free Linux box after the fact, and both classes are now permanently gated so neither can recur). **Your NEW asks: §3 gains the 20 DRAFT paywall strings + one REAL register decision (your mvp.md's "No server. Nothing to leak." canon was deliberately NOT placed on the RevenueCat-brokered purchase screen — read §3), and §8 gains the RC-key item.** Seven vetoable rulings at the bottom — the hard-wall-no-close and the erase-cannot-revoke rulings are the two worth your eye. Session 25 = E7.2 Superwall variants.) |
+| Last updated | 2026-07-12 (**Session 25 CLOSED: E7.2 DONE — the paywall now has its A/B variant brain, fully DORMANT until you act.** SuperwallKit 4.16.1 is linked (app target only), but with your Superwall key EMPTY (the shipping state) the SDK is literally never initialized — zero network, no identity minted — and every build renders the same hard-wall control paywall as last session; **TestFlight behaves byte-identically.** When you paste BOTH keys (RevenueCat first — the vertical wakes as a unit — then Superwall, the NEW §8 block), Superwall's dashboard decides teaser-vs-hard per install: the teaser arm adds a quiet "look around for a day" escape under the subscribe button (one day of full access, then the wall returns with a calm "your free day wrapped up" line — never a countdown), and the funnel events you'll read A/B results from (`paywall_viewed` with variant + source, `teaser_entered`, `purchase`) all fire only after consent. **Billed runs: 3 — the 2 planned + the contingency, ZERO burned** (the red run matched the panel's 16-test prediction name-for-name, the 11th consecutive; a would-be burn — a Swift concurrency trap in the one Superwall-importing file — was caught by the new standing probe on the free Linux box BEFORE the push; the contingency went to the quiz-funnel smoke's own pre-worded escape valve — it failed its single allowed run, but its new diagnostics finally DISPROVED the old wheel theory: the wheel was set correctly and the tap landed, and the gate→quiz hand-off still hung — a real finding the next diagnosis session starts from, with screenshots preserved in the failed run's artifact). **Your NEW asks: §3 gains 3 DRAFT teaser strings + two MVP §5 vocabulary ratifications, and §8 gains the Superwall key + dashboard block.** Seven-ish vetoable rulings at the bottom — the single-use teaser escape and the teaser-as-24h-duration are the two worth your eye. Session 26 = E7.3 win-back, closing Epic 7's build half.) |
+| Superseded header (S24) | 2026-07-12 (**Session 24 CLOSED: E7.1 APP HALF DONE — the whole monetization vertical now exists in the app, fully DORMANT until you act.** purchases-ios 5.80.3 is linked, but with your RevenueCat key EMPTY (the shipping state) the SDK is literally never initialized — zero network, no anonymous ID minted, and the quiz-summary Continue button still goes straight to the dashboard: **TestFlight behaves byte-identically to last session's build.** When you paste your RC public key (the NEW §8 item), the summary routes non-subscribers to a real paywall screen — $6.99/mo + $29.99/yr with the 3-day trial (the $39.99 test arm waits for Superwall next session), restore + retry always reachable, the Apple-required renewal disclosures rendered on-screen. The trial-start analytics event fires once per install era, only after consent, and one-tap erase now also clears the entitlement caches (honest note: a data wipe can NEVER revoke a subscription — entitlements live on the Apple account, and that is correct behavior, not a gap). **Billed runs: 4 — the planned 2 + the contingency + ONE over, with TWO burned** (§4 has the honest accounting: a one-word Swift concurrency mistake in a NEW test file, then a module-naming collision in the one file that can only compile on Apple hardware — BOTH turned out to be reproducible on the free Linux box after the fact, and both classes are now permanently gated so neither can recur). **Your NEW asks: §3 gains the 20 DRAFT paywall strings + one REAL register decision (your mvp.md's "No server. Nothing to leak." canon was deliberately NOT placed on the RevenueCat-brokered purchase screen — read §3), and §8 gains the RC-key item.** Seven vetoable rulings at the bottom — the hard-wall-no-close and the erase-cannot-revoke rulings are the two worth your eye. Session 25 = E7.2 Superwall variants.) |
 | Superseded header (S23) | 2026-07-12 (**Session 23 CLOSED: E7.1 PACKAGE HALF DONE — the app now has an entitlement BRAIN (PaywallKit 1.0.0), and nothing was needed from you, open to close.** The four-state machine (`never|trial|active|lapsed`) ships pure: no clock (offline can NEVER flip a paying user to locked-out — your architecture's anti-Quittr grace rule, enforced by construction), no persisted bytes (the "cache" is in-memory; RevenueCat's SDK owns durable caching app-side, later), no prices or SKUs (the state machine knows monthly-vs-annual and nothing else). Nothing renders it yet — no paywall screen exists; that is Session 24's job, and it is deliberate (the same package-half-first split your E6.1→E6.2 widget sessions used). **Billed runs: exactly the 1 planned, zero burned, contingency unused** (red evidence was FREE — the local Linux package lane predicted all 11 failing tests / 17 issues issue-for-issue, the 9th consecutive; red+green rode ONE push, CI `29192612869`). **Nothing new is expected from you** — §3 gains no strings (the package has no user-facing surface). One forward heads-up in §8: Session 24 wires RevenueCat DORMANT behind your RC key, exactly like the TelemetryDeck pattern you already know — your RC account + App Store Connect products become blocking only at sandbox-verification time, not for the build. Five vetoable rulings at the bottom; the one worth your eye is the OFFLINE GRACE call: a lapsed-while-offline trial keeps premium until the device next reaches RevenueCat — the direction your docs mandate, but it is a real product call now enforced by tests.) |
 | Superseded header (S22) | 2026-07-12 (**Session 22 CLOSED: E6.3 discreet mode + alternate icons + the app-switcher shield DONE — every widget family now hides its habit on demand.** Toggle a quit discreet and its lock-screen widget shows "Day N" + a neutral "Reset" arrow — no money, no wind glyph; the app-switcher card goes blank; two new innocuous app icons ("Calendar style" / "Timer style") switch from the new one-screen settings sheet; one-tap erase now also puts the ORIGINAL icon back (OS icon state survives a data wipe — we reset it, plus a launch self-heal). **Billed runs: exactly the 2 planned, zero burned, contingency unused — the zero-burn streak restarts** (red evidence `29183485997` matched the prediction name-for-name, the 8th consecutive; green `29184196211` all-green + TestFlight). **Three things worth your eye:** (1) §3 gains the 8 DRAFT settings strings AND the two DRAFT GENERATED app icons — agents drew them to your brandkit's spec (pure-geometry tiles; regenerate anytime with `brandkit/branding-assets/generate-alt-icons.py`); veto or replace at will; (2) §3 also carries a REAL decision: your brandkit contradicts itself on whether the discreet icons may appear in App Store screenshots (§9.1 says never, §9.2's frame 3 shows one) — the panel says NEVER (one public exposure makes the "innocuous" icon reverse-image-linkable to Ballast forever); you own ASO, so you decide; (3) the veto list gains the Session 22 rulings — the most product-visible: the app-switcher cover only protects DISCREET users (the plan's spec); making it universal is a one-line change if you want banking-app-style protection for everyone. Session 23 = E7.1 PaywallKit.) |
 | Superseded header (S21) | 2026-07-12 (**Session 21 CLOSED: E6.2 widget families + the widget feed DONE — a REAL five-family streak widget now ships on TestFlight.** The lock screen shows "Day N" + money saved + the panic button, self-ticking, timezone-fixed, erased clean by one-tap erase. **Billed runs: 4 — the planned 2 + the contingency + ONE over** (§4 has the honest accounting: one burned on a deprecated-API build failure the neighbor-copy rule should have caught — its closing gate is now standing; one spent on a single stale test fixture the new timezone field legitimately flipped, 243/244 green). **Two things worth your eye:** (1) the widget gallery now shows REAL strings ("Streak" / "Your streak, on your lock screen…") — they are DRAFT and join your §3 pass, alongside milestones.json which now ships in-bundle; (2) the veto list below gains six Session 21 rulings — the StandBy deferral and the SkeletonWidget retirement are the two most user-visible: **your testers' placed widgets vanished with the retirement; they re-add "Streak" once.** Session 22 = E6.3 discreet mode.) |
 | Superseded header (S20) | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (Session 25 = E7.2 Superwall variants:
-the Superwall SDK lands DORMANT behind its own operator key, the same pattern
-as RevenueCat and TelemetryDeck — your Superwall account becomes a §-item only
-when its key item lands at that session's close; the RC items in §8 stay
-non-blocking until sandbox-verification time).
+Nothing below blocks the next session (Session 26 = E7.3 win-back: pure
+config + seams over the machinery Sessions 23–25 built — no new SDK, no new
+key; your §8 key items stay non-blocking until sandbox-verification time,
+and the win-back OFFER config joins §8 only at that session's close).
 **§0 is CLOSED** (only its optional gstack FYI remains). Items below §0 are
 ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the
 next session's agent will prune completed items.
+
+> **Session 25 outcome (2026-07-12):** E7.2 is DONE — the Superwall variant
+> adapter. What that means concretely: teaser-vs-hard A/B machinery now
+> exists end-to-end (the assignment seam, the 1-day teaser grant + its
+> re-present rule, the three funnel fire-points, the variant echo field) and
+> ALL of it is dormant behind your two keys — the panel's standing rule held
+> again: the SDK is never initialized until you paste the key, because
+> Superwall's own `configure` phones home and mints an anonymous identity
+> the moment it runs (verified against the 4.16.1 source, not marketing —
+> same as the RevenueCat finding last session). The red run matched the
+> 16-test prediction name-for-name (11th consecutive); exactly the 2 planned
+> billed runs, zero burned. Scenario-29 (the full quiz-funnel smoke) was re-landed,
+> failed its ONE allowed run, and its pre-worded valve fired: it is
+> deferred again — but this time WITH evidence (the wheel theory is dead;
+> the gate→quiz hand-off itself hangs on CI, reproducibly), and the debug
+> hooks it needs next time are landed and inert. **Your NEW asks: §3
+> (3 teaser strings + two MVP §5 vocabulary ratifications) and §8 (the
+> Superwall key + dashboard config, sequenced AFTER the RC key).** To SEE
+> both paywall variants from Xcode: launch env `UITEST_PAYWALL=1` (hard) or
+> `UITEST_PAYWALL=teaser` (teaser with the escape).
 
 > **Session 24 outcome (2026-07-12):** E7.1 is DONE — both halves. What that
 > means concretely: the app now contains the complete purchase machinery
@@ -275,6 +295,29 @@ a live failure. Original context, for the record:
       summary copy is DRAFT pending your §3 pass.
 
 ## 3. Content tone review — now fully TestFlight-visible — **+ NEW: E4.2 checklist signature (~15 min)**
+
+- [ ] **NEW (Session 25 — E7.2 teaser variant, 3 DRAFT strings + 2 §5
+      ratifications):** `paywallCopy.json` gains `teaserEscapeLabel` ("Look
+      around for a day first"), `teaserEscapeNote` ("Full access for one
+      day. Then this screen returns."), and `teaserExpiryEyebrow` ("Your
+      free day wrapped up. Everything you set up is still here.") — the
+      A/B'd 1-day teaser's escape button, its honest what-this-does note,
+      and the zero-shame line when the wall returns. DRAFT/founder-owned,
+      CI-scanned against the dual lexicon on every run; alternatives in the
+      S25 ledger. Register rules: factual duration (never a countdown), no
+      urgency, no loss framing, name-free. **Ratify (or veto) two mvp.md §5
+      vocabulary deviations shipped flagged (the R24.9 shape — your file
+      was not touched):** `paywall_viewed.source` gains `teaser_expiry`
+      (the second-impression funnel split the A/B needs), and `variant`
+      transmits the semantic labels `teaser`/`hard` (the raw Superwall
+      variant id stays dashboard-side via the mapping table in §8).
+      **+ rider:** the remote Superwall paywalls you'll build (§8) must
+      carry the full 3.1.1/3.1.2(c) set in the same register: price, trial
+      length + follow-on price, auto-renew statement, Terms/Privacy links,
+      Restore — and the $39.99 B-arm renders ONLY there (no display
+      constant exists in app code by ruling). **+ carried App-Review rider
+      (R24.9):** the HARD variant has no close; point the review build at a
+      teaser variant or accept the 3.1.2 posture.
 
 - [ ] **NEW (E4.2 acceptance, your half): sign the MVP §7 copy-audit checklist**
       — "Copy audit: no medical claims, no fear content, no fabricated statistics;
@@ -684,6 +727,28 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
       run the app with launch env `UITEST_PAYWALL=1` to eyeball the paywall
       screen (it is unreachable any other way until your key lands).
 
+- [ ] **NEW (Session 25 — THE SUPERWALL KEY, the A/B's wake switch,
+      sequenced AFTER the RC key — it does nothing until RevenueCat is
+      live, the vertical wakes as a unit):** create the app in the
+      **Superwall dashboard** and paste the public API key into
+      `SuperwallConfiguration.superwallAPIKey`
+      (`App/Sources/Monetization/SuperwallConfiguration.swift`). Until then
+      the SDK is never initialized — zero network, no identity — and every
+      build shows the bundled hard-wall control paywall. The wiring
+      restricts event fan-out (`eventTrackingBehavior = .superwallOnly`).
+- [ ] **Sequenced WITH the Superwall key (dashboard config):** one trigger/
+      placement named **`quiz_completed`**; the teaser-vs-hard experiment
+      with its two paywalls (teaser = escape allowed; hard = no close); the
+      $29.99-vs-$39.99 price experiment binding
+      `com.beyondkaira.ballast.annual` (control) vs `….annual.hi` (B arm);
+      then fill the **variant-id mapping** in
+      `SuperwallPlacement.variantMapping` (your dashboard's opaque variant
+      ids → `teaser`/`hard` — a one-line agent edit per id; unmapped ids
+      safely render the hard control arm). For your App Privacy label:
+      SuperwallKit's own manifest declares Purchase History (not linked,
+      not tracking) + a FileTimestamp API reason, and the dependency pulls
+      a checksummed Rust binary (`libcel.xcframework`) — recorded here so
+      App Store review surprises no one.
 - [ ] Create the app in the **TelemetryDeck console** (SaaS credentials are
       operator-held by design — agent-workflows §1.3) and paste the app ID into
       `AnalyticsConfiguration.telemetryDeckAppID`
@@ -710,6 +775,37 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
 ---
 
 ## Decisions on record you can veto (FYI, no action needed)
+
+- **Session 25 (E7.2) — the panel-signed rulings, each vetoable
+  (R25.1–R25.14; full grounds in the S25 ledger):**
+  1. **The teaser is a 24-HOUR WALL-CLOCK duration** (take it at 23:00,
+     it runs to 23:00 tomorrow) — deliberately NOT the calendar-day rule
+     your widgets use; expiry is silent (no countdown anywhere). Veto =
+     calendar-day anchoring, a two-literal change in TeaserPolicy.
+  2. **The escape is SINGLE-USE:** when the wall returns after the free
+     day it has NO escape (else "Then this screen returns." is a lie and
+     the wall never walls). Veto = repeatable escape + a copy rewrite.
+  3. **An entitled user always beats a stale teaser** (a purchase mid-teaser
+     never re-meets the wall), and a decliner's teaser day still works
+     (consent gates analytics, never product behavior).
+  4. **The bundled/keyless paywall reports variant "hard"** — a first-class
+     A/B value, never a third "bundled" bucket (keeps your denominators
+     readable); `paywallVariantAssigned` is written ONLY by a live Superwall
+     assignment, and it CloudKit-syncs (a same-iCloud reinstall may restore
+     a pre-erase echo — accepted, attribution-only).
+  5. **`purchase` fires only on user-initiated PAID completions** — never on
+     trial starts (those are `trial_started`; no double-counting your ≥8%
+     metric), never on restores, never on renewals (not client-honest).
+  6. **`Superwall.reset()` is NOT in the one-tap erase** — it crashes on an
+     unconfigured build and phones home on a live one; a data wipe already
+     clears the teaser + echo rows. Revisit at the live-key session.
+  7. **Scenario-29's valve fired and the smoke is deferred WITH evidence**
+     (its one allowed run disproved the wheel theory — the gate→quiz
+     hand-off itself hangs on CI, both driven and seeded; screenshots in
+     the failed run's artifact); its event-assertion tail was already
+     deferred by name — the funnel events are pinned at the unit tier.
+     Veto = order an immediate re-land + diagnosis session and accept the
+     billed-run cost.
 
 - **Discreet quits keep VERBATIM motivations in the pre-cache** (labels stay
   stripped) — Session 10 ruling. Veto before E5.2 if you want discreet

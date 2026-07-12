@@ -3455,3 +3455,290 @@ session). Full findings + the binding arbitration in the session scratchpad
   subscription is a named future enhancement.
 - `restoreSuccess` copy is composed but unrendered (the unlocked path
   dismisses); founder-table completeness kept.
+
+## Session 25 — E7.2: Superwall variant adapter (teaser-vs-hard A/B) + the S24 deferrals BY NAME (2026-07-12)
+
+**Objective (resume prompt v3.7):** E7.2 — Superwall behind PaywallKit's
+interface (removable per ADR-4); variant assignment logged; teaser = 1-day
+local timer then re-present; the four plan-named tests VERBATIM; carrying
+paywall_viewed + purchase fire-points, `AppSettings.paywallVariantAssigned`,
+scenario-29 (+S18 diagnostics), 3.1.1 both-variant review. Budget: 2 billed
+runs + 1 contingency.
+**Outcome: DONE in 3 billed runs — the 2 planned + the contingency spent
+on scenario-29's pre-worded VALVE (fired as designed on the smoke's single
+run; ZERO burned — every run produced its evidence).** Red evidence = CI run
+`29204803764` on `5ce52f0`: **16 designed-failing / 22 issues,
+manifest-matched NAME-FOR-NAME and issue-for-issue — the 11th consecutive
+harness-predicted red** (the pure 14-test/20-issue subset verified on the
+FREE Linux harness first, TZ-invariant under UTC/Berlin/Kiritimati ×3 full
+runs, built under -strict-concurrency=complete -warnings-as-errors). Green =
+`acd2783` — all 16 flips verified green in run `29205964725`, whose ONLY
+red was the new scenario-29 smoke (the valve fired; see the run accounting)
+— finalized by the valve commit `e281621` (run `29206650207`,
+ALL-9-JOBS green + TestFlight). **Session-open operator check: NOTHING
+required (operator-expected's own header pre-cleared Session 25 — the
+Superwall SDK lands DORMANT behind its own operator key, the RC/TelemetryDeck
+pattern; recorded in the session log at open, held open-to-close; the
+Superwall-key §8 item lands at THIS close as scheduled).** Delivery 27/32 =
+84%.
+
+### The step-0 panel (6 seats + lead arbitration → rulings R25.1–R25.14)
+
+Panel: Architect, PM, QA, Brand, adversarial burn-risk critic
+(REPRODUCE-not-reason), docs-verifier (kept for every SDK-facing session).
+Full findings + the binding arbitration in the session scratchpad
+(RULINGS-R25.md); the rulings:
+
+- **R25.1 — APP-SIDE placement.** SuperwallKit is UIKit-required in practice
+  (85 unconditional `import UIKit` files at 4.16.1; the manifest's
+  macOS/watchOS platforms OVERSTATE) and `import SuperwallKit` fails to
+  BUILD on Linux (exit 13 — the transitive Rust `libcel` binary has no Linux
+  slice; burn-critic reproduction). Seam + adapter + composition all in
+  App/Sources/Monetization; PaywallKit sources UNTOUCHED (Foundation-only
+  free lane preserved); implementation-plan §14's "PaywallKit contributes
+  the Superwall adapter" recorded as a portfolio ASPIRATION for a future
+  dedicated package session.
+- **R25.2 — the DORMANT gate.** `SuperwallConfiguration.superwallAPIKey=""`
+  (the RC twin) + `PaywallPresentationComposition.makeAssigner` (the
+  makeEntitlementSource twin): key absent ⇒ BundledVariantAssigner and
+  configure NEVER invoked. Docs-verified: `Superwall.configure` ALONE
+  fetches remote config from api.superwall.me, mints/persists an anonymous
+  identity, and posts IDFA/fingerprint install-attribution to
+  mmp.superwall.com unless event tracking is restricted (4.16.1
+  Superwall.swift:456-534) — dormancy is a privacy requirement. The live
+  configure sets `eventTrackingBehavior = .superwallOnly`. The assigner is
+  constructed only INSIDE the RC-key live branch: the monetization vertical
+  wakes as a unit. **NO `Superwall.reset()` in the erase order** (named
+  deferral): it ASSERTS on an unconfigured instance and even live it tracks
+  a network Reset event + re-fetches the AdServices token — wiring it is a
+  live-key §8 decision for E7.3+.
+- **R25.3 — variant value-domain {teaser, hard}.** test-suite §4.4's exact
+  domain; the bundled/dormant/removed fallback reports `"hard"` — a
+  first-class assignment value, NEVER a third "bundled" sentinel (refines
+  R24.4; A/B denominators stay pristine; QA's sentinel lean rejected).
+  `price_test` fallback = 29_99. The live keypath is
+  `PaywallInfo.experiment?.variant.id` ONLY (docs-verified; never
+  experiment.id, never paywallId), mapped through the operator-owned
+  `SuperwallPlacement.variantMapping` (EMPTY until the dashboard exists;
+  unmapped ⇒ .hard — the unknown-SKU grace shape). MVP §5's "(Superwall id)"
+  literal reading deviates → operator ratification item.
+- **R25.4 — `PaywallSource.teaserExpiry` ("teaser_expiry") ADDED.** PM veto
+  of the defer: two canonical docs name it (the plan test verbatim +
+  test-suite sc.36); the teaser A/B is un-analyzable without the
+  second-impression split; the S16 age_gate_blocked re-spec rationale
+  INVERTS on all three limbs (it IS a test-suite scenario, honestly
+  fireable, privacy-neutral); Superwall supplies NO source vocabulary so no
+  SDK contract is touched (docs-verifier). mvp.md UNTOUCHED — the §5
+  source-row addition is the operator's §3/§8 ratification (R24.9 shape).
+- **R25.5 — paywall_viewed at the presentation seam + the §7 field.**
+  `PaywallPresenter.makeFirePaywallViewed` (assign → echo → fire; once per
+  presentation via the model's didFire guard — the onSummaryAppear
+  precedent; NEVER in View.body); BOTH mount paths (live gate + the DEBUG
+  UITEST_PAYWALL render) route through it, so the smoke's event chain is
+  true for release builds. `AppSettings.paywallVariantAssigned: String=""`
+  §7-APPROVED (the onboardingVariant twin); written ONLY on a live Superwall
+  assignment — dormant/bundled paths never write (pinned both ways); the
+  AgeGateTests exact-set pin EXPANDED same-commit (never softened to ⊇);
+  CloudKit-mirror reinstall edge ACCEPTED + flagged vetoable (echo is
+  attribution-only; Superwall's server owns stickiness).
+- **R25.6 — purchase = user-initiated PAID completion only.** A defaulted
+  `onPurchaseCompleted` closure on PaywallModel (M24a–e byte-untouched),
+  invoked ONLY from `purchaseSelectedPlan()`'s adopt; the conformer fires
+  ONLY on `.active` (paid). `.trial` completions fire NOTHING (trial_started
+  rides the S24 provider edge — the mutual exclusion protects MVP §4's ≥8%
+  "trial OR purchase" denominator; without this fire every MONTHLY
+  conversion was funnel-invisible — the concrete gap closed). Never on
+  restore/cancel/failed/restoredEmpty; NO dedupe marker (structurally
+  at-most-once; a marker would suppress honest re-subscribes). Product =
+  wireProductID {ballast.monthly, ballast.annual} (both annual arms →
+  ballast.annual; the price arm rides price_test).
+- **R25.7 — teaser semantics.** 24h WALL-CLOCK DURATION (now+86_400s) —
+  deliberately NOT ADR-11 calendar anchoring (that rule is scoped to
+  displayed Day-N; noon-anchoring a 23:00 teaser would expire it in an
+  hour). Pure `TeaserPolicy` + `PaywallRouting.reentryDestination`
+  (entitled WINS first ⇒ unexpired grants dashboard ⇒ expired re-presents
+  with source .teaserExpiry; nil teaser never re-presents). Repository
+  `enterTeaser()` stamps via the injected clock; erase step-1 row sweep
+  wipes grant + echo (born-green strengthen pin); no explicit clear on
+  purchase (entitled-wins ordering). Re-present surface = the post-gate
+  root's dashboard branch on task/foreground, LIVE-model builds only —
+  E9's real dashboard INHERITS the rule (binding-on-future-surfaces).
+  **SINGLE-USE escape** (Brand veto): the re-present renders the HARD form
+  + the expiry eyebrow, no escape — "Then this screen returns." must stay
+  true. The grant stamp is consent-INDEPENDENT (the gate swallows events,
+  never product behavior). §10 hard boundary: teaser state lives ONLY in
+  AppSettings — never in any pre-unlock artifact; the panic route never
+  reads it.
+- **R25.8 — copy: exactly THREE new non-optional fields.**
+  `teaserEscapeLabel` / `teaserEscapeNote` / `teaserExpiryEyebrow`
+  (DRAFT/founder-owned; PM+Brand+QA joint sign-off in-panel;
+  empirically lexicon-CLEAN both lexicons; founder alternatives recorded:
+  escape-label alt "See it for a day first", eyebrow alt "Your free day
+  wrapped up. Your streak's still going." — the latter only if a quit is
+  guaranteed by expiry). NON-OPTIONAL by reproduction: a nil String? child
+  DODGES the Mirror lexicon walk (Brand's mirror-probe). Escape = a §6.2
+  QuietButton below the CTA, teaser arm only; hard stays close-free (R24.9
+  carried); NO countdown/urgency surface anywhere (hard veto — expiry is
+  SILENT); the disclosures render on BOTH variants (escape is additive).
+  Copy data (struct + JSON + degraded + pass-through) landed in the RED
+  commit as inert data so S24's M22a/M22b never flipped as unpredicted reds.
+- **R25.9 — scenario-29 re-landed GREEN with a NON-FATAL wheel.** The
+  arbitration of QA (full drive + diagnostics) vs the burn-critic's veto
+  (zero wheel-drive precedent; the S18 diagnostics are post-mortem-only):
+  the wheel leg runs FIRST with the full S18-owed diagnostics
+  (`wheel.value` post-adjust verification + ONE re-adjust retry, bounded
+  sleep-free isEnabled wait, stage-boundary screenshots .deleteOnSuccess)
+  but is NON-FATAL — on failure the test relaunches with
+  `UITEST_SEED_AGE_VERIFIED=1` (a NEW DEBUG-only store-truth seed; the
+  gate's un-bypassability stays unit-pinned) and an attachment records the
+  path. BLOCKING legs: quiz drive (MUST tap `quiz.choice.optIn` at slot 3 —
+  the E8.2 consent step the S18 file predated; QA's load-bearing catch —
+  the old drive would HANG there) → summary-before-any-paywall → CTA →
+  paywall MOUNT under UITEST_PAYWALL=1 (Tail-B). **The event-spy tail
+  (§1.4's "eachStepFiresEvent") is DEFERRED BY NAME** with the recorded
+  design (a consent-honest DebugEventSpySink decorator inside the
+  AnalyticsService composition + an a11y read bridge — Architect P6) to the
+  named StoreKit-config/contract session: unproven XCUITest read-path tech
+  on a 2+1 budget; every fire + order is unit-pinned this session. Valve v2
+  pre-worded in the file header (fires without a re-vote). `UITEST_PAYWALL`
+  gained the `teaser` value — the operator's both-variant eyeball path.
+  Scenario-30's purchase leg stays contract-tier (xcodebuild never engages
+  a scheme StoreKit config — S24 ground truth).
+- **R25.10 — SuperwallKit `.exact("4.16.1")`, app target ONLY, GREEN
+  commit.** 4.16.1 IS the Xcode-26.4 build fix (CHANGELOG) — pinning back
+  to 4.15.3 "for stability" would reintroduce the exact break on macos-26
+  (docs-verifier; the churn-folklore kill). Pin graph reproduced
+  conflict-free locally (our four exact pins win; Superwall's only
+  transitive = superscript-ios-next 1.0.14 → the checksummed
+  `libcel.xcframework` ~95MB Apple-only binary — first post-dep CI run eats
+  a cold SPM download; recorded). NOT linked to UnhookedTests (no
+  SDK-value contract test — the seam pins ride the house fake) and NEVER
+  the widget extension. The importer-lint's outright Superwall ban became
+  the sole-importer allow-list (SuperwallVariantAssigner.swift) + a
+  never-dual-import guard (RC+SW share StoreKit-shaped names —
+  StoreProduct/CustomerInfo/SubscriptionPeriod — FORM-A ambiguity,
+  reproduced).
+- **R25.11 — one placement.** `SuperwallPlacement.postSummary =
+  "quiz_completed"` (its own symbol — never reuse
+  AnalyticsEventKind.quizCompleted; different namespace); winback is
+  E7.3's. + `priceTest(forProductIDs:)` — the honest live price-arm signal
+  (only the B-arm paywall carries annual.hi).
+- **R25.12 — panic purity extension.** The init-order spy additionally pins
+  `paywallAssigner == nil` on the panic route (additive).
+- **R25.13 — red/green split.** Red = inert data + inert seams +
+  designed-reds, Superwall-FREE (rule #9); green = behaviors + SDK dep +
+  lint + smoke. As run.
+- **R25.14 — operator asks.** §3: the 3 teaser DRAFT strings + the
+  remote-B-arm 3.1.1 checklist rider + the hard-wall review-build rider
+  (carried). §8 NEW: the Superwall key wake-switch + dashboard config
+  (placement, two paywalls, price experiment, the variant-id→{teaser,hard}
+  mapping) + privacy recording (SW PrivacyInfo: PurchaseHistory
+  not-linked/not-tracking + FileTimestamp C617.1; the libcel binary
+  surface). MVP §5 ratifications: source gains "teaser_expiry"; variant =
+  semantic {teaser,hard} labels.
+
+### What the critics caught / reproduced (the practice keeps earning its keep)
+
+- **Probe-3b caught a WOULD-BE BURNED RUN pre-push (green):** the
+  as-committed adapter FAILED strict concurrency — `[Assignment]` is
+  non-Sendable and `confirmAllAssignments()` is nonisolated async, so its
+  result cannot hop into the @MainActor conformance (`error: non-sendable
+  result type '[Assignment]' cannot be sent from nonisolated context`) —
+  the S24 run-3 class, caught on the FREE box this time (the standing 3b
+  gate did exactly what it was created to do). Fix:
+  `@preconcurrency import SuperwallKit`, Linux-verified exit 0 both forms.
+- **The lint-vacuity second-order catch (lead):** `@preconcurrency import`
+  no longer matches `^import Superwall` — the sole-importer gate would have
+  gone silently VACUOUS. The regex now admits attribute-prefixed imports
+  (`^(@[A-Za-z_]+ )*import …`) — a new standing lint shape.
+- **Green-critic F1:** the seeded-gate fallback wrote store truth with no
+  observable re-render trigger (the container would idle on the spinner) —
+  fixed with a @State token flip. Every smoke a11y id grep-verified; the
+  11-visible-step count recounted from the shipping config (consent choices
+  are optIn/**decline** — not optOut).
+- The docs-verifier's folklore kills:
+  `SuperwallOptions.automaticDeviceIdentifierCollection` NONEXISTENT (the
+  briefing's assumed analog; real knob = eventTrackingBehavior);
+  "Superwall supplies the paywall source" FALSE (100% app-side);
+  "the fallback can report a Superwall variant id" IMPOSSIBLE dormant;
+  "reset() is a clean local wipe" FALSE (network event + AdServices
+  re-fetch + asserts unconfigured); "configure can warm caches keylessly"
+  FALSE. `handleSuperwallPlacement` is DEPRECATED (renamed
+  handleSuperwallEvent) — the register API says `placement:`, the delegate
+  hook says Event, mixed by design. Graveyard `@objc` register overloads
+  identified as the deprecation trap.
+- The burn-critic's reproductions: the full pin graph (exit 0, four exact
+  pins win); the Linux import failure; FORM-A/B/C collision probes (bare
+  `Product`/`PeriodType` ambiguous in dual-import files; `PaywallKit.<T>`
+  hits the version-marker enum; typealias = the only fix); the
+  `@MainActor SuperwallDelegate` conformance is NOT a burn (witness
+  isolation — folklore killed); the importer-lint allow-list + planted
+  violations; the project.yml entry shape.
+
+### Run accounting (§4-honest)
+
+- **Run 1 — `29204803764` (`5ce52f0`): the red-evidence run.** App unit
+  lane: 16 designed failures / 22 issues — manifest-matched name-for-name
+  and issue-for-issue (the 11th consecutive predicted red); all free lanes
+  + snapshot + UI smoke green.
+- **Run 2 — `29205964725` (`acd2783`): the 16-flip verification + the
+  scenario-29 VALVE run.** All 16 reds flipped green, snapshot lane green,
+  every free lane green, SuperwallKit 4.16.1 resolved (cold ~95MB libcel
+  download) — and the NEW smoke failed its single-run budget, firing the
+  pre-worded valve. **The diagnostics PAID FOR THEMSELVES: the S18 "adjust
+  didn't take" hypothesis is now DISPROVEN with evidence** — the wheel was
+  VERIFIED at 1990 (no re-adjust needed), `ageGate.continue` existed +
+  passed the bounded isEnabled wait + the tap synthesized cleanly, and
+  `quiz.flow` still never appeared in 10s; the seeded-fallback leg ALSO
+  failed, stalled with a ZERO-BUTTON accessibility tree (the pre-onward
+  spinner shape). Gate→quiz on CI is now 0-for-2 across S18+S25 with two
+  DIFFERENT mechanisms — this smells DETERMINISTIC-on-CI, not a wheel
+  flake, and needs the failed run's `test-outputs` artifact (the
+  stage-boundary screenshots + gate-handoff-timed-out attachments survive
+  BECAUSE the run failed) plus a dedicated diagnosis session. Valve invoked
+  exactly as pre-worded: the smoke file removed in the contingency commit;
+  the app-side hooks (`UITEST_SEED_AGE_VERIFIED`, `UITEST_PAYWALL=teaser`)
+  STAY inert as the next attempt's tooling; every DoD obligation remains
+  unit-pinned.
+- **Run 3 — `29206650207` (`e281621`): the contingency/green run.** The
+  valve commit — smoke removed, nothing else changed — ALL 9 JOBS green
+  incl. TestFlight upload.
+  Total: **3 = the 2 planned + the contingency, ZERO burned** (the valve
+  run is spent, not burned — it verified all 16 flips AND produced the
+  evidence that retires the wheel hypothesis; the S18/R24.1 accounting
+  shape).
+
+### Known limitations / carried (E7.3 inherits a named list)
+
+- **Scenario-29 itself — VALVE-DEFERRED with hard evidence.** The wheel
+  hypothesis is retired (verified-1990 + enabled + tapped, still no
+  hand-off); gate→quiz on CI is 0-for-2 across S18+S25 by two different
+  mechanisms (the seeded leg stalled pre-onward, zero-button tree). The
+  deferral session diagnoses from run `29205964725`'s `test-outputs`
+  artifact (screenshots survive on failure) — candidate suspects for it:
+  the gate-pass → PostGateRootView mount seam under the UITest env, the
+  store-truth re-read timing, the a11y-tree shape post-transition. The
+  app-side hooks (`UITEST_SEED_AGE_VERIFIED`, `UITEST_PAYWALL=1|teaser`)
+  are LANDED and inert, ready for the re-land.
+- **The event-spy sink (scenario-29's Tail-A / §1.4 "eachStepFiresEvent")**
+  — deferred BY NAME with the recorded decorator design (R25.9); lands with
+  the named StoreKit-config/contract session.
+- **`Superwall.reset()` in the erase order** — deliberately NOT wired
+  (asserts unconfigured; phones home live). A live-key erase design item,
+  E7.3+ with §8 pre-approval (R25.2).
+- The live Superwall presentation path (register-driven remote paywalls,
+  the PaywallPresentationHandler callbacks, the >3s timeout fallback of
+  test-suite §4.4) lands with the live-key/contract session — this session
+  ships the assignment seam + the dormant adapter; the timeout wrapper is a
+  composition design note (Architect P10).
+- The B-arm ($39.99) renders only in the operator's remote Superwall
+  paywall — no display constant exists in code BY RULING (PM P5); its
+  3.1.1 review is an operator §3 rider.
+- Variant goldens still ride the post-founder-copy batch (S17 R5 → R24.1 →
+  unchanged); the teaser variant's render proofs are the composed-data pins
+  + `UITEST_PAYWALL=teaser`.
+- `paywallVariantAssigned` CloudKit-mirrors; a same-iCloud reinstall can
+  restore a pre-erase echo while Superwall re-assigns (accepted,
+  attribution-only; operator-vetoable — R25.5).
+- Reinstall/erase re-grants the teaser (AppSettings wiped ⇒ a re-onboarded
+  user can take a fresh teaser day) — fresh-install semantics, accepted.
