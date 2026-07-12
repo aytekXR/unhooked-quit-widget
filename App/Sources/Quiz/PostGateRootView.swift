@@ -19,17 +19,31 @@ struct PostGateRootView: View {
     @Environment(RepositoryProvider.self) private var provider: RepositoryProvider?
     @State private var model: QuizFlowModel?
     /// E7.1 — non-nil mounts the bundled default paywall over the summary
-    /// seam (set ONLY by the CTA remap below; the paywall never appears on
-    /// any other route, and the panic route never reaches this view at all).
+    /// seam (set ONLY by the CTA remap + the R25.7 teaser-expiry re-entry
+    /// below; the paywall never appears on any other route, and the panic
+    /// route never reaches this view at all).
     @State private var paywall: PaywallModel?
+    /// E7.2 — the composed screen data for the CURRENT presentation (the
+    /// variant/source fork happens at present time, so the data is stashed
+    /// with the model rather than recomposed in `body`).
+    @State private var paywallData: PaywallViewData?
+    @Environment(\.scenePhase) private var scenePhase
 
     /// The UITEST_RESET-hook precedent (S18): a DEBUG-only launch-env switch,
-    /// inert in every release build BY CONSTRUCTION.
-    private static var paywallDebugOverride: Bool {
+    /// inert in every release build BY CONSTRUCTION. E7.2 (R25.9): `1` keeps
+    /// the S24 behavior (the HARD render — back-compat for the operator's
+    /// review path), `teaser` renders the teaser variant — the operator's
+    /// both-variant eyeball path while the goldens ride the founder-copy
+    /// batch.
+    private static var paywallDebugVariant: PaywallVariant? {
         #if DEBUG
-        ProcessInfo.processInfo.environment["UITEST_PAYWALL"] == "1"
+        switch ProcessInfo.processInfo.environment["UITEST_PAYWALL"] {
+        case "1": .hard
+        case "teaser": .teaser
+        default: nil
+        }
         #else
-        false
+        nil
         #endif
     }
 
@@ -52,16 +66,20 @@ struct PostGateRootView: View {
     /// relaunch lands on the dashboard (summary-once; a conservative funnel
     /// undercount, never a re-fire).
     @ViewBuilder private var content: some View {
-        if let paywall {
+        if let paywall, let paywallData {
             PaywallView(
-                data: PaywallPresentation.make(copy: PaywallCopy.loadShipping() ?? .degraded),
+                data: paywallData,
                 model: paywall,
                 onUnlocked: {
                     // Entitled (purchase or restore) — fall through to the
                     // dashboard; the entitlement model already adopted the
                     // post-purchase state via the action's completed outcome.
-                    self.paywall = nil
-                    self.model = nil
+                    dismissPaywall()
+                },
+                onTeaserDismiss: {
+                    // R25.7: the take already fired teaser_entered + stamped
+                    // the grant (single-use); the day of access begins here.
+                    dismissPaywall()
                 }
             )
         } else if let model {
@@ -78,19 +96,17 @@ struct PostGateRootView: View {
                         // trapped on a build whose purchases cannot work.
                         if let entitlement = provider?.entitlementModel,
                            PaywallRouting.postSummaryDestination(state: entitlement.state) == .paywall {
-                            paywall = PaywallModel(
-                                purchase: { await RevenueCatPurchaser.purchase(plan: $0) },
-                                restore: { await RevenueCatPurchaser.restore() }
-                            )
-                        } else if Self.paywallDebugOverride {
-                            // R24.1: the DEBUG-only render path (UITEST_PAYWALL=1)
-                            // — the operator's Xcode review substitute for the
-                            // deferred goldens, and E7.2's future smoke hook.
-                            // Inert actions exercise the never-trap surface.
-                            paywall = PaywallModel(
-                                purchase: { _ in .failed },
-                                restore: { .failed }
-                            )
+                            Task { await presentLivePaywall(source: .onboarding) }
+                        } else if let debugVariant = Self.paywallDebugVariant {
+                            // R24.1/R25.9: the DEBUG-only render path
+                            // (UITEST_PAYWALL=1|teaser) — the operator's Xcode
+                            // review substitute for the deferred goldens and
+                            // the scenario-29 smoke's mount hook. Inert
+                            // purchase actions exercise the never-trap
+                            // surface; the presentation fire is REAL (through
+                            // the ONE consent gate, echo-free — the smoke's
+                            // event tail stays true for release builds).
+                            presentDebugPaywall(variant: debugVariant)
                         } else {
                             self.model = nil
                         }
@@ -103,7 +119,17 @@ struct PostGateRootView: View {
             // A quit already exists (or the store is still opening) — the
             // placeholder root (it carries its own anchor and the skeleton is
             // habit-free, so every state here is calm and safe).
+            // E7.2 (R25.7): this dashboard branch is the teaser re-entry
+            // surface — evaluated on appear and on foreground return, ONLY
+            // when a live entitlement model exists (dormant builds never
+            // re-present; E9's real dashboard inherits this rule —
+            // binding-on-future-surfaces). Expiry is SILENT: the wall simply
+            // returns at the next qualifying entry (no countdown, §6.8).
             RootPlaceholderView()
+                .task { checkTeaserReentry() }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active { checkTeaserReentry() }
+                }
         }
     }
 
@@ -118,6 +144,90 @@ struct PostGateRootView: View {
                 ?? QuizSummaryInputs(savings: 0, currencyCode: "USD", riskToken: nil, motivations: []),
             copy: SummaryCopy.loadShipping() ?? .degraded
         )
+    }
+
+    // MARK: - E7.2 paywall presentation (R25.5/R25.7/R25.9)
+
+    /// The LIVE presentation (operator RC key present, not entitled): await
+    /// the sticky assignment (bundled hard-arm while the Superwall key is
+    /// empty), compose the variant's screen, wire the echo (live-only), the
+    /// consent-gated fires, the RC purchase/restore actions, and the teaser
+    /// grant write. The await is genuine (the live adapter reaches
+    /// Superwall's config); the bundled assigner answers immediately.
+    private func presentLivePaywall(source: PaywallSource) async {
+        guard let repository = provider?.repository else {
+            self.model = nil
+            return
+        }
+        let assigner = provider?.paywallAssigner ?? BundledVariantAssigner()
+        let assignment = await assigner.assignment(for: SuperwallPlacement.postSummary)
+        let analytics = repository.analyticsService
+        paywallData = PaywallPresentation.make(
+            copy: PaywallCopy.loadShipping() ?? .degraded,
+            variant: assignment.variant,
+            source: source
+        )
+        paywall = PaywallModel(
+            purchase: { await RevenueCatPurchaser.purchase(plan: $0) },
+            restore: { await RevenueCatPurchaser.restore() },
+            firePaywallViewed: PaywallPresenter.makeFirePaywallViewed(
+                assignment: assignment,
+                source: source,
+                analytics: analytics,
+                // The echo is the LIVE assignment's mirror (§4.4) — written
+                // only here; the debug path passes nil (R25.5).
+                echoAssignment: { try? repository.setPaywallVariantAssigned($0) }
+            ),
+            onPurchaseCompleted: PaywallPresenter.makeOnPurchaseCompleted(analytics: analytics),
+            onTeaserTaken: PaywallPresenter.makeOnTeaserTaken(
+                analytics: analytics,
+                enterTeaser: { try? repository.enterTeaser() }
+            )
+        )
+    }
+
+    /// The DEBUG render (UITEST_PAYWALL=1|teaser): inert purchase actions,
+    /// NO echo (dormant never writes it), NO grant write — but the
+    /// presentation fire is real and consent-gated, so the smoke's asserted
+    /// event chain is exactly what release users produce.
+    private func presentDebugPaywall(variant: PaywallVariant) {
+        let assignment = PaywallAssignment(variant: variant, priceTest: .annual2999)
+        let analytics = provider?.repository?.analyticsService ?? .disabled
+        paywallData = PaywallPresentation.make(
+            copy: PaywallCopy.loadShipping() ?? .degraded,
+            variant: variant,
+            source: .onboarding
+        )
+        paywall = PaywallModel(
+            purchase: { _ in .failed },
+            restore: { .failed },
+            firePaywallViewed: PaywallPresenter.makeFirePaywallViewed(
+                assignment: assignment,
+                source: .onboarding,
+                analytics: analytics,
+                echoAssignment: nil
+            )
+        )
+    }
+
+    /// E7.2 (R25.7): the teaser-expiry re-present — live-model builds only,
+    /// via the repository's own clock (`teaserReentry` — production code
+    /// never reads an ambient Date). The re-present composes the HARD form
+    /// + the expiry eyebrow (single-use escape) and fires with the
+    /// second-impression source.
+    private func checkTeaserReentry() {
+        guard paywall == nil,
+              let entitlement = provider?.entitlementModel,
+              let repository = provider?.repository,
+              case .paywall(let source) = repository.teaserReentry(state: entitlement.state)
+        else { return }
+        Task { await presentLivePaywall(source: source) }
+    }
+
+    private func dismissPaywall() {
+        paywall = nil
+        paywallData = nil
+        model = nil
     }
 
     /// Builds the quiz model once the repository publishes and ONLY when the

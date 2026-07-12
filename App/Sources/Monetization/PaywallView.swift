@@ -18,6 +18,10 @@ struct PaywallView: View {
     /// The forward seam: called on `.unlocked` (purchase or restore) — the
     /// host dismisses to the dashboard.
     let onUnlocked: () -> Void
+    /// E7.2 (R25.7) — the teaser-escape seam: called AFTER `takeTeaser()`
+    /// fired + stamped the grant; the host dismisses to the dashboard.
+    /// Defaulted so every E7.1 call site stays byte-compatible.
+    var onTeaserDismiss: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 20) {
@@ -57,6 +61,12 @@ struct PaywallView: View {
         .padding(20)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("paywall.card")
+        // The ONE presentation fire (R25.5): onAppear delegates to the
+        // model's didFire guard, so SwiftUI re-renders/re-appears stay a
+        // single paywall_viewed per presentation. Both mount paths (live
+        // gate + the DEBUG UITEST_PAYWALL render) arrive here — the smoke's
+        // event tail is true for release builds by construction.
+        .onAppear { model.paywallPresented() }
         .onChange(of: model.phase) { _, phase in
             if phase == .unlocked { onUnlocked() }
         }
@@ -64,6 +74,16 @@ struct PaywallView: View {
 
     private var header: some View {
         VStack(spacing: 8) {
+            // E7.2 (R25.8): the zero-shame acknowledgment on the
+            // teaser-expiry re-present ONLY — a fact plus reassurance,
+            // never a countdown, never loss framing (brandkit §6.8).
+            if let eyebrow = data.expiryEyebrow {
+                Text(eyebrow)
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("paywall.expiryEyebrow")
+            }
             Text(data.headline)
                 .font(.title.weight(.bold))
                 .multilineTextAlignment(.center)
@@ -199,6 +219,34 @@ struct PaywallView: View {
             .buttonStyle(.plain)
             .disabled(model.phase == .working)
             .accessibilityIdentifier("paywall.cta")
+
+            // E7.2 (R25.8): the teaser variant's escape — a §6.2 QuietButton
+            // directly below the CTA (never hidden, never shrunk below
+            // type/body), with its honest "what this does" note read BEFORE
+            // tapping (§1.1 no-dark-patterns). Composed ONLY on the teaser
+            // arm's first impression (data.teaserEscape nil = the close-free
+            // hard variant / the single-use re-present, R24.9/R25.7).
+            if let escape = data.teaserEscape {
+                VStack(spacing: 4) {
+                    Button {
+                        model.takeTeaser()
+                        onTeaserDismiss()
+                    } label: {
+                        Text(escape.label)
+                            .font(.body)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .disabled(model.phase == .working)
+                    .accessibilityIdentifier("paywall.teaser.escape")
+
+                    Text(escape.note)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("paywall.teaser.note")
+                }
+            }
 
             HStack(spacing: 20) {
                 Button {

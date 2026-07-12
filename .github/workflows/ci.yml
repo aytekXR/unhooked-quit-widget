@@ -190,7 +190,7 @@ jobs:
           echo "sole-importer check passed"
 
   monetization-importer-lint:
-    name: "E7.1 lint · the adapter is the sole RevenueCat importer; no Superwall yet"
+    name: "E7.1/E7.2 lint · sole RevenueCat + sole Superwall importers"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -209,11 +209,33 @@ jobs:
             echo "$violations"
             exit 1
           fi
-          # E7.2 scope guard: no Superwall symbol may land before its session.
-          superwall=$(grep -rl --include='*.swift' -E '^import Superwall' . || true)
+          # E7.2 (R25.10, replacing R24.11's outright ban): SuperwallKit is
+          # Darwin/UIKit-only and DORMANT — exactly ONE app-side adapter file
+          # may import it (no contract test this session; the seam is pinned
+          # via the house fake). The widget extension / Shared/Sources /
+          # Packages catches are the privacy + free-Linux-lane backstops. The
+          # regex ANCHORS ^import and prefix-matches SuperwallKit (standing
+          # S24 lint rule).
+          # The anchor admits attribute-prefixed imports (`@preconcurrency
+          # import SuperwallKit` — the adapter's actual spelling; a bare
+          # `^import` anchor would go VACUOUS on it and the sole-importer
+          # gate would silently stop gating).
+          superwall=$(grep -rl --include='*.swift' -E '^(@[A-Za-z_]+ )*import Superwall' . \
+            | grep -vE '^(\./)?App/Sources/Monetization/SuperwallVariantAssigner\.swift$' || true)
           if [ -n "$superwall" ]; then
-            echo "::error::import Superwall found — Superwall is E7.2's, not yet in scope:"
+            echo "::error::import SuperwallKit outside the sole adapter file (R25.10):"
             echo "$superwall"
+            exit 1
+          fi
+          # The RC and SW adapters must stay SEPARATE files forever: both SDKs
+          # model StoreKit and share type names (StoreProduct/CustomerInfo/
+          # SubscriptionPeriod) — a dual-import file makes every one ambiguous
+          # (the reproduced FORM-A burn class, Session 25).
+          dual=$(grep -l -E '^(@[A-Za-z_]+ )*import (RevenueCat|Purchases)' \
+            App/Sources/Monetization/SuperwallVariantAssigner.swift 2>/dev/null || true)
+          if [ -n "$dual" ]; then
+            echo "::error::the Superwall adapter must never import RevenueCat (FORM-A ambiguity):"
+            echo "$dual"
             exit 1
           fi
           echo "monetization importer check passed"

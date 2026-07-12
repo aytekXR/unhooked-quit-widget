@@ -20,6 +20,12 @@ import SwiftUI
 struct AgeGateContainerView: View {
     @Environment(RepositoryProvider.self) private var provider: RepositoryProvider?
     @State private var model: AgeGateModel?
+    /// E7.2 (R25.9, green-critic F1): flipped after the DEBUG seed writes the
+    /// gate pass — a store-row write alone is not observable state, so this
+    /// token forces the re-render that lets `content` re-read store truth
+    /// and mount onward (without it the seeded fallback idles on the
+    /// spinner). Never set in release (the seed itself is #if DEBUG-walled).
+    @State private var debugSeedApplied = false
 
     var body: some View {
         ZStack {
@@ -65,11 +71,31 @@ struct AgeGateContainerView: View {
         }
     }
 
+    /// E7.2 (R25.9) — the scenario-29 wheel-flake fallback: a DEBUG-only
+    /// launch-env seed that marks the gate passed through the repository's
+    /// own writer (store-truth, post-open — never a pre-frame SwiftData
+    /// touch; the UITEST_RESET family). Inert in release BY CONSTRUCTION.
+    /// The smoke drives the REAL wheel first and relaunches with this seed
+    /// only if the drive fails — the gate's un-bypassability stays pinned at
+    /// the unit tier (S18).
+    private static var seedAgeVerified: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_SEED_AGE_VERIFIED"] == "1"
+        #else
+        false
+        #endif
+    }
+
     /// Builds the gate's flow model once the repository publishes and only when the
     /// gate is actually unpassed — a passed install never constructs gate state.
     /// `currentYear` derives from LiveClock (the one sanctioned Date() reader) at
     /// composition time — never a bare Date() (Architect MUST-FIX #4).
     private func makeModelIfNeeded() {
+        if Self.seedAgeVerified, let repository = provider?.repository,
+           !repository.isAgeGatePassed() {
+            try? repository.markAgeGatePassed()
+            debugSeedApplied = true // state flip ⇒ re-render ⇒ content re-reads store truth
+        }
         guard model == nil,
               let repository = provider?.repository,
               AgeGateRouting.firstScreen(ageGatePassed: repository.isAgeGatePassed()) == .ageGate

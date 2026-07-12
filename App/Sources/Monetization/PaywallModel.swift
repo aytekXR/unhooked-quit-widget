@@ -78,22 +78,26 @@ final class PaywallModel {
 
     /// The ONE presentation fire-point (R25.5): the mount path calls this
     /// once the screen is up; the guard makes body re-renders and repeat
-    /// calls inert (MVP §5 "Paywall rendered" = once per presentation).
-    ///
-    /// RED (Session 25): inert — fires nothing until green.
+    /// calls inert (MVP §5 "Paywall rendered" = once per presentation — the
+    /// onSummaryAppear didFire precedent).
     func paywallPresented() {
+        guard !didFirePresentation else { return }
+        didFirePresentation = true
+        firePaywallViewed()
     }
 
     /// The teaser escape's action (R25.7): single-use, fires teaser_entered
-    /// through the composition closure, then the host dismisses.
-    ///
-    /// RED (Session 25): inert — takes nothing until green.
+    /// through the composition closure (which also stamps the grant), then
+    /// the host dismisses.
     func takeTeaser() {
+        guard !didTakeTeaser else { return }
+        didTakeTeaser = true
+        onTeaserTaken()
     }
 
     func purchaseSelectedPlan() async {
         phase = .working
-        adopt(await purchase(selectedPlan))
+        adopt(await purchase(selectedPlan), fromPurchasePath: true)
     }
 
     func restorePurchases() async {
@@ -101,13 +105,20 @@ final class PaywallModel {
         adopt(await restore())
     }
 
-    private func adopt(_ outcome: PurchaseOutcome) {
+    /// `fromPurchasePath` marks a USER-INITIATED purchase completion —
+    /// restore shares every phase transition but NEVER the purchase fire
+    /// (restore ≠ purchase, R25.6; the conformer additionally fires only
+    /// for PAID `.active` states — a trial start is trial_started's moment).
+    private func adopt(_ outcome: PurchaseOutcome, fromPurchasePath: Bool = false) {
         switch outcome {
         case .completed(let state):
             // Restore with nothing behind it reports a non-entitled state —
             // the CALM empty surface (subscribe + restore both still live),
             // never the failure banner (a fact is not an error).
             phase = state.isEntitled ? .unlocked : .restoredEmpty
+            if fromPurchasePath {
+                onPurchaseCompleted(selectedPlan, state)
+            }
         case .cancelled:
             // A deliberate cancel returns to the calm idle screen, wordlessly
             // (blame-free; purchases-ios reports it as an outcome, not error).

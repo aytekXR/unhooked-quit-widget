@@ -60,10 +60,9 @@ enum PaywallPresentation {
     /// every E7.1 call site (and its pins) byte-compatible: `.hard` +
     /// `.onboarding` compose exactly the S24 screen. The teaser arm's first
     /// impression adds the escape; the `.teaserExpiry` re-present adds the
-    /// eyebrow and NEVER the escape (single-use, R25.7).
-    ///
-    /// RED (Session 25): the fork is inert — escape and eyebrow stay nil; the
-    /// teaser-composition pins fail by design until green.
+    /// eyebrow and NEVER the escape (single-use, R25.7 — "Then this screen
+    /// returns." must stay true); the hard variant composes neither
+    /// (close-free, R24.9 carried).
     static func make(
         copy: PaywallCopy,
         variant: PaywallVariant = .hard,
@@ -90,8 +89,10 @@ enum PaywallPresentation {
             retryCta: copy.retryCta,
             restoreEmpty: copy.restoreEmpty,
             restoreSuccess: copy.restoreSuccess,
-            teaserEscape: nil,
-            expiryEyebrow: nil
+            teaserEscape: variant == .teaser && source != .teaserExpiry
+                ? TeaserEscapeData(label: copy.teaserEscapeLabel, note: copy.teaserEscapeNote)
+                : nil,
+            expiryEyebrow: source == .teaserExpiry ? copy.teaserExpiryEyebrow : nil
         )
     }
 

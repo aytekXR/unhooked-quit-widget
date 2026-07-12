@@ -32,6 +32,13 @@ final class RepositoryProvider {
     /// start's live branch, post-frame, normal route). In-memory only (R23.3):
     /// this property is the whole app-side "entitlement store".
     private(set) var entitlementModel: EntitlementModel?
+    /// E7.2 (R25.2) — the variant assigner behind the paywall presentation.
+    /// Constructed ONLY alongside the entitlement model (the monetization
+    /// vertical wakes as a unit — an assigner without an entitlement gate
+    /// has no consumer), so it is nil while DORMANT and nil on the panic
+    /// route forever (R25.12). With the Superwall key absent it is the
+    /// bundled hard-arm assigner; `Superwall.configure` is never called.
+    private(set) var paywallAssigner: (any VariantAssigning)?
 
     private let storeOpener: () throws -> ModelContainer
     private let makeRepository: @MainActor (ModelContainer) -> QuitRepository
@@ -115,6 +122,20 @@ final class RepositoryProvider {
                 let model = EntitlementModel(provider: entitlementProvider)
                 entitlementModel = model
                 Task { await model.refresh() }
+                // E7.2 (R25.2) — the Superwall DORMANT gate, the RC gate's
+                // twin: with the Superwall key EMPTY this vends the bundled
+                // hard-arm assigner and `Superwall.configure` is NEVER
+                // called (configure alone fetches remote config + mints an
+                // anonymous identity — docs-verified 4.16.1). The Superwall
+                // key only matters once THIS RC-keyed branch runs: the
+                // monetization vertical wakes as a unit (operator-expected
+                // §8 orders the two keys).
+                let superwallKey = SuperwallConfiguration.superwallAPIKey
+                paywallAssigner = PaywallPresentationComposition.makeAssigner(
+                    apiKey: superwallKey,
+                    configureSuperwall: { SuperwallVariantAssigner.configure(apiKey: superwallKey) },
+                    makeAdapter: { SuperwallVariantAssigner() }
+                )
             }
         } catch {
             // §9 blocking class: a store that cannot open (or recompute) leaves the

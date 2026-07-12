@@ -8,9 +8,6 @@ import Foundation
 /// configure ALONE fetches remote config, mints a persisted anonymous
 /// identity, and posts install attribution unless event tracking is off —
 /// so "key absent ⇒ configure count 0" is a privacy pin, not bookkeeping.
-///
-/// RED (Session 25): inert — always the bundled assigner, configure never
-/// invoked; the key-present arm fails by design until green.
 @MainActor
 enum PaywallPresentationComposition {
     /// Key absent ⇒ the bundled hard-arm assigner, and `configureSuperwall`
@@ -21,6 +18,8 @@ enum PaywallPresentationComposition {
         configureSuperwall: () -> Void,
         makeAdapter: () -> any VariantAssigning
     ) -> any VariantAssigning {
-        BundledVariantAssigner()
+        guard !apiKey.isEmpty else { return BundledVariantAssigner() }
+        configureSuperwall()
+        return makeAdapter()
     }
 }

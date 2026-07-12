@@ -1,4 +1,5 @@
 import Foundation
+import PaywallKit
 import StreakEngine
 import SwiftData
 
@@ -828,9 +829,10 @@ final class QuitRepository {
     /// injected clock is the one sanctioned Date reader) at the teaser take.
     /// A bare settings save (the `setAnalyticsOptIn` shape — the grant feeds
     /// NO cache: teaser state may never enter a pre-unlock file, §10).
-    ///
-    /// RED (Session 25): inert — stamps nothing until green.
     func enterTeaser() throws {
+        let settings = try fetchOrCreateAppSettings()
+        settings.teaserExpiresAt = TeaserPolicy.expiry(from: clock.now)
+        try context.save()
     }
 
     /// E7.2 (R25.7) — fetch-only read for the re-entry decision (`nil` = no
@@ -847,9 +849,10 @@ final class QuitRepository {
     /// (the live-Superwall assignment echo, test-suite §4.4). Reached ONLY
     /// from the live presentation path's echo closure — the dormant and
     /// bundled-fallback paths never call it (A/B denominators stay pristine).
-    ///
-    /// RED (Session 25): inert — writes nothing until green.
     func setPaywallVariantAssigned(_ variant: String) throws {
+        let settings = try fetchOrCreateAppSettings()
+        settings.paywallVariantAssigned = variant
+        try context.save()
     }
 
     /// E7.2 — fetch-only read of the assignment echo ("" = never assigned;
@@ -858,6 +861,17 @@ final class QuitRepository {
         var descriptor = FetchDescriptor<AppSettings>()
         descriptor.fetchLimit = 1
         return (try? context.fetch(descriptor).first?.paywallVariantAssigned) ?? ""
+    }
+
+    /// E7.2 (R25.7) — the re-entry decision with the repository's OWN clock
+    /// and grant read (production code may never read an ambient Date): a
+    /// thin pass-through to the pure, pinned `PaywallRouting.reentryDestination`
+    /// — the logic lives (and is tested) there; this is the single-call
+    /// composition shim (test-suite §3.1's excluded-from-mocking class).
+    func teaserReentry(state: EntitlementState) -> ReentryDestination {
+        PaywallRouting.reentryDestination(
+            state: state, teaserExpiresAt: teaserExpiresAt(), now: clock.now
+        )
     }
 
     /// E6.3 — the ONE writer of `Quit.discreetMode` (R22.7, Architect MUST). This is

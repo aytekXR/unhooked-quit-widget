@@ -25,13 +25,18 @@ enum SuperwallPlacement {
     /// `paywallId`): an unmapped or absent id resolves to `.hard` — the
     /// control arm, the §8 when-in-doubt grace direction applied to config
     /// gaps (the unknown-SKU precedent, R24.3).
-    ///
-    /// RED (Session 25): inert — always `.hard`; the known-id mapping pin
-    /// fails by design until green.
     static func variant(
         forSuperwallVariantID id: String?,
         mapping: [String: PaywallVariant] = variantMapping
     ) -> PaywallVariant {
-        .hard
+        id.flatMap { mapping[$0] } ?? .hard
+    }
+
+    /// The price arm, derived from a presentation's product ids (the honest
+    /// live signal: only the Superwall B-arm paywall carries `annual.hi` —
+    /// R25.3's orthogonal `price_test` dimension). The bundled fallback
+    /// never shows the hi arm, so absence ⇒ the $29.99 control.
+    static func priceTest(forProductIDs ids: [String]) -> PriceTestVariant {
+        ids.contains(ProductCatalog.annualHiSKU) ? .annual3999 : .annual2999
     }
 }

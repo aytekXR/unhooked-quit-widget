@@ -12,9 +12,6 @@ import PaywallKit
 /// `PaywallModel`. Fire sites NEVER live in view bodies (a re-render must
 /// not re-fire) and NEVER in the Darwin-only RC/Superwall files (QA's
 /// harnessability veto).
-///
-/// RED (Session 25): every factory returns an inert closure — the wire pins
-/// fail by design until green.
 @MainActor
 enum PaywallPresenter {
     /// The paywall_viewed fire for ONE presentation: (live path only) echo
@@ -28,17 +25,29 @@ enum PaywallPresenter {
         analytics: AnalyticsService,
         echoAssignment: ((String) -> Void)? = nil
     ) -> () -> Void {
-        {}
+        {
+            echoAssignment?(assignment.variant.rawValue)
+            analytics.fire(.paywallViewed(
+                variant: assignment.variant.rawValue,
+                priceTest: assignment.priceTest,
+                source: source
+            ))
+        }
     }
 
     /// The teaser take (R25.7): fire `teaser_entered` (the affordance only
     /// exists on the teaser arm, so the variant is structurally `"teaser"`),
-    /// then stamp the grant via the repository's injected-clock write.
+    /// then stamp the grant via the repository's injected-clock write. The
+    /// stamp is consent-INDEPENDENT (the gate swallows the event, never the
+    /// product behavior — a decliner's teaser day is as real as anyone's).
     static func makeOnTeaserTaken(
         analytics: AnalyticsService,
         enterTeaser: @escaping () -> Void
     ) -> () -> Void {
-        {}
+        {
+            analytics.fire(.teaserEntered(variant: PaywallVariant.teaser.rawValue))
+            enterTeaser()
+        }
     }
 
     /// The purchase-completion fire (R25.6): `purchase` is a USER-INITIATED
@@ -53,6 +62,20 @@ enum PaywallPresenter {
     static func makeOnPurchaseCompleted(
         analytics: AnalyticsService
     ) -> (PaywallModel.Plan, EntitlementState) -> Void {
-        { _, _ in }
+        { plan, state in
+            guard case .active = state else { return }
+            let product: Product = switch plan {
+            case .monthly: .monthly
+            case .annual: .annual
+            }
+            let period: SubscriptionPeriod = switch plan {
+            case .monthly: .monthly
+            case .annual: .annual
+            }
+            analytics.fire(.purchase(
+                product: ProductCatalog.wireProductID(for: product),
+                period: period
+            ))
+        }
     }
 }

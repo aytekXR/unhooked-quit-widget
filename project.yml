@@ -50,6 +50,22 @@ packages:
     # a silent no-op in 1.18, functional from 1.19). Version bumps are deliberate
     # commits per test-suite §3.3's re-record discipline.
     exactVersion: "1.19.3"
+  Superwall:
+    url: https://github.com/superwall/Superwall-iOS
+    # EXACT pin (E7.2, R25.10): 4.16.1 verified latest at session open
+    # (released 2026-07-01; GitHub releases API + the tagged manifest). NOT a
+    # churn-avoidance downgrade candidate: 4.16.1 IS the Xcode-26.4 build fix
+    # (CHANGELOG — "Makes sure that the compiler directive is correct … so
+    # that the SDK builds in Xcode version 26.4"), and our billed lane is
+    # macos-26. Product/module = "SuperwallKit". Transitive:
+    # superscript-ios-next .exact(1.0.14), which pulls the checksummed
+    # `libcel.xcframework` binary (~95MB, Apple-only slices) at resolve time
+    # — the full pin graph reproduced conflict-free locally pre-push (our
+    # four exact pins win; R24.8 discipline). App target ONLY — never the
+    # widget extension (pre-unlock surface), and NOT UnhookedTests this
+    # session (no SDK-value contract test; the seam is pinned via the house
+    # FakePaywallPresenter — R25.10).
+    exactVersion: "4.16.1"
   TelemetryDeck:
     url: https://github.com/TelemetryDeck/SwiftSDK
     # EXACT pin (E8.1): latest STABLE — 3.0.0 exists only as betas (docs-checked
@@ -146,6 +162,12 @@ targets:
       # only the core SDK is wanted.
       - package: RevenueCat
         product: RevenueCat
+      # E7.2: DORMANT behind SuperwallConfiguration.superwallAPIKey (empty ⇒
+      # configure never runs, zero network — the RC precedent, R25.2).
+      # Explicit product: the package vends one library, but XcodeGen links
+      # nothing without the sub-key. App target ONLY (R25.10).
+      - package: Superwall
+        product: SuperwallKit
     info:
       path: App/Info.plist
       properties:

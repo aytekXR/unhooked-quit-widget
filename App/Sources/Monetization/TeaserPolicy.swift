@@ -13,20 +13,20 @@ import Foundation
 /// production code): `now` is always injected — the repository stamps via
 /// its `ClockProviding`, the routing layer passes the same reading through.
 ///
-/// RED (Session 25): inert — the grant math fails by design until green.
 enum TeaserPolicy {
     /// The grant length: one day, as a duration (86_400 wall-clock seconds).
     static let grantDuration: TimeInterval = 86_400
 
     /// The expiry instant for a teaser taken at `now`.
     static func expiry(from now: Date) -> Date {
-        now
+        now.addingTimeInterval(grantDuration)
     }
 
     /// `nil` = no teaser was ever taken ⇒ never expired (the gate simply
     /// isn't in play); a stamped teaser is expired from the exact boundary
-    /// instant onward (`now >= expiresAt`).
+    /// instant onward (`now >= expiresAt` — a grant is [take, take+86400)).
     static func isExpired(_ expiresAt: Date?, now: Date) -> Bool {
-        false
+        guard let expiresAt else { return false }
+        return now >= expiresAt
     }
 }

@@ -428,6 +428,14 @@ struct PanicPathTests {
             provider.entitlementModel == nil,
             "the PANIC route never constructs the entitlement stack (E7.1 panic purity)"
         )
+        // E7.2 (R25.12, additive strengthening): the Superwall/variant stack
+        // rides the SAME guarded block — the panic route holds no assigner
+        // and can never reach a Superwall configure (panic surfaces never
+        // open the store OR query entitlements, pinned since S24).
+        #expect(
+            provider.paywallAssigner == nil,
+            "the PANIC route never constructs the paywall assigner (E7.2 panic purity)"
+        )
     }
 
     @Test func test_launch_normalRoute_opensStoreOnce_recomputes_andRefreshesPreCache() throws {
