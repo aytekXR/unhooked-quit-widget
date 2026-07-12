@@ -144,15 +144,18 @@ struct StreakWidgetSnapshotTests {
                     precision: 0.99,
                     perceptualPrecision: 0.98,
                     layout: .fixed(width: canvas.width, height: canvas.height),
-                    traits: UITraitCollection(traitsFrom: [
-                        ViewImageConfig.iPhone13.traits,
-                        UITraitCollection { traits in
-                            traits.userInterfaceStyle = axis.dark ? .dark : .light
-                            traits.preferredContentSizeCategory = axis.ax5
-                                ? .accessibilityExtraExtraExtraLarge
-                                : .large
-                        },
-                    ])
+                    // The axis overrides via the neighbors' exact closure-init form —
+                    // `UITraitCollection(traitsFrom:)` is deprecated in iOS 17 and
+                    // warnings are errors (this exact line burned billed run
+                    // 29178893738; the flow neighbors never carried a traits merge:
+                    // under `.fixed` the render scale is device-native on the pinned
+                    // CI simulator, identical to the `.device(config:)` neighbors).
+                    traits: UITraitCollection { traits in
+                        traits.userInterfaceStyle = axis.dark ? .dark : .light
+                        traits.preferredContentSizeCategory = axis.ax5
+                            ? .accessibilityExtraExtraExtraLarge
+                            : .large
+                    }
                 ),
                 named: axis.name,
                 fileID: fileID,
