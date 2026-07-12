@@ -10,6 +10,6 @@ struct WidgetToolkitSurfaceTests {
     /// move together or the billed macOS lane goes red.
     @Test("package exposes its version")
     func packageExposesEntryPoint() {
-        #expect(WidgetToolkit.version == "1.0.0")
+        #expect(WidgetToolkit.version == "1.1.0")
     }
 }

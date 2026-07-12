@@ -4,6 +4,8 @@
 /// patterns (E6.3) still arrive with their epics, test-first.
 public enum WidgetToolkit {
     /// The released package version a consumer depends on, readable at runtime (the StreakEngine
-    /// convention). 1.0.0 = E6.1's timeline planner; tagged widgettoolkit-v1.0.0.
-    public static let version = "1.0.0"
+    /// convention). 1.1.0 = E6.2: the planner grew the milestone-crossing `milestones:`
+    /// param + the decode-door timezone re-pin (additive, source-compatible — semver minor);
+    /// 1.0.0 = E6.1's timeline planner, tagged widgettoolkit-v1.0.0.
+    public static let version = "1.1.0"
 }

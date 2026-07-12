@@ -164,7 +164,7 @@ final class QuitRepository {
             }
             if landed > 0 {
                 try context.save()
-                rebuildPanicSnapshot()
+                rebuildSnapshots()
                 scheduleWidgetReload()
                 // Post-commit (§1.2 invariant 3): one urge_averted per LANDED
                 // attributed averted row. [R-NILQUIT] rows fire nothing — the
@@ -248,7 +248,9 @@ final class QuitRepository {
     /// that justifies `#Index<Quit>([\.isArchived, \.sortIndex])` (architecture §4).
     /// The in-memory id tiebreak keeps the order TOTAL: the dedupe merge resolves a
     /// duplicate group's sortIndex with min, which can land on an existing quit's
-    /// value — widget selectors bind by position, so ties must not flap.
+    /// value — ties must not flap. Widget selectors bind by quit UUID, never by
+    /// position (E6.2, mvp feature 5); this order still matters as the UNCONFIGURED
+    /// widget's deterministic default and the caches' display order.
     func activeQuits() throws -> [Quit] {
         try context.fetch(
             FetchDescriptor<Quit>(
@@ -312,6 +314,10 @@ final class QuitRepository {
         quit.currencyCode = currencyCode
         quit.startAt = now
         quit.createdAt = now
+        // E6.2 (ADR-11, step-0 R2): the FIXED day-boundary zone, stamped once at
+        // creation in the single funnel BOTH public creators share — never rewritten,
+        // so a later flight or Settings zone change cannot mint a free day.
+        quit.startTimeZoneIdentifier = TimeZone.current.identifier
         // The streak's anchor: wallClock == startAt (the engine's documented invariant).
         quit.monotonicAnchor = MonotonicAnchor(
             bootID: reading.bootID, uptime: reading.uptime, wallClock: now
@@ -345,7 +351,7 @@ final class QuitRepository {
             currencyCode: "USD"
         )
         try context.save()
-        rebuildPanicSnapshot()
+        rebuildSnapshots()
         scheduleWidgetReload()
         return quit
     }
@@ -388,7 +394,7 @@ final class QuitRepository {
         // when its wiring session lands (quitIndex = quit.sortIndex + 1). The
         // repository create path is the fire-point so both onboarding AND the
         // future E6.2 dashboard add emit it exactly once.
-        rebuildPanicSnapshot()
+        rebuildSnapshots()
         scheduleWidgetReload()
         return quit
     }
@@ -452,7 +458,7 @@ final class QuitRepository {
         refreshLastKnownGood(
             anchor: before.monotonicAnchor, now: now, reading: reading, lastKnownGood: lastKnownGood
         )
-        rebuildPanicSnapshot()
+        rebuildSnapshots()
         scheduleWidgetReload()
         return slip
     }
@@ -510,7 +516,7 @@ final class QuitRepository {
         analytics.fire(.slipUndone)
 
         // NO witness refresh: restoring a historical anchor earns no fresh wall trust.
-        rebuildPanicSnapshot()
+        rebuildSnapshots()
         scheduleWidgetReload()
         return true
     }
@@ -607,7 +613,7 @@ final class QuitRepository {
         refreshLastKnownGood(
             anchor: quit.monotonicAnchor, now: now, reading: reading, lastKnownGood: lastKnownGood
         )
-        rebuildPanicSnapshot()
+        rebuildSnapshots()
         scheduleWidgetReload()
         return event
     }
@@ -652,7 +658,7 @@ final class QuitRepository {
         //    rule): buffered urge outcomes are §10 "never leaves the device" data.
         try Self.eraseLocalArtifacts(
             storeURLs: container.configurations.compactMap { $0.isStoredInMemoryOnly ? nil : $0.url },
-            appGroupFileURLs: [panicSnapshotStore.fileURL, panicOutcomeBuffer.fileURL],
+            appGroupFileURLs: [panicSnapshotStore.fileURL, panicOutcomeBuffer.fileURL, widgetStateStore.fileURL],
             appGroupDefaults: appGroupDefaults
         )
 
@@ -693,7 +699,9 @@ final class QuitRepository {
             appGroupDefaults.removeObject(forKey: key)
         }
         // Owned App Group FILES (E3.1 closes the Session-08 carry item):
-        // panic-snapshot.json today; widget-state.json joins with its E6 writer. An
+        // panic-snapshot.json, the outcome buffer, and (E6.2, its landing session)
+        // widget-state.json — pre-unlock-readable artifacts erased in ALL THREE
+        // enumeration sites in the same commit (the standing rule). An
         // allowlist of exact URLs, never a directory sweep (E2.4 scope pin — the real
         // container holds unrelated files). Missing file = nothing to do.
         let fileManager = FileManager.default
@@ -1026,28 +1034,46 @@ final class QuitRepository {
             ))
         }
 
+        // E6.2 (ADR-11, step-0 R2): the ONE-TIME startTimeZoneIdentifier backfill for
+        // pre-E6.2 rows — the launch pass runs BEFORE the launch snapshot refresh
+        // (RepositoryProvider ordering), so "" can never reach the widget feed. The
+        // device's current zone is the best available truth for a quit whose real
+        // start zone predates the field; it becomes FIXED here (set once, never
+        // rewritten — a two-device backfill race converges by LWW, a recorded
+        // limitation).
+        for quit in try context.fetch(FetchDescriptor<Quit>())
+        where quit.startTimeZoneIdentifier.isEmpty {
+            quit.startTimeZoneIdentifier = TimeZone.current.identifier
+            didMutate = true
+        }
+
         if didMutate {
             try context.save()
-            rebuildPanicSnapshot()
+            rebuildSnapshots()
             scheduleWidgetReload()
         }
         return didMutate
     }
 
-    // MARK: - E3.1 · panic pre-cache (panic-snapshot.json)
+    // MARK: - E3.1/E6.2 · the App Group snapshots (panic-snapshot.json + widget-state.json)
 
-    /// ADR-6's dual-representation invariant: every mutating write rebuilds the panic
-    /// pre-cache AFTER the store commit, so the cold panic route always renders the
-    /// user's current quits + verbatim motivations without touching the store.
+    /// ADR-6's dual-representation invariant: every mutating write rebuilds BOTH App
+    /// Group snapshots AFTER the store commit (architecture §5.1 has always named this
+    /// `rebuildSnapshots`) — the cold panic route renders the pre-cache, the widget
+    /// extension renders the feed, neither ever touches the store.
     /// Best-effort by design (§9 silent-recover): a failed write leaves the last good
     /// cache standing — the store stays the source of truth and the next write or
     /// launch refresh heals the file. NEVER called from `eraseEverything` — erased
-    /// means ABSENT until a new tracking era's first write (the sweep owns the file).
-    private func rebuildPanicSnapshot() {
+    /// means ABSENT until a new tracking era's first write (the sweep owns the files).
+    /// The widget feed DIVERGES on empty (step-0 R3): zero active quits ⇒ the file is
+    /// REMOVED, never written present-empty — the planner's nil read ⇒ ONE
+    /// `.unavailable` entry is what clears an erased streak off the lock screen.
+    private func rebuildSnapshots() {
         guard let quits = try? activeQuits() else { return }
         let now = clock.now
         let reading = clock.monotonicNow
         let lastKnownGood = lastKnownGoodStore.load()
+        var feedCards: [WidgetQuitState] = []
         let cards = quits.map { quit -> QuitSnapshot in
             // E4.1 additive streak fields (§3 sketch; schemaVersion stays 1): raw
             // scalars from store truth — the cold slip flow's forgiveness framing
@@ -1058,6 +1084,32 @@ final class QuitRepository {
             let value = StreakCalculator.currentStreak(
                 for: snapshot(of: quit), now: now, monotonic: reading, lastKnownGood: lastKnownGood
             )
+            // E6.2 — the widget feed's card, built in the SAME guarded pass (§10: the
+            // ruled R1 field set, label/category/motivation-FREE; the ABSENCE set is
+            // the point on a pre-unlock-readable file).
+            feedCards.append(WidgetQuitState(
+                id: quit.id,
+                // The guard-corrected display origin: an uncorrected (.normal) read
+                // keeps the STORE's startAt byte-for-byte (sub-second fidelity — a
+                // now−elapsed reconstruction truncates to whole seconds, and a start
+                // that slips across a midnight would read one day low forever); only
+                // a corrected read reconstructs from the guarded elapsed value.
+                streakStart: value.clockSanity == .normal
+                    ? quit.startAt
+                    : now - TimeInterval(value.elapsedSeconds),
+                // Never empty in the feed: the launch backfill runs first; this
+                // fallback covers only the write-before-backfill window and never
+                // persists (TimeZone.current, NOT GMT — a GMT guess would shift the
+                // day boundary by hours for everyone west of Greenwich).
+                timeZoneIdentifier: quit.startTimeZoneIdentifier.isEmpty
+                    ? TimeZone.current.identifier
+                    : quit.startTimeZoneIdentifier,
+                weeklySpend: "\(quit.weeklySpend)",
+                currencyCode: quit.currencyCode,
+                bankedCleanSeconds: quit.totalCleanSeconds,
+                momentumPercent: Int((value.momentum * 100).rounded()),
+                milestoneHours: MilestoneCatalog.shipping.hours(for: quit.habitCategory)
+            ))
             return QuitSnapshot(
                 id: quit.id,
                 // §10: discreet mode strips labels from snapshots (readable pre-unlock).
@@ -1072,13 +1124,19 @@ final class QuitRepository {
             )
         }
         try? panicSnapshotStore.write(PanicSnapshot(quits: cards))
+        if feedCards.isEmpty {
+            try? widgetStateStore.remove()
+        } else {
+            try? widgetStateStore.write(WidgetFeed(generatedAt: now, quits: feedCards))
+        }
     }
 
-    /// Launch-time refresh (`RepositoryProvider.startIfNeeded`): rewrites the cache
-    /// from store truth — heals a previously failed best-effort write and prunes any
-    /// residue the moment a new tracking era begins.
+    /// Launch-time refresh (`RepositoryProvider.startIfNeeded`): rewrites BOTH caches
+    /// from store truth — heals a previously failed best-effort write, prunes any
+    /// residue the moment a new tracking era begins, and (E6.2) DELETES a stale
+    /// widget feed when zero quits remain.
     func refreshPanicSnapshot() {
-        rebuildPanicSnapshot()
+        rebuildSnapshots()
     }
 
     /// Brand-safe display label for the pre-cache: the user's own words when they

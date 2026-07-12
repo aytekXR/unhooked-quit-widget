@@ -136,13 +136,31 @@ public struct StreakTimelinePlanner: Sendable {
             cursor = midnight
         }
 
+        // E6.2: caller-computed milestone crossings (architecture §11 — milestones are
+        // elapsed-hours-keyed, so a crossing almost never lands on a local midnight; without an
+        // entry there the medium's milestone bar renders up to ~24h stale). Crossings interleave
+        // with the midnight boundaries; one that coincides with a planned instant FUSES into it
+        // (never a duplicate entry), and past-or-present crossings are dropped — the `now` entry
+        // already renders the post-crossing state, and a boundary at `now` would be the §11
+        // hot loop. Entries stay chronological whatever order the two boundary kinds land in.
+        var plannedInstants = Set(entries.map(\.date))
+        for crossing in milestones.sorted() where crossing > now && !plannedInstants.contains(crossing) {
+            entries.append(
+                entry(at: crossing, state: state, calendar: calendar, graceWindow: graceWindow)
+            )
+            boundaries.append(crossing)
+            plannedInstants.insert(crossing)
+        }
+        entries.sort { $0.date < $1.date }
+
         // Come back at the last BOUNDARY planned, so the timeline refills itself without a write.
         // Never `entries.last` — with a zero horizon that is the `now` entry, and asking WidgetKit
         // to reload at a moment already past means "reload immediately", burning the refresh budget
-        // (§11) in a hot loop. With no boundary planned, fall back to the next real rollover so the
-        // timeline still renews when the day actually turns.
+        // (§11) in a hot loop. A milestone crossing beyond the last midnight EXTENDS the refill
+        // point (the max boundary, not the last appended). With no boundary planned, fall back to
+        // the next real rollover so the timeline still renews when the day actually turns.
         // (The push-based reload on every write is the FRESHNESS path, §11 — independent of this.)
-        let renewal = boundaries.last ?? calendar.nextDate(
+        let renewal = boundaries.max() ?? calendar.nextDate(
             after: now,
             matching: DateComponents(hour: 0, minute: 0, second: 0),
             matchingPolicy: .nextTime,

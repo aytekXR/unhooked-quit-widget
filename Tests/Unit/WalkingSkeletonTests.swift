@@ -44,11 +44,11 @@ struct WalkingSkeletonTests {
         // 1.2.0 = the E2.3 healing re-anchor (healFrozenStreak), semver-minor,
         // tagged streakengine-v1.2.0.
         #expect(StreakEngine.version == "1.2.0")
-        // 1.0.0 = E6.1's streak timeline planner (midnight/DST rollover, stale-grace,
-        // ticking windows) — WidgetToolkit's first real API, tagged widgettoolkit-v1.0.0.
+        // 1.1.0 = E6.2's milestone-crossing `milestones:` param + the decode-door timezone
+        // re-pin (semver-minor over 1.0.0 = E6.1's timeline planner, widgettoolkit-v1.0.0).
         // This pin runs in the BILLED macOS lane and moves in lockstep with the package's
         // own pin (Packages/WidgetToolkit/Tests/.../WidgetToolkitTests.swift).
-        #expect(WidgetToolkit.version == "1.0.0")
+        #expect(WidgetToolkit.version == "1.1.0")
         #expect(PaywallKit.version == "0.0.1-skeleton")
     }
 

@@ -31,6 +31,7 @@ struct UnhookedApp: App {
                 appGroupFileURLs: [
                     PanicSnapshotStore.appGroup()?.fileURL,
                     PanicOutcomeBuffer.appGroup()?.fileURL, // E3.2: mirrors eraseEverything's owned set
+                    WidgetStateStore.appGroup()?.fileURL, // E6.2: the widget feed joins in its landing session
                 ].compactMap { $0 },
                 appGroupDefaults: groupDefaults
             )
@@ -49,6 +50,7 @@ struct UnhookedApp: App {
                 appGroupFileURLs: [
                     PanicSnapshotStore.appGroup()?.fileURL,
                     PanicOutcomeBuffer.appGroup()?.fileURL,
+                    WidgetStateStore.appGroup()?.fileURL, // E6.2: mirrors the sites above
                 ].compactMap { $0 },
                 appGroupDefaults: groupDefaults
             )

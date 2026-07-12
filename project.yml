@@ -96,6 +96,14 @@ targets:
       # founder-owned (operator-expected §3), lexicon-scanned by SlipLexiconTests.
       - path: App/Resources/Content/summaryCopy.json
         buildPhase: resources
+      # E6.2 (widget feed) is the consuming epic: the writer maps each quit's milestone
+      # ladder (elapsed-hour offsets ONLY — titles/bodies never reach the pre-unlock
+      # widget feed) from this table. Bundling makes its DRAFT copy TestFlight-shipping
+      # content (E9's dashboard is the titles' first renderer), moving its tone review
+      # up the operator queue (operator-expected §3) — the panicScript/slipCopy
+      # precedent.
+      - path: App/Resources/Content/milestones.json
+        buildPhase: resources
       # AppIcon is the brandkit single-size set (light + dark + tinted 1024): actool
       # generates every size, incl. the iPad 152/167 App Store validation requires
       # even for an iPhone-only app (upload error 90023 without it). The light 1024
