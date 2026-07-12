@@ -111,7 +111,7 @@ struct Contract_RevenueCat {
     /// prepaid) — a renamed/renumbered SDK case must fail HERE, at the
     /// contract tier, not in production mapping.
     @Test func contract_periodTypeMirror_isOneToOne() {
-        let pairs: [(RevenueCat.PeriodType, PaywallKit.PeriodType)] = [
+        let pairs: [(RevenueCat.PeriodType, EntitlementPeriodType)] = [
             (.normal, .normal), (.intro, .intro), (.trial, .trial), (.prepaid, .prepaid),
         ]
         for (rc, mirrored) in pairs {

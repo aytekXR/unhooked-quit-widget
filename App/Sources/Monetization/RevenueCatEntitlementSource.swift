@@ -77,8 +77,10 @@ struct RevenueCatEntitlementSource: EntitlementSource {
     /// RC PeriodType → PaywallKit's mirror (value sets identical at 5.80.3:
     /// normal|intro|trial|prepaid). `@unknown default` maps ACTIVE-safe
     /// `.normal` — consistent with the S23 ruling that only `.trial` gates
-    /// trial-ness and doubt honors the entitlement.
-    static func periodType(from rcPeriodType: RevenueCat.PeriodType) -> PaywallKit.PeriodType {
+    /// trial-ness and doubt honors the entitlement. Return type via the
+    /// alias — `PaywallKit.PeriodType` resolves to the version-marker ENUM,
+    /// not the module (the run-3 burn; see CustomerEntitlementView).
+    static func periodType(from rcPeriodType: RevenueCat.PeriodType) -> EntitlementPeriodType {
         switch rcPeriodType {
         case .normal: .normal
         case .intro: .intro

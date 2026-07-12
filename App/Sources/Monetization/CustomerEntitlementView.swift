@@ -1,6 +1,16 @@
 import Foundation
 import PaywallKit
 
+/// Module-vs-type disambiguation (the Session 24 run-3 burn, Linux-reproduced):
+/// the PaywallKit MODULE exports an enum ALSO named `PaywallKit` (the S23
+/// version marker), so the qualified `PaywallKit.PeriodType` resolves to the
+/// ENUM — "'PeriodType' is not a member type" — in any file that must qualify
+/// (the RC adapter imports both SDKs, where the bare name is ambiguous
+/// against `RevenueCat.PeriodType`). This alias is declared HERE, where
+/// PaywallKit is the sole import and the bare name is exact; both-SDK files
+/// use the alias and never the qualified form.
+typealias EntitlementPeriodType = PeriodType
+
 /// The neutral, RC-free mirror of the one RevenueCat `EntitlementInfo` this
 /// app reads (R24.3). A plain struct — deliberately NOT a protocol over the
 /// SDK type (RC's `EntitlementInfo` already owns the member name `periodType`
