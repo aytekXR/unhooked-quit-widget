@@ -33,19 +33,24 @@ final class AppIconSwitcher {
         self.fireIconEnabled = fireIconEnabled
     }
 
-    /// Selects an alternate icon (`nil` = back to primary).
-    ///
-    /// Red-commit surface: API final, behavior lands with the green commit (the
-    /// SlipFlowModel precedent). The I1/I4 pins fix the green semantics: persist
-    /// durably AT the tap, then request the OS swap; fire `.icon` on non-nil
-    /// selections only (reset-to-primary fires nothing).
+    /// Selects an alternate icon (`nil` = back to primary): persists the choice
+    /// durably AT the tap (the `setAnalyticsOptIn` at-the-tap precedent), then
+    /// requests the OS swap; fires `.icon` on NON-nil selections only (enable-only —
+    /// picking "Default" back fires nothing, I5).
     func select(_ iconID: String?) async throws {
+        try persist(iconID)
+        try await apply(iconID)
+        if iconID != nil {
+            fireIconEnabled()
+        }
     }
 
     /// Erase-path reset (R22.4): best-effort primary-icon request, sequenced by the
     /// erase flow AFTER the data erase completes. Idempotent — `nil` over primary is
-    /// a no-op at the OS layer.
+    /// a no-op at the OS layer. Deliberately does NOT persist: the erase has already
+    /// wiped the AppSettings row, and a persist here would re-insert one post-erase.
     func resetToPrimary() async throws {
+        try await apply(nil)
     }
 }
 

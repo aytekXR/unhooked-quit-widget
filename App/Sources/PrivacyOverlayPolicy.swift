@@ -16,9 +16,7 @@ enum PrivacyOverlayPolicy {
     ///   posture; an indeterminate signal exposing motivations is the failure mode
     ///   this exists to close (privacy panel MUST-FIX #2).
     ///
-    /// Red-commit surface: deliberately inert (never active) — O1 is the designed
-    /// red; the twins (active-phase, affirmative-false) are born-green against it.
     static func isActive(phase: ScenePhase, anyActiveQuitDiscreet: Bool?) -> Bool {
-        false
+        phase != .active && anyActiveQuitDiscreet != false
     }
 }

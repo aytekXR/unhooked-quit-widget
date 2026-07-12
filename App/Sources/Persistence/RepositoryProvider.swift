@@ -16,6 +16,15 @@ final class RepositoryProvider {
     /// Published for consumers (E3.2 panic flow, E4.1 slip flow) via the SwiftUI
     /// environment; `nil` until the normal route's deferred start completes.
     private(set) var repository: QuitRepository?
+    /// E6.3 (R22.5) — the shield policy's TRI-STATE input on the normal route:
+    /// `nil` (indeterminate — store not yet open, or a read failure) must read as
+    /// "cover" (fail-toward-privacy); the policy only skips the cover on an
+    /// AFFIRMATIVE `false`. Refreshed on start and after every discreet toggle.
+    private(set) var discreetAnyActive: Bool?
+    /// E6.3 (R22.3) — the composed alternate-icon seam (persist → repository;
+    /// apply → the ONE UIApplication touch point; fire → the consent-gated
+    /// service). `nil` until the deferred start completes, like `repository`.
+    private(set) var appIconSwitcher: AppIconSwitcher?
 
     private let storeOpener: () throws -> ModelContainer
     private let makeRepository: @MainActor (ModelContainer) -> QuitRepository
@@ -49,12 +58,41 @@ final class RepositoryProvider {
             repository.flushPanicOutcomes()
             repository.refreshPanicSnapshot()
             self.repository = repository
+            // E6.3 — the shield's discreet signal (fail-toward-privacy: a read
+            // failure leaves nil = cover) + the composed icon seam. Strong captures
+            // are cycle-free: the repository never references the switcher.
+            discreetAnyActive = (try? repository.activeQuits())?.contains { $0.discreetMode }
+            let switcher = AppIconSwitcher(
+                persist: { try repository.setDiscreetIconId($0) },
+                apply: AppIconComposition.makeLiveApply(),
+                fireIconEnabled: {
+                    repository.analyticsService.fire(.discreetModeEnabled(component: .icon))
+                }
+            )
+            appIconSwitcher = switcher
+            // R22.4 launch reconciliation, RESET-ONLY: an OS alternate icon that
+            // outlived its persisted selection (a lost erase-path reset) heals to
+            // primary; a persisted selection is never re-applied (no unprompted
+            // system alert at launch).
+            if AppIconReconciler.reconcile(
+                osAlternateIconName: AppIconComposition.currentAlternateIconName,
+                persistedIconID: repository.discreetIconId()
+            ) == .resetToPrimary {
+                Task { try? await switcher.resetToPrimary() }
+            }
         } catch {
             // §9 blocking class: a store that cannot open (or recompute) leaves the
             // repository nil and the placeholder UI standing. The full-screen
             // recovery flow (CloudKit re-hydration → offer erase-and-restart) is a
             // later epic's deliberate feature — nothing to silently retry here.
         }
+    }
+
+    /// E6.3 — re-reads the discreet-any signal after a toggle (the settings screen
+    /// calls this beside `setDiscreetMode`; erase paths recompute on next launch).
+    func refreshDiscreetSignal() {
+        guard let repository else { return }
+        discreetAnyActive = (try? repository.activeQuits())?.contains { $0.discreetMode }
     }
 
     /// Production composition root — the ONE place the real clock, WidgetCenter,

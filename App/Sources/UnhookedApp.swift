@@ -15,6 +15,17 @@ struct UnhookedApp: App {
     /// Constructed pre-frame but does ZERO work until `startIfNeeded` (pinned by the
     /// PanicPathTests init-order spy); published to future consumers via environment.
     private let provider = RepositoryProvider()
+    /// E6.3 (R22.5) — the app-switcher shield. Construction allocates nothing UIKit
+    /// (the window is lazy, created on the FIRST cover); at cold launch the phase is
+    /// `.active` so the policy is inactive and the first frame never pays for it.
+    private let shield = AppSwitcherShield()
+    /// The shield policy's tri-state discreet signal for the COLD PANIC branch,
+    /// derived pre-frame from the SAME single pre-cache read the route resolution
+    /// already does (no new IO): `nil` when the pre-cache is missing/unreadable —
+    /// the policy covers on nil (fail-toward-privacy). The normal branch leaves this
+    /// nil and the provider's post-frame signal takes over.
+    private let initialDiscreetAny: Bool?
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         PanicLaunchTrace.begin()
@@ -71,13 +82,21 @@ struct UnhookedApp: App {
         rootKind = LaunchRouter.resolveRoot(panicFlagIsSet: forcedPanic || PanicLaunchFlag.isSet())
         // The panic branch resolves its content HERE, pre-frame, from the App Group
         // pre-cache alone — a few-KB synchronous JSON read, inside the §11 ≤200ms
-        // content budget. The normal branch reads nothing.
+        // content budget. The normal branch reads nothing. E6.3: the SAME single
+        // read also seeds the shield's tri-state discreet signal (nil when the
+        // pre-cache is unreadable ⇒ the policy covers — R22.5 fail-closed).
+        let panicSnapshot = rootKind == .panicPlaceholder
+            ? PanicSnapshotStore.appGroup()?.read()
+            : nil
         panicPresentation = rootKind == .panicPlaceholder
             ? PanicRouteResolver.resolve(
                 selectedQuitID: PanicLaunchFlag.selectedQuitID(),
-                snapshot: PanicSnapshotStore.appGroup()?.read()
+                snapshot: panicSnapshot
             )
             : .empty
+        initialDiscreetAny = rootKind == .panicPlaceholder
+            ? panicSnapshot.map { snapshot in snapshot.quits.contains { $0.discreet } }
+            : nil
         // The launch's TRUE origin (E3.3), captured pre-frame on the same read — the
         // placeholder's onAppear consumes all flag keys. A flag with no source is a
         // legacy/pre-E3.3 writer (or the FORCE_PANIC_ROUTE test hook) and keeps the
@@ -89,21 +108,36 @@ struct UnhookedApp: App {
 
     var body: some Scene {
         WindowGroup {
-            switch rootKind {
-            case .placeholderTabs:
-                // E5.1: the age-gate container IS the normal root — it hosts
-                // RootPlaceholderView only past a store-truth `ageGatePassed`
-                // (fail-closed; feasibility condition #6: no habit content
-                // reachable pre-gate). The panic branch below never mounts it.
-                AgeGateContainerView()
-                    .environment(provider)
-                    // Post-first-frame by construction: `.task` runs after the frame
-                    // commits — the ONE sanctioned path to store open + the launch
-                    // derived-state pass (ADR-6). The provider is ALSO route-aware,
-                    // so a mis-wired panic branch could still never open the store.
-                    .task { provider.startIfNeeded(for: rootKind) }
-            case .panicPlaceholder:
-                PanicPlaceholderView(presentation: panicPresentation, source: panicSource)
+            Group {
+                switch rootKind {
+                case .placeholderTabs:
+                    // E5.1: the age-gate container IS the normal root — it hosts
+                    // RootPlaceholderView only past a store-truth `ageGatePassed`
+                    // (fail-closed; feasibility condition #6: no habit content
+                    // reachable pre-gate). The panic branch below never mounts it.
+                    AgeGateContainerView()
+                        .environment(provider)
+                        // Post-first-frame by construction: `.task` runs after the frame
+                        // commits — the ONE sanctioned path to store open + the launch
+                        // derived-state pass (ADR-6). The provider is ALSO route-aware,
+                        // so a mis-wired panic branch could still never open the store.
+                        .task { provider.startIfNeeded(for: rootKind) }
+                case .panicPlaceholder:
+                    PanicPlaceholderView(presentation: panicPresentation, source: panicSource)
+                }
+            }
+            // E6.3 (R22.5) — the ONE shield driver: a top-level scene-phase observer
+            // (independent of RootPlaceholderView's finalize sweep — they share no
+            // state) feeding the pure policy. The shield is a separate high-level
+            // UIWindow, so it covers sheets and every route — a content overlay here
+            // could not (privacy panel MUST-FIX #1). Normal route: the provider's
+            // post-frame signal (nil until the store opens ⇒ covered). Panic route:
+            // the pre-cache-derived tri-state captured in init.
+            .onChange(of: scenePhase) { _, phase in
+                shield.update(covered: PrivacyOverlayPolicy.isActive(
+                    phase: phase,
+                    anyActiveQuitDiscreet: provider.discreetAnyActive ?? initialDiscreetAny
+                ))
             }
         }
     }

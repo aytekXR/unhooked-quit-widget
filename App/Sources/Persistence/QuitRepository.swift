@@ -788,10 +788,17 @@ final class QuitRepository {
     /// `createQuit` tail verbatim, unlike `setAnalyticsOptIn` which touches no cache.
     func setDiscreetMode(quitID: UUID, enabled: Bool) throws {
         let quit = try fetchQuit(quitID)
+        let wasEnabled = quit.discreetMode
         quit.discreetMode = enabled
         try context.save()
         rebuildSnapshots()
         scheduleWidgetReload()
+        // R22.6 enable-only semantics (mvp §5 `discreet_mode_enabled`): the OFF→ON
+        // edge fires `.widget` through the ONE consent-gated service; toggling OFF —
+        // or re-saving an already-on quit — fires nothing (I5's negative pin).
+        if enabled && !wasEnabled {
+            analytics.fire(.discreetModeEnabled(component: .widget))
+        }
     }
 
     /// E6.3 — the ONE writer of `AppSettings.discreetIconId` (the alternate-icon
@@ -1141,7 +1148,13 @@ final class QuitRepository {
                 currencyCode: quit.currencyCode,
                 bankedCleanSeconds: quit.totalCleanSeconds,
                 momentumPercent: Int((value.momentum * 100).rounded()),
-                milestoneHours: MilestoneCatalog.shipping.hours(for: quit.habitCategory)
+                milestoneHours: MilestoneCatalog.shipping.hours(for: quit.habitCategory),
+                // E6.3 (R22.1) — PRESENCE-ONLY: `? true : nil`, never the bare bool.
+                // A `Bool?` promotion of `false` would make encodeIfPresent emit
+                // "discreet":false on every card — the A2 minimization guard exists
+                // to kill exactly that mutant; a non-discreet card keeps the E6.2
+                // key set intact.
+                discreet: quit.discreetMode ? true : nil
             ))
             return QuitSnapshot(
                 id: quit.id,

@@ -26,6 +26,8 @@ struct RootPlaceholderView: View {
     /// consumes it: on scene activation (extension wrote the flag while we were
     /// suspended) and on the in-process signal (iOS ran `perform()` in OUR process).
     @State private var warmPanic: WarmPanicPresentation?
+    /// E6.3 — the discreet-settings sheet (mvp feature 9's "one settings screen").
+    @State private var showsDiscreetSettings = false
 
     /// E4.2: every slip string this surface renders comes from the ONE audited table
     /// (implementation-plan §E4.2), never a view-inline literal — byte-identical to
@@ -39,6 +41,7 @@ struct RootPlaceholderView: View {
             panicEntry
             if let repository = provider?.repository {
                 storeSlipSurface(repository)
+                settingsEntry
             }
         }
         .padding(20)
@@ -204,6 +207,36 @@ struct RootPlaceholderView: View {
         .frame(maxWidth: .infinity)
         // NEUTRAL — secondary fill, never amber/red (same as the slip flow's banner).
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    /// E6.3 — the discreet-settings entry point (R22.7: a graft like the slip
+    /// surface, store-gated because both its halves persist through the repository).
+    /// Neutral secondary chrome — settings is not a call to action. The sheet
+    /// inherits the environment, and the app-switcher shield covers it like every
+    /// sheet (it is a separate high-level window).
+    private var settingsEntry: some View {
+        Button {
+            showsDiscreetSettings = true
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "gearshape")
+                    .accessibilityHidden(true)
+                Text(DiscreetSettingsCopy.shipping.screenTitle)
+                    .font(.body.weight(.medium))
+                Spacer()
+            }
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, minHeight: 56)
+            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(DiscreetSettingsCopy.shipping.settingsEntryAccessibilityLabel)
+        .accessibilityIdentifier("root.settingsEntry")
+        .sheet(isPresented: $showsDiscreetSettings) {
+            DiscreetSettingsView()
+        }
     }
 
     /// A neutral, habit-context-free row title (discreet rows never name the habit;

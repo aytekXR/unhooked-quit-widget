@@ -17,10 +17,8 @@ struct EraseFlow {
     /// erase runs to completion FIRST; the icon reset is BEST-EFFORT after it — an
     /// icon-reset failure must never abort or fail the data erase (`applyIcon(nil)`
     /// is idempotent, and the launch reconciliation heals a lost reset).
-    ///
-    /// Red-commit surface: API final, the icon-reset call lands with the green
-    /// commit (I2 pins it).
     func run() async throws {
         try await erase()
+        try? await applyIcon(nil)
     }
 }
