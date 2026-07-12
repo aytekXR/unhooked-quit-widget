@@ -5,6 +5,6 @@ import Testing
 struct PaywallKitSkeletonTests {
     @Test("package exposes its entry point")
     func packageExposesEntryPoint() {
-        #expect(PaywallKit.version == "0.0.1-skeleton")
+        #expect(PaywallKit.version == "1.0.0")
     }
 }

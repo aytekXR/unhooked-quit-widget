@@ -18,6 +18,15 @@ public enum EntitlementState: Sendable, Equatable {
     /// app-side PanicSnapshot mirror bit (architecture §3; that mirror is a
     /// §10 field-set change owned by the wiring session, never this package).
     public var isEntitled: Bool {
-        false // inert seam — red commit (E7.1); green makes trial/active true
+        switch self {
+        case .trial, .active: true
+        case .never, .lapsed: false
+        }
+    }
+
+    /// The trial discriminator the provider's edge detection reads (internal —
+    /// consumers gate on `isEntitled`, never on trial-ness).
+    var isTrial: Bool {
+        if case .trial = self { true } else { false }
     }
 }

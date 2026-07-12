@@ -17,20 +17,38 @@ public actor CachingEntitlementProvider: EntitlementProviding {
     }
 
     public var currentState: EntitlementState {
-        .never // inert seam — red commit (E7.1)
+        lastKnown
     }
 
     @discardableResult
     public func refresh() async -> EntitlementState {
-        .never // inert seam — red commit (E7.1)
+        do {
+            return await adopt(EntitlementStateMapper.state(from: try await source.currentSnapshot()))
+        } catch {
+            // Offline/failed fetch: keep the last-known state (architecture §8
+            // grace — never lock a paying user out because the network is down).
+            return lastKnown
+        }
     }
 
     @discardableResult
     public func restore() async throws -> EntitlementState {
-        .never // inert seam — red commit (E7.1)
+        await adopt(EntitlementStateMapper.state(from: try await source.restore()))
     }
 
     public func reset() async throws {
-        // inert seam — red commit (E7.1)
+        // Local clear FIRST (the E2.4 local-first order); the fallible source
+        // step goes last and its failure propagates for retry.
+        lastKnown = .never
+        try await source.reset()
+    }
+
+    private func adopt(_ next: EntitlementState) async -> EntitlementState {
+        let previous = lastKnown
+        lastKnown = next
+        if case .trial(let product) = next, !previous.isTrial {
+            await events?.record(.trialStarted(product: product))
+        }
+        return next
     }
 }

@@ -39,7 +39,7 @@ struct WalkingSkeletonTests {
     }
 
     /// All three portfolio packages link into the app target and expose their entry
-    /// points (E0.2). Two of them are no longer stubs.
+    /// points (E0.2). None of them is a stub any longer.
     @Test func test_packages_linkAndExposeEntryPoints() {
         // 1.2.0 = the E2.3 healing re-anchor (healFrozenStreak), semver-minor,
         // tagged streakengine-v1.2.0.
@@ -49,7 +49,9 @@ struct WalkingSkeletonTests {
         // This pin runs in the BILLED macOS lane and moves in lockstep with the package's
         // own pin (Packages/WidgetToolkit/Tests/.../WidgetToolkitTests.swift).
         #expect(WidgetToolkit.version == "1.1.0")
-        #expect(PaywallKit.version == "0.0.1-skeleton")
+        // 1.0.0 = E7.1's entitlement state machine (first real content — the
+        // WidgetToolkit precedent). Moves in lockstep with the package's own pin.
+        #expect(PaywallKit.version == "1.0.0")
     }
 
     // MARK: E0.3 — panic launch path

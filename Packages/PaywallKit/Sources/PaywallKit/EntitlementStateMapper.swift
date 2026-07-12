@@ -9,6 +9,10 @@ public enum EntitlementStateMapper {
     /// `willRenew` is deliberately ignored (cancelled trials stay entitled
     /// until the source says otherwise — never a mid-trial lapse).
     public static func state(from snapshot: EntitlementSnapshot?) -> EntitlementState {
-        .never // inert seam — red commit (E7.1)
+        guard let snapshot else { return .never }
+        guard snapshot.isActive else { return .lapsed(product: snapshot.product) }
+        return snapshot.periodType == .trial
+            ? .trial(product: snapshot.product)
+            : .active(product: snapshot.product)
     }
 }

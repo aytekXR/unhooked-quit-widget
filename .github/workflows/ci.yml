@@ -132,6 +132,40 @@ jobs:
             }
           ' coverage-report.txt
 
+      # PaywallKit's test-suite §2 floor (90% lines) — landed with the package's first real
+      # content (E7.1, Session 23), same §7 first-merged-version rule and the same fail-closed
+      # shape as the WidgetToolkit gate above (pollution guard + TOTAL-row guard both kept;
+      # the "thin SDK-adapter shims exempt" clause is moot — the adapter is app-side and the
+      # package is 100% pure logic).
+      - name: Coverage floor (PaywallKit — lines ≥90%)
+        if: matrix.package == 'PaywallKit'
+        working-directory: Packages/PaywallKit
+        # The container's default step shell is dash (`sh -e`); pipefail is a bashism.
+        shell: bash
+        run: |
+          set -euo pipefail
+          LLVM_COV="$(dirname "$(readlink -f "$(command -v swift)")")/llvm-cov"
+          "$LLVM_COV" report .build/debug/PaywallKitPackageTests.xctest \
+            -instr-profile=.build/debug/codecov/default.profdata \
+            Sources/ | tee coverage-report.txt
+          awk '
+            $1 ~ /^(Tests|\.build)\// {
+              print "::error::coverage report contains non-Sources rows (" $1 ") — the Sources/ path filter did not apply; gate cannot measure, failing closed"
+              polluted = 1
+            }
+            $1 == "TOTAL" {
+              seenTotal = 1
+              lineCov = ($8 - $9) / $8 * 100
+              printf "package line coverage: %.2f%% (floor 90)\n", lineCov
+              if (lineCov < 90) { print "::error::PaywallKit package line coverage fell below the 90% floor (test-suite §2)"; fail = 1 }
+            }
+            END {
+              if (!seenTotal) { print "::error::coverage report had no TOTAL row — gate cannot measure, failing closed"; exit 2 }
+              if (polluted) { exit 2 }
+              exit fail
+            }
+          ' coverage-report.txt
+
   # ── E2.2 acceptance lint: the repository is the sole SwiftData importer ──────
   # implementation-plan E2.2: "repository is the sole SwiftData importer outside
   # trivial @Query lists (enforced by a lint/grep CI check)". Allowed importers:
