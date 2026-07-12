@@ -49,7 +49,9 @@ enum PaywallRouting {
         winbackEligible: Bool = false, now: Date
     ) -> ReentryDestination {
         guard !state.isEntitled else { return .dashboard }
-        // E7.3 red: inert seam — the winback branch lands green.
+        if case .lapsed = state, winbackEligible {
+            return .paywall(source: .winback)
+        }
         guard teaserExpiresAt != nil else { return .dashboard }
         return TeaserPolicy.isExpired(teaserExpiresAt, now: now)
             ? .paywall(source: .teaserExpiry)

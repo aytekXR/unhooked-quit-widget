@@ -855,7 +855,10 @@ final class QuitRepository {
     /// `enterTeaser` shape): the stamp feeds NO cache — win-back state may
     /// never enter a pre-unlock file (§10).
     func recordLapseObserved() throws {
-        // E7.3 red: inert seam — the nil→set stamp lands green.
+        let settings = try fetchOrCreateAppSettings()
+        guard settings.lapseObservedAt == nil else { return }
+        settings.lapseObservedAt = clock.now
+        try context.save()
     }
 
     /// E7.3 (R26.1) — fetch-only read for the win-back eligibility check
@@ -889,9 +892,24 @@ final class QuitRepository {
     /// thin pass-through to the pure, pinned `PaywallRouting.reentryDestination`
     /// — the logic lives (and is tested) there; this is the single-call
     /// composition shim (test-suite §3.1's excluded-from-mocking class).
-    func teaserReentry(state: EntitlementState) -> ReentryDestination {
+    /// E7.3 (R26.6): renamed from `teaserReentry` — the gate now also slots
+    /// the win-back offer (entitled > winback > teaser-expiry), consulting
+    /// the pure policy over the observed-lapse stamp + the injected clock.
+    func paywallReentry(state: EntitlementState) -> ReentryDestination {
         PaywallRouting.reentryDestination(
-            state: state, teaserExpiresAt: teaserExpiresAt(), now: clock.now
+            state: state,
+            teaserExpiresAt: teaserExpiresAt(),
+            winbackEligible: winbackEligible(state: state),
+            now: clock.now
+        )
+    }
+
+    /// E7.3 (R26.6) — the settings-row eligibility read: the pure policy
+    /// over the stamp + the injected clock (the `paywallReentry` shim's own
+    /// winback input, exposed for the row's visibility gate).
+    func winbackEligible(state: EntitlementState) -> Bool {
+        WinbackPolicy.isEligible(
+            state: state, lapseObservedAt: lapseObservedAt(), now: clock.now
         )
     }
 

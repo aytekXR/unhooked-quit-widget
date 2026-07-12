@@ -12,9 +12,14 @@ import SwiftUI
 /// amendment: even inside its own settings screen, a discreet quit names no habit).
 struct DiscreetSettingsView: View {
     @Environment(RepositoryProvider.self) private var provider: RepositoryProvider?
+    @Environment(\.dismiss) private var dismiss
     /// Placeholder-grade re-read driver (the RootPlaceholderView idiom — no
     /// observation plumbing on a graft surface).
     @State private var refreshToken = 0
+    /// E7.3 (R26.6) — the win-back row's tap-through (the host owns the ONE
+    /// paywall mount). nil hides the row; visibility is ALSO gated by the
+    /// live eligibility read — view-gated, never an optional String (R26.9).
+    var onWinbackRowTap: (() -> Void)? = nil
 
     private let copy = DiscreetSettingsCopy.shipping
     private let slipCopy = SlipCopy.loadShipping() ?? .degraded
@@ -26,10 +31,35 @@ struct DiscreetSettingsView: View {
                 if let repository = provider?.repository {
                     widgetToggles(repository)
                     iconPicker(repository)
+                    winbackRow(repository)
                 }
             }
             .id(refreshToken)
             .navigationTitle(copy.screenTitle)
+        }
+    }
+
+    /// E7.3 (R26.6) — the settings surface of the win-back offer (the plan's
+    /// "settings/paywall source" acceptance, in-app only per R26.5): visible
+    /// ONLY when a live entitlement model reports `.lapsed` AND the pure
+    /// policy says the 7-day window is open. Dormant builds have no
+    /// entitlement model, so the row structurally cannot render.
+    @ViewBuilder
+    private func winbackRow(_ repository: QuitRepository) -> some View {
+        if let onWinbackRowTap,
+           let entitlement = provider?.entitlementModel,
+           repository.winbackEligible(state: entitlement.state) {
+            Section {
+                Button {
+                    dismiss()
+                    onWinbackRowTap()
+                } label: {
+                    Label(copy.winbackRowLabel, systemImage: "tag")
+                        .foregroundStyle(.primary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("settings.winback.row")
+            }
         }
     }
 

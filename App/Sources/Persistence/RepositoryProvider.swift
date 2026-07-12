@@ -121,7 +121,16 @@ final class RepositoryProvider {
                 repository.bindEntitlementReset { try await entitlementProvider.reset() }
                 let model = EntitlementModel(provider: entitlementProvider)
                 entitlementModel = model
-                Task { await model.refresh() }
+                Task {
+                    // E7.3 (R26.1): the observed-lapse edge — a `.lapsed`
+                    // adoption at the launch refresh stamps the win-back
+                    // clock (nil→set inside the ONE writer; fail-safe,
+                    // late-only). Lives on THIS live branch only, so
+                    // dormant builds never observe a lapse (R26.10).
+                    if case .lapsed = await model.refresh() {
+                        try? repository.recordLapseObserved()
+                    }
+                }
                 // E7.2 (R25.2) — the Superwall DORMANT gate, the RC gate's
                 // twin: with the Superwall key EMPTY this vends the bundled
                 // hard-arm assigner and `Superwall.configure` is NEVER

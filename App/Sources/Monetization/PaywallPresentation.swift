@@ -106,12 +106,25 @@ enum PaywallPresentation {
             retryCta: copy.retryCta,
             restoreEmpty: copy.restoreEmpty,
             restoreSuccess: copy.restoreSuccess,
-            teaserEscape: variant == .teaser && source != .teaserExpiry
+            // E7.3 (R26.9) fork isolation: the winback surface never
+            // co-composes the teaser escape — one surface, one affordance
+            // set (the offer's dismiss is the winback arm's affordance).
+            teaserEscape: variant == .teaser && source != .teaserExpiry && source != .winback
                 ? TeaserEscapeData(label: copy.teaserEscapeLabel, note: copy.teaserEscapeNote)
                 : nil,
             expiryEyebrow: source == .teaserExpiry ? copy.teaserExpiryEyebrow : nil,
-            // E7.3 red: inert — the .winback composition fork lands green.
-            winbackOffer: nil
+            winbackOffer: source == .winback
+                ? WinbackOfferData(
+                    offerLine: copy.winbackOfferLine,
+                    mechanicsLine: bind(
+                        copy.winbackMechanicsLineFmt,
+                        ProductCatalog.annualWinbackDisplayPrice,
+                        ProductCatalog.annualControlDisplayPrice
+                    ),
+                    reassurance: copy.winbackReassurance,
+                    dismissLabel: copy.winbackDismissLabel
+                )
+                : nil
         )
     }
 
@@ -119,5 +132,16 @@ enum PaywallPresentation {
     /// catalog CONSTANT (already a rendered string), not a number to format.
     private static func bind(_ template: String, _ price: String) -> String {
         template.replacingOccurrences(of: "%@", with: price)
+    }
+
+    /// TWO `%@` slots in order — the discounted first-year price, then the
+    /// renewal price (the winback mechanics line's 3.1.2(c)-grade pair,
+    /// R26.9). Positional replacement: prices are catalog constants and
+    /// never themselves contain a slot.
+    private static func bind(_ template: String, _ first: String, _ second: String) -> String {
+        var bound = template
+        if let slot = bound.range(of: "%@") { bound.replaceSubrange(slot, with: first) }
+        if let slot = bound.range(of: "%@") { bound.replaceSubrange(slot, with: second) }
+        return bound
     }
 }

@@ -28,6 +28,11 @@ struct RootPlaceholderView: View {
     @State private var warmPanic: WarmPanicPresentation?
     /// E6.3 — the discreet-settings sheet (mvp feature 9's "one settings screen").
     @State private var showsDiscreetSettings = false
+    /// E7.3 (R26.6) — the settings win-back row's tap-through: the host
+    /// (PostGateRootView) owns the ONE paywall mount, so the row dismisses
+    /// the sheet and hands off here. nil (the default) hides the row —
+    /// dormant builds and non-hosts never show it.
+    var onWinbackRowTap: (() -> Void)? = nil
 
     /// E4.2: every slip string this surface renders comes from the ONE audited table
     /// (implementation-plan §E4.2), never a view-inline literal — byte-identical to
@@ -235,7 +240,7 @@ struct RootPlaceholderView: View {
         .accessibilityLabel(DiscreetSettingsCopy.shipping.settingsEntryAccessibilityLabel)
         .accessibilityIdentifier("root.settingsEntry")
         .sheet(isPresented: $showsDiscreetSettings) {
-            DiscreetSettingsView()
+            DiscreetSettingsView(onWinbackRowTap: onWinbackRowTap)
         }
     }
 

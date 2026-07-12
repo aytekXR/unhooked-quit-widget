@@ -22,6 +22,11 @@ struct PaywallView: View {
     /// fired + stamped the grant; the host dismisses to the dashboard.
     /// Defaulted so every E7.1 call site stays byte-compatible.
     var onTeaserDismiss: () -> Void = {}
+    /// E7.3 (R26.6) — the win-back dismiss seam: the offer is DISMISSIBLE
+    /// (an offer never traps; the hard wall and teaser re-present stay
+    /// close-free). No event fires on dismiss — the closed enum has no
+    /// dismissal vocabulary, deliberately. Defaulted for byte-compat.
+    var onWinbackDismiss: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 20) {
@@ -83,6 +88,28 @@ struct PaywallView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier("paywall.expiryEyebrow")
+            }
+            // E7.3 (R26.9): the win-back offer block — a real discount
+            // stated as fact (no countdown, no urgency, §6.8): the offer
+            // line, the two-price mechanics disclosure, the zero-shame
+            // reassurance. Composed ONLY on source == .winback.
+            if let offer = data.winbackOffer {
+                VStack(spacing: 4) {
+                    Text(offer.offerLine)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("paywall.winback.offer")
+                    Text(offer.mechanicsLine)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("paywall.winback.mechanics")
+                    Text(offer.reassurance)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
             }
             Text(data.headline)
                 .font(.title.weight(.bold))
@@ -246,6 +273,24 @@ struct PaywallView: View {
                         .multilineTextAlignment(.center)
                         .accessibilityIdentifier("paywall.teaser.note")
                 }
+            }
+
+            // E7.3 (R26.6): the win-back dismiss — a QuietButton in the
+            // escape's slot (the two never co-compose, R26.9 fork
+            // isolation). The OFFER never traps: "Not now" returns to the
+            // dashboard, wordlessly (no event — a dismissal is not funnel
+            // vocabulary).
+            if let offer = data.winbackOffer {
+                Button {
+                    onWinbackDismiss()
+                } label: {
+                    Text(offer.dismissLabel)
+                        .font(.body)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .disabled(model.phase == .working)
+                .accessibilityIdentifier("paywall.winback.dismiss")
             }
 
             HStack(spacing: 20) {

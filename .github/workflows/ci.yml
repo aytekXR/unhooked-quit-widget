@@ -202,7 +202,12 @@ jobs:
           # test) may import it; Shared/Sources compiles into the widget
           # extension and Packages ride the free Linux lane, so an import
           # anywhere else is a build failure or a privacy-surface leak.
-          violations=$(grep -rl --include='*.swift' -E '^import (RevenueCat|Purchases)' . \
+          # E7.3 (R26.12, the standing rule #3d shape): the anchor admits
+          # attribute-prefixed imports (`@preconcurrency import RevenueCat`
+          # would dodge a bare `^import` anchor and the sole-importer gate
+          # would silently go vacuous — the S25 Superwall fix, applied to
+          # the RC anchor it always deserved).
+          violations=$(grep -rl --include='*.swift' -E '^(@[A-Za-z_]+ )*import (RevenueCat|Purchases)' . \
             | grep -vE '^(\./)?(App/Sources/Monetization/RevenueCatEntitlementSource\.swift|Tests/Unit/Contract_RevenueCat\.swift)$' || true)
           if [ -n "$violations" ]; then
             echo "::error::import RevenueCat outside the sole adapter + contract file (R24.11):"

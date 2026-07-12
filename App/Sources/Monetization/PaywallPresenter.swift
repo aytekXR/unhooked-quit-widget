@@ -62,8 +62,10 @@ enum PaywallPresenter {
         analytics: AnalyticsService,
         firePaywallViewed: @escaping () -> Void
     ) -> () -> Void {
-        // E7.3 red: inert seam — the composed dual fire lands green.
-        { }
+        {
+            analytics.fire(.winbackShown(offer: offer))
+            firePaywallViewed()
+        }
     }
 
     /// The purchase-completion fire (R25.6): `purchase` is a USER-INITIATED
@@ -88,8 +90,9 @@ enum PaywallPresenter {
     ) -> (PaywallModel.Plan, EntitlementState) -> Void {
         { plan, state in
             guard case .active = state else { return }
-            // E7.3 red: winbackOfferID is plumbed but inert — the
-            // winback_converted co-fire lands green.
+            if let winbackOfferID {
+                analytics.fire(.winbackConverted(offer: winbackOfferID))
+            }
             let product: Product = switch plan {
             case .monthly: .monthly
             case .annual: .annual

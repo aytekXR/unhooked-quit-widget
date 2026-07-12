@@ -30,7 +30,7 @@ enum WinbackPolicy {
     /// "…Plus7Days_notBefore"). A nil stamp is never eligible: dormant
     /// builds observe no lapse, ever (R26.10).
     static func isEligible(state: EntitlementState, lapseObservedAt: Date?, now: Date) -> Bool {
-        // E7.3 red: inert seam — the real predicate lands green.
-        false
+        guard case .lapsed = state, let lapseObservedAt else { return false }
+        return now >= lapseObservedAt.addingTimeInterval(eligibilityWindow)
     }
 }

@@ -27,6 +27,11 @@ struct PostGateRootView: View {
     /// variant/source fork happens at present time, so the data is stashed
     /// with the model rather than recomposed in `body`).
     @State private var paywallData: PaywallViewData?
+    /// E7.3 (R26.6, vetoable cadence): the win-back auto-present fires at
+    /// most ONCE PER PROCESS — in-memory only, no persistence; the settings
+    /// row is the persistent path back to the offer. Teaser-expiry
+    /// re-presents keep their E7.2 cadence (unguarded).
+    @State private var didAutoPresentWinback = false
     @Environment(\.scenePhase) private var scenePhase
 
     /// The UITEST_RESET-hook precedent (S18): a DEBUG-only launch-env switch,
@@ -80,6 +85,11 @@ struct PostGateRootView: View {
                     // R25.7: the take already fired teaser_entered + stamped
                     // the grant (single-use); the day of access begins here.
                     dismissPaywall()
+                },
+                onWinbackDismiss: {
+                    // R26.6: the offer never traps — "Not now" returns to
+                    // the dashboard, wordlessly (no event fires).
+                    dismissPaywall()
                 }
             )
         } else if let model {
@@ -125,10 +135,16 @@ struct PostGateRootView: View {
             // re-present; E9's real dashboard inherits this rule —
             // binding-on-future-surfaces). Expiry is SILENT: the wall simply
             // returns at the next qualifying entry (no countdown, §6.8).
-            RootPlaceholderView()
-                .task { checkTeaserReentry() }
+            // E7.3 (R26.6): the same gate now also slots the win-back OFFER
+            // (entitled > winback > teaser-expiry; auto-present once per
+            // process, dismissible), and the settings row is the persistent
+            // second surface.
+            RootPlaceholderView(onWinbackRowTap: {
+                Task { await presentLivePaywall(source: .winback) }
+            })
+                .task { checkPaywallReentry() }
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { checkTeaserReentry() }
+                    if phase == .active { checkPaywallReentry() }
                 }
         }
     }
@@ -160,25 +176,41 @@ struct PostGateRootView: View {
             return
         }
         let assigner = provider?.paywallAssigner ?? BundledVariantAssigner()
-        let assignment = await assigner.assignment(for: SuperwallPlacement.postSummary)
+        // E7.3 (R26.8): the win-back surface registers its OWN placement id
+        // (architecture §5.2's second `register(placement:)`).
+        let placement = source == .winback ? SuperwallPlacement.winback : SuperwallPlacement.postSummary
+        let assignment = await assigner.assignment(for: placement)
         let analytics = repository.analyticsService
         paywallData = PaywallPresentation.make(
             copy: PaywallCopy.loadShipping() ?? .degraded,
             variant: assignment.variant,
             source: source
         )
+        let firePaywallViewed = PaywallPresenter.makeFirePaywallViewed(
+            assignment: assignment,
+            source: source,
+            analytics: analytics,
+            // The echo is the LIVE assignment's mirror (§4.4) — written
+            // only here; the debug path passes nil (R25.5).
+            echoAssignment: { try? repository.setPaywallVariantAssigned($0) }
+        )
         paywall = PaywallModel(
             purchase: { await RevenueCatPurchaser.purchase(plan: $0) },
             restore: { await RevenueCatPurchaser.restore() },
-            firePaywallViewed: PaywallPresenter.makeFirePaywallViewed(
-                assignment: assignment,
-                source: source,
+            // E7.3 (R26.7): the win-back presentation co-fires the
+            // offer-scoped impression BEFORE the universal one, through the
+            // model's single didFire guard (surface-scoped → universal).
+            firePaywallViewed: source == .winback
+                ? PaywallPresenter.makeFireWinbackShown(
+                    offer: ProductCatalog.winbackOfferID,
+                    analytics: analytics,
+                    firePaywallViewed: firePaywallViewed
+                )
+                : firePaywallViewed,
+            onPurchaseCompleted: PaywallPresenter.makeOnPurchaseCompleted(
                 analytics: analytics,
-                // The echo is the LIVE assignment's mirror (§4.4) — written
-                // only here; the debug path passes nil (R25.5).
-                echoAssignment: { try? repository.setPaywallVariantAssigned($0) }
+                winbackOfferID: source == .winback ? ProductCatalog.winbackOfferID : nil
             ),
-            onPurchaseCompleted: PaywallPresenter.makeOnPurchaseCompleted(analytics: analytics),
             onTeaserTaken: PaywallPresenter.makeOnTeaserTaken(
                 analytics: analytics,
                 enterTeaser: { try? repository.enterTeaser() }
@@ -210,17 +242,23 @@ struct PostGateRootView: View {
         )
     }
 
-    /// E7.2 (R25.7): the teaser-expiry re-present — live-model builds only,
-    /// via the repository's own clock (`teaserReentry` — production code
-    /// never reads an ambient Date). The re-present composes the HARD form
-    /// + the expiry eyebrow (single-use escape) and fires with the
-    /// second-impression source.
-    private func checkTeaserReentry() {
+    /// E7.2 (R25.7) + E7.3 (R26.6): the re-entry gate — live-model builds
+    /// only, via the repository's own clock (`paywallReentry` — production
+    /// code never reads an ambient Date). A teaser expiry re-presents the
+    /// HARD form + eyebrow (single-use escape, unguarded cadence); a
+    /// win-back eligibility presents the dismissible OFFER at most once per
+    /// process (the in-memory guard — the settings row is the persistent
+    /// path back).
+    private func checkPaywallReentry() {
         guard paywall == nil,
               let entitlement = provider?.entitlementModel,
               let repository = provider?.repository,
-              case .paywall(let source) = repository.teaserReentry(state: entitlement.state)
+              case .paywall(let source) = repository.paywallReentry(state: entitlement.state)
         else { return }
+        if source == .winback {
+            guard !didAutoPresentWinback else { return }
+            didAutoPresentWinback = true
+        }
         Task { await presentLivePaywall(source: source) }
     }
 
