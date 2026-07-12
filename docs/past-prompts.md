@@ -2854,3 +2854,167 @@ Adversaries BROKE or WEAKENED rulings in every domain; the lead's arbitration
   in-repo); the token pass rides the post-founder-copy polish/golden batch.
 - The two-device backfill race (R2) and the vape-ladder single bit (R1):
   accepted, recorded.
+
+---
+
+## Session 22 — E6.3: discreet mode + alternate icons + app-switcher privacy overlay (2026-07-12)
+
+**Objective (resume prompt v3.4):** E6.3 complete — the discreet flag through
+writer→composer→views as render-time branches; two DRAFT alternate icons +
+switcher; the app-switcher shield; `discreet_mode_enabled` live.
+**Outcome: DONE in 2 billed runs, zero burned, zero contingency** — red evidence
+`29183485997` matched the manifest NAME-FOR-NAME (the 8th consecutive
+harness-predicted red; its artifact recorded the 16 goldens) → green
+`29184196211` all-green + TestFlight. Delivery 24/32 = 75%.
+
+### The step-0 panel (6 agents + lead arbitration → rulings R22.1–R22.10)
+
+Panel: Architect, PM, Brand, QA + two adversarial critics (burn-risk, privacy).
+Full findings in the session scratchpad; rulings binding:
+
+- **R22.1 — the discreet feed flag (Architect §10 pre-approval GRANTED).**
+  `WidgetQuitState.discreet: Bool?` as the LAST stored property, schemaVersion
+  STAYS 1 (bumping would blank every widget until rewrite); writer maps
+  `quit.discreetMode ? true : nil` — PRESENCE-ONLY (encodeIfPresent omits nil:
+  a non-discreet card keeps the exact E6.2 key set; always-emitting
+  `discreet:false` would fingerprint "declined the feature"). Empirically
+  harness-verified over the shipping bytes under TZ=UTC/Berlin/Kiritimati.
+  A1/A2 pins stayed BYTE-UNTOUCHED — the QA panelist's key catch: they are
+  born-green minimization guards over non-discreet fixtures, and keeping
+  "discreet" in A2's forbidden list is what kills the always-emit mutant. The
+  new A6 pin carries presence/absence with key-SET semantics — NEVER
+  byte-equality (burn critic REPRODUCED JSONEncoder's hash-randomized key
+  order; the proposal's "byte-identical" claim was struck as factually false).
+- **R22.2 — per-family discreet render (Brand-signed + one privacy amendment).**
+  rect: Day N + panic button, money DROPPED, wind→arrow.counterclockwise, a11y
+  "Reset" (all three REUSES of the E3.3-signed PanicControlStyle.discreet
+  vocabulary — mirrored as STORED props on the scanned StreakWidgetStyle table,
+  R9). medium: Day N + ticker + BARE milestone bar — the "next milestone"
+  micro-label drops in discreet (lead adopted the privacy critic's argument
+  over Brand's keep: "milestone" is recovery-culture vocabulary that
+  strengthens the tracker gestalt; the bar alone is neutral). circular/inline/
+  small content-unchanged, goldens recorded anyway as regression guards. The
+  circular `:150` wind fallback STAYS — Brand corrected the lead's rationale
+  (NO golden exercises it; the real ground is that quit==nil carries no
+  discreet flag, so it is unreachable-while-discreet) — and the
+  unavailable-state wind glyphs (rect + circular) are RECORDED as a
+  deliberate future polish-batch candidate (operator-vetoable).
+- **R22.3 — DRAFT alternate icons, agent-generated (operator-vetoable).**
+  Pure-Python stdlib generator (committed:
+  brandkit/branding-assets/generate-alt-icons.py) renders AppIconCalendar +
+  AppIconTimer 1024² opaque per brandkit §4.3 + the Brand panel's exact
+  geometry; today-dot ruled #3D6C9E over the prose's "system blue" (decisive:
+  a static PNG cannot honestly bake a DYNAMIC color; #3D6C9E is the
+  semantic/info token — non-brand, non-red; mockup fidelity). Explicit
+  ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES list (never INCLUDE_ALL).
+  **The burn critic's rank-1 catch: AppIconSwitcher + every UIApplication
+  reference is App-target-only — UIApplication.shared in extension-compiled
+  Shared/Sources is a HARD compile error (the S21 file-granular class),
+  reproduced before a line was written.**
+- **R22.4 — erase × OS icon state (privacy MUST-FIX adopted).** The OS-level
+  alternate icon SURVIVES the store wipe; EraseFlow now runs the data erase to
+  completion FIRST, then best-effort applyIcon(nil); PLUS launch
+  reconciliation in the composition root, RESET-ONLY direction (an OS icon
+  that outlived its persisted selection heals to primary; a selection is
+  NEVER re-applied — no unprompted system alert). Pinned (I2, I6).
+- **R22.5 — the shield is a WINDOW, not an overlay (privacy MUST-FIX #1 —
+  the session's most important catch).** A SwiftUI WindowGroup-content
+  overlay does NOT cover `.sheet` layers — and the warm-panic sheet renders
+  VERBATIM MOTIVATIONS; the proposal as written would have shipped "green
+  tests, leaks in the switcher." Shipped: a dedicated UIWindow above .alert
+  hosting the zero-content theme-aware surface/base overlay, driven by the
+  ONE top-level scenePhase observer through the pure PrivacyOverlayPolicy.
+  MUST-FIX #2: the policy is tri-state FAIL-CLOSED — cover iff phase !=
+  .active AND discreetAny != false (indeterminate ⇒ covered; the naive
+  "any-quit-discreet" boolean fails toward EXPOSURE when the store has not
+  opened). Panic branch seeds the tri-state from the SAME single pre-cache
+  read (zero new IO; the cold first frame is always .active ⇒ ADR-6
+  untouched). RECORDED: the privacy critic recommends a UNIVERSAL overlay
+  (the plan's when-discreet gate leaves non-discreet users' panic/slip sheets
+  exposed in the switcher) — operator-vetoable product question, one-line
+  policy change if taken.
+- **R22.6 — analytics.** `discreet_mode_enabled` LIVE: `.widget` on the
+  per-quit toggle's OFF→ON edge (repository setter), `.icon` on non-nil icon
+  selection (switcher) — enable-only; consent-gated by construction; the
+  enum case pre-existed so no Architect vocabulary change. **The R8
+  widget_added breadcrumb: DEFERRED to E8 — UNANIMOUS 6/6** (Architect: the
+  single highest-risk item buys nothing user-facing, extension write breaks
+  §7 purity, concurrent-family TOCTOU; PM: the sink is Noop so the funnel
+  loses ZERO data; QA/burn/privacy concur). Field set pre-approved for E8
+  with privacy amendments recorded: drop `discreet` from the file
+  ({kind, firstRenderAt}; the app supplies the bool at fire time),
+  write only on real-content timelines, delete-before-fire idempotency,
+  joins all THREE erase enumeration sites. OPERATOR-VETOABLE.
+- **R22.7 — the settings surface.** DiscreetSettingsView sheeted off
+  RootPlaceholderView = an honest reading of mvp feature 9's "one settings
+  screen" (the E4.1 graft precedent); scope EXACTLY per-quit discreet toggles
+  + the 3-row icon picker. Discreet quits' rows reuse the neutral
+  discreetRowLabel EVEN INSIDE settings (privacy amendment). setDiscreetMode
+  is the FULL mutating-write pattern (save → rebuildSnapshots →
+  scheduleWidgetReload) — Architect MUST: the flag feeds BOTH caches, unlike
+  setAnalyticsOptIn which feeds none. No settings goldens until the founder
+  copy pass (S17-R5 batch point).
+- **R22.8 — copy.** 10-row PM table, Brand pre-signed, QA lexicon-pinned (S1);
+  a11y label exactly "Reset" (brandkit literal; descriptive-parity option
+  flagged to the operator). All settings strings DRAFT → operator §3.
+- **R22.9 — the QA manifest** (adopted verbatim; matched name-for-name).
+  Notable: the plan-named a11y test ships as a discreet-STRING-TABLE scan —
+  QA REJECTED the UIHostingController accessibility-tree walk (flaky,
+  unprecedented API surface, zero added power: every a11y string IS a table
+  string) — with an expanded discreet-render lexicon (+panic, milestone,
+  streak, urge, quit, habit + category synonyms) scoped so the gallery's
+  legitimate "Streak" is structurally excluded. No UITest (S18 restraint;
+  scenePhase is not XCUITest-drivable).
+- **R22.10 — store-marketing contradiction (escalated to operator).**
+  brandkit §9.1 ("NEVER use the discreet alternates in store marketing") vs
+  §9.2 screenshot frame 3 ("Calendar-style icon on a home screen") are
+  mutually exclusive — one public store exposure makes the alternate icon
+  reverse-image-linkable to Ballast FOREVER, defeating its purpose. Panel
+  resolves toward §9.1; the ASO decision is the operator's (operator-expected
+  §3 note). ALSO RECORDED: the app name "Ballast" renders under ANY icon —
+  "a discreet icon is not a discreet app" (iOS limitation; the honest limit
+  of icon discretion; noted for the tester guide).
+
+### What the critics caught (the practice keeps earning its keep)
+
+- The sheet-coverage hole (R22.5) — would have shipped a cosmetic overlay that
+  leaks motivations in the app switcher. Caught at step-0 by the privacy
+  critic reading RootPlaceholderView's presentation layers.
+- The fail-open indeterminate window (R22.5 MUST-FIX #2).
+- UIApplication-in-Shared (rank-1 burn, reproduced pre-code).
+- JSONEncoder key-order randomization (would have made the new pins flake
+  per-run had they been written as byte-equality).
+- The A1/A2 edit the lead proposed would have (a) broken A1 forever (its
+  fixture is non-discreet ⇒ 8 keys) and (b) destroyed A2's mutant-killing
+  power — QA kept both byte-untouched and added A6 instead.
+- Post-green: the `UIWindow.Level.alert + 1` operator folklore (docs JSON
+  does not confirm it) — replaced with the documented init(rawValue:) before
+  the green push rather than risking the run.
+
+### Run accounting
+
+- **Billed run 1 — red evidence `29183485997`** (commit `8d7fd22`): matched
+  name-for-name — exactly 6 designed unit failures (A6, I1, I2, I3, I4, O1)
+  + 6 recording snapshot fns (D1–D5 = 14 goldens; O2 = 2); every born-green
+  pin (A1, A2, G1→floor 12, G2, W1, I5, I6, O1 twins, S1), all 15 E6.2
+  goldens, UI smoke, and every package lane GREEN. The 16 goldens recorded in
+  its own artifact (the R10 flow, second consecutive session it worked).
+- **Billed run 2 — green `29184196211`** (commit `2d31b3a`): all 8 jobs green + TestFlight upload (the first discreet-capable build); 6 designed reds flipped, born-green set held, 31 widget+overlay goldens compared clean.
+- Contingency: UNUSED. Zero burned.
+
+### Known limitations / carried
+
+- The shield covers per the plan's when-discreet spec; non-discreet users'
+  panic/slip sheets remain uncovered in the switcher (universal overlay =
+  recorded vetoable question). Actual switcher-snapshot obscuring is
+  device-QA (operator §7 row) — the O1 policy pin + O2 goldens prove the
+  policy and the view, not iOS's snapshot timing.
+- Mid-session erase leaves discreetAnyActive stale-true until relaunch —
+  fail-safe direction (covers), recorded.
+- The feed's money fields (weeklySpend etc.) remain in the pre-unlock file
+  for discreet quits — the render-strip is a shoulder-surfer defense, the
+  field set is the separately-ruled R1 surface (privacy critic NOTE).
+- iOS shows its own system alert on programmatic icon changes (platform
+  behavior; not suppressible).
+- widget_added → E8 (R22.6). Epic-6 DoD now closes MINUS StandBy (R7, v1.1)
+  and MINUS widget_added (E8), with the device matrix operator-owned.

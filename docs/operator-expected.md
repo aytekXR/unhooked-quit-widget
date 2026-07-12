@@ -3,15 +3,34 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-12 (**Session 21 CLOSED: E6.2 widget families + the widget feed DONE — a REAL five-family streak widget now ships on TestFlight.** The lock screen shows "Day N" + money saved + the panic button, self-ticking, timezone-fixed, erased clean by one-tap erase. **Billed runs: 4 — the planned 2 + the contingency + ONE over** (§4 has the honest accounting: one burned on a deprecated-API build failure the neighbor-copy rule should have caught — its closing gate is now standing; one spent on a single stale test fixture the new timezone field legitimately flipped, 243/244 green). **Two things worth your eye:** (1) the widget gallery now shows REAL strings ("Streak" / "Your streak, on your lock screen…") — they are DRAFT and join your §3 pass, alongside milestones.json which now ships in-bundle; (2) the veto list below gains six Session 21 rulings — the StandBy deferral and the SkeletonWidget retirement are the two most user-visible: **your testers' placed widgets vanished with the retirement; they re-add "Streak" once.** Session 22 = E6.3 discreet mode.) |
+| Last updated | 2026-07-12 (**Session 22 CLOSED: E6.3 discreet mode + alternate icons + the app-switcher shield DONE — every widget family now hides its habit on demand.** Toggle a quit discreet and its lock-screen widget shows "Day N" + a neutral "Reset" arrow — no money, no wind glyph; the app-switcher card goes blank; two new innocuous app icons ("Calendar style" / "Timer style") switch from the new one-screen settings sheet; one-tap erase now also puts the ORIGINAL icon back (OS icon state survives a data wipe — we reset it, plus a launch self-heal). **Billed runs: exactly the 2 planned, zero burned, contingency unused — the zero-burn streak restarts** (red evidence `29183485997` matched the prediction name-for-name, the 8th consecutive; green `29184196211` all-green + TestFlight). **Three things worth your eye:** (1) §3 gains the 8 DRAFT settings strings AND the two DRAFT GENERATED app icons — agents drew them to your brandkit's spec (pure-geometry tiles; regenerate anytime with `brandkit/branding-assets/generate-alt-icons.py`); veto or replace at will; (2) §3 also carries a REAL decision: your brandkit contradicts itself on whether the discreet icons may appear in App Store screenshots (§9.1 says never, §9.2's frame 3 shows one) — the panel says NEVER (one public exposure makes the "innocuous" icon reverse-image-linkable to Ballast forever); you own ASO, so you decide; (3) the veto list gains the Session 22 rulings — the most product-visible: the app-switcher cover only protects DISCREET users (the plan's spec); making it universal is a one-line change if you want banking-app-style protection for everyone. Session 23 = E7.1 PaywallKit.) |
+| Superseded header (S21) | 2026-07-12 (**Session 21 CLOSED: E6.2 widget families + the widget feed DONE — a REAL five-family streak widget now ships on TestFlight.** The lock screen shows "Day N" + money saved + the panic button, self-ticking, timezone-fixed, erased clean by one-tap erase. **Billed runs: 4 — the planned 2 + the contingency + ONE over** (§4 has the honest accounting: one burned on a deprecated-API build failure the neighbor-copy rule should have caught — its closing gate is now standing; one spent on a single stale test fixture the new timezone field legitimately flipped, 243/244 green). **Two things worth your eye:** (1) the widget gallery now shows REAL strings ("Streak" / "Your streak, on your lock screen…") — they are DRAFT and join your §3 pass, alongside milestones.json which now ships in-bundle; (2) the veto list below gains six Session 21 rulings — the StandBy deferral and the SkeletonWidget retirement are the two most user-visible: **your testers' placed widgets vanished with the retirement; they re-add "Streak" once.** Session 22 = E6.3 discreet mode.) |
 | Superseded header (S20) | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
-| Superseded header | 2026-07-11 (Session 19 CLOSED: E8.2 consent + payload-audit doc DONE — red evidence `29164705316` (225 tests, EXACTLY the 39 designed issues / 14 designed failing tests, two-lane-predicted issue-for-issue) → green `29165381934` all-green + TestFlight, **2 billed runs, zero burned — the streak restarts**. The quiz now asks "Share app usage data?" at fixed slot 3 (default OFF, decline a first-class equal, no dark pattern); your choice gates every analytics fire LIVE; the transport stays dormant until your §8 app ID — **§8 is now the LAST gate on real funnel data**, and `docs/payload-audit.md` is your MITM release gate once it lands. Nothing blocks Session 20 = E6.1 widget timeline provider. ~~possibly a ZERO-billed-run session~~ — **STRUCK at the Session 20 close: that was wrong, see §4. There is no such thing as a zero-billed-run code session; free lanes exist, free runs do not.** Open for you: §1–§8; §3 gains the 4 consent DRAFT strings. Session 16–19 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E6.3 discreet mode + alternate icons + privacy overlay).
+Nothing below blocks the next session (E7.1 PaywallKit — the package half
+needs neither your RevenueCat account nor App Store Connect products; those
+become §-items when the paywall's APP half lands).
 **§0 is CLOSED** (only its optional gstack FYI remains). Items below §0 are
 ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the
 next session's agent will prune completed items.
+
+> **Session 22 outcome (2026-07-12):** E6.3 is DONE — discreet mode is REAL on
+> every family. The discreet flag rides the widget feed additively (Architect-
+> approved field set; a non-discreet user's file is unchanged byte-shape);
+> discreet rectangular/medium drop the money line entirely ("$412 saved" is an
+> outing signal — the mockup's own transform); the medium milestone bar keeps
+> its bar but drops the WORD "milestone" (recovery vocabulary; privacy-panel
+> amendment); the panic button swaps to the same neutral counterclockwise
+> arrow + "Reset" your Control-Center control already uses. The app-switcher
+> shield is a real WINDOW above every sheet — the panel caught that a naive
+> overlay would have left your warm-panic sheet (your verbatim motivations!)
+> visible in the switcher — and it FAILS CLOSED: if the app cannot yet tell
+> whether any quit is discreet, it covers. 16 new snapshot goldens recorded
+> via the red run's own artifact (second session in a row the trick worked).
+> **Your NEW asks: §3 (strings + icons + the screenshot decision) and §7 (four
+> device rows).** Six vetoable rulings at the bottom — the widget_added
+> deferral was UNANIMOUS (6/6 panel).
 
 > **Session 21 outcome (2026-07-12):** E6.2 is DONE — the widget is REAL. Every
 > mutating write now also rewrites `widget-state.json` (a deliberately minimal,
@@ -314,6 +333,40 @@ a live failure. Original context, for the record:
       "predict"-family words in (the clinical line the register gate holds).
       A copy edit is still cheap (goldens remain unrecorded until this pass).
 
+- [ ] **NEW (Session 22 — THE SETTINGS STRINGS, ~3 min, rides the same pass):**
+      `App/Sources/DiscreetSettingsCopy.swift` — 8 strings: "Discreet Mode"
+      (screen title), "Widgets" / "Widgets for this streak show numbers only."
+      (section header/footer — the footer deliberately promises only what the
+      toggle observably does, the S19 rule), "App Icon", "Default",
+      "Calendar style", "Timer style" (the two picker names are brandkit §4.3
+      LITERALS — confirm rather than rewrite), "Settings" (the entry's
+      VoiceOver label). All DRAFT/founder-owned except the two literals;
+      CI-scanned (shame + habit-leak, non-vacuity floor). One flagged fork:
+      the discreet widget button's VoiceOver label is bare "Reset" (your
+      brandkit's literal); a descriptive "Reset — opens a quick reset" would
+      give VoiceOver users action-hint parity and still leak nothing — panel
+      shipped the literal, your call.
+- [ ] **NEW (Session 22 — THE TWO GENERATED APP ICONS, ~5 min, VETO-CLASS):**
+      agents generated `AppIconCalendar` + `AppIconTimer` (1024², opaque) to
+      your brandkit §4.3 spec + the mockup's exact geometry/hex — warm
+      gray-white tile with a 4×4 dot grid + one muted-blue today-dot (ruled
+      #3D6C9E over "system blue": a static PNG can't bake a dynamic color);
+      dark slate tile with a thin dial + single index mark. Look at them on a
+      device home screen (§7 row). Veto/replace freely — the committed
+      generator (`brandkit/branding-assets/generate-alt-icons.py`) is
+      deterministic, so a tweak is a parameter edit + re-run, and NO snapshot
+      golden pins icon pixels (behavior is pinned, art is yours).
+- [ ] **NEW (Session 22 — THE STORE-SCREENSHOT DECISION, R22.10, ~2 min):**
+      brandkit §9.1 says "NEVER use the discreet alternates in store
+      marketing"; §9.2's screenshot plan frame 3 shows the Calendar icon on a
+      home screen. These are mutually exclusive: one public store exposure
+      makes the alternate icon reverse-image-linkable to Ballast FOREVER —
+      anyone spotting "Calendar style" on a partner's phone could match it to
+      your listing. The panel resolved toward §9.1 (never market them; frame 3
+      should show the discreet WIDGET only, primary icon). You own ASO —
+      confirm or veto before any screenshot work; note it in the brandkit when
+      you decide.
+
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
 - [ ] Session 15 used **3** billed macOS runs (**1 burned**: a new test file was
@@ -365,9 +418,22 @@ a live failure. Original context, for the record:
       pre-existing fixture legitimately flipped by the new timezone backfill);
       `29179855734` = final all-green + TestFlight. The two would-be burns the
       critics caught BEFORE pushing (the cross-import overlay, the
-      timezone-decode inversion) would have made it 6. Session 22 (E6.3) plans
-      **2 billed runs + 1 contingency**. Check Settings → Billing → spending
-      limit before the session.
+      timezone-decode inversion) would have made it 6. Session 22 (E6.3 —
+      discreet + icons + shield) planned **2 billed runs + 1 contingency** and
+      used **exactly 2, zero burned, contingency unused — the zero-burn streak
+      restarts**: `29183485997` = the red evidence (manifest-matched
+      name-for-name, the 8th consecutive: 6 designed unit reds + 6 recording
+      snapshot fns whose artifact carried the 16 new goldens; every old golden
+      compared clean) → `29184196211` = green all-8-jobs + TestFlight. The
+      adversarial critics caught, pre-push: a sheet-coverage hole that would
+      have leaked motivations into the app switcher, a fail-open window in the
+      shield policy, a UIApplication-in-Shared placement that is a hard
+      extension compile error, JSONEncoder key-order randomization that would
+      have made byte-equality pins flake, and a docs-unconfirmed
+      UIWindow.Level operator spelling — any of the last three was a burned
+      run. Session 23 (E7.1 PaywallKit, package lane) plans **1 billed run +
+      1 contingency**. Check Settings → Billing → spending limit before the
+      session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
@@ -448,6 +514,22 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
       long-press → Edit Widget → pick a quit; archive/erase that quit and
       confirm the widget shows "Ready when you are." — never another habit's
       streak.
+
+- [ ] **NEW (Session 22 — the E6.3 device rows, ~10 min, same sitting):**
+      (a) **Discreet toggle**: Settings sheet (gear on the root) → toggle a
+      quit discreet → the lock-screen rectangular widget shows "Day N" + the
+      counterclockwise-arrow button ONLY (no money); VoiceOver on the button
+      says "Reset". (b) **Alternate icons**: pick "Calendar style", confirm
+      the home-screen icon swaps (iOS shows its own confirmation alert —
+      platform behavior) and the app NAME still reads "Ballast" (an iOS limit
+      we recorded: a discreet icon is not a discreet app); this row also
+      verifies the actool wiring end-to-end — a misspelled build setting
+      fails SILENTLY, so only a device proves it. (c) **The shield**: with a
+      discreet quit, background the app → the switcher card is BLANK (also
+      try it with the panic sheet open — that was the panel's big catch);
+      with NO discreet quit, the card shows content (per-spec; see the veto
+      list if you want universal). (d) **Erase**: with an alternate icon set,
+      one-tap erase → the icon reverts to the primary "surfaced breath".
 
 ## 8. TelemetryDeck app ID — NOW THE LAST GATE on real funnel data (~10 min + a ~30 min audit when you're ready)
 
@@ -731,3 +813,34 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
   7. **The extension links StreakEngine** (beyond the plan's WidgetToolkit-only
      note) so money-saved renders through the ONE engine formula everywhere —
      recorded deviation, Foundation-only, no privacy surface change.
+- **Session 22 (E6.3 discreet + icons + shield) — the panel-signed rulings,
+  each vetoable (all held through the green close):**
+  1. **The discreet medium widget drops the WORD "next milestone"** (keeps the
+     bare progress bar): "milestone" is recovery-culture vocabulary that
+     strengthens the tracker gestalt beside a day count and a Reset button.
+     Veto = keep the label (one-line render change + re-record 4 goldens).
+  2. **The today-dot is #3D6C9E, not "system blue"** (§4.3 prose deviation,
+     Brand-ruled): a static PNG cannot bake a dynamic color; #3D6C9E is your
+     semantic/info token — non-brand, non-red, calmer. Veto = regenerate with
+     #007AFF via the committed script.
+  3. **The app-switcher shield covers WHEN-DISCREET (the plan's spec), and
+     fails CLOSED on an indeterminate signal.** The privacy panel recommends
+     UNIVERSAL (banking-app-style; non-discreet users' panic/slip sheets stay
+     exposed in the switcher today, and a blank-for-everyone card is less of
+     a tell than a blank-only-for-hiders card). Universal is a ONE-LINE
+     policy change + zero new goldens. Veto direction of your choice.
+  4. **widget_added stays unwired — DEFERRED to E8, UNANIMOUS 6/6** (the
+     analytics sink is Noop until your §8 app ID, so the funnel loses ZERO
+     data; building it now meant a new pre-unlock file + a fourth erase
+     artifact + extension-side writes on a 2-run budget). The E8 builder
+     inherits the pre-approved field set MINUS the discreet bit (privacy
+     amendment: {kind, firstRenderAt} only). Veto = pull it into its own
+     session.
+  5. **The unavailable-state wind glyphs stay (rect button + circular
+     fallback)** — a quit==nil state has no discreet flag to branch on, and
+     changing the rect one re-records a committed golden. RECORDED as a
+     future polish-batch candidate (neutralize both in one deliberate
+     re-record). Veto = do it next session.
+  6. **The two alternate icons are agent-generated DRAFT art** (see §3) —
+     your veto is the intended review path; behavior tests pin
+     switch/persist/reset/fire, never pixels.
