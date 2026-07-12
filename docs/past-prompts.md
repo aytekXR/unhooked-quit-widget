@@ -2511,3 +2511,180 @@ count; the ten vetoable rulings above.
 - The dashboard is still `RootPlaceholderView`; E6 owns the widget suite and the
   real streak surface (`widget-state.json` writer seam ready in
   `rebuildSnapshots()`).
+
+---
+
+## Session 20 — 2026-07-12 — E6.1 WidgetToolkit timeline provider (COMPLETE, 1 billed run, zero burned)
+
+### Objective & outcome
+
+Resume prompt v3.1: E6.1 — the WidgetToolkit timeline provider (midnight/DST
+rollover, stale-grace, `Text(timerInterval:)` ticking counters), step-0 rulings
+(a)–(d) FIRST, red-first with the four plan-named tests. **DONE in exactly 1
+billed run.** Red evidence is the LOCAL package lane (`swift test` on Linux —
+the sanctioned package-tier form, session-rules.md:84-85): **9 failing tests /
+27 issues, zero crashes, zero build errors** → green **15/15**, 98.68% lines
+against the now-CI-enforced 90% floor. Red commit `7058634` + green commit
+`47e56a5` were pushed TOGETHER so GitHub Actions fired once at HEAD
+(`29174800786`).
+
+The session-open operator check found **nothing blocking**, and it held end to
+end: **zero operator input needed, open to close.**
+
+### The step-0 panel (31 agents: 3 specs + 28 adversaries, zero deaths)
+
+Every panel ruling was adversarially refuted-or-confirmed before any code. The
+adversaries broke **7 of 15** rulings — including two the lead had to arbitrate.
+
+1. **(a) THE FEED — snapshot, not store (L2).** The E6.1 plan row said "reading
+   shared store → StreakEngine → entries". Both halves were WRONG, and the docs
+   that contradict it are the authoritative ones: ADR-6 ("Widgets read only
+   snapshots, never the database"), §7 ("widgets are pure functions of
+   widget-state.json"), §5.1 ("the widget extension gets read-only snapshot
+   access"). The plan's "store" means the App Group *location*. Plan row corrected.
+2. **(L1) THE DAY RULE — the one genuine head-on conflict.** The Architect ruled
+   `dayNumber = elapsedSeconds / 86_400` (the engine's tz-invariant
+   `StreakValue.days`); QA ruled a CALENDAR day incrementing at local midnight.
+   **Both survived their adversaries** — both are internally coherent — so the
+   lead arbitrated. **CALENDAR DAY WINS**, in the quit's FIXED start timezone.
+   Four doc citations force it (the plan's own test name
+   `entriesCrossMidnight_incrementDay`; §11's "entries only at midnight
+   boundaries"; test-suite scenario 23; test-suite §1.1's "day boundaries
+   computed in the quit's timezone"), and under elapsed semantics the plan-named
+   DST test would have **no subject at all** (DST cannot perturb elapsed seconds).
+   It does not contradict ADR-7: `StreakValue.days` has **zero display consumers**
+   — it is a DURATION readout feeding milestone math. E6.1 is the first surface to
+   define "Day N", so it is being defined, not contradicted. **Recorded as ADR-11**
+   (architecture §13) because it is now binding on the dashboard, StandBy and Live
+   Activity — two surfaces rendering different "Day N" for one quit is the biggest
+   latent inconsistency this session could have left behind.
+3. **(c) SCOPE — the PACKAGE HALF ONLY (L3).** The Architect wanted the full
+   vertical (writer + DTO + erase + template); QA wanted package-only. QA's ruling
+   survived intact and three facts decided it: the row is tagged `[PKG:WidgetToolkit]`
+   and its acceptance criterion is *exactly* "rollover/stale logic lives in
+   WidgetToolkit, only templates live in the app" (E7.1 is the house precedent for
+   a `[PKG:]` row deferring app wiring); the app vertical costs 2 billed runs
+   (app-lane red evidence cannot be produced on this Linux box), consuming the
+   budget *including* the contingency; and it would drag in a `Quit` SwiftData
+   schema change (the quit's start timezone) that deserves its own privacy-gated
+   step-0. The E3.1 erase rule is NOT tripped — no App Group artifact lands.
+4. **(L4) Foundation-only, BY RULE.** No WidgetKit, no SwiftUI, no StreakEngine.
+   That is what keeps `package-units` on the free ubuntu runner. `Calendar`/
+   `TimeZone` ARE Foundation and Linux carries the full tz database (verified
+   empirically). The package header's prophecy — "once WidgetKit imports land, the
+   lane moves to the macOS runner" — is CANCELLED and rewritten as a prohibition.
+5. **(L10) THE BUDGET CORRECTION.** Session 19's "possibly ZERO billed runs" was
+   **structurally unreachable and is struck**: `ci.yml` has no per-job path filter
+   (`paths-ignore` is only `docs/**`, `**.md`), so ANY `Packages/**` push runs the
+   macos-26 `app` job, and a green main push additionally runs the macos-26
+   `testflight` job. **There is no such thing as a zero-billed-run CODE session.**
+   Free *lanes* exist; free *runs* do not. The honest lever is pushing red+green
+   together (1 run instead of 2), which is what this session did.
+6. **(L6) UNAVAILABLE emits ONE entry, never `[]`** — an adversary's catch, and it
+   is load-bearing: WidgetKit does not fall back to `placeholder(in:)` on an empty
+   timeline, it keeps the last rendered pixels. An empty array after an erase would
+   strand the erased streak on the lock screen, **still ticking**.
+7. **(L9) TWO version pins flip, not one** — an adversary caught that
+   `Tests/Unit/WalkingSkeletonTests.swift:47` pins `WidgetToolkit.version` in the
+   **billed macOS lane**. Missing it would have burned the run on an undesigned red.
+
+### The green critics: FIVE defects REPRODUCED, not reasoned about
+
+The standing practice (repro, don't reason) paid for itself five times. Each is
+now pinned by a test that fails on the old code.
+
+1. **THE DAY COUNT STALLED IN NO-MIDNIGHT ZONES — the serious one.**
+   America/Santiago and America/Havana spring forward **at** midnight, so local
+   00:00 **does not exist** and `startOfDay()` returns 01:00. A user who quit on
+   such a day was measured from a 01:00 origin, fell one hour short of every
+   subsequent boundary, and would have read **one day low FOREVER**. Fixed by
+   anchoring the count at **local NOON** (noon exists in every zone on every date
+   — no DST shift is near 12h). Verified across New York, Santiago, Havana, Lord
+   Howe (30-min shift), Istanbul (no DST), Kiritimati (UTC+14), Chatham (UTC+12:45)
+   and Apia (the **deleted** 2011-12-30 date-line day): 400 consecutive boundaries
+   each, **zero breaks**. An `ordinality(of:.day,in:.era)` fix was tried FIRST and
+   **REJECTED** — it is off by one on exact-midnight instants under Linux
+   Foundation, which is *every boundary entry*. (The lead's own first harness
+   missed this because it probed at noon, not at the boundary — the failing test
+   caught it.)
+2. **"Day 0" / "Day -399".** The widget's `now` is the raw device clock and the
+   widget runs no clock guard by design (ADR-6 — the guard runs app-side and
+   corrects `streakStart`, not `now`), so a Settings date rollback rendered a zero
+   or negative day: the exact fabrication `Kind.unavailable` exists to prevent.
+   Floored at Day 1.
+3. **STALE-GRACE WAS DEAD** for every entry after the first: freshness was judged
+   once at plan time and stamped onto entries that render days later — so the flag
+   stayed `.fresh` in precisely the scenario it exists to detect (the write path
+   died and nothing is refreshing the state). Now judged at each entry's own render
+   time.
+4. **`refreshAfter` could equal `now`** (zero horizon), which tells WidgetKit
+   "reload immediately" — a hot loop against the §11 refresh budget. It is now the
+   last real BOUNDARY, falling back to the next rollover.
+5. **`TimeZone.autoupdatingCurrent` SURVIVES Codable.** State whose bytes said
+   `"America/New_York"` decoded to Istanbul **on an Istanbul device**, silently
+   defeating the travel-immunity the fixed-zone anchor exists for. Pinned to a
+   fixed zone at the door; the encoded JSON no longer carries the autoupdating flag.
+   (This one would have detonated in E6.2, inside the writer, far from its cause.)
+
+The compile critic returned SAFE_TO_PUSH having REPRODUCED the two riskiest
+constructs under `-strict-concurrency=complete -warnings-as-errors` (both exit 0),
+and docs-checked every Foundation/WidgetKit signature against Apple's docs JSON
+(`Text(timerInterval:pauseTime:countsDown:showsHours:)` is iOS 16+ and
+`countsDown` defaults to **true** — a count-UP streak must pass `false`; recorded
+for E6.2's template).
+
+### CI
+
+The WidgetToolkit **90% coverage floor lands now** (test-suite §2 binds floors to
+a module's FIRST merged version) on the free ubuntu lane. It needed a **pollution
+guard** as well as a TOTAL-row guard, which the docs critic reproduced: `llvm-cov`
+does **not** emit an empty report when its path filter misses — it warns on stderr,
+then reports `Tests/**` and `.build/**` with a valid TOTAL row and **exit 0**. Test
+files are ~100% covered by construction, so a polluted TOTAL would drift above the
+floor while the source coverage it claims to measure rots unseen. Verified failing
+closed (exit 2) on a missed filter. **The StreakEngine gate survives this only via
+its extra `seenFiles != 2` check — worth remembering if that gate is ever edited.**
+
+### What shipped
+
+- **`Packages/WidgetToolkit`** (its first real content; version `0.0.1-skeleton` →
+  `1.0.0`, both pins moved): `StreakWidgetState` (streakStart / timeZone /
+  generatedAt — domain-neutral, minimized, `TimeZone` Codable round-trip verified)
+  + `StreakWidgetStateReading` (read-only BY TYPE — no write member exists to call)
+  + `StreakWidgetEntry` (kind / dayNumber? / tickWindow: `ClosedRange<Date>`? /
+  freshness — string-free: E6.1 ships logic, templates are E6.2's) +
+  `StreakWidgetTimelinePlan` + `StreakTimelinePlanner`.
+- **15 tests**, all four plan-named ones verbatim, plus the eleven the panel and
+  critics forced. Every fixture instant was computed empirically before being
+  written down — the harness caught two wrong literals in the first draft (a bad
+  spring-forward epoch, and a travel fixture with no actual divergence).
+- **`docs/architecture.md`:** ADR-11 (the day rule) + §11 rewritten to separate the
+  FRESHNESS path (push reload) from the ROLLOVER path (timeline entries).
+- **`.github/workflows/ci.yml`:** `--enable-code-coverage` on the package-units
+  step + the fail-closed WidgetToolkit floor.
+
+### Known limitations / carried forward (E6.2 inherits a real list)
+
+- **The app half of the widget feed is E6.2's**, and it is a prerequisite for any
+  family rendering real data: the `widget-state.json` WRITER (`rebuildSnapshots()`
+  writes only `panic-snapshot.json` today, from 7 post-commit sites + the launch
+  refresh); its **privacy field-set table** (§10 — App Group files are
+  pre-unlock-readable; the ABSENCE set is the point); **erase membership in THREE
+  enumeration sites** (`QuitRepository.swift:647` + both `eraseLocalArtifacts` hooks
+  in `UnhookedApp.swift`) per the E3.1 standing rule; and **`project.yml`: the
+  `UnhookedWidgets` target has NO package dependencies at all** — it must gain
+  `- package: WidgetToolkit` before the extension imports the module, or the iOS
+  build fails with "no such module" (a burned run).
+- **Milestone-crossing timeline entries are OWED** (architecture §11). Milestones
+  are `afterHours`-keyed, so a crossing almost never lands on a local midnight —
+  the systemMedium milestone bar would otherwise render up to ~24h stale.
+- **The widget gallery still shows dev jargon:** `SkeletonWidget` ships
+  `.description("Walking-skeleton placeholder widget.")` to every TestFlight
+  tester. Real strings need the founder copy pass + a Shared home (the
+  `PanicControlStyle` precedent) so the lexicon gate can see them.
+- **ADR-11 is binding on the dashboard.** Whatever renders "Day N" there must use
+  the widget's rule, or the two surfaces disagree by up to a day for the same quit.
+- Deferred fire-points unchanged (`widget_added` included — the extension
+  structurally CANNOT transmit: no TelemetryDeck dep, and consent lives in SwiftData
+  behind ADR-6; its fire-point needs its own step-0). Goldens still wait on the
+  founder copy pass.

@@ -3,14 +3,38 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Session 20 open check (2026-07-12) | **NO OPERATOR ACTION REQUIRED to run Session 20 (E6.1 widget timeline provider).** Verified at session open: `origin/main` == local `801c88e`, tree clean, no operator commits mid-session; §3 founder copy pass still unchecked → the ONLY consequence is that snapshot goldens stay deferred (already a scope guard, and E6.1 ships no new copy); §8 app ID still absent → the analytics transport stays dormant BY DESIGN and E6.1 wires no events; §1/§2/§5/§6/§7 all carried, none blocking. **One CORRECTION to the Session-19 close (see §4):** the "possibly ZERO billed macOS runs" hope was wrong — `.github/workflows/ci.yml` puts NO path filter on the macOS `app` job, so *any* push touching `Packages/**` triggers it. Session 20 plans **1 billed run**, not 0. |
-| Last updated | 2026-07-11 (Session 19 CLOSED: E8.2 consent + payload-audit doc DONE — red evidence `29164705316` (225 tests, EXACTLY the 39 designed issues / 14 designed failing tests, two-lane-predicted issue-for-issue) → green `29165381934` all-green + TestFlight, **2 billed runs, zero burned — the streak restarts**. The quiz now asks "Share app usage data?" at fixed slot 3 (default OFF, decline a first-class equal, no dark pattern); your choice gates every analytics fire LIVE; the transport stays dormant until your §8 app ID — **§8 is now the LAST gate on real funnel data**, and `docs/payload-audit.md` is your MITM release gate once it lands. Nothing blocks Session 20 = E6.1 widget timeline provider (possibly a ZERO-billed-run session — the package lane is Linux-free). Open for you: §1–§8; §3 gains the 4 consent DRAFT strings. Session 16–19 vetoable rulings at the bottom.) |
+| Last updated | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
+| Superseded header | 2026-07-11 (Session 19 CLOSED: E8.2 consent + payload-audit doc DONE — red evidence `29164705316` (225 tests, EXACTLY the 39 designed issues / 14 designed failing tests, two-lane-predicted issue-for-issue) → green `29165381934` all-green + TestFlight, **2 billed runs, zero burned — the streak restarts**. The quiz now asks "Share app usage data?" at fixed slot 3 (default OFF, decline a first-class equal, no dark pattern); your choice gates every analytics fire LIVE; the transport stays dormant until your §8 app ID — **§8 is now the LAST gate on real funnel data**, and `docs/payload-audit.md` is your MITM release gate once it lands. Nothing blocks Session 20 = E6.1 widget timeline provider. ~~possibly a ZERO-billed-run session~~ — **STRUCK at the Session 20 close: that was wrong, see §4. There is no such thing as a zero-billed-run code session; free lanes exist, free runs do not.** Open for you: §1–§8; §3 gains the 4 consent DRAFT strings. Session 16–19 vetoable rulings at the bottom.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (E6.1 widget timeline provider). **§0 is
-CLOSED** (only its optional gstack FYI remains). Items below §0 are ordered by
-how much they age; check a box by replacing `[ ]` with `[x]` and the next
-session's agent will prune completed items.
+Nothing below blocks the next session (E6.2 widget families + the widget feed).
+**§0 is CLOSED** (only its optional gstack FYI remains). Items below §0 are
+ordered by how much they age; check a box by replacing `[ ]` with `[x]` and the
+next session's agent will prune completed items.
+
+> **Session 20 outcome (2026-07-12):** E6.1 is DONE — the **widget's brain**
+> shipped. `WidgetToolkit` (the portfolio package that was a stub since Session 01)
+> now owns the timeline planner: it decides when a widget re-renders (at the
+> user's local midnight, so the day number turns over when *their* day does),
+> keeps the last-known streak **ticking** when something has gone stale, and
+> refuses to invent a number when there is no data (no "Day 0" on a fresh or
+> erased device). **Nothing renders it yet** — the app half of the feed is
+> Session 21's job, and that is deliberate: the plan tags this row
+> "[PKG:WidgetToolkit]" and the app-side work would have cost two more billed runs.
+> **Billed runs: exactly the 1 planned, zero burned.**
+>
+> **What earned its keep this session:** the review agents REPRODUCED five real
+> bugs rather than reasoning about them, and one was serious — in Chile and Cuba,
+> where the clocks spring forward *at* midnight, a user who quit on that day would
+> have had their streak read **one day low forever**. It was invisible to every
+> test that existed and is now pinned by one that fails on the old code. Also
+> caught: "Day 0"/"Day -399" if someone sets their device clock back; the
+> stale-widget flag being silently dead; and a timezone bug that would have
+> detonated *next* session, inside the writer, far from its cause.
+>
+> **Your NEW asks: none.** Two FYIs: §4's budget correction, and the **ADR-11 day
+> rule** in the veto list at the bottom (a genuine product call — please read that
+> one).
 
 > **Session 19 outcome (2026-07-11):** E8.2 is DONE — the consent step renders at
 > the quiz's fixed slot 3 ("Share app usage data?" — plain-language helper, the
@@ -272,18 +296,23 @@ a live failure. Original context, for the record:
       REPRODUCE risky Swift-6 constructs under warnings-as-errors instead of
       reasoning about them — that practice caught nothing this time because
       there was nothing to catch, which is the point). Session 20 (E6.1 widget
-      timeline provider) plans **1 billed run + 1 contingency**. **This CORRECTS
-      the Session-19 close's "possibly zero billed runs" hope, which was wrong:**
-      the WidgetToolkit package lane does run on free Linux CI, but
-      `.github/workflows/ci.yml` applies NO path filter to the macOS `app` job —
-      its only exclusion is `paths-ignore: docs/**, **.md`. So *any* push that
-      touches `Packages/**` spins the 10x macOS lane too, whether or not a single
-      app file changed. Only DOCS-only pushes are truly free. The mitigation
-      Session 20 uses instead: the package lane's red evidence is produced LOCALLY
-      and free (`swift test` on Linux — the sanctioned package-lane evidence per
-      test-suite §7 rule 1), and the red + green commits are pushed TOGETHER, so
-      CI runs once at HEAD instead of twice. Check Settings → Billing → spending
-      limit before the session.
+      timeline provider) used **exactly its 1 planned run, zero burned** (green
+      `29174800786`). **This CORRECTS the Session-19 close's "possibly zero billed
+      runs" hope, which was simply wrong — and the correction is PERMANENT, so no
+      future session re-learns it:** the WidgetToolkit package lane does run on
+      free Linux CI, but `.github/workflows/ci.yml` applies NO path filter to the
+      macOS `app` job — its only exclusion is `paths-ignore: docs/**, **.md`. So
+      *any* push touching `Packages/**` spins the 10x macOS lane too, whether or
+      not a single app file changed (and a green push to main also spins the macOS
+      TestFlight lane). **Free lanes exist; free runs do not.** Only DOCS-only
+      pushes are truly free. The honest lever, which Session 20 used: produce the
+      package lane's red evidence LOCALLY and free (`swift test` on Linux — the
+      sanctioned package-tier form per session-rules.md), then push the red and
+      green commits TOGETHER so CI fires ONCE at HEAD instead of twice. Session 21
+      (E6.2 — widget families + the app-side feed) plans **2 billed runs + 1
+      contingency**: app-lane red evidence genuinely requires a CI run on the red
+      commit, because there is no Xcode or simulator on the build machine. Check
+      Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
 
@@ -547,3 +576,46 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
       shipping answer chip** (no brand/onPrimary token exists in-repo); the
       token refactor rides the post-founder-copy polish/golden batch with the
       Session-18 hero-sizing note.
+- **Session 20 (E6.1 widget timeline provider) — the panel-signed rulings, each
+  vetoable (all held through the green close):**
+  1. **⚠️ THE ONE WORTH YOUR ATTENTION — "Day N" means a CALENDAR day, not a
+     24-hour block (now ADR-11).** Someone who quits Tuesday at 11pm sees **"Day
+     2" on Wednesday morning**, not at 11pm on Wednesday. The widget's day number
+     turns over at *their* local midnight, in the timezone they quit in (so a
+     flight can never hand them a free day). The alternative — counting whole
+     24-hour blocks — is what the streak *engine* computes internally, and it
+     would show "Day 1" all through Wednesday and "Day 0" on the quit day itself.
+     Four of your own planning docs already assumed the calendar reading (the
+     plan's own test is literally named "entries cross midnight, increment day"),
+     so that is what shipped. **This is a real product call and it is now binding
+     on the dashboard too** — whatever renders "Day N" there must use the same
+     rule, or your widget and your app will disagree by a day for the same quit.
+     Veto = tell Session 21 you want 24-hour blocks (a one-function change plus
+     two test literals, cheap NOW, expensive once the dashboard ships).
+     Side-effect worth knowing: milestones ("One full day", "72 hours") stay keyed
+     to *elapsed hours*, so a milestone can unlock a day after the widget flips —
+     they answer different questions on purpose.
+  2. **E6.1 shipped the PACKAGE HALF ONLY** — the planner exists and is tested,
+     but nothing feeds it and no widget renders it yet. The plan tags that row
+     `[PKG:WidgetToolkit]` and its acceptance is "only templates live in the app";
+     doing the app half too would have cost 2 more billed runs and dragged in a
+     database schema change (storing each quit's start timezone) that deserves its
+     own privacy review. Session 21 (E6.2) does the feed + the families together,
+     which is when a real streak first appears on your lock screen. Veto = tell
+     Session 21 to split it differently.
+  3. **`WidgetToolkit` is Foundation-only BY RULE** — it may never import WidgetKit
+     or SwiftUI. Not aesthetics: its CI lane runs on free Linux, and a WidgetKit
+     import would force it onto the macOS runner that bills at 10x. WidgetKit code
+     lives in the app's widget extension instead, which is exactly what the plan's
+     acceptance criterion asks for.
+  4. **`widget_added` is still not wired** (carried since the plan was written).
+     The widget extension *structurally cannot* send analytics — it has no
+     TelemetryDeck dependency, and your consent flag lives in the database, which
+     ADR-6 forbids the extension from touching. Your own mvp.md already hedges the
+     trigger as "via widget first-render signal", so the fix is a fire-point
+     decision (the extension leaves a breadcrumb; the app sends it, behind consent),
+     not a re-spec. Session 21 rules on it explicitly.
+  5. **The widget gallery still shows developer jargon.** Anyone who long-presses
+     to add your widget today reads **"Walking-skeleton placeholder widget."** —
+     it has been shipping to TestFlight since Session 01. Real strings are
+     safety-content-gated copy and join your §3 founder pass in Session 21.
