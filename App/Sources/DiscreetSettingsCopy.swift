@@ -33,6 +33,11 @@ struct DiscreetSettingsCopy: Sendable {
     /// discipline; neutral register ("Reactivate"/"Come back" rejected —
     /// fact-wrong for a trial-lapse who may never have paid). DRAFT/§3.
     let winbackRowLabel: String
+    /// E9.1 (R27.10) — the safety-resources row (UNCONDITIONAL when the host
+    /// wires it: resources are always one tap away, never eligibility- or
+    /// entitlement-gated). Habit-name-free by the shoulder-surface discipline —
+    /// the leak lexicon bans "Quitline"-class labels here. DRAFT/§3.
+    let resourcesRowLabel: String
 
     static let shipping = DiscreetSettingsCopy(
         screenTitle: "Discreet Mode",
@@ -43,6 +48,7 @@ struct DiscreetSettingsCopy: Sendable {
         iconRowCalendar: "Calendar style",
         iconRowTimer: "Timer style",
         settingsEntryAccessibilityLabel: "Settings",
-        winbackRowLabel: "See your plan options"
+        winbackRowLabel: "See your plan options",
+        resourcesRowLabel: "Support & resources"
     )
 }

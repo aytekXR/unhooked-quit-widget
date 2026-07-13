@@ -265,6 +265,55 @@ struct SlipLexiconTests {
         }
     }
 
+    // MARK: - The E9.1 safety gate (Session 27, R27.1 — safetyCopy.json becomes
+    // FULLY consumed: the resources screen framing shipped with E5.1, the alcohol
+    // withdrawal notice decodes with E9.1. The gate scans the AUTHORED table only —
+    // NEVER helplines.json rows, which are verbatim sourced material (SAMHSA's own
+    // "treatment referral" wording is the source's honest self-description, not our
+    // register; rule #12 renders it untouched — burn-reproduced false positive).
+    // The optional notice section is #require'd into scope: a nil child dodges the
+    // blind Mirror walk (the S25 rule), and the ONE string most needing this gate
+    // must never be skipped silently.)
+
+    @Test func test_safetyStrings_containNoForbiddenLexicon() throws {
+        let copy = try #require(
+            SafetyCopy.loadShipping(),
+            "the audited safety table is the shipping safetyCopy.json — bundled since E5.1 (§3.2)"
+        )
+        let notice = try #require(
+            copy.alcoholWithdrawalNotice,
+            "the withdrawal-danger notice must ship in the audited table — E9.1 is its consuming epic"
+        )
+        let disclaimer = try #require(
+            copy.notMedicalCareDisclaimer,
+            "the not-medical-care disclaimer ships and is scanned (reworded treatment→care, R27.1)"
+        )
+
+        // The full safety-rendered corpus: the shipping table (notice + disclaimer
+        // #require'd in), the notice's fail-safe degraded fallback (it renders too),
+        // and the resources screen's degraded floor strings.
+        let corpus = Self.reflectedStrings(of: copy)
+            + Self.reflectedStrings(of: SafetyCopy.AlcoholNotice.degraded)
+            + [SafetyResourcesPresentation.degradedTitle, SafetyResourcesPresentation.degradedIntro]
+
+        // Non-vacuity floor: 9 shipping strings today (4 resources-screen + 4
+        // notice + the disclaimer) — a collapse below means the walk went vacuous.
+        #expect(
+            Self.reflectedStrings(of: copy).count >= 9,
+            "the reflected safety corpus collapsed — the scan would be vacuous"
+        )
+        #expect(!notice.title.isEmpty && !notice.body.isEmpty)
+        #expect(!disclaimer.isEmpty)
+
+        for string in corpus {
+            let violation = Self.firstViolation(in: string)
+            #expect(
+                violation == nil,
+                "forbidden lexicon '\(violation ?? "?")' must never appear on a safety surface — the one calm caution still carries zero shame and no recovery-culture register: \(string)"
+            )
+        }
+    }
+
     // MARK: - Table completeness (the audit-found inline strings, byte-exact)
 
     @Test func test_slipTable_carriesDashboardStrings_byteExactWithRenderedCopy() throws {

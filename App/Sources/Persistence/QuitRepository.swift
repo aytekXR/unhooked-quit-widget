@@ -869,6 +869,42 @@ final class QuitRepository {
         return try? context.fetch(descriptor).first?.lapseObservedAt
     }
 
+    /// E9.1 (R27.5) — the ONE writer of `AppSettings.alcoholNoticeShownAt`:
+    /// stamps the injected clock's now when the withdrawal-danger notice is
+    /// DISPLAYED, nil→set ONLY ("shown once" means once EVER app-wide; a
+    /// second alcohol quit never re-shows it). The `recordLapseObserved`
+    /// shape verbatim — a bare settings save; the stamp feeds NO cache and
+    /// never enters a pre-unlock file (§10).
+    func recordAlcoholNoticeShown() throws {
+        let settings = try fetchOrCreateAppSettings()
+        guard settings.alcoholNoticeShownAt == nil else { return }
+        settings.alcoholNoticeShownAt = clock.now
+        try context.save()
+    }
+
+    /// E9.1 (R27.5) — fetch-only read for the notice present-decision
+    /// (`nil` = never shown; the `lapseObservedAt()` twin).
+    func alcoholNoticeShownAt() -> Date? {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return try? context.fetch(descriptor).first?.alcoholNoticeShownAt
+    }
+
+    /// E9.1 (R27.6) — the notice present-decision over the pure policy: an
+    /// active alcohol goal exists (EITHER goal mode — the reduce persona
+    /// faces the same abrupt-cessation risk) and the stamp is unwritten.
+    func shouldShowAlcoholNotice() -> Bool {
+        let quits = (try? activeQuits()) ?? []
+        let alreadyShown = alcoholNoticeShownAt() != nil
+        return quits.contains { quit in
+            AlcoholNoticePolicy.shouldShow(
+                habitCategory: quit.habitCategory,
+                goalMode: quit.goalMode,
+                alreadyShown: alreadyShown
+            )
+        }
+    }
+
     /// E7.2 (R25.5) — the ONE writer of `AppSettings.paywallVariantAssigned`
     /// (the live-Superwall assignment echo, test-suite §4.4). Reached ONLY
     /// from the live presentation path's echo closure — the dormant and

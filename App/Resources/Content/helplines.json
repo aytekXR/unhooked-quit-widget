@@ -5,7 +5,8 @@
     "MUST_VERIFY_BEFORE_SHIP": [
       "TR mentalHealth ALO 182: only third-party-verified this session; confirm on an official Sağlık Bakanlığı page. 112 is the confirmed fallback and is included.",
       "TR alcohol YEDAM 115: operating hours not stated on official page.",
-      "US compulsive-behavior: NO verified dedicated national hotline exists; the circulating 1-800-837-9041 is unverified/likely defunct and was deliberately excluded. NAMI + 988 used as the neutral, non-shaming fallback."
+      "US compulsive-behavior: NO verified dedicated national hotline exists; the circulating 1-800-837-9041 is unverified/likely defunct and was deliberately excluded. NAMI + 988 used as the neutral, non-shaming fallback.",
+      "GLOBAL (E9.1/R27.7): deliberately NUMBER-FREE — no legitimate single worldwide crisis number exists, so an unmapped region gets the calm local-emergency line plus the findahelpline.com pointer (ThroughLine's verified 175+-country directory, live-checked 2026-07). Review the emergencyNote wording in the §3 pass; never add a phone row here without an official source."
     ],
     "sources": {
       "us_quit": "https://www.cdc.gov/tobacco/campaign/tips/quit-smoking/quitline/",
@@ -18,6 +19,11 @@
     }
   },
   "regions": {
+    "GLOBAL": {
+      "displayName": "Global",
+      "emergencyNote": "If you're in immediate danger, call your local emergency number. To find a helpline in your country, visit findahelpline.com.",
+      "resources": []
+    },
     "US": {
       "displayName": "United States",
       "emergencyNote": "In immediate danger? Call 911.",

@@ -33,23 +33,46 @@ struct RootPlaceholderView: View {
     /// the sheet and hands off here. nil (the default) hides the row —
     /// dormant builds and non-hosts never show it.
     var onWinbackRowTap: (() -> Void)? = nil
+    /// E9.1 (R27.6) — the alcohol notice's once-per-process consideration latch
+    /// (the durable once-guarantee is the AppSettings stamp; this only prevents a
+    /// same-session re-present) + the visible-card flag.
+    @State private var didConsiderAlcoholNotice = false
+    @State private var showsAlcoholNotice = false
+    /// E9.1 (R27.2) — the resources sheet, one mount for both origins: the settings
+    /// row injects `.settings`; the alcohol notice's hand-off injects nil (the
+    /// out-of-domain open fires nothing, R27.4).
+    @State private var resources: ResourcesPresentation?
 
     /// E4.2: every slip string this surface renders comes from the ONE audited table
     /// (implementation-plan §E4.2), never a view-inline literal — byte-identical to
     /// the E4.1-shipped strings, so nothing rendered changes.
     private let slipCopy = SlipCopy.loadShipping() ?? .degraded
     private var dashboardCopy: SlipCopy.Dashboard { slipCopy.dashboard ?? .degraded }
+    /// E9.1 — the notice copy, fail-SAFE (R27.6): a missing table or section still
+    /// renders the plain calm caution, never silently nothing.
+    private let noticeCopy = SafetyCopy.loadShipping()?.alcoholWithdrawalNotice
+        ?? SafetyCopy.AlcoholNotice.degraded
 
     var body: some View {
         VStack(spacing: 24) {
             skeleton
             panicEntry
             if let repository = provider?.repository {
+                if showsAlcoholNotice {
+                    alcoholNoticeCard(noticeCopy)
+                }
                 storeSlipSurface(repository)
+                    .onAppear { considerAlcoholNotice(repository) }
                 settingsEntry
             }
         }
         .padding(20)
+        .sheet(item: $resources) { presented in
+            SafetyResourcesView(
+                source: presented.source,
+                analytics: provider?.repository?.analyticsService ?? .disabled
+            )
+        }
         .onChange(of: scenePhase) { _, phase in
             // Sweep the undo window on scene-phase transitions (architecture §7:
             // scene-phase driven, never a background timer). Idempotent.
@@ -214,6 +237,71 @@ struct RootPlaceholderView: View {
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
     }
 
+    /// E9.1 (R27.6) — the once-per-process notice consideration: runs when the
+    /// store-gated subtree first mounts (the repository exists there by
+    /// construction), stamps AT DISPLAY through the ONE writer, and latches so a
+    /// same-session re-render never re-presents. A failed stamp write is the
+    /// silent-recover class — the card still shows now, and a fail-open re-show
+    /// next launch errs toward showing a safety notice.
+    private func considerAlcoholNotice(_ repository: QuitRepository) {
+        guard !didConsiderAlcoholNotice else { return }
+        didConsiderAlcoholNotice = true
+        guard repository.shouldShowAlcoholNotice() else { return }
+        try? repository.recordAlcoholNoticeShown()
+        showsAlcoholNotice = true
+    }
+
+    /// E9.1 (R27.6, Brand-signed shape) — the ONE calm caution: an inline amber
+    /// `semantic/caution` card (never a blocking modal, never a sheet — zero
+    /// contention with the panic mounts), zero red, no alarm glyph
+    /// (`lifepreserver` — the brand-blessed help glyph; no new symbol, R27.9).
+    /// "Got it" carries EQUAL-OR-GREATER prominence than "See resources" — the
+    /// user leaves freely; the hand-off opens the resources screen with a nil
+    /// source (out-of-domain, fires nothing — R27.4).
+    private func alcoholNoticeCard(_ notice: SafetyCopy.AlcoholNotice) -> some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "lifepreserver")
+                    .foregroundStyle(.orange)
+                    .accessibilityHidden(true)
+                Text(notice.title)
+                    .font(.body.weight(.semibold))
+            }
+            Text(notice.body)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button {
+                showsAlcoholNotice = false
+            } label: {
+                Text(notice.dismissLabel)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.teal)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("alcoholNotice.dismiss")
+            Button {
+                resources = ResourcesPresentation(source: nil)
+            } label: {
+                Text(notice.primaryActionLabel)
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(.teal)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("alcoholNotice.seeResources")
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        // Amber semantic/caution ONLY — never red (§2 hard rule), calm typography.
+        .background(.orange.opacity(0.10), in: RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("alcoholNotice.card")
+    }
+
     /// E6.3 — the discreet-settings entry point (R22.7: a graft like the slip
     /// surface, store-gated because both its halves persist through the repository).
     /// Neutral secondary chrome — settings is not a call to action. The sheet
@@ -240,7 +328,10 @@ struct RootPlaceholderView: View {
         .accessibilityLabel(DiscreetSettingsCopy.shipping.settingsEntryAccessibilityLabel)
         .accessibilityIdentifier("root.settingsEntry")
         .sheet(isPresented: $showsDiscreetSettings) {
-            DiscreetSettingsView(onWinbackRowTap: onWinbackRowTap)
+            DiscreetSettingsView(
+                onWinbackRowTap: onWinbackRowTap,
+                onResourcesRowTap: { resources = ResourcesPresentation(source: .settings) }
+            )
         }
     }
 
@@ -251,6 +342,13 @@ struct RootPlaceholderView: View {
         if let custom = quit.customLabel, !custom.isEmpty { return custom }
         return quit.habitCategory.rawValue.capitalized
     }
+}
+
+/// E9.1 — Identifiable wrapper for the resources sheet: one mount, per-origin
+/// source (`.settings` from the settings row; nil from the alcohol notice).
+private struct ResourcesPresentation: Identifiable {
+    let id = UUID()
+    let source: ResourcesSource?
 }
 
 /// Identifiable wrapper so the store-route slip flow presents through `.sheet(item:)`

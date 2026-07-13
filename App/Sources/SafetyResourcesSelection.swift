@@ -16,10 +16,7 @@ enum SafetyResourcesSelection {
     /// reads the number-free GLOBAL bucket — never US numbers dressed as local
     /// resources. Locale injected for determinism.
     static func region(for locale: Locale, in directory: HelplineDirectory) -> String {
-        // E9.1 red: the E5.1 semantics verbatim (unmapped → "US") — the designed
-        // failure for test_helplines_regionFallbackToGlobal; green repoints the
-        // fallback to "GLOBAL".
-        guard let id = locale.region?.identifier, directory.regions[id] != nil else { return "US" }
+        guard let id = locale.region?.identifier, directory.regions[id] != nil else { return "GLOBAL" }
         return id
     }
 
@@ -28,7 +25,12 @@ enum SafetyResourcesSelection {
     /// unverified row never renders (rule #12; the S16 duty-of-care twin); a row
     /// joins the moment the operator verifies it and flips its flag.
     static func rows(region: String, in directory: HelplineDirectory) -> [HelplineRow] {
-        // E9.1 red: inert — the selection lands green (R27.14 manifest).
-        []
+        guard let entry = directory.regions[region] else { return [] }
+        let verified = entry.resources.filter { $0.verified == true }
+        let crisis = verified.filter { $0.appliesTo.contains("all") }
+        let scoped = verified.filter { !$0.appliesTo.contains("all") }
+        return (crisis + scoped).map {
+            HelplineRow(name: $0.name, descr: $0.descr, phoneDisplay: $0.phoneDisplay, dialString: $0.dialString)
+        }
     }
 }

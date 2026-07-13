@@ -131,9 +131,9 @@ struct AgeGateTests {
             attributeNames == [
                 "analyticsOptIn", "discreetIconId", "hapticOnlyBreathPacer",
                 "onboardingVariant", "teaserExpiresAt", "paywallVariantAssigned",
-                "ageGatePassed", "lapseObservedAt",
+                "ageGatePassed", "lapseObservedAt", "alcoholNoticeShownAt",
             ],
-            "AppSettings gains ONLY the ageGatePassed boolean — the birth year is a transient input, never a row (lapseObservedAt joined E7.3, R26.1 §7-approved — the win-back observed-lapse stamp)"
+            "AppSettings gains ONLY the ageGatePassed boolean — the birth year is a transient input, never a row (lapseObservedAt joined E7.3, R26.1 §7-approved — the win-back observed-lapse stamp; alcoholNoticeShownAt joined E9.1, R27.5 §7-approved — the alcohol-notice once-shown stamp)"
         )
         // Independent privacy pin: nothing age/birth/year-shaped may join later.
         // (Bare "age" is deliberately absent — it is a substring of the sanctioned

@@ -171,6 +171,15 @@ final class AppSettings {
     /// (reinstall edge flagged vetoable, the R25.5 shape); erase-swept with
     /// the row; NEVER enters any pre-unlock file (§10).
     var lapseObservedAt: Date?
+    /// E9.1 (R27.5, §7-approved in-panel): the alcohol withdrawal-danger
+    /// notice's once-shown stamp (mvp feature 11: "shown once, calmly" —
+    /// once EVER app-wide, both goal modes). nil = never shown; written ONLY
+    /// by `recordAlcoholNoticeShown()` at display, nil→set once, from the
+    /// injected clock. A content-safety flag, not entitlement-adjacent —
+    /// erase-swept with the row (a post-erase user is a fresh user and sees
+    /// the notice again, fresh-install honesty); NEVER enters any pre-unlock
+    /// file (§10).
+    var alcoholNoticeShownAt: Date?
 
     init() {}
 }

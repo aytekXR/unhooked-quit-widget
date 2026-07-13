@@ -20,6 +20,12 @@ struct DiscreetSettingsView: View {
     /// paywall mount). nil hides the row; visibility is ALSO gated by the
     /// live eligibility read — view-gated, never an optional String (R26.9).
     var onWinbackRowTap: (() -> Void)? = nil
+    /// E9.1 (R27.10 — the SECOND R22.7 amendment): the safety-resources row's
+    /// tap-through (the host owns the ONE resources mount and injects the
+    /// `.settings` source). UNCONDITIONAL when wired — resources are always one
+    /// tap away (an MVP §7 release-gate row), never eligibility- or
+    /// entitlement-gated (unlike the winback row).
+    var onResourcesRowTap: (() -> Void)? = nil
 
     private let copy = DiscreetSettingsCopy.shipping
     private let slipCopy = SlipCopy.loadShipping() ?? .degraded
@@ -33,6 +39,7 @@ struct DiscreetSettingsView: View {
                     iconPicker(repository)
                     winbackRow(repository)
                 }
+                resourcesRow()
             }
             .id(refreshToken)
             .navigationTitle(copy.screenTitle)
@@ -59,6 +66,27 @@ struct DiscreetSettingsView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings.winback.row")
+            }
+        }
+    }
+
+    /// E9.1 (R27.10) — the safety-resources row: mvp feature 11's "one tap from
+    /// Settings". Store-free (the screen reads bundled JSON only), so it renders
+    /// whenever the host wires it — no repository, no eligibility gate. Same
+    /// dismiss-then-hand-off shape as the winback row.
+    @ViewBuilder
+    private func resourcesRow() -> some View {
+        if let onResourcesRowTap {
+            Section {
+                Button {
+                    dismiss()
+                    onResourcesRowTap()
+                } label: {
+                    Label(copy.resourcesRowLabel, systemImage: "lifepreserver")
+                        .foregroundStyle(.primary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("settings.resources.row")
             }
         }
     }

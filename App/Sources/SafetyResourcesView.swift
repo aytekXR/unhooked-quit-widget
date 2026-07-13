@@ -72,7 +72,9 @@ final class SafetyResourcesModel {
     }
 
     func viewed(_ source: ResourcesSource?) {
-        // E9.1 red: inert — the fire lands green (R27.14 manifest).
+        guard let source, !didFireResourcesViewed else { return }
+        didFireResourcesViewed = true
+        analytics.fire(.resourcesViewed(source: source))
     }
 }
 

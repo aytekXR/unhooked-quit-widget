@@ -15,7 +15,6 @@ enum AlcoholNoticePolicy {
     /// True exactly when the notice should present: an alcohol goal exists (either
     /// goal mode) and the once-stamp has never been written.
     static func shouldShow(habitCategory: HabitCategory, goalMode: GoalMode, alreadyShown: Bool) -> Bool {
-        // E9.1 red: inert — the decision lands green (R27.14 manifest).
-        false
+        habitCategory == .alcohol && !alreadyShown
     }
 }
