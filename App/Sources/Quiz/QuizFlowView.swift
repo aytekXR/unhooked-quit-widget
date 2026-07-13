@@ -51,11 +51,18 @@ struct QuizFlowView: View {
             }
         }
         .frame(height: 4)
+        // R28.13 (the run-29262073722 audit's hit-region finding): a 4pt-tall
+        // accessibility element is an un-targetable sliver for assistive tech.
+        // The VISUAL stays the 4pt capsule; the a11y element's frame grows to the
+        // 44pt floor, and the element is explicitly non-interactive (it is an
+        // announcement, not a control).
+        .frame(minHeight: 44)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(
             format: model.engine.config.controls.progressA11yFormat,
             position.index, position.total
         ))
+        .accessibilityRespondsToUserInteraction(false)
         .accessibilityIdentifier("quiz.progress")
     }
 

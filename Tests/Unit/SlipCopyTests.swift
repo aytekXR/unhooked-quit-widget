@@ -144,3 +144,52 @@ struct SlipCopyTests {
         }
     }
 }
+
+// MARK: - R28.13 · the sentence-drop composition (the audit's not-human-readable fix)
+
+@Suite("R28.13 · slip logged composition")
+struct SlipLoggedCompositionTests {
+    /// The fix's pin, over the EXACT shipping templates: a nil momentum drops its
+    /// whole sentence — never the dangling "momentum is still ." the
+    /// run-29262073722 audit flagged as not human-readable on the forgiveness
+    /// screen. Red evidence for this fix = that audit failure (rule 1's
+    /// "demonstrably run" form); the pin lands with the fix.
+    @Test func test_loggedComposition_nilMomentum_dropsSentence_neverDangles() throws {
+        let copy = try #require(SlipCopy.loadShipping())
+
+        let noBest = SlipLoggedComposition.composed(copy.logged.bodyNoBest, values: [
+            "bestStreak": "0 hours",
+            "momentum": nil,
+        ])
+        #expect(!noBest.contains("still ."), "no dangling clause where the number would be")
+        #expect(!noBest.contains("{{momentum}}"), "no raw token leaks either")
+        #expect(
+            noBest == "Logged. The next hour starts whenever you're ready.",
+            "the momentum sentence drops WHOLE; its neighbors are untouched"
+        )
+
+        let withBest = SlipLoggedComposition.composed(copy.logged.body, values: [
+            "bestStreak": "34 days",
+            "momentum": nil,
+        ])
+        #expect(!withBest.contains("still ."), "the combined best+momentum sentence drops whole too — a partial number-less clause never renders")
+    }
+
+    /// Byte-identity on the FILLED path (the golden guard): with every token
+    /// valued, the composition reproduces the historical `replacingOccurrences`
+    /// output exactly — which is why only the degradedNoBest goldens re-record.
+    @Test func test_loggedComposition_filledTokens_reproducesLegacyOutputByteForByte() throws {
+        let copy = try #require(SlipCopy.loadShipping())
+
+        for template in [copy.logged.body, copy.logged.bodyNoBest] {
+            let legacy = template
+                .replacingOccurrences(of: "{{bestStreak}}", with: "34 days")
+                .replacingOccurrences(of: "{{momentum}}", with: "62%")
+            let composed = SlipLoggedComposition.composed(template, values: [
+                "bestStreak": "34 days",
+                "momentum": "62%",
+            ])
+            #expect(composed == legacy, "a fully-filled template must not shift a single byte")
+        }
+    }
+}

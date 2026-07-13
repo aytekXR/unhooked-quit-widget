@@ -295,14 +295,17 @@ struct SlipFlowView: View {
     // MARK: - Copy substitution
 
     /// The forgiveness body: `logged.body` (with the archived best) or `logged.bodyNoBest`
-    /// (best == 0). Substitutes only the sanctioned tokens; a nil momentum degrades to an
-    /// empty substitution — the copy never invents a number.
+    /// (best == 0). Substitutes only the sanctioned tokens through the sentence-drop
+    /// composition (R28.13) — a nil momentum drops its whole sentence, never a dangling
+    /// "momentum is still ." (the run-29262073722 audit's not-human-readable finding);
+    /// the copy still never invents a number.
     private var loggedBody: String {
         guard let framing = model.framing else { return "" }
         let template = framing.bestStreakSeconds == 0 ? model.copy.logged.bodyNoBest : model.copy.logged.body
-        return template
-            .replacingOccurrences(of: "{{bestStreak}}", with: humanDuration(framing.bestStreakSeconds))
-            .replacingOccurrences(of: "{{momentum}}", with: framing.momentumPercent.map { "\($0)%" } ?? "")
+        return SlipLoggedComposition.composed(template, values: [
+            "bestStreak": humanDuration(framing.bestStreakSeconds),
+            "momentum": framing.momentumPercent.map { "\($0)%" },
+        ])
     }
 
     private func motivationEcho(_ motivation: String) -> String {
@@ -362,4 +365,44 @@ extension SlipCopy.Dashboard {
         undoLabel: "Undo",
         discreetRowLabel: "Tracked goal"
     )
+}
+
+/// R28.13 — token substitution with the no-dangling-clause rule: a template
+/// SENTENCE containing a token whose value is nil is dropped WHOLE (the copy
+/// never invents a number AND never renders a dangling "…momentum is still ." —
+/// the run-29262073722 audit's not-human-readable finding on the forgiveness
+/// screen). Sentences keep their own leading whitespace, so a fully-filled
+/// template reproduces the pre-R28.13 output BYTE-FOR-BYTE (harness-pinned —
+/// every non-degraded golden holds); only a dropped first sentence needs the
+/// final edge-trim. Pure Foundation — Linux-harness runnable over the exact
+/// shipping templates.
+enum SlipLoggedComposition {
+    static func composed(_ template: String, values: [String: String?]) -> String {
+        var sentences: [String] = []
+        var current = ""
+        for character in template {
+            current.append(character)
+            if character == "." || character == "!" || character == "?" {
+                sentences.append(current)
+                current = ""
+            }
+        }
+        if !current.isEmpty { sentences.append(current) }
+
+        var output = ""
+        for sentence in sentences {
+            let hasUnfilledToken = values.contains { key, value in
+                value == nil && sentence.contains("{{\(key)}}")
+            }
+            if hasUnfilledToken { continue }
+            var filled = sentence
+            for (key, value) in values {
+                if let value {
+                    filled = filled.replacingOccurrences(of: "{{\(key)}}", with: value)
+                }
+            }
+            output += filled
+        }
+        return output.trimmingCharacters(in: .whitespaces)
+    }
 }
