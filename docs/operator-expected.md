@@ -3,7 +3,8 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-13 (**Session 29 CLOSED: the StoreKit-config/contract session — the funnel is now MACHINE-PROVEN end to end, and the win-back's 50%-off purchase is one key-upload from live.** What that means concretely: the two-year-flaky "gate→quiz hang" was DISSOLVED with evidence — we parsed the failed run's raw test archive on the Linux box (screenshots + accessibility trees, no Xcode needed) and found the quiz had been mounting FINE all along; the old test was waiting on an identifier that never appears in the accessibility tree, while the seeded fallback's stall is a real named app defect (a store-open failure is silently swallowed with no retry — documented in code, deferred by name for the recovery-flow epic). The funnel smoke re-landed on correct anchors and PASSED ITS FIRST RUN: real age gate → the 11-step quiz → summary → paywall mount, with every analytics event's order asserted end-to-end through a new consent-honest debug event spy (it can only ever see what the consent gate lets through — structurally). The win-back seam: RevenueCat signs promotional offers SERVER-side with your In-App Purchase Key — we proved no keyless path exists — so the complete signed-purchase code is BUILT and dormant, the local StoreKit test config declares the same winback_annual offer (CI-pinned against drift), and **your IAP-key upload is now the ONLY thing between the app and the live discount — zero further code.** **Billed runs: exactly 3 = the 2 planned + the contingency, ZERO burned** (§4: the red run matched all 5 predicted failures name-for-name — the 15th consecutive; the contingency went to a PRE-EXISTING panic-smoke flake our diff didn't cause: a tap swallowed mid-animation, artifact-proven, the drive now verifies every tap took). **Session-open check: NOTHING was required from you, open to close, and there are ZERO new asks** — §8's winback block just gained an update note (the signed path is built; your Xcode-26 open-and-save rider now also covers the new offer entry) and one vetoable ruling (on offer-config drift the purchase fails honestly rather than charging full price after "half price" copy). Session 30 = E10.2 submission-package prep, the LAST build session.) |
+| Last updated | 2026-07-13 (**Session 30 CLOSED: E10.2 submission-package prep, the BUILD-side half — DONE in exactly 1 billed run, contingency UNUSED, ZERO burned.** What that means concretely: the submission package now exists as far as a build agent can take it — (1) **`docs/review-notes.md`**, a paste-ready App Review notes DRAFT (the age-gate/quiz path, why there is no demo account, exactly how a reviewer exercises the lock-screen Panic control, the 17+ clinical posture, the privacy story) with every claim anchored to a shipped test so you can defend it — your clinician+counsel pass is its ship gate, and the three decisions it deliberately does NOT make for you (teaser-vs-hard review build, keys-at-submission, the 17+ rating) are surfaced in its §3; (2) **`docs/app-privacy-label.md`**, the App Privacy label derived row-by-row from the code (three collected rows, all "not linked / not tracking": product interaction + the habit CATEGORY + purchase history once your RC key lands; NO identifiers row; code-derived until your §8 app ID lets the MITM audit verify it on the wire) ready for you to enter in App Store Connect — one taxonomy judgment call is yours/counsel's (OQ-2, veto list); (3) a **permanent explicit-terms/no-medical metadata lint** now gates every merge (born-green — your shipping surfaces were already clean: 357 copy strings + the bundle names + the widget/control strings, zero violations); (4) **`docs/submission-checklist.md`** wires every MVP §7 release box to its exact CI evidence or its operator owner — NO box was auto-ticked, and the honest gaps are named in it. **TWO real finds worth your eye:** (a) **the app ships no PrivacyInfo.xcprivacy "required-reason API" manifest — Apple rejects apps without one (since 2024); a REAL submission blocker, and Session 31 (the last build session) closes it — no action needed from you**; (b) two in-app spots render the words "Porn"/"Weed" (the panic multi-quit picker + the widget setup screen) — the Brand seat wants "Adult content"/"Cannabis", but an existing brand-signed test deliberately PINS the current words, so it is YOUR call (OQ-1, veto list; not an App-Review blocker either way). **Session-open check: NOTHING was required from you, open to close.** One budget FYI (§4): your **Claude monthly spend limit was hit mid-session** — the agent panel's last worker died on it (zero loss; findings were already on disk by standing rule) and the session finished inline; until you raise it or the month rolls, sessions run without agent fan-outs (slower, not blocked). Session 31 = the PrivacyInfo.xcprivacy manifest, the last build session.) |
+| Superseded header (S29) | 2026-07-13 (**Session 29 CLOSED: the StoreKit-config/contract session — the funnel is now MACHINE-PROVEN end to end, and the win-back's 50%-off purchase is one key-upload from live.** What that means concretely: the two-year-flaky "gate→quiz hang" was DISSOLVED with evidence — we parsed the failed run's raw test archive on the Linux box (screenshots + accessibility trees, no Xcode needed) and found the quiz had been mounting FINE all along; the old test was waiting on an identifier that never appears in the accessibility tree, while the seeded fallback's stall is a real named app defect (a store-open failure is silently swallowed with no retry — documented in code, deferred by name for the recovery-flow epic). The funnel smoke re-landed on correct anchors and PASSED ITS FIRST RUN: real age gate → the 11-step quiz → summary → paywall mount, with every analytics event's order asserted end-to-end through a new consent-honest debug event spy (it can only ever see what the consent gate lets through — structurally). The win-back seam: RevenueCat signs promotional offers SERVER-side with your In-App Purchase Key — we proved no keyless path exists — so the complete signed-purchase code is BUILT and dormant, the local StoreKit test config declares the same winback_annual offer (CI-pinned against drift), and **your IAP-key upload is now the ONLY thing between the app and the live discount — zero further code.** **Billed runs: exactly 3 = the 2 planned + the contingency, ZERO burned** (§4: the red run matched all 5 predicted failures name-for-name — the 15th consecutive; the contingency went to a PRE-EXISTING panic-smoke flake our diff didn't cause: a tap swallowed mid-animation, artifact-proven, the drive now verifies every tap took). **Session-open check: NOTHING was required from you, open to close, and there are ZERO new asks** — §8's winback block just gained an update note (the signed path is built; your Xcode-26 open-and-save rider now also covers the new offer entry) and one vetoable ruling (on offer-config drift the purchase fails honestly rather than charging full price after "half price" copy). Session 30 = E10.2 submission-package prep, the LAST build session.) |
 | Superseded header (S28) | 2026-07-13 (**Session 28 CLOSED: E9.3 DONE — the ACCESSIBILITY PASS; Epic 9's build half is COMPLETE.** What that means concretely: a visually-impaired user can now run the entire panic loop EYES-FREE — a new "Breathe with taps" switch in the settings sheet makes the breath pacer haptics-only, and the preference reaches even the cold lock-screen panic launch (the store never opens on that path — the bit rides the same pre-cached file the panic screen already reads); VoiceOver now reads honest labels through quiz, panic, and slip (the commitment slider speaks its WORDS — "Ready to start today" — never "50 percent"; every field/stepper/icon-picker state is named); the breath step gained a taps-anchored instruction because "Follow the circle" was literally false in haptics-only mode; and a PERMANENT runtime accessibility audit now gates every merge (Apple's own audit engine, driven through quiz/panic/slip on CI). The audit's very first run EARNED ITS KEEP: it caught a real broken VoiceOver sentence on the forgiveness screen ("Your momentum is still ." — an empty number slot; fixed, with a new never-dangle composition rule) and an untappable 4pt progress element (fixed). It ALSO enumerated real CONTRAST + TEXT-SCALING violations (your teal buttons and secondary text sit under WCAG on several frames) — those fixes are brand-palette decisions whose golden re-records cascade, so they are deferred BY NAME with the full finding ledger to the a11y-visual/golden-batch session (which already waits on your §3 copy pass — colors+copy+goldens land in ONE re-record). **Billed runs: 5 = the 2 planned + the contingency + 2 over, 1 BURNED** (§4 has the honest accounting: two docs-listed audit options exist only on macOS — the per-platform availability check is now a standing gate; every other run produced designed evidence, incl. two free golden re-records from CI's own artifacts). **Session-open check: NOTHING was required from you, open to close.** Your NEW asks: §3 gains the 4 a11y DRAFT strings (each with alternatives) + two copy niceties the audit surfaced; §7 gains a 2-minute eyes-free/VoiceOver eyeball. Vetoable rulings at the bottom — the DEFERRED CONTRAST findings are the one worth your eye. Session 29 = the StoreKit-config/contract session.) |
 | Superseded header (S27) | 2026-07-13 (**Session 27 CLOSED: E9.1 + E9.2 DONE — the SAFETY LAYER is live in every build.** What that means concretely: a "Support & resources" row now sits at the bottom of Settings, the slip flow's forgiveness screen carries the same one-tap link (both routes — even a panic-descended slip), and both open a calm resources screen showing ONLY operator-verified helplines for the user's region; a user outside your US/TR maps meets an honest GLOBAL fallback — "call your local emergency number" + a pointer to findahelpline.com (a vetted 175+-country directory we live-checked) — never US numbers dressed as local, and NEVER an invented phone number (no legitimate worldwide crisis number exists, so the GLOBAL bucket is deliberately number-free); and the FIRST alcohol quit or reduce goal meets your safetyCopy.json withdrawal caution ONCE ever — a calm amber card on the dashboard, "Got it" always first-class, "See resources" one tap from the danger it names. E9.2's milestones audit is now a PERMANENT CI gate (phrase-anchored medical-claim lexicon + the "commonly reported" framing pinned on all 43 bodies) — the mechanical half of your §7 copy-audit signature is done by machines forever. **Billed runs: exactly the 2 planned, ZERO burned, contingency UNUSED** (the red run matched the panel's prediction name-for-name — the 13th consecutive — including the 6 slip-flow snapshot diffs the new link caused BY DESIGN; those goldens were re-recorded for FREE from the red run's own artifact instead of spending a third run). **Session-open check: NOTHING was required from you, open to close.** Your NEW asks: §3 gains the safety-copy block (the 4 alcohol-notice strings — your clinician+counsel pass is the SHIP gate, one disclaimer REWORD to eyeball, the new "Support & resources" label, and the GLOBAL fallback note incl. the findahelpline.com pointer to verify-or-veto) + the E9.2 audit signature; §7 gains a 2-minute safety-layer eyeball for the consolidated sitting. Vetoable rulings at the bottom — the notice's dashboard-mount gap (a hard-walled non-converter in the LIVE-keys era never reaches the dashboard, so never meets the notice) is the one worth your eye. Session 28 = E9.3 accessibility pass.) |
 | Superseded header (S26) | 2026-07-12 (**Session 26 CLOSED: E7.3 DONE — Epic 7's BUILD half is now COMPLETE, and the whole monetization vertical stays fully DORMANT until you act.** The win-back: once your keys are live, a user whose trial (or paid plan) lapsed at least 7 days ago meets a calm 50%-off annual OFFER — "Your annual plan, now at half price. / $14.99 for your first year, then $29.99 per year. Cancel anytime." — at most once per app launch on re-entry, always DISMISSIBLE ("Not now" → dashboard; an offer never traps — your hard onboarding wall stays close-free), plus a persistent "See your plan options" row in Settings that only renders while eligible. The 7-day clock is an app-side observed-lapse stamp because we PROVED the alternative doesn't exist: Apple's win-back offers can't go below 1 MONTH and require prior PAID history (your 7-day trial-lapse cohort fails both), and RevenueCat's targeting has no lapse condition — so the discount mechanically rides an **App Store Connect promotional offer** you'll create at sandbox time (§8, NEW block incl. the In-App Purchase Key upload). **Billed runs: exactly the 2 planned, ZERO burned, contingency UNUSED** (the red run matched the panel's 11-test prediction name-for-name — the 12th consecutive). **Your session-open bug report (lock-screen day counter) was TRIAGED, no code change needed: the binary from 2 days ago predates the real widget — see the NEW §7 row (update + re-add the "Streak" widget once, ~2 min).** Your NEW asks: §3 gains 5 winback DRAFT strings + one mvp §6 ratification; §7 gains the day-counter row; §8 gains the promotional-offer block. Six-ish vetoable rulings at the bottom — the any-lapse eligibility and the once-per-launch offer cadence are the two worth your eye. Session 27 = E9.1 safety layer.) |
@@ -15,20 +16,23 @@
 | Superseded header (S20) | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (Session 30 = E10.2
-submission-package prep, the BUILD-side half: App Review notes + the App
-Privacy label derived from the payload-audit allow-list + automatable
-metadata lints + the MVP §7 submission-checklist wiring — no new SDK, no new
-key, no operator gate; ASO assets/screenshots stay YOURS behind Gate G0, and
-the goldens batch still waits on your §3 copy pass).
+Nothing below blocks the next session (Session 31 = the R30.6
+PrivacyInfo.xcprivacy required-reason manifest — a small code session:
+docs-checked reason codes, the manifest(s), project.yml wiring, presence
+pins. No new SDK, no new key, no operator gate; ASO assets/screenshots stay
+YOURS behind Gate G0, and the goldens batch still waits on your §3 copy
+pass. Heads-up: your Claude monthly spend limit is hit (§4) — the session
+will run inline, which is fine, just slower).
 
-> **Runway to launch (updated Session 29, delivery 31/32 = 96.9%).** Build
-> side: **exactly 1 agent session to a submission-ready build** — E10.2
-> submission-package prep (review notes, App Privacy label, metadata lints,
-> the §7 checklist wiring). The StoreKit-config/contract session is DONE;
-> the only build-adjacent work left beyond E10.2 is the goldens batch, and
-> it waits on your §3 copy pass FIRST (one re-record bundling
-> colors+copy+goldens). E10.1
+> **Runway to launch (updated Session 30, E10.2 build half DONE).** Build
+> side: **exactly 1 agent session to a submission-ready build** — Session 31
+> closes R30.6 (the missing required-reason privacy manifest, a real Apple
+> rejection class since 2024, discovered and named this session). E10.2's
+> build half is DONE: review notes drafted, the App Privacy label derived
+> with code evidence, the metadata lint permanent in CI, the §7 checklist
+> wired to its evidence. The only build-adjacent work left beyond Session 31
+> is the goldens batch, and it waits on your §3 copy pass FIRST (one
+> re-record bundling colors+copy+goldens). E10.1
 > (external beta, ≥15 testers) runs on YOUR clock in parallel — **internal
 > TestFlight is already live** (today's Session 27 build is installable),
 > and **the safety layer that was the recommended bar for distributing an
@@ -355,7 +359,29 @@ a live failure. Original context, for the record:
 
 ## 3. Content tone review — now fully TestFlight-visible — **+ NEW: E4.2 checklist signature (~15 min)**
 
-- [ ] **NEW (Session 28 — THE A11Y-COPY BLOCK, 4 DRAFT strings + 2 niceties,
+- [ ] **NEW (Session 30 — THE REVIEW-NOTES DRAFT, ~15 min read; your
+      clinician+counsel pass is its SHIP gate):** `docs/review-notes.md` is the
+      paste-ready App Review notes draft — every factual claim is anchored to a
+      shipped test so you can defend it under review. Read it top to bottom
+      with the same eye as the copy tables (its §4 lists the register bans it
+      holds itself to — no latency number, no "anonymous", no medical
+      vocabulary). Its §3 surfaces the THREE submission decisions that are
+      yours alone: (a) the 3.1.2 review-build posture (point the review build
+      at the teaser arm vs defend the close-less hard wall — the R24.9 rider);
+      (b) keys-at-submission (a keyless review build never shows a purchase
+      screen — submit keyed or explain the gating); (c) the 17+ rating in ASC.
+- [ ] **NEW (Session 30 — OQ-1, THE displayLabel DECISION, ~2 min,
+      VETO-CLASS):** the panic multi-quit picker and the widget setup screen
+      render the category words **"Porn"** and **"Weed"** (from
+      `QuitRepository.displayLabel`). The Brand seat flags this against your
+      brandkit §1.2 clinical-noun rule (the quiz chips already say "Adult
+      content"/"Cannabis") — but `PanicPathTests` deliberately PINS the
+      current words as "brand-reviewed, clinical", so this is a genuine
+      documented deadlock, not a drive-by fix. YOUR call: keep the short
+      nouns (silence = they stand) or say the word and a session repins both
+      strings + the sanctioning test to "Adult content"/"Cannabis" (one
+      billed run; not an App-Review blocker either way — the graphic-terms
+      lint is a separate register and is green).
       ~10 min):** (a) the settings toggle label **"Breathe with taps"**
       (alternatives on record: "Eyes-free breathing" / "Haptic breath
       guide") + its footer **"The breathing exercise guides you with gentle
@@ -625,6 +651,22 @@ a live failure. Original context, for the record:
       you decide.
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
+
+- [ ] Session 30 (E10.2 submission package, build half) used **exactly 1 billed
+      run, contingency UNUSED, ZERO burned** — the cheapest code session on
+      record: run 1 (`29287258848`) = the born-green metadata lint's first and
+      only run, all-green + TestFlight. The three docs deliverables rode the
+      free docs path. Born-green was proven EMPIRICALLY before the push on the
+      free Linux box (the exact matcher over the exact shipping bytes + the
+      strict-flags Swift harness ×3 timezones), which is why no red run and no
+      contingency were needed.
+- [ ] **NEW (Session 30) — YOUR CLAUDE MONTHLY SPEND LIMIT IS HIT:** the
+      STEP-0 panel's synthesis agent died mid-session on "You've hit your
+      monthly spend limit" (claude.ai/settings/usage). Nothing was lost — the
+      standing write-findings-to-files rule salvaged everything at zero cost —
+      but until you raise the limit or the month rolls, agent sessions run
+      INLINE (no multi-agent fan-outs: slower on big analysis sessions, not
+      blocked). Raise it or leave it; the next session works either way.
 
 - [ ] Session 29 (StoreKit-config/contract) used **exactly 3 = its 2 planned +
       the contingency, ZERO burned — every run produced designed evidence:**
@@ -1033,10 +1075,48 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
       DoD's operator half and the evidence base for the App Privacy label. The
       zero-before-consent half is verifiable on today's dormant build too, if
       you want a dry run of the tooling.
+- [ ] **NEW (Session 30 — THE APP PRIVACY LABEL ENTRY, ~15 min at submission
+      time):** `docs/app-privacy-label.md` is the ready-to-enter row set,
+      derived from the closed analytics enum with code evidence per row: THREE
+      collected rows (Usage Data › Product Interaction; the habit CATEGORY —
+      see OQ-2 below; Purchases › Purchase History once your RC key is live),
+      all Not-linked / Not-tracking, NO Identifiers row, everything else
+      explicitly Not Collected. Its §1 recommends declaring the LIVE-state
+      rows rather than "Data Not Collected" (the false-label window opens the
+      instant a key lands, and your review build runs keyed for the paywall
+      anyway). **OQ-2 (counsel, VETO-CLASS): the habit-category taxonomy
+      call** — the recommendation is **Health & Fitness › Health** (the
+      reviewer-safe mapping for a 17+ addiction app); the alternatives are
+      Sensitive Info, or folding it into Product Interaction with the
+      sensitive-class disclosure carried only in the privacy policy. Declare
+      exactly ONE — ratify before ASC entry. The label re-derives on any
+      analytics-enum change (the doc carries that trigger verbatim), and it
+      stays "code-derived, wire-verify pending" until your app ID lets the
+      MITM audit confirm it on the wire.
 
 ---
 
 ## Decisions on record you can veto (FYI, no action needed)
+
+- **Session 30 (E10.2 build half) — the rulings, each vetoable (R30.1–R30.7 +
+  OQ-1/OQ-2; full grounds in the S30 ledger):**
+  1. **OQ-1 — displayLabel "Porn"/"Weed" (the one worth your eye):** carried as
+     the §3 decision item above — a documented Brand-vs-QA deadlock over an
+     existing sanctioning test; yours to settle, silence = the words stand.
+  2. **OQ-2 — the habit-category label taxonomy (Health & Fitness › Health
+     recommended):** carried as the §8 counsel item above; declare exactly one.
+  3. **R30.4 — declare LIVE-state label rows, never "Data Not Collected":**
+     veto = you prefer the keyless-minimal posture for a genuinely keyless
+     review build, accepting the must-flip-on-key-land gate the doc records.
+  4. **R30.2 — the explicit-terms lexicon is GRAPHIC-register only:** the
+     category nouns porn/weed and the sanctioned ASO forms ("porn addiction",
+     "dopamine detox", "nofap") are deliberately NOT banned — banning the noun
+     would false-fire on sanctioned clinical/ASO copy. Veto = name the tokens
+     you want added; lexicons only grow.
+  5. **R30.5/R30.6 handling:** the missing PrivacyInfo.xcprivacy is scheduled
+     as Session 31 (agent work, no ask); the review-notes draft claims only
+     "no explicit/graphic terminology" (the safe true form) rather than
+     "clinical noun on every surface" while OQ-1 is open.
 
 - **Session 28 (E9.3) — the panel-signed rulings, each vetoable
   (R28.1–R28.13; full grounds in the S28 ledger):**

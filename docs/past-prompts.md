@@ -4373,3 +4373,127 @@ recoverable without Xcode — NEW HOUSE TECHNIQUE, reused the same day on run 29
 - The 2 default-axis hapticsOnly goldens remain valid-but-stale (S28 carry).
 - Scenario-30 (paywall variant B purchase E2E) remains the deferred purchase-leg E2E —
   operator sandbox tier.
+
+## Session 30 — E10.2 submission-package prep, the BUILD-side half (2026-07-13)
+
+**Objective (resume-prompt v4.2):** App Review notes + App Privacy label derivation +
+automatable metadata lints + MVP §7 submission-checklist wiring; ASO/screenshots stay
+Gate-G0/operator-gated; no store action. Budget: 1 billed run + 1 contingency.
+
+**Outcome: DONE in 1 billed run (the contingency UNUSED).** Four deliverables landed:
+`docs/review-notes.md` (DRAFT/founder-owned), `docs/app-privacy-label.md` (code-derived,
+wire-verify pending), `Tests/Unit/SubmissionMetadataLintTests.swift` (born-green audit
+gate, green on its first and only run), `docs/submission-checklist.md` (every MVP §7 box
+classified; no box auto-ticked). Two REAL submission-relevant findings surfaced and
+recorded (R30.6 PrivacyInfo.xcprivacy missing; OQ-1 displayLabel register deadlock).
+**Session-open operator check: NOTHING required (three-way confirmed — resume prompt
+"no operator gate"; operator-expected header "nothing blocks Session 30"; live repo
+clean at 749dcfd with no operator commits; recorded open-to-close).**
+
+### Session mechanics note (for future budget planning)
+The STEP-0 panel ran as a 6-seat workflow; all seats completed, but the SYNTHESIS agent
+died on the operator's Claude **monthly spend limit** mid-session — salvaged at zero
+loss because every seat (and the synthesis itself) had already Written its findings to
+scratchpad files per standing rule #6 (the write-findings-to-files discipline exists for
+exactly this). The rest of the session ran INLINE (no further subagents). Operator FYI
+recorded in operator-expected §4: agent fan-outs will fail until the limit is raised or
+the month rolls; inline sessions are unaffected.
+
+### Rulings
+
+- **R30.1 (STEP-0 a):** the E10.2 split — agent-built THIS session: review-notes DRAFT,
+  privacy-label DERIVATION, the born-green metadata lint, the §7 checklist wiring.
+  Operator-owned: ASC submission, clinician+counsel sign-off (§3), label ENTRY + the
+  privacy-policy text + the MITM wire-verification (§8), 17+ rating, the 3.1.2
+  review-build posture (R24.9), sandbox matrix, external beta, E0.3. Blocked-on-G0:
+  ASO name-field/subtitle/keywords/promo/description/screenshots/preview.
+- **R30.2 (STEP-0 b):** the metadata lint is BORN-GREEN (audit shape, R28.9/R27.13 —
+  audit tests never enter a red manifest; the one seam that could have been an honest
+  red, a not-yet-existing fastlane/metadata file, is Gate-G0/out-of-scope and was NOT
+  manufactured). ONE unit-lane Swift Testing file riding the existing app job (NOT a
+  ubuntu grep job — decoded-values semantics; a source grep false-positives on lexicon
+  arrays; the macOS lane bills anyway). Three surface groups: (1) Bundle.main display
+  names (explicit + narrow metadata-medical registers; the widget .appex name is
+  rehearsal-covered via project.yml:219, not fragile .appex traversal), (2) the 8
+  content tables' reflected String leaves — explicit register ONLY (new coverage; the
+  shame/medical gates already own those surfaces; helplines.json NEVER read), (3)
+  StreakWidgetStyle.shipping via Mirror + PanicControlStyle by EXPLICIT case
+  enumeration (computed-property enum = the R9 Mirror-vacuity trap) + intent titles
+  pinned byte-exact via LocalizedStringResource.key (docs-JSON-confirmed: `let key:
+  String`, iOS 16+; Linux-unprobeable — absent from the Linux Foundation). The
+  explicit-terms register is GRAPHIC-only: category nouns porn/weed and the sanctioned
+  clinical/ASO forms (adult content, Cannabis, porn addiction, dopamine detox, nofap)
+  are deliberately unbanned (brandkit §9.3; the Brand-vs-QA lexicon conflict resolved
+  in QA's favor by the lead — banning the noun false-fires on sanctioned copy). The
+  metadata-medical register deliberately EXCLUDES detox/heal/toxin (milestone-body
+  scope, MilestoneCopyTests' territory — zero duplication). Grow-only foundation-floor
+  superset pin + fire/pass calibration pins (the gate gates itself). Born-green proven
+  EMPIRICALLY pre-push: the Python rehearsal over the exact shipping bytes (357 table
+  strings + names + 22 gallery/control strings — 0 violations) AND the exact matcher
+  bytes RUN green under -swift-version 6 -strict-concurrency=complete
+  -warnings-as-errors ×3 TZ (the harness itself first tripped the Swift-6 top-level
+  isolation class — caught free, exactly what the executed-harness gate is for).
+- **R30.3 (STEP-0 c):** budget as planned — docs deliverables ride paths-ignore (zero
+  billed); the lint = ONE billed macOS run, born-green single push (no red+green
+  pair); code-first-watch-green, docs-close-after sequencing.
+- **R30.4 (vetoable, OQ-2):** the App Privacy label declares THREE collected rows
+  (LIVE state): Usage Data › Product Interaction (opt-in), the habit CATEGORY →
+  recommended **Health & Fitness › Health** (the one genuine taxonomy judgment call —
+  alternatives: Sensitive Info, or fold into Product Interaction with policy-only
+  disclosure; counsel ratifies exactly one), Purchases › Purchase History (once the RC
+  key lands; NOT consent-gated — RC needs it to broker entitlements). All not-linked /
+  not-tracking; NO Identifiers row (rotating/anonymous SDK IDs only). Recommend
+  declaring LIVE rows, never "Data Not Collected" (the false-label window opens the
+  instant a key lands; the review build runs keyed for 3.1.1 anyway).
+- **R30.5 (vetoable, OQ-1):** the Brand seat flagged `displayLabel` rendering
+  "Porn"/"Weed" on the non-discreet panic picker + widget-config picker as a brandkit
+  §1.2 clinical-noun violation — but the LEAD's verification found its premise false:
+  `PanicPathTests.swift:568-591` PINS those exact literals as "brand-reviewed,
+  clinical", and the function's docstring sanctions in-app habit naming. A genuine
+  two-seat deadlock over an existing sanctioning test ⇒ SURFACED to the
+  operator/brand-owner (a fix would re-pin a landed test + spin the billed lane), not
+  silently folded. NOT an App-Review blocker (category noun, not graphic register);
+  the review notes claim only "no explicit/graphic terminology" — the safe true form.
+- **R30.6:** the app ships NO PrivacyInfo.xcprivacy required-reason manifest while
+  using UserDefaults/App-Group (CA92.1) in code — a REAL Apple submission blocker
+  (rejected since 2024), NAMED and tracked in submission-checklist + review-notes §3.5.
+  Fixing it touches project.yml + bundled resources = outside this docs+lint session's
+  motion; it is the next session's natural objective (the last pre-submission build
+  task). LiveClock's mach_continuous_time()/kern.bootsessionuuid reads get classified
+  against Apple's SystemBootTime list at manifest-authoring time (docs-check gate).
+- **R30.7:** scope fences held — no new CI job, no project.yml edit, no new
+  SDK/key/event/property; the no-account fact stays code-absence-verified (a standing
+  grep gate for it is flagged as a future candidate, not added).
+
+### The critic pass (inline; findings fixed before push)
+- `test_restore_recoversEntitlement_withoutAccount` (a PM-seat paraphrase) does NOT
+  exist — corrected to the real pin `PaywallModelTests.
+  test_paywallModel_restoreRecoversEntitlement_unlocks` in both citing docs.
+- The R30.6 SystemBootTime claim was softened to strictly-verified facts (systemUptime
+  appears only in a LiveClock doc-comment; CA92.1 alone carries the blocker).
+- Register scan over the three new docs: every banned-token hit sits inside a
+  ban-list line quoting-to-forbid (the SlipCopy _meta precedent) — clean.
+
+### Run accounting (§4-honest)
+- **Run 1 — 29287258848 (a096065, green):** the born-green lint's first and only run —
+  ALL-GREEN (the two new tests green in the unit lane alongside the full suite;
+  snapshot + uismoke + free lanes green) + TestFlight uploaded.
+- **Total: 1 = the 1 planned, contingency UNUSED, ZERO burned.**
+
+### Operator asks (delta)
+- §3 gains the review-notes DRAFT read (clinician+counsel is its ship gate) + OQ-1
+  (the displayLabel "Porn"/"Weed" keep-or-repin decision).
+- §8 gains the app-privacy-label ASC-entry pointer + OQ-2 (the Health-vs-alternatives
+  taxonomy call, counsel).
+- §4 gains the S30 accounting + the Claude monthly-spend-limit FYI.
+- R30.6 (PrivacyInfo.xcprivacy) is agent-schedulable — no operator action needed
+  beyond letting the next session run.
+
+### Known limitations / carried
+- R30.6 PrivacyInfo.xcprivacy — the next session's objective (the last pre-submission
+  build task).
+- The label is code-derived, wire-verify pending (§8 TelemetryDeck app ID → MITM).
+- OQ-1/OQ-2 await the operator; neither blocks builds.
+- R29.4, R28.13 + goldens batch (§3-gated), the 2 hapticsOnly stale goldens,
+  scenario-30 purchase-leg E2E (sandbox tier), MVP §7 a11y box honestly UNCHECKED —
+  all carried unchanged.
