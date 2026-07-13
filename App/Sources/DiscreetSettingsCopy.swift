@@ -38,6 +38,17 @@ struct DiscreetSettingsCopy: Sendable {
     /// entitlement-gated). Habit-name-free by the shoulder-surface discipline —
     /// the leak lexicon bans "Quitline"-class labels here. DRAFT/§3.
     let resourcesRowLabel: String
+    /// E9.3 (R28.3 — the THIRD R22.7 amendment) — the haptics-only breath-pacer
+    /// toggle's row label. NEVER framed as an accommodation (brandkit §8's
+    /// first-class, eyes-free-for-anyone mandate); habit-name-free by the
+    /// shoulder-surface discipline ("breath"/"taps" clear the leak lexicon).
+    /// DRAFT/founder-owned → operator §3.
+    let hapticPacerRowLabel: String
+    /// E9.3 (R28.3) — the toggle's section footer: OBSERVABLE copy (the
+    /// `widgetsFooter` rule — names exactly what the switch does) framing the
+    /// mode UNIVERSALLY (screen-off / eyes-closed breathing, for anyone), never
+    /// as an accessibility accommodation. DRAFT/founder-owned → operator §3.
+    let hapticPacerFooter: String
 
     static let shipping = DiscreetSettingsCopy(
         screenTitle: "Discreet Mode",
@@ -49,6 +60,8 @@ struct DiscreetSettingsCopy: Sendable {
         iconRowTimer: "Timer style",
         settingsEntryAccessibilityLabel: "Settings",
         winbackRowLabel: "See your plan options",
-        resourcesRowLabel: "Support & resources"
+        resourcesRowLabel: "Support & resources",
+        hapticPacerRowLabel: "Breathe with taps",
+        hapticPacerFooter: "The breathing exercise guides you with gentle taps, so you can follow it with the screen off or your eyes closed."
     )
 }

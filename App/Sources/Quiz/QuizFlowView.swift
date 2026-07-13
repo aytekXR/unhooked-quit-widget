@@ -177,6 +177,9 @@ private struct QuizStepContent: View {
                 .onChange(of: freeText) { _, text in
                     model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: text))
                 }
+                // A placeholder is not a name once typing clears it — label the field
+                // with the question already on screen (its title, else its helper).
+                .accessibilityLabel(step.title ?? step.helper ?? "")
                 .accessibilityIdentifier("quiz.customNameField")
         case .decimalInput where step.id == "allowance":
             Stepper(value: $allowanceValue, in: 0...99) {
@@ -187,6 +190,10 @@ private struct QuizStepContent: View {
             .onChange(of: allowanceValue) { _, value in
                 model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: String(value)))
             }
+            // A bare Stepper announces only the number — name it with the question
+            // and echo the same value the label shows (both already on screen).
+            .accessibilityLabel(step.title ?? "")
+            .accessibilityValue("\(allowanceValue)")
             .accessibilityIdentifier("quiz.allowanceStepper")
         case .decimalInput:
             TextField(step.placeholder ?? "0", text: $freeText)
@@ -195,6 +202,9 @@ private struct QuizStepContent: View {
                 .onChange(of: freeText) { _, text in
                     model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: text))
                 }
+                // Label with the question already on screen (its title, else its
+                // helper) — the placeholder stops being the field's only name.
+                .accessibilityLabel(step.title ?? step.helper ?? "")
                 .accessibilityIdentifier("quiz.spendField")
         case .slider:
             commitmentSlider
@@ -286,6 +296,9 @@ private struct QuizStepContent: View {
             Text(currentEcho)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.teal)
+                // The word echo is the Slider's own a11y VALUE below — hide this
+                // sibling Text so VoiceOver reads the commitment once, not twice.
+                .accessibilityHidden(true)
             Slider(value: $sliderValue, in: 0...1)
                 .tint(.teal)
                 .onChange(of: sliderValue) { _, value in
@@ -294,6 +307,10 @@ private struct QuizStepContent: View {
                         freeText: String(format: "%.2f", value)
                     ))
                 }
+                // Value echoed in WORDS, never a bare "50 percent" (brandkit §6.6);
+                // both the label and the value reuse the strings already on screen.
+                .accessibilityLabel(step.title ?? "")
+                .accessibilityValue(currentEcho)
                 .accessibilityIdentifier("quiz.commitmentSlider")
         }
     }

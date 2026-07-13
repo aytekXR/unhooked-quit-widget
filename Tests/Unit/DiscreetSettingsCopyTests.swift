@@ -86,13 +86,14 @@ struct DiscreetSettingsCopyTests {
             )
         }
 
-        // Non-vacuity floor: DiscreetSettingsCopy is a STRUCT of 10 STORED strings (8 +
-        // the E7.3 winbackRowLabel, R26.9, + the E9.1 resourcesRowLabel, R27.10), never
-        // a computed-property enum whose Mirror yields nothing — a collapse below 10
-        // means the walk (or the type's shape) silently broke and the scan is vacuous.
+        // Non-vacuity floor: DiscreetSettingsCopy is a STRUCT of 12 STORED strings (8 +
+        // the E7.3 winbackRowLabel, R26.9, + the E9.1 resourcesRowLabel, R27.10, + the
+        // E9.3 hapticPacerRowLabel & hapticPacerFooter, R28.3), never a computed-property
+        // enum whose Mirror yields nothing — a collapse below 12 means the walk (or the
+        // type's shape) silently broke and the scan is vacuous.
         #expect(
-            collected.count >= 10,
-            "the Mirror walk collapsed (<10 strings) — a computed-property style would scan nothing and pass forever"
+            collected.count >= 12,
+            "the Mirror walk collapsed (<12 strings) — a computed-property style would scan nothing and pass forever"
         )
     }
 }

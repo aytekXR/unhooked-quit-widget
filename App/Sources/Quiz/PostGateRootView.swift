@@ -52,6 +52,24 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// E9.3 (R28.6) — the a11y-audit quiz-leg mount, on the UITEST_PAYWALL
+    /// precedent above: a DEBUG-only launch-env switch, inert in every release
+    /// build BY CONSTRUCTION. `1` force-mounts the real quiz over the shipping
+    /// config with `.disabled` analytics, bypassing the routing gate +
+    /// repository + `makeModelIfNeeded` chain so `performAccessibilityAudit`
+    /// reaches a representative first step deterministically — NEVER the
+    /// scenario-29 gate→quiz hand-off. A TEST-LANE mount only: it opens no path
+    /// to habit content in any shipping build (the gate un-bypassability seam
+    /// stays pinned at the unit tier, S18), and the age gate ABOVE this view is
+    /// never bypassed — only the post-gate routing decision is.
+    private static var uiTestQuizMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_QUIZ"] == "1"
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ZStack {
             content
@@ -71,7 +89,17 @@ struct PostGateRootView: View {
     /// relaunch lands on the dashboard (summary-once; a conservative funnel
     /// undercount, never a re-fire).
     @ViewBuilder private var content: some View {
-        if let paywall, let paywallData {
+        if Self.uiTestQuizMount {
+            // R28.6 — the a11y-audit quiz leg's direct mount: the real quiz over
+            // the shipping config (`.disabled` analytics), skipping the routing
+            // gate/store/`makeModelIfNeeded` chain so the audit reaches a
+            // representative first step (a singleChoice, no keyboard) without the
+            // scenario-29 hand-off. Inert in release BY CONSTRUCTION.
+            QuizFlowView(model: QuizFlowModel(
+                config: QuizConfig.loadShipping() ?? .degraded,
+                analytics: .disabled
+            ))
+        } else if let paywall, let paywallData {
             PaywallView(
                 data: paywallData,
                 model: paywall,

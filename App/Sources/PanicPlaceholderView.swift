@@ -17,6 +17,12 @@ struct PanicPlaceholderView: View {
     /// entry point.
     let source: PanicSource
 
+    /// E9.3 (R28.2) — the device-global eyes-free pacer preference, read off the
+    /// pre-cache ENVELOPE by the mount (UnhookedApp cold / RootPlaceholderView warm +
+    /// in-app) and threaded into the flow's model. Defaulted false so #Previews and
+    /// every pre-E9.3 mount compile and behave identically; the store never opens here.
+    var hapticsOnlyPacer: Bool = false
+
     /// The shipping flow copy, decoded once per scene (a few-KB bundled read, same
     /// class as the pre-cache read). `nil` — a missing/corrupt bundle resource —
     /// degrades to the E0.3 breathe frame: the panic path never dead-ends (§9).
@@ -55,7 +61,7 @@ struct PanicPlaceholderView: View {
     @ViewBuilder
     private func flowOrFallback(quit: QuitSnapshot?) -> some View {
         if let script {
-            PanicFlowView(quit: quit, script: script, source: source)
+            PanicFlowView(quit: quit, script: script, source: source, hapticsOnlyPacer: hapticsOnlyPacer)
         } else {
             BreatheFrame()
         }

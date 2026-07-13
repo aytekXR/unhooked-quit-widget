@@ -40,7 +40,16 @@ struct AgeGateContainerView: View {
     }
 
     @ViewBuilder private var content: some View {
-        if let model {
+        if Self.uiTestQuizMount {
+            // E9.3 (R28.6) — the a11y-audit quiz leg's FIRST branch: forwards
+            // straight to the post-gate router, whose own UITEST_QUIZ branch
+            // renders the quiz over the shipping config. Pure view composition —
+            // no repository publish, no gate model, no store read stands between
+            // launch and the audited frame (the S25 seeded-leg stall waited on
+            // exactly those; this hook waits on nothing). DEBUG-only, release-inert
+            // BY CONSTRUCTION; the gate's un-bypassability stays unit-pinned (S18).
+            PostGateRootView()
+        } else if let model {
             switch model.phase {
             case .entry:
                 AgeGateView(model: model)
@@ -81,6 +90,18 @@ struct AgeGateContainerView: View {
     private static var seedAgeVerified: Bool {
         #if DEBUG
         ProcessInfo.processInfo.environment["UITEST_SEED_AGE_VERIFIED"] == "1"
+        #else
+        false
+        #endif
+    }
+
+    /// E9.3 (R28.6) — the a11y-audit quiz-leg switch (the UITEST_PAYWALL family):
+    /// mirrors PostGateRootView's own UITEST_QUIZ branch one level up so the audit's
+    /// launch never depends on the repository publishing or a gate model — the
+    /// scenario-29 wall's two known mechanisms. Inert in release BY CONSTRUCTION.
+    private static var uiTestQuizMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_QUIZ"] == "1"
         #else
         false
         #endif

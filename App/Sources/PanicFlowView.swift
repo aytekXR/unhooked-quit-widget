@@ -34,6 +34,7 @@ struct PanicFlowView: View {
             quit: quit,
             script: script,
             source: source,
+            hapticsOnlyPacer: hapticsOnlyPacer,
             clock: LiveClock(),
             haptics: LiveHapticsEngine(),
             buffer: PanicOutcomeBuffer.appGroup(),
@@ -102,6 +103,12 @@ private struct StepScaffold<Content: View>: View {
     let identifier: String
     let title: String
     let instruction: String
+    /// E9.3 (R28.4/R28.8) — a taps-anchored VoiceOver override for the instruction
+    /// line where the VISIBLE copy misdirects a non-visual user (bloom mode's "Follow
+    /// the circle"). METADATA ONLY: nil ⇒ VO reads the visible instruction (the
+    /// default), non-nil ⇒ VO reads this instead — the label never reflows, so the
+    /// goldens hold (the raster sees layers, never a11y metadata).
+    var instructionAccessibilityLabel: String? = nil
     var subtext: String?
     let skipLabel: String
     let onSkip: () -> Void
@@ -121,6 +128,9 @@ private struct StepScaffold<Content: View>: View {
                 Text(instruction)
                     .font(.body)
                     .multilineTextAlignment(.center)
+                    // nil override ⇒ the visible instruction is its own label (the
+                    // default reading); every step but bloom-mode breath passes nil.
+                    .accessibilityLabel(instructionAccessibilityLabel ?? instruction)
             }
             .padding(.top, 28)
             content()
@@ -176,6 +186,12 @@ private struct BreathStepView: View {
             instruction: model.hapticsOnlyPacer
                 ? (step?.instructionNonVisual ?? step?.instruction ?? "")
                 : (step?.instruction ?? ""),
+            // Bloom mode: VO hears the taps-anchored line instead of the visible
+            // "Follow the circle" (R28.4). Haptics-only mode passes nil — its VISIBLE
+            // instruction already IS the non-visual line, so it needs no override.
+            instructionAccessibilityLabel: model.hapticsOnlyPacer
+                ? nil
+                : (step?.instructionNonVisual ?? step?.instruction ?? ""),
             skipLabel: step?.skipLabel ?? "",
             onSkip: { model.skip() }
         ) {

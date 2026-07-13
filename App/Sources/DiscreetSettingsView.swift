@@ -37,6 +37,7 @@ struct DiscreetSettingsView: View {
                 if let repository = provider?.repository {
                     widgetToggles(repository)
                     iconPicker(repository)
+                    hapticPacerRow(repository)
                     winbackRow(repository)
                 }
                 resourcesRow()
@@ -128,6 +129,33 @@ struct DiscreetSettingsView: View {
         }
     }
 
+    /// E9.3 (R28.3 — the THIRD R22.7 amendment): the haptics-only breath-pacer
+    /// toggle. A header-less Section (the winback/resources precedent), NEVER
+    /// framed as an accommodation — the footer names exactly what the switch does
+    /// (the `widgetsFooter` observable-copy rule) as a UNIVERSAL, eyes-free-for-
+    /// anyone preference (brandkit §8). The Toggle's text label IS its VoiceOver
+    /// label (no icon-only element); the switch state is the native a11y value.
+    @ViewBuilder
+    private func hapticPacerRow(_ repository: QuitRepository) -> some View {
+        Section {
+            Toggle(isOn: Binding(
+                get: { repository.hapticOnlyBreathPacer() },
+                set: { enabled in
+                    // The ONE writer (R28.3): save → rebuild the panic pre-cache
+                    // envelope; NO widget reload, NO analytics (no MVP §5 row for
+                    // an accessibility preference). The discreet-toggle error
+                    // posture (try?) and the same re-read token.
+                    try? repository.setHapticOnlyBreathPacer(enabled)
+                    refreshToken += 1
+                }
+            )) {
+                Text(copy.hapticPacerRowLabel)
+            }
+        } footer: {
+            Text(copy.hapticPacerFooter)
+        }
+    }
+
     private func iconRow(title: String, iconID: String?, current: String?) -> some View {
         Button {
             guard let switcher = provider?.appIconSwitcher else { return }
@@ -149,6 +177,11 @@ struct DiscreetSettingsView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // E9.3 (R28.8 / Q(d)#16) — the current-selection checkmark is a11y-hidden
+        // and is the ONLY selection signal, so VoiceOver hears the state via the
+        // `.isSelected` trait (the quiz-chip precedent; brandkit §8's color-
+        // independence rule extends to the a11y tree). TRAIT only — zero pixels.
+        .accessibilityAddTraits(current == iconID ? [.isSelected] : [])
     }
 
     /// The dashboard rows' neutral-identity rule, verbatim (RootPlaceholderView

@@ -25,6 +25,11 @@ struct UnhookedApp: App {
     /// the policy covers on nil (fail-toward-privacy). The normal branch leaves this
     /// nil and the provider's post-frame signal takes over.
     private let initialDiscreetAny: Bool?
+    /// E9.3 (R28.2) — the eyes-free pacer preference for the COLD PANIC branch, derived
+    /// pre-frame from the SAME single pre-cache read the route resolution already does
+    /// (the `initialDiscreetAny` precedent — no new IO, no store work, so the
+    /// panic-purity pins hold). Missing/unreadable cache ⇒ false (the visual pacer).
+    private let panicHapticsOnlyPacer: Bool
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
@@ -97,6 +102,9 @@ struct UnhookedApp: App {
         initialDiscreetAny = rootKind == .panicPlaceholder
             ? panicSnapshot.map { snapshot in snapshot.quits.contains { $0.discreet } }
             : nil
+        // E9.3 — the eyes-free pacer preference off the SAME read (no new IO): the
+        // envelope's `hapticOnlyBreathPacer`, `?? false` for a missing/pre-E9.3 cache.
+        panicHapticsOnlyPacer = panicSnapshot?.hapticOnlyBreathPacer ?? false
         // The launch's TRUE origin (E3.3), captured pre-frame on the same read — the
         // placeholder's onAppear consumes all flag keys. A flag with no source is a
         // legacy/pre-E3.3 writer (or the FORCE_PANIC_ROUTE test hook) and keeps the
@@ -123,7 +131,7 @@ struct UnhookedApp: App {
                         // so a mis-wired panic branch could still never open the store.
                         .task { provider.startIfNeeded(for: rootKind) }
                 case .panicPlaceholder:
-                    PanicPlaceholderView(presentation: panicPresentation, source: panicSource)
+                    PanicPlaceholderView(presentation: panicPresentation, source: panicSource, hapticsOnlyPacer: panicHapticsOnlyPacer)
                 }
             }
             // E6.3 (R22.5) — the ONE shield driver: a top-level scene-phase observer

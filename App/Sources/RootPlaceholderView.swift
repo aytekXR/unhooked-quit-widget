@@ -26,6 +26,11 @@ struct RootPlaceholderView: View {
     /// consumes it: on scene activation (extension wrote the flag while we were
     /// suspended) and on the in-process signal (iOS ran `perform()` in OUR process).
     @State private var warmPanic: WarmPanicPresentation?
+    /// E9.3 (R28.2) — the eyes-free pacer preference for the warm mount, read off the
+    /// SAME pre-cache read `presentWarmPanicIfRequested` already does and set alongside
+    /// `warmPanic` (the `WarmPanicEntry`/`WarmPanicPresentation` signatures stay
+    /// UNTOUCHED — the bool rides beside the presentation, not through the resolver).
+    @State private var warmHapticsOnlyPacer = false
     /// E6.3 — the discreet-settings sheet (mvp feature 9's "one settings screen").
     @State private var showsDiscreetSettings = false
     /// E7.3 (R26.6) — the settings win-back row's tap-through: the host
@@ -96,7 +101,7 @@ struct RootPlaceholderView: View {
             // flow's celebration exit has no dismiss affordance, so the mount must
             // stay swipe-dismissible. The mounted view consumes the flag keys in its
             // onAppear, exactly like the cold route.
-            PanicPlaceholderView(presentation: item.presentation, source: item.source)
+            PanicPlaceholderView(presentation: item.presentation, source: item.source, hapticsOnlyPacer: warmHapticsOnlyPacer)
         }
         .sheet(item: $presentation) { presented in
             SlipFlowView(
@@ -142,18 +147,22 @@ struct RootPlaceholderView: View {
     private func presentWarmPanicIfRequested() {
         guard !WarmPanicEntry.isHostingUnitTests else { return }
         guard warmPanic == nil, inAppPanic == nil else { return }
-        guard let resolved = WarmPanicEntry.resolve(
-            snapshot: PanicSnapshotStore.appGroup()?.read()
-        ) else { return }
+        // ONE pre-cache read (the cold-route terms — never the store): the resolver and
+        // the eyes-free pacer bool both ride it; the bool parks beside the presentation.
+        let snapshot = PanicSnapshotStore.appGroup()?.read()
+        guard let resolved = WarmPanicEntry.resolve(snapshot: snapshot) else { return }
+        warmHapticsOnlyPacer = snapshot?.hapticOnlyBreathPacer ?? false
         warmPanic = resolved
     }
 
     private var panicEntry: some View {
         Button {
+            // ONE pre-cache read (ADR-6 — the store never opens here even when warm):
+            // the resolver and the eyes-free pacer bool both ride it.
+            let snapshot = PanicSnapshotStore.appGroup()?.read()
             inAppPanic = InAppPanicPresentation(
-                presentation: InAppPanicEntry.presentation(
-                    snapshot: PanicSnapshotStore.appGroup()?.read()
-                )
+                presentation: InAppPanicEntry.presentation(snapshot: snapshot),
+                hapticsOnlyPacer: snapshot?.hapticOnlyBreathPacer ?? false
             )
         } label: {
             HStack(spacing: 12) {
@@ -172,7 +181,7 @@ struct RootPlaceholderView: View {
         .buttonStyle(.plain)
         .accessibilityIdentifier("root.panicEntry")
         .sheet(item: $inAppPanic) { item in
-            PanicPlaceholderView(presentation: item.presentation, source: InAppPanicEntry.source)
+            PanicPlaceholderView(presentation: item.presentation, source: InAppPanicEntry.source, hapticsOnlyPacer: item.hapticsOnlyPacer)
         }
     }
 
@@ -362,6 +371,10 @@ private struct SlipPresentation: Identifiable {
 private struct InAppPanicPresentation: Identifiable {
     let id = UUID()
     let presentation: PanicPresentation
+    /// E9.3 (R28.2) — the eyes-free pacer preference read off the SAME pre-cache read
+    /// this entry already does (the resolver signature stays untouched; the bool rides
+    /// alongside the presentation into the mount).
+    let hapticsOnlyPacer: Bool
 }
 
 #Preview {

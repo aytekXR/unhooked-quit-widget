@@ -1357,7 +1357,15 @@ final class QuitRepository {
                 momentumPercent: Int((value.momentum * 100).rounded())
             )
         }
-        try? panicSnapshotStore.write(PanicSnapshot(quits: cards))
+        // E9.3 (R28.2) — PRESENCE-ONLY envelope stamp: `? true : nil`, never the bare
+        // bool (the discreet-flag discipline one field up). A `Bool?` promotion of
+        // `false` would make encodeIfPresent emit "hapticOnlyBreathPacer":false on every
+        // envelope — the A2 minimization mutant; a default-state cache keeps the
+        // pre-E9.3 key set byte-identical and the cold panic reader consumes `?? false`.
+        try? panicSnapshotStore.write(PanicSnapshot(
+            quits: cards,
+            hapticOnlyBreathPacer: hapticOnlyBreathPacer() ? true : nil
+        ))
         if feedCards.isEmpty {
             try? widgetStateStore.remove()
         } else {

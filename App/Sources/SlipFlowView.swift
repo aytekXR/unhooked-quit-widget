@@ -236,6 +236,9 @@ struct SlipFlowView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    // Undo is time-limited — voice the window as a HINT on focus (the
+                    // Label text stays the a11y label); the note is the same one below.
+                    .accessibilityHint(model.copy.undo.windowNote)
                     .accessibilityIdentifier("slip.flow.undo")
 
                     Text(model.copy.undo.windowNote)
@@ -266,6 +269,8 @@ struct SlipFlowView: View {
                 .onChange(of: noteText) { _, newValue in
                     model.noteChanged(newValue)
                 }
+                // The visible prompt above is the field's name for VoiceOver.
+                .accessibilityLabel(model.copy.reflection.prompt)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
