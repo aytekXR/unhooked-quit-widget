@@ -2,18 +2,17 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v4.3 |
-| Last updated | 2026-07-13 (Session 30 close: E10.2 submission-package prep, the BUILD-side half — DONE in 1 billed run, contingency UNUSED, ZERO burned. The four deliverables: `docs/review-notes.md` (DRAFT/founder-owned; every claim evidence-anchored; the 3.1.2/keys/rename decisions SURFACED not resolved), `docs/app-privacy-label.md` (3 collected rows code-derived from the closed enum — Product Interaction + the habit category → recommended Health & Fitness › Health (OQ-2, counsel ratifies) + Purchase History-once-keyed; NO Identifiers row; wire-verify pending the §8 app ID), `Tests/Unit/SubmissionMetadataLintTests.swift` (the born-green explicit-terms + metadata-medical audit gate over bundle names + the 8 content tables + widget/control/intent strings — born-green proven EMPIRICALLY pre-push: Python rehearsal over the exact shipping bytes 0-violations + the exact matcher bytes RUN under strict flags ×3 TZ; category nouns porn/weed deliberately unbanned, helplines never read, PanicControlStyle enumerated against the R9 Mirror-vacuity trap, intent titles pinned via docs-confirmed `LocalizedStringResource.key`), and `docs/submission-checklist.md` (every MVP §7 box classified [M]/[O]/[F] with exact CI evidence; NO box auto-ticked). TWO real findings surfaced: **R30.6 — the app ships NO PrivacyInfo.xcprivacy required-reason manifest while using UserDefaults/App-Group (CA92.1) in code, a REAL Apple submission blocker and Session 31's objective**; OQ-1 — the displayLabel "Porn"/"Weed" two-seat deadlock (an existing test PINS them as brand-reviewed; Brand wants "Adult content"/"Cannabis") surfaced to the operator. Session-open operator check: NOTHING required (three-way confirmed; recorded open-to-close). Session-mechanics note: the STEP-0 panel's synthesis agent died on the operator's Claude MONTHLY SPEND LIMIT — salvaged at zero loss because every seat Writes findings to files (rule 6 exists for this); the session completed INLINE. Until the limit is raised or the month rolls, run sessions inline-first and treat subagent fan-outs as unavailable.) |
-| Phase | Phase 2/3 seam: E2–E9 build halves CLOSED + E10.2 build half CLOSED; delivery 32/32 build-side except R30.6; remaining build = the R30.6 manifest, then everything else is operator-gated |
-| Next session objective | **Session 31: R30.6 — the PrivacyInfo.xcprivacy required-reason manifest (app + widget targets), the LAST pre-submission build task. Then the build side is fully DONE pending operator gates** |
+| Document | Resume Prompt v4.4 |
+| Last updated | 2026-07-14 (Session 31 close: R30.6 DONE in exactly 1 billed run — born-green ruled over a recorded two-judge split, contingency UNUSED, ZERO burned. TWO required-reason manifests ship: the APP's `App/Resources/PrivacyInfo.xcprivacy` (UserDefaults **[CA92.1, 1C8F.1]** — the S30 carry's CA92.1 was the right category but the App-Group reason is 1C8F.1, docs-verbatim; both codes verified per-site — PLUS the 3 collected-data rows in LOCKSTEP with `docs/app-privacy-label.md` (R30.4/R31.5, OQ-2 rider recorded), NSPrivacyTracking=false) and the WIDGET's `Widgets/Resources/PrivacyInfo.xcprivacy` (**[1C8F.1] ONLY**, collected EMPTY — NEW R31.1 finding: the .appex executable itself reaches App-Group UserDefaults via Shared/PanicLaunchFlag from the extension-side panic intents, so the second manifest is docs-MANDATED). LiveClock's mach_continuous_time()/kern.bootsessionuuid: NOT on the documented SystemBootTime list → no declaration (R31.3). Pins: `Tests/Unit/PrivacyManifestTests.swift` — app half reads Bundle.main (built-bundle honest), widget half reads authored bytes + the project.yml wiring pin (the S30 no-.appex-traversal precedent), key-SET semantics, gate-gates-itself calibration, rehearsed ×3 TZ under strict flags pre-push. **The pre-UIR build side is FULLY DONE.** ALSO this session, operator-mandated: roadmap v1.1 adds **Phase 2.5 Epic UIR "UI Reactor"** — full UI/UX regeneration, 6 sessions, gating submission assets (waivable). The S30 Claude spend-limit constraint is LIFTED (canary + a 6-agent workflow ran clean); the "uipro" tool the operator reports installed is NOT visible on the build box — operator-expected §9.) |
+| Phase | Phase 2.5 (UI Reactor): pre-UIR build 100% DONE (E2–E10.2 + R30.6); UIR-0…UIR-5 are the remaining build sessions; everything else operator-gated |
+| Next session objective | **Session 32: UIR-0 — the design system: regenerated tokens (color/type/spacing/motion) + component kit + the WCAG-clean palette that closes R28.13 by construction** |
 
-> **What changed in Session 30:** the submission package's build half exists — a
-> reviewer-notes draft the operator can sign, an App-Privacy-label row set derived
-> from the closed enum with code evidence, a permanent explicit-terms/metadata lint
-> gate in CI, and the §7 checklist wired to its evidence with every operator gate
-> named. One genuine submission blocker was discovered and named (R30.6, the missing
-> required-reason manifest — Session 31 closes it). Full ledger: Session 30 in
-> `docs/past-prompts.md` (R30.1–R30.7, OQ-1/OQ-2).
+> **What changed in Session 31:** the missing required-reason privacy manifests (the
+> last real Apple submission blocker in the build) now ship for BOTH executables with
+> docs-verbatim reason codes, label-lockstep collected-data, and permanent key-set
+> pins. The operator mandated the UI Reactor epic (roadmap v1.1 §2.5) — the next
+> build sessions redesign every surface without touching a copy byte. Full ledger:
+> Session 31 in `docs/past-prompts.md` (R31.1–R31.8).
 
 ---
 
@@ -41,9 +40,8 @@
    (a) **spurious-await** — every `await` in a NEW file must mark a genuinely
    async/cross-actor operation; mockup-typecheck new closure-into-seam shapes
    under `-strict-concurrency=complete -warnings-as-errors` (the ShapeChecks
-   pattern — S29/S30 ran it red→green as an EXECUTED harness, the stronger form;
-   S30's harness caught a top-level-isolation miss for free). (b)
-   **qualified-name** — a Darwin-only file's NON-SDK qualified type
+   pattern — S29/S30/S31 ran it red→green as an EXECUTED harness, the stronger
+   form). (b) **qualified-name** — a Darwin-only file's NON-SDK qualified type
    references get Linux-PROBED before push; both-SDK files use the
    bare-name-exact typealias, NEVER the module-qualified form. (c)
    **non-Sendable SDK results:** a nonisolated async SDK call whose result
@@ -56,9 +54,10 @@
    non-private signatures, and RUN (never just typecheck) a Linux scratch
    harness over the exact shipping bytes of every pure-Foundation/PaywallKit
    API — probe the BOUNDARY, under MULTIPLE HOST TIMEZONES (the standing set:
-   UTC/Berlin/Kiritimati). JSON pins use JSONSerialization key-SET semantics,
-   never byte/string equality. The free package lane runs `swift test`
-   WITHOUT warnings-as-errors — close the gap pre-push with
+   UTC/Berlin/Kiritimati). JSON pins use JSONSerialization key-SET semantics —
+   and (S31) plist pins use PropertyListSerialization key-SET semantics — never
+   byte/string equality. The free package lane runs `swift test` WITHOUT
+   warnings-as-errors — close the gap pre-push with
    `swift build --build-tests -Xswiftc -strict-concurrency=complete
    -Xswiftc -warnings-as-errors --package-path Packages/<pkg>` (or the
    scratch harness for app-side pure subsets).
@@ -66,21 +65,19 @@
    third-party member spelling verified against official docs BEFORE code
    (`developer.apple.com/tutorials/data/documentation/<path>.json`; SDK repos'
    tagged raw source for third-party) — AND per-member platform availability
-   (#5b). Recorded S30: `LocalizedStringResource.key` = `let key: String`,
-   iOS 16+ (absent from Linux Foundation — Linux-unprobeable, docs-JSON is the
-   evidence). **Session 31's docs-check targets: Apple's required-reason API
-   categories + `NSPrivacyAccessedAPITypes` manifest keys (CA92.1 UserDefaults;
-   classify LiveClock's `mach_continuous_time()` + `kern.bootsessionuuid`
-   against the SystemBootTime list) — Apple publishes these as docs pages;
-   verify every reason code against the current list, never from memory.**
+   (#5b). **S31 proof-of-worth: the docs-check corrected the carried CA92.1
+   assumption (App-Group = 1C8F.1) and kept mach_continuous_time OUT of the
+   manifest (not on the documented list) — never classify from memory. The
+   privacy manifests re-derive on ANY UserDefaults/timestamp/boot-time/
+   disk-space/keyboard API addition — the pin fires on manifest drift, but the
+   SWEEP must rerun whenever such an API enters a diff.**
 6. Docs-only commits carry `[skip ci]`; never spawn agent workflows for
    docs-only changes. Critic/reader agents Write findings to scratchpad files
-   and return a one-line pointer — **(S30) this discipline just paid for
-   itself: the panel synthesis died on the operator's Claude MONTHLY SPEND
-   LIMIT and was salvaged from its files at zero loss. Until the operator
-   raises the limit (or the month rolls), treat subagent fan-outs as
-   UNAVAILABLE and run sessions inline.** **NEVER `git stash` mid-session.**
-   Check the STAGED set before every commit.
+   and return a one-line pointer (permanent — it has paid for itself twice).
+   **(S31) The S30 monthly-spend-limit constraint is LIFTED — canary-verified;
+   fan-outs are available again. If a fan-out ever dies mid-session, salvage
+   from the seats' files and finish inline (the S30 playbook).**
+   **NEVER `git stash` mid-session.** Check the STAGED set before every commit.
 7. `git fetch` + `git log origin/main` before EVERY push — the operator
    commits mid-session.
 8. **Privacy-surface gate:** anything touching stores/`AnalyticsEvent`/outbound
@@ -92,82 +89,88 @@
    teaser / winback bit enters any pre-unlock file (presence-only Bool
    ceiling; a render-necessary content-free a11y Bool is admissible, R28.2).
    Scanned string tables must be STRUCTS with STORED NON-OPTIONAL properties;
-   optional sections get `#require`d into the walk. **(S30) The App Privacy
-   label re-derives on ANY enum/property change (payload-audit §7 +
-   app-privacy-label.md) — an enum edit now also invalidates a submitted
-   label; say so in any session that touches it.**
+   optional sections get `#require`d into the walk. The App Privacy label AND
+   the app manifest's collected-data half re-derive together on ANY enum/
+   property change (payload-audit §7 + app-privacy-label.md + R31.5 lockstep).
 9. **BUDGET REALITY:** there is no zero-billed-run code session; free lanes
    exist, free runs do not. App-lane red evidence = the CI run on the red
    commit; package-lane red is the free local `swift test` (push red+green
    together — cancel-in-progress is FALSE on main, so two pushes = two full
-   billed runs). A schema/shared-pass change sweeps the FUNCTION-level blast
-   radius of every pin on it. NEW SPM deps land in the GREEN commit, never
-   red (R24.8). The golden-rides-red maneuver (R27.12) + deleted-reference
-   record-missing re-records (S28) stand. Golden-shift valves calibrate on
-   the TOLERANCE FLOOR. xcresult artifacts are FULLY readable on the Linux box
-   (the S29 fileBacked2 token parser) — artifact-first diagnosis before ANY
-   billed hypothesis run. Every multi-step UI drive verifies each tap TOOK
-   (R29.10 — previous-frame guard + ONE bounded re-tap, evidence attached).
+   billed runs). **(S31) The born-green ruling extends beyond the audit class
+   when — and only when — the designed red's ENTIRE evidence value is
+   reproduced free (executed harness: pass-on-real-bytes + fire-on-mutation/
+   absence) AND the green run's own results prove the new tests executed;
+   record the split if seats disagree.** A schema/shared-pass change sweeps
+   the FUNCTION-level blast radius of every pin on it. NEW SPM deps land in
+   the GREEN commit, never red (R24.8). The golden-rides-red maneuver (R27.12)
+   + deleted-reference record-missing re-records (S28) stand. Golden-shift
+   valves calibrate on the TOLERANCE FLOOR. xcresult artifacts are FULLY
+   readable on the Linux box (the S29 fileBacked2 token parser) —
+   artifact-first diagnosis before ANY billed hypothesis run. Every multi-step
+   UI drive verifies each tap TOOK (R29.10).
 
 ## Where we are
 
-- **Everything through E10.2's build half is DONE:** the M1 loop, the widget suite,
-  the DORMANT monetization vertical, the safety layer, the accessibility layer, the
-  machine-proven funnel E2E with its event-spy tail, the signed win-back seam
-  (IAP-key-gated), and now the submission package's build half (review-notes draft,
-  privacy-label derivation, the metadata lint gate, the wired §7 checklist).
-- **The ONE remaining build task: R30.6** — no `PrivacyInfo.xcprivacy` exists while
-  the app uses required-reason APIs (UserDefaults/App-Group, CA92.1 — confirmed in
-  `PanicLaunchFlag.swift`/`PanicFlowView.swift`/`UnhookedApp.swift`; LiveClock's
-  `mach_continuous_time()`/`kern.bootsessionuuid` need classification). Apple
-  rejects without it (since 2024).
+- **The pre-UIR build side is 100% DONE:** the M1 loop, the widget suite, the
+  DORMANT monetization vertical, the safety layer, the accessibility layer, the
+  machine-proven funnel E2E, the signed win-back seam (IAP-key-gated), the
+  submission package's build half, and now (S31) the required-reason privacy
+  manifests for BOTH executables with permanent key-set pins.
+- **Phase 2.5 — Epic UIR "UI Reactor" (roadmap v1.1 §2.5, operator-mandated):**
+  regenerate the full UI/UX in 6 one-objective sessions (UIR-0 tokens → UIR-1
+  onboarding → UIR-2 dashboard+widgets → UIR-3 panic+slip → UIR-4
+  paywall+settings+resources → UIR-5 motion+AX5+golden-batch prep). Binding
+  constraints live in roadmap §2.5: copy BYTE-IDENTICAL (§3 founder-owned), no
+  red anywhere, a11y only strengthens (UIR-0 closes R28.13 by construction),
+  privacy surfaces untouched, ADR-6 panic latency, safety surfaces keep the
+  stricter pre-code sign-off loop, goldens re-record per-session from run
+  artifacts, the operator's §3 batch stays ONE final re-record.
 - **StreakEngine 1.2.0 / WidgetToolkit 1.1.0 / PaywallKit 1.0.0 untouched.**
   purchases-ios 5.80.3 + SuperwallKit 4.16.1 + SnapshotTesting 1.19.3 +
-  TelemetryDeck 2.14.1 exact-pinned. TestFlight LIVE (Session 30 build).
-- **Carried debts (all named):** R30.6 (Session 31); OQ-1 (displayLabel
-  "Porn"/"Weed" — operator/brand call; an existing test pins the literals) + OQ-2
-  (label taxonomy — counsel) awaiting the operator, neither blocks builds; R29.4
-  (startIfNeeded no-retry — §9-owner decision); R28.13 a11y-visual classes + the
-  goldens batch (operator §3-gated, ONE re-record bundling colors+copy+goldens);
-  the 2 default-axis hapticsOnly goldens (valid-but-stale); scenario-30's
-  purchase-leg E2E (operator sandbox tier); MVP §7 accessibility checkbox honestly
-  UNCHECKED; the label is code-derived/wire-verify-pending (§8 app ID).
+  TelemetryDeck 2.14.1 exact-pinned. TestFlight LIVE (Session 31 build).
+- **Carried debts (all named):** OQ-1 (displayLabel) + OQ-2 (label taxonomy — now
+  with the R31.5 manifest-lockstep rider) awaiting the operator; R29.4
+  (startIfNeeded no-retry); R28.13 (closes INSIDE UIR-0); the 2 hapticsOnly stale
+  goldens (UIR re-records anyway); scenario-30 purchase-leg E2E (sandbox tier);
+  MVP §7 a11y box honestly UNCHECKED (UIR-5 + §7 device work close it); the label
+  is code-derived/wire-verify-pending (§8 app ID); **§9 uipro discrepancy** (the
+  operator reports it installed; not visible on the build box — check at every
+  UIR session open; use it as the primary generator the moment it appears).
 
 ## Next session objective (one session, definition of done below)
 
-**Session 31 — R30.6: the PrivacyInfo.xcprivacy required-reason manifest** (the last
-pre-submission build task; after it the build side is fully DONE pending operator
-gates):
+**Session 32 — UIR-0: the design system** (the UI Reactor's foundation; every later
+UIR session consumes its output):
 
-1. **Docs-check FIRST (gate #5):** fetch Apple's current required-reason API
-   category list + the `NSPrivacyAccessedAPITypes`/`NSPrivacyAccessedAPIType…`
-   manifest key spellings from the official docs pages; enumerate EVERY
-   required-reason API the app + widget targets actually use (grep-driven sweep:
-   UserDefaults (CA92.1 confirmed), file-timestamp APIs, boot-time APIs — classify
-   LiveClock's `mach_continuous_time()` + `kern.bootsessionuuid` against the
-   SystemBootTime category; disk-space; active-keyboard). Reason codes only from
-   the documented enumerations — docs-UNCONFIRMED spellings are nonexistent.
-2. **Author the manifest(s):** `PrivacyInfo.xcprivacy` for the app target (and the
-   widget target if Apple's rules require a separate one for the .appex — verify
-   against docs; SDKs carry their own). Include the NSPrivacyCollectedDataTypes
-   half consistent with `docs/app-privacy-label.md` (the label IS the source; keep
-   them in lockstep) and NSPrivacyTracking=false.
-3. **Wire into project.yml** (bundled resource per target) — the XcodeGen shape.
-4. **Test shape:** a designed red IS honestly available here (the manifest does not
-   exist → a unit-lane pin on its presence + key-set is born-red over a real inert
-   seam) — STEP-0 rules red-vs-born-green + the pin design (JSONSerialization
-   key-SET semantics over the bundled plist/xcprivacy bytes; it is a plist —
-   PropertyListSerialization, same key-set discipline).
-5. **NOT this session:** any store action; ASO; the OQ-1 label fix (operator);
-   any privacy-surface change (the manifest DESCRIBES, never changes, collection).
-0. STEP-0 candidates: (a) one manifest or two (app + appex) — docs-verified;
-   (b) red-vs-born-green for the presence/key-set pins; (c) budget split (likely
-   2 billed runs: red + green, or 1 if born-green is ruled); (d) whether the
-   collected-data half enters the manifest now (keys dormant) or at key-land —
-   consistency with the label doc decides.
+1. **Session-open checks:** the standing three-way operator check; PLUS probe for
+   `uipro` (skill/plugin/MCP — see §9): if visible, load it FIRST and make it the
+   generator for everything below; if not, proceed on the documented workflows and
+   re-record its absence.
+2. **Token regeneration:** color/type/spacing/motion tokens rebuilt from brandkit
+   §1/§2/§3/§5/§7 intent — with the HARD constraint that the new palette passes
+   WCAG contrast on every R28.13-deferred class (the S28 audit findings are the
+   acceptance list; closing them by construction is UIR-0's reason to exist).
+   Deliverables: `docs/design/tokens-v2.md` (the brandkit addendum) + a Theme
+   layer in App/Sources (single source of truth the views consume).
+3. **Component kit:** inventory brandkit §6's MVP components; implement the themed
+   primitives (buttons, cards, chips, progress, the streak ring spec) WITHOUT
+   rewiring screens yet (screens migrate in UIR-1…4 — keeps this session
+   one-objective and the diff reviewable).
+4. **Goldens:** only the surfaces a Theme swap actually re-renders re-record, from
+   the run's own artifacts (R27.12 lineage); everything else must stay
+   byte-stable — a golden that shifts UNexpectedly is a finding, not a re-record.
+5. **NOT this session:** screen redesigns (UIR-1…4), copy changes (NEVER — §3),
+   motion polish (UIR-5), any privacy/store surface.
+0. STEP-0 candidates: (a) Theme-layer shape (environment-injected theme vs static
+   token namespace — Architect seat); (b) which R28.13 classes are token-closable
+   vs layout-bound (layout-bound ones ride their surface's UIR session — name
+   them); (c) golden-diff budget: which goldens are EXPECTED to shift in UIR-0
+   (likely: any surface already consuming shared colors) and the run plan
+   (red-rides-golden vs born-green re-record from artifact); (d) whether the AX5
+   axes land per-session or consolidated in UIR-5 (the S28 ONE-re-record promise
+   constrains); (e) uipro presence probe result.
 
-At close: the build side is FULLY DONE; everything that remains
-(submission, keys, sandbox matrix, beta, goldens, ASO) runs on the operator's clock.
+At close: overwrite this prompt for UIR-1; the UIR ledger grows R32.x.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
@@ -175,68 +178,76 @@ At close: the build side is FULLY DONE; everything that remains
    consolidated physical sitting (§7) clears it.
 2. E3.3 + E6.2 + E6.3 device matrix rows (operator-expected §7) + the
    lock-screen day-counter row + the S27 safety-layer eyeball + the S28
-   eyes-free/VoiceOver eyeball (device test 40's perceptual half).
-3. Content tone review (§3) — now ALSO the S30 review-notes DRAFT
-   (clinician+counsel is its ship gate) + OQ-1 (displayLabel keep-or-repin) +
-   the S28 a11y block + S27 safety items + carried winback/teaser/paywallCopy/
-   settings items + MVP §5/§6 ratifications + the 3.1.1 riders. The §3 pass
-   gates the R28.13 visual pass + goldens batch (ONE re-record).
-4. GitHub Actions billing headroom (§4 — Session 30 used exactly 1, contingency
-   unused) **+ the Claude MONTHLY SPEND LIMIT is HIT (S30): subagent fan-outs
-   fail until it is raised or the month rolls; inline sessions unaffected.**
+   eyes-free/VoiceOver eyeball.
+3. Content tone review (§3) — the S30 review-notes DRAFT (clinician+counsel) +
+   OQ-1 + the S28 a11y block + S27 safety items + carried winback/teaser/
+   paywallCopy/settings items + MVP §5/§6 ratifications + the 3.1.1 riders.
+   The §3 pass gates the FINAL golden batch (post-UIR: final copy + final
+   palette together, ONE re-record — roadmap §2.5).
+4. GitHub Actions billing headroom (§4 — Session 31 used exactly 1). The Claude
+   monthly spend limit is LIFTED (S31-verified); fan-outs available.
 5. TestFlight testers (§5) — carried; the funnel E2E is machine-proven.
-6. TelemetryDeck app ID (§8) — carried; ALSO now gates the label
-   wire-verification (app-privacy-label.md is code-derived until the MITM runs).
-7. **§8 keys + config:** the RevenueCat key → the Superwall key + dashboard →
-   the ASC promotional offer + In-App Purchase Key upload (the app-side signed
-   path is BUILT — the key is the ONLY gate on the live 50%-off discount) →
-   the App Privacy label ENTRY (docs/app-privacy-label.md; OQ-2 taxonomy call
-   first) + the privacy-policy text. All sequenced at sandbox-matrix time;
-   nothing blocks builds.
+6. TelemetryDeck app ID (§8) — carried; gates the label/manifest wire-verify.
+7. **§8 keys + config:** RevenueCat key → Superwall key + dashboard → ASC
+   promotional offer + In-App Purchase Key → the App Privacy label ENTRY
+   (docs/app-privacy-label.md; OQ-2 first — NOTE R31.5: the ASC label and the
+   shipped manifest's collected-data half are in LOCKSTEP; if counsel repicks
+   the taxonomy, one session updates label doc + manifest + pin together) +
+   the privacy-policy text. All sequenced at sandbox-matrix time.
+8. *(struck — S31: the monthly-spend-limit item is closed)*
+9. **NEW — uipro:** the operator reports "we have installed uipro"; it is NOT
+   visible on the build box (verified twice 2026-07-14: skills, both plugin
+   surfaces, MCP/deferred tools). Either it lives on another machine (Mac?) or
+   the install didn't take. If UIR should run on it, make it visible to the
+   build environment (marketplace name / install path); otherwise UIR proceeds
+   on the documented workflows. Does NOT block UIR-0.
 
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app name
-> **Ballast**, org `com.beyondkaira`). Session 30 is CLOSED (1 billed run,
-> contingency unused, ZERO burned; the E10.2 build half is DONE — review-notes
-> draft + privacy-label derivation + the born-green metadata lint + the wired
-> §7 checklist; R30.6 discovered and named). **Session 31 = R30.6: the
-> PrivacyInfo.xcprivacy required-reason manifest (app + widget targets),
-> docs-checked reason codes, project.yml wiring, presence/key-set pins — the
-> LAST pre-submission build task; no store action; no privacy-surface change.**
+> **Ballast**, org `com.beyondkaira`). Session 31 is CLOSED (1 billed run,
+> born-green ruled over a recorded judge split, contingency unused, ZERO
+> burned; R30.6 DONE — both executables ship docs-verbatim required-reason
+> manifests with label-lockstep collected-data and key-set pins; roadmap v1.1
+> adds Phase 2.5 Epic UIR, operator-mandated). **Session 32 = UIR-0: the
+> design system — regenerated tokens + component kit + the WCAG-clean palette
+> closing R28.13 by construction; deliverables docs/design/tokens-v2.md + a
+> Theme layer + themed primitives; NO screen rewiring, NO copy byte changes,
+> NO motion polish yet.**
 > Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`.
+> **Session-open:** the three-way operator check + the uipro probe (§9 — if a
+> uipro tool is visible, it becomes the primary generator; record either way).
 > **Standing gates:** CodeGraph query-first + sync at close; `swiftc -parse`
 > every touched file + neighbor import/annotation coverage + the deprecation
-> gate (docs-UNCONFIRMED spellings are nonexistent) + #5b per-member platform
-> availability; the FOUR burn gates (rule #3); UIKit app-only APIs never enter
-> Shared/Sources; access-level scan + Linux harness RUN empirically ×3 TZ;
-> JSON pins use key-SET semantics (PropertyListSerialization for the plist);
-> docs-only commits `[skip ci]`; check the STAGED set; critics REPRODUCE under
-> `-strict-concurrency=complete -warnings-as-errors`; NEVER `git stash`;
-> `git fetch` + `git log origin/main` before every push; app-lane red evidence
-> = the CI run on the red commit; the panic route NEVER queries
-> entitlements/teaser/winback; audit tests never enter a red manifest;
-> golden-shift valves calibrate on the TOLERANCE FLOOR; a11y tests on safety
-> paths may never be quarantined; artifact-first diagnosis on the Linux box
-> before ANY billed hypothesis run; every multi-step UI drive verifies each
-> tap TOOK (R29.10). **(S30) The Claude monthly spend limit is HIT — run
-> INLINE, no subagent fan-outs, until the operator raises it or the month
-> rolls; if any agent IS spawned it must Write findings to files first-thing.**
-> READ FIRST: the Session 30 ledger in `docs/past-prompts.md` (R30.1–R30.7,
-> OQ-1/OQ-2), `docs/submission-checklist.md` (the named blockers),
-> `docs/app-privacy-label.md` (the manifest's collected-data half must stay in
-> lockstep with it), `docs/operator-expected.md` §3/§4/§8,
+> gate + #5b per-member platform availability; the FOUR burn gates (rule #3);
+> UIKit app-only APIs never enter Shared/Sources; access-level scan + Linux
+> harness RUN empirically ×3 TZ; JSON pins key-SET (plists via
+> PropertyListSerialization, S31); docs-only commits `[skip ci]`; check the
+> STAGED set; critics REPRODUCE under `-strict-concurrency=complete
+> -warnings-as-errors`; NEVER `git stash`; `git fetch` + `git log origin/main`
+> before every push; app-lane red evidence = the CI run on the red commit —
+> born-green beyond the audit class ONLY when the red's entire evidence value
+> is reproduced free AND the green run proves the tests executed (R31.4); the
+> panic route NEVER queries entitlements/teaser/winback; audit tests never
+> enter a red manifest; golden-shift valves calibrate on the TOLERANCE FLOOR;
+> a11y tests on safety paths may never be quarantined; artifact-first
+> diagnosis before ANY billed hypothesis run; every multi-step UI drive
+> verifies each tap TOOK (R29.10); copy stays BYTE-IDENTICAL through every
+> UIR session (§3 founder-owned); any new UserDefaults/timestamp/boot/disk/
+> keyboard API in a diff re-runs the S31 manifest sweep (rule #5).
+> READ FIRST: the Session 31 ledger in `docs/past-prompts.md` (R31.1–R31.8),
+> `docs/roadmap.md` §2.5 (the UIR epic — scope, constraints, session plan),
+> `docs/frontend-brandkit.md` (§1/§2/§3/§5/§6/§7/§8), the S28 ledger's R28.13
+> finding list (the WCAG acceptance list), `docs/operator-expected.md` §3/§9,
 > `docs/session-rules.md`.
-> **This session:** STEP-0 rulings (a)–(d) → docs-check the reason codes →
-> author + wire the manifest(s) → the presence/key-set pins per the red-vs-
-> born-green ruling → verify → flag operator items. Budget: likely 2 billed
-> runs (red + green) or 1 (born-green ruled) + 1 contingency.
-> **At session end:** append the Session 31 ledger, overwrite this resume
-> prompt (the build side closes — what follows is operator-gated; the next
-> agent session after 31 is on-demand: OQ fixes, goldens batch post-§3, or
-> sandbox-matrix support), update `docs/operator-expected.md`, `codegraph
-> sync`, commit `[skip ci]`, push, `gh run watch` green (verify the conclusion
-> via `gh run view --json` — the watcher's exit code lies).
+> **This session:** STEP-0 rulings (a)–(e) → tokens-v2 + Theme layer + themed
+> primitives → the golden plan per (c) → verify → flag operator items.
+> Budget: plan 2 billed runs (the Theme swap WILL shift some goldens —
+> red-rides-golden or artifact re-record per the (c) ruling) + 1 contingency.
+> **At session end:** append the Session 32 ledger, overwrite this resume
+> prompt (UIR-1), update `docs/operator-expected.md`, `codegraph sync`, commit
+> `[skip ci]`, push, `gh run watch` green (verify the conclusion via
+> `gh run view --json` — the watcher's exit code lies).
 
 ## Standing rules reminders (do not relearn these)
 
@@ -254,8 +265,15 @@ At close: the build side is FULLY DONE; everything that remains
   purchase fires ONLY on user-initiated PAID (.active) completions;
   winback_converted co-fires BEFORE purchase; winback_shown co-fires with
   paywall_viewed(source:.winback); the paywall funnel is source-segmented.
-  The consent-honest OBSERVED funnel starts at slot 3 (S19-R1; the S29 §1.4
-  note) — slots 1–2 + onboarding_started are gate-swallowed pre-consent.
+  The consent-honest OBSERVED funnel starts at slot 3 (S19-R1).
+- **Privacy-manifest canon (S31, NEW):** TWO manifests, per-executable truth —
+  app = UserDefaults [CA92.1, 1C8F.1] + the 3 label-lockstep collected rows;
+  widget .appex = [1C8F.1] ONLY (no .standard compiles there), collected
+  EMPTY; NSPrivacyTracking=false always; never share one file across targets;
+  never place a manifest under Shared/Sources; reason codes ONLY from the
+  fetched docs enumerations (mach_continuous_time/kern.bootsessionuuid are
+  NOT SystemBootTime members — R31.3); the manifests re-derive with the label
+  (R31.5 lockstep) and on any required-reason-API addition (rule #5).
 - **Entitlement canon (S23+S24):** the mapper has NO clock; `willRenew`
   pin-ignored; the package persists ZERO bytes; `Product` = {monthly, annual}
   TIER. App-side: present-but-inactive ⇒ `isActive:false` NEVER nil; unknown
@@ -281,25 +299,25 @@ At close: the build side is FULLY DONE; everything that remains
 - **A11y canon (S28):** the eyes-free pacer preference is a §10-admissible
   pre-unlock bit (presence-only stamp `? true : nil`); the panic route still
   opens NO store. The audit family: panic/slip legs are rule-11; the quiz leg
-  carries the R28.6 valve; the R28.13 class exclusions are grow-only.
+  carries the R28.6 valve; the R28.13 class exclusions are grow-only UNTIL
+  UIR-0 closes them (then they SHRINK — the one sanctioned direction change).
   `UITEST_QUIZ` mounts the quiz through BOTH levels with zero store
   dependency — DEBUG-inert, `.disabled` analytics, NO completion seam.
   A template sentence with an unfilled token drops WHOLE. BreathBloom
   stays a11y-hidden.
 - **Funnel-smoke canon (S29):** scenario-29 anchors on SURFACING elements only
-  (`quiz.continue`/`summary.cta`/`paywall.cta` — nested `.contain` container
-  ids never surface, Session-09 class); the smoke's valve v2 stands in its
-  header; UITEST_EVENT_SPY arms the spy + bridge (DEBUG-inert otherwise); the
-  spy is a SINK-tier decorator (consent-honesty structural); the bridge
-  exposes wire names + step ordinals ONLY.
-- **Metadata-lint canon (S30, NEW):** the explicit-terms register is
-  GRAPHIC-only — category nouns (porn/weed) and the sanctioned clinical/ASO
-  forms (adult content, Cannabis, porn addiction, dopamine detox, nofap) are
-  NEVER banned; the metadata-medical register excludes detox/heal/toxin
+  (nested `.contain` container ids never surface, Session-09 class); the
+  smoke's valve v2 stands in its header; UITEST_EVENT_SPY arms the spy +
+  bridge (DEBUG-inert otherwise); the spy is a SINK-tier decorator
+  (consent-honesty structural); the bridge exposes wire names + step
+  ordinals ONLY.
+- **Metadata-lint canon (S30):** the explicit-terms register is GRAPHIC-only —
+  category nouns (porn/weed) and the sanctioned clinical/ASO forms are NEVER
+  banned; the metadata-medical register excludes detox/heal/toxin
   (milestone-body scope); helplines.json is never read; `PanicControlStyle`
   is enumerated (Mirror-vacuous); intent titles pin via
   `LocalizedStringResource.key`; the widget .appex display name is
-  rehearsal-covered (project.yml:219), never .appex-traversed. Lexicons only
+  rehearsal-covered (project.yml), never .appex-traversed. Lexicons only
   GROW (foundation-floor superset pins).
 - The consent choice is a DEVICE SETTING; erase resets it OFF. Erase order:
   rows (sweeps teaserExpiresAt + paywallVariantAssigned + lapseObservedAt +
@@ -322,12 +340,14 @@ At close: the build side is FULLY DONE; everything that remains
   constructs NO analytics (R27.11); the widget feed is label-free BY FIELD
   SET (R1) + presence-only discreet (R22.1); the shield policy is tri-state
   FAIL-CLOSED.
-- Never weaken a QA assertion; TDD red first; `cloudKitDatabase` stays `.none`
+- Never weaken a QA assertion; TDD red first (the R31.4 born-green valve is
+  the ONLY sanctioned exception shape); `cloudKitDatabase` stays `.none`
   until the §4.3 flip.
 - Snapshot goldens: light/dark ×5 families ×normal/discreet + AX5 home-only;
   fixtures dated 2025 epoch 2026-07-07T12:00:00Z; `pauseDate`/frozen clocks
   freeze tickers; the ONBOARDING + PAYWALL golden batch waits for the founder
   copy pass (bundling AX5 axes + the R28.13 contrast/textClipped visual
-  pass); the SLIP-FLOW goldens include the resources link (S27) and the
-  never-dangle degraded copy (S28). SnapshotTesting 1.19.3 + TelemetryDeck
-  2.14.1 + purchases-ios 5.80.3 + SuperwallKit 4.16.1 pinned EXACT.
+  pass — post-UIR, ONE re-record); the SLIP-FLOW goldens include the
+  resources link (S27) and the never-dangle degraded copy (S28).
+  SnapshotTesting 1.19.3 + TelemetryDeck 2.14.1 + purchases-ios 5.80.3 +
+  SuperwallKit 4.16.1 pinned EXACT.

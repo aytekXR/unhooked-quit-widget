@@ -4497,3 +4497,122 @@ the month rolls; inline sessions are unaffected.
 - R29.4, R28.13 + goldens batch (§3-gated), the 2 hapticsOnly stale goldens,
   scenario-30 purchase-leg E2E (sandbox tier), MVP §7 a11y box honestly UNCHECKED —
   all carried unchanged.
+
+## Session 31 — R30.6: the PrivacyInfo.xcprivacy required-reason manifests (2026-07-14)
+
+**Objective (resume-prompt v4.3):** the LAST pre-submission build task — docs-checked
+reason codes, the manifest(s), project.yml wiring, presence/key-set pins; no store
+action; no privacy-surface change. Budget: 2 billed runs (red+green) or 1 (born-green
+ruled) + 1 contingency.
+
+**Outcome: DONE in 1 billed run (born-green ruled; contingency UNUSED, ZERO burned).**
+TWO manifests ship: `App/Resources/PrivacyInfo.xcprivacy` (UserDefaults [CA92.1,
+1C8F.1] + the 3 label-lockstep collected rows + NSPrivacyTracking=false) and
+`Widgets/Resources/PrivacyInfo.xcprivacy` (UserDefaults [1C8F.1] ONLY, collected
+EMPTY), each wired `buildPhase: resources` into its own target;
+`Tests/Unit/PrivacyManifestTests.swift` pins presence + exact key-SETs with
+gate-gates-itself calibration. **The build side of the pre-UIR scope is now FULLY
+DONE.** Session-open operator check: NOTHING required (three-way confirmed — resume
+prompt "no operator gate"; operator-expected header "nothing blocks Session 31"; live
+repo clean at e756235, no operator commits; recorded open-to-close).
+
+**Operator-directed plan change (this session, mid-flight):** the operator mandated a
+full UI/UX regeneration ("not good enough") — roadmap v1.1 adds **Phase 2.5, Epic UIR
+"UI Reactor"** (6 planned sessions UIR-0…UIR-5), inserted after R30.6 and gating
+submission assets (operator-waivable). See R31.7 for the "uipro" tooling record.
+
+### Session mechanics note (budget planning)
+The S30 Claude monthly-spend-limit constraint is **LIFTED**: a canary agent + a
+6-agent sweep/verify/judge workflow ran clean this session (the operator's explicit
+"use the workflows" instruction was honored after the canary, not on faith). The
+rule-6 write-findings-to-files discipline stays permanent regardless.
+
+### Rulings
+
+- **R31.1 (STEP-0 a):** TWO manifests, docs-MANDATED, not defensive — the per-
+  executable rule bites both binaries. NEW FINDING beyond the S30 carry: the widget
+  .appex executable itself uses App-Group UserDefaults — `Shared/PanicLaunchFlag.
+  swift:34` compiles into the .appex and is called by the extension-side panic
+  intents (`OpenPanicIntent.swift:28`, `OpenPanicControlIntent.swift:29`). Widget
+  reason set = [1C8F.1] ONLY (no `.standard` compiles into that executable — CA92.1
+  must never appear there). Two SEPARATE files; never under Shared/Sources (different
+  contents; Shared compiles into both).
+- **R31.2 (docs-check correction — the gate #5 payoff):** the S30 carry
+  "UserDefaults/App-Group (CA92.1)" named the right CATEGORY but the wrong reason for
+  the group suite: docs-verbatim, CA92.1 is app-itself-only ("does not permit reading
+  information that was written by other apps"); the App-Group reason is **1C8F.1**.
+  The app needs BOTH: CA92.1 for the `.standard` sites (TrialAnalyticsDedupeStore:22,
+  QuizProgressStore:27, UnhookedApp:73) + 1C8F.1 for every `suiteName:` site
+  (UnhookedApp:43/63, PanicFlowView:89, RepositoryProvider:184→QuitRepository/
+  LastKnownGoodStore, PanicLaunchFlag:34).
+- **R31.3 (LiveClock classification):** `mach_continuous_time()` (LiveClock:36) and
+  `sysctlbyname("kern.bootsessionuuid")` (LiveClock:46/50) are NOT on Apple's
+  documented SystemBootTime member list (verbatim list = `systemUptime` +
+  `mach_absolute_time()` only) → NO SystemBootTime declaration; the doc-comment
+  mentions of systemUptime/mach_absolute_time are prose, not calls. FileTimestamp /
+  DiskSpace / ActiveKeyboards: NONE anywhere (3-seat sweep + adversarial re-sweep,
+  zero missed sites, zero misclassifications).
+- **R31.4 (STEP-0 b/c — a genuine two-judge split, lead-resolved):** the canon seat
+  ruled TDD-red-first (2 billed runs: "the manifest is a NEW artifact, not the audit
+  class"); the risk seat ruled born-green (1 run: "the red's only unique product is
+  non-vacuity, free on Linux"). LEAD RULING: **born-green single push.** The canon
+  seat's load-bearing premise ("the billed red buys un-rehearsable evidence") is
+  false: fires-on-absence was reproduced FREE (the exact extractor logic RUN under
+  -swift-version 6 -strict-concurrency=complete -warnings-as-errors ×3 TZ over the
+  exact shipping bytes — pass — and over mutations + absence — fire), wiring-landed
+  evidence only ever comes from the GREEN run under either shape, and test-executed
+  proof comes from the green run's own results. The honest red existed; its evidence
+  value was already banked at zero billed runs. Dissent recorded by name.
+- **R31.5 (STEP-0 d):** the collected-data half enters the APP manifest NOW — the 3
+  LIVE rows in lockstep with app-privacy-label.md (R30.4 grounds re-applied): PI +
+  Health + PurchaseHistory, all linked=false/tracking=false, purposes {Analytics},
+  {Analytics}, {AppFunctionality, Analytics}. Widget collected half honestly EMPTY
+  (the widget can never fire analytics). **OQ-2 rider (record):** the manifest's
+  Health row mirrors the label's RECOMMENDED-not-ratified taxonomy; if counsel
+  repicks, label + manifest change in the SAME edit — lockstep is the mechanism, not
+  a pre-ratification. PurchaseHistory is also SDK-attributed (RC's own manifest) —
+  redundant-not-wrong, kept for label lockstep.
+- **R31.6 (pin shape):** app pin reads the BUILT BUNDLE (`Bundle.main` — a repo-tree
+  read false-greens on authored-but-unbundled, the exact R30.6 rejection class);
+  widget pin = authored repo-tree bytes via #filePath (the snapshot lane's proven
+  host-FS mechanics) + the project.yml wiring pin (the S30 no-.appex-traversal
+  precedent), with the residual (".appex actually bundles it") closed by CI building
+  the .appex from that wiring — stated in the test doc-comment, not papered over.
+  Key-SET semantics throughout; an unauthored (even Apple-valid) top-level key fires
+  the pin — growing the manifest is a deliberate two-place edit.
+- **R31.7 (UI Reactor + the "uipro" record):** roadmap v1.1 adds Phase 2.5 Epic UIR
+  (operator-mandated; scope/constraints/session-plan in the roadmap §2.5; submission
+  gains an operator-waivable UIR gate; critical path updated). The operator twice
+  referenced a "uipro" tool (second time: "we have installed uipro"); verified TWICE
+  on the build box (session open + after the report): NO uipro skill/plugin/MCP tool
+  is visible in this environment. Discrepancy surfaced as operator-expected §9 with
+  the standing instruction: the moment "uipro" is visible in a session, UIR uses it
+  as the primary generator. UIR-0 does not block on it.
+- **R31.8 (scope fences held):** no privacy-surface change (the manifests DESCRIBE
+  collection; the enum/gates/stores untouched), no store action, no new SDK/key/
+  event/property, no golden touched, no copy byte changed.
+
+### Run accounting (§4-honest)
+- **Run 1 — 29290910960 (c9d8478, green):** the born-green single push — manifests +
+  wiring + pins land together; the 3 new tests execute green in the unit lane
+  alongside the full suite; snapshot + uismoke + free lanes green; TestFlight upload.
+- **Total: 1 = the 1 ruled (born-green), contingency UNUSED, ZERO burned.**
+
+### Operator asks (delta)
+- **§9 NEW — the uipro discrepancy** (see R31.7): confirm where uipro was installed,
+  or provide its marketplace/install path for the build box. Optional input; UIR-0
+  proceeds without it.
+- §4: the monthly-spend-limit FYI is STRUCK (lifted; verified empirically).
+- §8/OQ-2 gains the manifest-lockstep rider (R31.5).
+- The §3/§7/§8 carried items are unchanged; NOTHING new blocks any of them.
+
+### Known limitations / carried
+- The widget manifest's in-.appex placement is CI-build-evidenced + wiring-pinned,
+  not unit-pinned (Bundle.main cannot see the .appex — precedented, documented).
+- The label stays code-derived/wire-verify-pending (§8 app ID → MITM), now with the
+  manifest in lockstep.
+- OQ-1/OQ-2 await the operator; R29.4, R28.13 + goldens batch (§3-gated, now bundled
+  INTO UIR per roadmap §2.5), the 2 hapticsOnly stale goldens, scenario-30
+  purchase-leg E2E (sandbox tier), MVP §7 a11y box honestly UNCHECKED — carried.
+- Next: **Session 32 = UIR-0 (design-system tokens + component kit + the WCAG-clean
+  palette closing R28.13)** per roadmap v1.1 Phase 2.5.

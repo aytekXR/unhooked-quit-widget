@@ -72,17 +72,19 @@ Snapshot (`UnhookedSnapshotTests`), UI smoke (`UnhookedUITests`).
 
 ## Named submission blockers (surfaced S30 — do not lose these)
 
-1. **PrivacyInfo.xcprivacy is MISSING (R30.6).** No `.xcprivacy` file exists anywhere
-   in the repo (find-confirmed S30) while the app uses at least one required-reason
-   API category in code: UserDefaults via the App Group (CA92.1 —
-   `PanicLaunchFlag.swift`, `PanicFlowView.swift`, `UnhookedApp.swift`). Apple
-   rejects required-reason-API apps without the declared manifest (enforced since
-   2024). At manifest-authoring time also classify the boot-time-adjacent reads in
-   `LiveClock.swift` (`mach_continuous_time()` + the `kern.bootsessionuuid` sysctl)
-   against Apple's current SystemBootTime category list. Small build task
-   (project.yml + bundled resource + the widget target's copy) — schedule as its own
-   code session before any submission; deliberately NOT done in the S30 docs+lint
-   session.
+1. ~~**PrivacyInfo.xcprivacy is MISSING (R30.6).**~~ **CLOSED — Session 31.** Both
+   executables ship docs-checked manifests: the app (`App/Resources/
+   PrivacyInfo.xcprivacy`) declares UserDefaults **[CA92.1, 1C8F.1]** + the three
+   label-lockstep collected rows + NSPrivacyTracking=false; the widget .appex
+   (`Widgets/Resources/PrivacyInfo.xcprivacy`) declares **[1C8F.1] only** with an
+   empty collected half (R31.1 — the .appex executable reaches App-Group
+   UserDefaults via `Shared/PanicLaunchFlag`, so its own manifest is docs-mandated).
+   LiveClock's reads classified OFF the SystemBootTime list (R31.3). Evidence:
+   **[M]** Unit `PrivacyManifestTests` (Bundle.main presence + exact key-SETs +
+   self-calibration; the widget half pins authored bytes + project.yml wiring —
+   Bundle.main cannot see the .appex, precedented limitation) · CI green
+   `29290910960` (c9d8478). The manifests re-derive with the label (R31.5) and on
+   any required-reason-API addition to a diff (the S31 sweep re-runs).
 2. **A no-keys review build never shows a purchase screen** (the summary routes to
    the dashboard while the RC key is empty). Submit with keys live or explain the
    gating in the review notes (review-notes §3.2).

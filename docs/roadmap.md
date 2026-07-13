@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Document | Roadmap v1.0 |
+| Document | Roadmap v1.1 (v1.0 2026-07-07; v1.1 2026-07-14 adds Phase 2.5 — Epic UIR "UI Reactor", operator-mandated) |
 | Date | 2026-07-07 |
 | Inputs | PRD v1.0, Feasibility Report v1.0 (**GO WITH CAUTION**), MVP Definition v1.0, Architecture v1.0 |
 | Owner | Solo founder + AI agents |
@@ -77,6 +77,73 @@ Everything a user touches at the moment of urge, built inside-out from the pure 
 
 **Exit criteria (M2):** MVP §7 "Core product" + "Monetization" checklists green in sandbox; code-complete.
 
+### Phase 2.5 — Epic UIR "UI Reactor": full UI/UX regeneration (ADDED 2026-07-14, operator-mandated)
+
+> **Operator directive (2026-07-14, verbatim intent):** the current UI is "not good
+> enough" — regenerate the app's UI/UX. This phase inserts AFTER the last
+> pre-submission functional build task (R30.6, Session 31) and BEFORE submission
+> assets: G0 screenshots/preview must be captured on the post-UIR surface. It does
+> NOT block the operator's parallel tracks (§3 copy pass, §8 keys/sandbox, device
+> rows, external beta on the current build).
+
+**Scope — what changes:** the visual layer only. Layout, hierarchy, spacing, color
+tokens, component styling, motion, across the full screen set: age gate, quiz,
+consent step, summary, dashboard, panic flow, slip flow, settings sheet, resources,
+paywall (hard/teaser/winback), and all widget families × normal/discreet.
+
+**Binding constraints — what does NOT change (the canons hold):**
+- Copy: every user-facing string stays byte-identical to its audited table — copy is
+  operator-expected §3 founder-owned; UIR moves pixels, never words.
+- Register: no red anywhere (the alcohol notice card stays AMBER); calm, quiet
+  celebration (brandkit §1/§7); no countdown/urgency mechanics enter any paywall.
+- Accessibility only strengthens: the audit family stays green and unquarantined;
+  Dynamic-Type no-truncation and VoiceOver labels are floors (brandkit §8). UIR-0's
+  token work CLOSES the deferred R28.13 WCAG contrast/textClipped findings by
+  construction — the new palette must pass the audit's contrast checks, shrinking
+  the R28.13 exclusion list toward zero.
+- Privacy surfaces untouched: the widget feed field set, discreet mode's no-leak
+  rule, and panic-path thinness (panic surfaces still never open the store or query
+  entitlements) are structural, not visual.
+- ADR-6: no new blocking work enters the panic launch path (latency budget).
+- Safety-content surfaces (panic/slip/resources/notice) keep the stricter loop:
+  PM+Brand+QA sign the redesign spec BEFORE code (agent-workflows §2.2).
+
+**Goldens discipline:** each UIR session re-records only its own surfaces' goldens
+from its run artifacts (the established free maneuver); the operator's §3-gated
+batch remains ONE final re-record (final copy + final palette together — the
+Session 28 promise stands, UIR widens its scope, not its count).
+
+**Tooling note (honesty record):** the operator's directive referenced a "uipro"
+tool, and mid-Session-31 the operator reported it INSTALLED. Verified twice on the
+build box (2026-07-14, session open + after the report): no skill/plugin/MCP tool
+by that name is visible in this environment (skills registry, both plugin
+surfaces, MCP/deferred tool list — the only marketplace is claude-plugins-official,
+uipro-free). The install either landed on another machine (the Mac?) or did not
+take — a discrepancy only the operator can resolve (operator-expected §9).
+**Standing instruction:** the moment a tool named "uipro" IS available in a
+session's environment, UIR sessions load it and use it as the PRIMARY UI
+regeneration tool — the multi-agent design workflows (independent redesign
+proposals per surface → judge panel → synthesis, per `agent-workflows.md`) plus
+the snapshot lane are the execution vehicle either way, with uipro slotting in as
+the generator when present. UIR does not block on it.
+
+**Session plan (each one-objective, standard loop, budget ruled per-session at its
+own STEP-0):**
+- **UIR-0 — Design system:** regenerated tokens (color/type/spacing/motion) + the
+  component kit + the WCAG-clean palette closing R28.13; deliverable = a
+  brandkit-tokens addendum + a Theme layer in code + re-recorded goldens.
+- **UIR-1 — Onboarding:** age gate + quiz + consent + summary.
+- **UIR-2 — Dashboard + widget families** (× discreet).
+- **UIR-3 — Panic + slip flows** (safety pre-sign-off; copy untouched).
+- **UIR-4 — Paywall (hard/teaser/winback) + settings + resources.**
+- **UIR-5 — Motion/polish + AX5 axes** + consolidated golden-batch prep for the
+  operator's §3 sitting.
+
+**Exit criteria:** all snapshot goldens re-recorded on the new system; the a11y
+audit green with the R28.13 exclusion list shrunk to zero or a documented
+remainder; zero copy bytes changed (the lexicon/copy gates prove it); G0
+screenshots captured post-UIR.
+
 ### Phase 3 — Beta → Review → Launch (Weeks 4–6, overlapping Phase 2 tail)
 See §3 Release Phases.
 
@@ -101,6 +168,12 @@ The only owned infrastructure: one rate-limited Cloudflare Worker (Claude Haiku-
 | **v1.2** | Launch + ~5 weeks | Phase-5 gate above |
 | **Kill/pivot checkpoint** | Launch + 3 months | <1,000 quiz-completing installs/mo OR conversion <4% across both paywall variants → halt feature work, pivot positioning (single-vice lead) or shelve |
 
+> **UIR gate on submission (added 2026-07-14):** the App Store submission row above
+> additionally waits on **Phase 2.5 (UI Reactor)** — the operator ruled the current
+> UI below the submission bar, and G0 screenshots/preview must show the post-UIR
+> surface. The operator may waive this gate (it is a quality bar, not a compliance
+> one); everything else in the table proceeds in parallel on the operator's clock.
+
 **Launch-week funnel discipline:** the teaser-vs-hard paywall A/B (the MVP-thesis test) starts day 1 via Superwall remote variants — no app release needed to iterate. Week-1 and week-2 checkpoints read `paywall_viewed → trial_started` by variant; the losing variant is retired by week 4 and the winner eventually frozen into PaywallKit (planned Superwall de-integration, ADR-4).
 
 ---
@@ -123,7 +196,11 @@ v1.0 stability + funnel signal ──► Phase 5 (AI companion)
 EvalHarness golden sets ──► any companion prompt/model change (CI gate)
 ```
 
-Critical path: **Spike → StreakEngine → panic/slip flows → widget suite → paywall → beta → review.** The quiz and safety screens are off-critical-path and parallelizable to agents; copy review is the founder bottleneck and should be batched twice weekly.
+```
+R30.6 manifest (S31) ──► UIR-0 tokens ──► UIR-1…5 surfaces ──► §3-gated golden batch ──► G0 screenshots ──► submission
+```
+
+Critical path: **Spike → StreakEngine → panic/slip flows → widget suite → paywall → UI Reactor → beta → review.** The quiz and safety screens are off-critical-path and parallelizable to agents; copy review is the founder bottleneck and should be batched twice weekly.
 
 ---
 

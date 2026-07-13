@@ -135,11 +135,14 @@ disclosure rows), feasibility risk #8, payload-audit §6.
   `PrivacyInfo.xcprivacy` files in Xcode before ASC entry.
 - **Session 30 adds NO privacy surface** (docs + a metadata lint only; the enum is
   unchanged) — stated per the standing PR-template rule.
-- **R30.6 (separate submission blocker, not a label row):** the app target ships no
-  first-party `PrivacyInfo.xcprivacy` required-reason manifest while using at least
-  UserDefaults via the App Group (CA92.1) in code; the boot-time-adjacent reads in
-  `LiveClock.swift` get classified against Apple's SystemBootTime list at
-  manifest-authoring time. Apple rejects required-reason-API apps without it.
-  Creating it touches `project.yml` + a bundled resource — a named pre-submission
-  build task, deliberately NOT done in this docs+lint session. See
-  `docs/submission-checklist.md`.
+- **R30.6 — CLOSED (Session 31):** both executables now ship first-party
+  `PrivacyInfo.xcprivacy` manifests — the app declares UserDefaults
+  **[CA92.1, 1C8F.1]** (the S30 CA92.1 carry was the app-only code; the App-Group
+  suite is 1C8F.1, docs-verbatim) and the widget .appex declares **[1C8F.1]** only
+  (it reaches App-Group UserDefaults via the panic-intent launch flag).
+  `LiveClock.swift`'s reads were classified OFF Apple's SystemBootTime list
+  (mach_continuous_time/kern.bootsessionuuid are not documented members — R31.3).
+  **LOCKSTEP (R31.5, binding):** the app manifest's `NSPrivacyCollectedDataTypes`
+  mirrors §2's three rows exactly — any change to this label (including a counsel
+  repick of the OQ-2 taxonomy) updates the manifest + its key-set pin
+  (`Tests/Unit/PrivacyManifestTests.swift`) in the same session.
