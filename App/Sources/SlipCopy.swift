@@ -49,6 +49,16 @@ struct SlipCopy: Codable, Equatable, Sendable {
         var discreetRowLabel: String
     }
 
+    /// E9.1 (R27.11) — the logged stage's one-tap support hand-off (mvp feature 11:
+    /// resources "one tap from … every slip flow"). Optional SECTION for decode
+    /// tolerance (the `dashboard` precedent — an older file still decodes); the
+    /// label INSIDE is a stored NON-OPTIONAL String by standing rule (a bare
+    /// `String?` would dodge the Mirror lexicon walk), so once the section ships it
+    /// joins the reflection corpus automatically.
+    struct ResourcesLink: Codable, Equatable, Sendable {
+        var linkLabel: String
+    }
+
     var confirm: Confirm
     var logged: Logged
     var reflection: Reflection
@@ -56,6 +66,7 @@ struct SlipCopy: Codable, Equatable, Sendable {
     var encouragement: [String]
     var motivationEcho: String
     var dashboard: Dashboard?
+    var resources: ResourcesLink?
 
     /// Decodes the shipping file from the app bundle. `nil` when the resource is
     /// missing or undecodable — the slip flow is a zero-lost-data surface, so callers

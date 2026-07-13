@@ -22,6 +22,11 @@ struct SlipFlowView: View {
     /// while production still live-gates it once ticking begins.
     @State private var started = false
     @State private var noteText = ""
+    /// E9.1 (R27.11) — the logged stage's one-tap support hand-off. An INTERNAL
+    /// sheet, not a host callback: SlipFlowView has two hosts and the cold one
+    /// (PanicFlowView) must stay thin — the resources screen is store-free by
+    /// construction, so BOTH routes mount it unchanged.
+    @State private var showsResources = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
 
@@ -49,6 +54,23 @@ struct SlipFlowView: View {
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("slip.flow")
+            .sheet(isPresented: $showsResources) {
+                // Source `.slipFlow` (the closed-domain wire value). The service is
+                // route-honest: the store route vends the repository's live gate;
+                // the cold route constructs NO analytics (the panic-descended
+                // surface stays fire-free — ADR-6 thinness, recorded R27.11) and
+                // the screen degrades to the disabled no-op service.
+                SafetyResourcesView(source: .slipFlow, analytics: slipRouteAnalytics)
+            }
+    }
+
+    /// The slip-flow mount's analytics seam (R27.11): live on the store route,
+    /// disabled on the cold route — the cold contract is card+buffer+witness ONLY.
+    private var slipRouteAnalytics: AnalyticsService {
+        if case let .store(repository, _) = model.route {
+            return repository.analyticsService
+        }
+        return .disabled
     }
 
     @ViewBuilder
@@ -141,6 +163,24 @@ struct SlipFlowView: View {
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+
+                // E9.1 (R27.11) — the calm post-log support offer (mvp feature 11:
+                // resources one tap from every slip flow). Placed right after the
+                // fact statement, never on the confirm prompt (Brand binding — an
+                // offer at the point of confirming a slip could read as judgment).
+                if let resources = model.copy.resources {
+                    Button {
+                        showsResources = true
+                    } label: {
+                        Label(resources.linkLabel, systemImage: "lifepreserver")
+                            .font(.footnote.weight(.medium))
+                            .foregroundStyle(.teal)
+                            .frame(minHeight: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("slip.resources.link")
+                }
 
                 // The motivation echo — the user's OWN word, verbatim, in SF Pro (never
                 // the Rounded hero face). Hidden entirely when there is no motivation.
@@ -301,7 +341,10 @@ extension SlipCopy {
         undo: .init(banner: "Undo?", undoLabel: "Undo", windowNote: "", undoneConfirmation: "Undone."),
         encouragement: [],
         motivationEcho: "",
-        dashboard: .degraded
+        dashboard: .degraded,
+        // No invented copy on the degraded path: the support link simply does not
+        // render (the section is the decode-tolerant optional; E9.1/R27.11).
+        resources: nil
     )
 }
 
