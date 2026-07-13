@@ -2,20 +2,17 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v3.9 |
-| Last updated | 2026-07-12 (Session 26 close: E7.3 COMPLETE — Epic 7's build half CLOSED. Win-back = an app-side observed-lapse stamp (`AppSettings.lapseObservedAt`, §7-approved) + the pure 7-day-duration `WinbackPolicy` + the dismissible OFFER at the reentry gate (entitled > winback > teaser-expiry) + the eligible-only settings row + the winback_shown/paywall_viewed(winback)/winback_converted/purchase fire-set — ALL dormant (no keys ⇒ no lapse ever observed). The offer MECHANISM is an ASC promotional offer (pay-up-front 1yr $14.99 on the SAME ballast.annual SKU, id `winback_annual`) — Apple win-back offers were REJECTED on primary-source evidence (months-granular + paid-history-gated; can't express "7 days post trial-lapse") and RC Targeting has no lapse cohort. Red evidence = CI run `29209285506` (11 designed-failing / 13 issues, manifest-matched NAME-FOR-NAME — the 12th consecutive harness-predicted red; the pure 10/11 subset verified TZ-invariant ×3 zones on the free box first) → green `2ba3a35` (all 11 flips, run `29209801255`, ALL-9-JOBS + TestFlight). **Exactly 2 billed runs, ZERO burned, contingency UNUSED.** The RC importer-lint anchor gained the attr-prefix form (the #3d latent gap, reproduced + planted-violation-tested). Session-open operator check: NOTHING was required; the operator's lock-screen day-counter report was TRIAGED as the pre-E6.2 skeleton's hardcoded "Day 0" + the S21 widget-kind retirement — operator re-adds the "Streak" widget on the newest build (§7 row; no code change, zero runs spent). |
-| Phase | Phase 2 — E2–E6 (minus operator device QA) + E7.1/E7.2/E7.3 build-COMPLETE + E8 CLOSED; delivery 28/32 (87.5%) |
-| Next session objective | **Session 27: E9.1 resources/helplines/alcohol-notice (+E9.2 content-table audit, batchable) — the safety layer** |
+| Document | Resume Prompt v4.0 |
+| Last updated | 2026-07-13 (Session 27 close: E9.1 + E9.2 COMPLETE — the safety layer. A post-gate `SafetyResourcesView` (store-free: bundled JSON + injected analytics only) is one tap from Settings (the UNCONDITIONAL `settings.resources.row` — the SECOND R22.7 amendment) and from every slip flow (the logged-stage `slip.resources.link`, internal sheet, BOTH routes — the cold route passes `.disabled` analytics by ruling); region resolution falls back to the NEW number-FREE `GLOBAL` region (calm local-emergency line + the verified findahelpline.com pointer; the E5.1 age-gate keeps unmapped→US, byte-frozen); the alcohol withdrawal notice decodes from safetyCopy.json and shows ONCE ever app-wide (both goal modes) as an inline amber card on the dashboard, stamped via `AppSettings.alcoholNoticeShownAt: Date?` (the lapseObservedAt twin; erase-swept); `resources_viewed(source)` fires once per presentation, consent-gated, {settings, slip_flow} ONLY (the notice + age-gate opens are intentionally uninstrumented — R27.4); E9.2's milestones schema + PHRASE-ANCHORED medical-claim lexicon gates are permanent CI (born-green by design; Epic 9 DoD's lexicon row CLOSED). Red evidence = CI `29245297054` (4 designed-failing / 8 issues NAME-FOR-NAME — the 13th consecutive predicted red — + the 2 designed golden shifts / 6 image issues inside the pre-worded 4–8 fold valve) → green `cf75ba6` run `29246823045` ALL-9-JOBS + TestFlight. **Exactly 2 billed runs, ZERO burned, contingency UNUSED — the golden-rides-red maneuver (R27.12) re-recorded the 6 shifted goldens from the red run's own artifact, extracted on Linux (zstd xcresult graph → failure.png payloadRefs → chronological mapping, hash-verified), so the snapshot re-record cost NOTHING.** Session-open operator check: NOTHING required (three-way confirmed; recorded open-to-close). |
+| Phase | Phase 2 — E2–E6 (minus operator device QA) + E7.1/E7.2/E7.3 build-COMPLETE + E8 CLOSED + E9.1/E9.2 DONE; delivery 30/32 (93.75%) |
+| Next session objective | **Session 28: E9.3 accessibility pass — VoiceOver, haptics-only pacer, Dynamic Type max** |
 
-> **What changed in Session 26:** the monetization vertical's BUILD HALF IS
-> DONE. A lapsed user (once the operator's keys are live) meets a 50%-off
-> annual OFFER — at re-entry (once per process, dismissible via "Not now" —
-> an offer never traps; the hard wall and teaser re-present stay close-free)
-> and via an eligible-only settings row. Everything stays dormant-by-
-> construction. Epic 7's remaining DoD is OPERATOR-TIER: the sandbox
-> purchase matrix (now incl. the win-back time-travel row) + the 3.1.1
-> checklist signature. Full ledger: Session 26 in `docs/past-prompts.md`
-> (rulings R26.1–R26.15).
+> **What changed in Session 27:** the SAFETY LAYER is live. A user in a hard
+> moment is one tap from verified helplines on every slip surface and from
+> Settings; an unmapped-region user meets an honest GLOBAL bucket, never US
+> numbers dressed as local; a new alcohol quit (or reduce goal) meets the ONE
+> calm withdrawal caution, once, with "Got it" always first-class. Full
+> ledger: Session 27 in `docs/past-prompts.md` (rulings R27.1–R27.14).
 
 ---
 
@@ -47,36 +44,29 @@
    async SDK call whose result type is not Sendable CANNOT return into a
    @MainActor conformance under strict flags — probe every new SDK-facing
    conformance with a stub-module mockup (sanctioned fix: `@preconcurrency
-   import`, scoped to the sole-importer file). Recorded S26:
-   `WinBackOffer`/`PromotionalOffer`/`PurchaseParams` are Sendable at 5.80.3.
-   (d) **lint anchors admit attributes:** import-anchored grep lints use
-   `^(@[A-Za-z_]+ )*import …` — BOTH the RC and SW anchors now carry it (S26
-   closed the RC gap).
+   import`, scoped to the sole-importer file). (d) **lint anchors admit
+   attributes:** import-anchored grep lints use `^(@[A-Za-z_]+ )*import …`.
 4. **Access-level gate + empirical harness:** scan for private types in
    non-private signatures, and RUN (never just typecheck) a Linux scratch
    harness over the exact shipping bytes of every pure-Foundation/PaywallKit
    API — probe the BOUNDARY, under MULTIPLE HOST TIMEZONES (TZ=UTC minimum;
    the standing set: UTC/Berlin/Kiritimati). JSON pins use JSONSerialization
-   key-SET semantics, never byte/string equality. The free package lane runs
-   `swift test` WITHOUT warnings-as-errors — close the gap pre-push with
-   `swift build --build-tests -Xswiftc -strict-concurrency=complete -Xswiftc
+   key-SET semantics, never byte/string equality (S27 catch: helplines.json
+   nests under a top-level `regions` key — pin the REAL shape, not the
+   remembered one). The free package lane runs `swift test` WITHOUT
+   warnings-as-errors — close the gap pre-push with `swift build
+   --build-tests -Xswiftc -strict-concurrency=complete -Xswiftc
    -warnings-as-errors --package-path Packages/<pkg>` (or the scratch harness
    for app-side pure subsets).
 5. **Docs-check gate:** every Darwin-only / AppIntents / WidgetKit / SF-Symbol /
    third-party member spelling verified against official docs BEFORE code
    (`developer.apple.com/tutorials/data/documentation/<path>.json`; SDK repos'
-   tagged raw source for third-party). Recorded: RC `PeriodType` =
-   normal|intro|trial|prepaid, `.trial` is the ONLY trial gate; `logOut()`
-   THROWS for anonymous users; `cachedCustomerInfo` is the nil-safe peek; RC
-   `configure` alone fires network + persists `$RCAnonymousID`. Superwall
-   (4.16.1): `configure` fetches config + mints identity + can post
-   attribution — NEVER keyless; `reset()` asserts unconfigured AND tracks a
-   network event; variant id = `PaywallInfo.experiment?.variant.id` ONLY;
-   `Assignment` is non-Sendable. NEW (S26): promotional offers =
-   `promotionalOffer(forProductDiscount:product:)` (the `get…` spelling is
-   DEPRECATED) + `purchase(package:promotionalOffer:)`, RC-signed via the
-   uploaded In-App Purchase Key, iOS 13+; `eligibleWinBackOffers` is iOS 18+
-   AND ASC-months-gated — REJECTED for the 7-day cohort (R26.2).
+   tagged raw source for third-party). Recorded S27: `info.circle`/`cross.case`
+   are docs-UNCONFIRMED on this box (⇒ nonexistent); `staryoflife` is a TYPO
+   (`staroflife` is real); the shipped-and-blessed set is the safe palette
+   (`lifepreserver`, `phone.fill`, …). Earlier recordings (RC PeriodType,
+   logOut() throws, cachedCustomerInfo, Superwall configure/reset,
+   promotional-offer spellings) unchanged.
 6. Docs-only commits carry `[skip ci]`; never spawn agent workflows for
    docs-only changes. Critic/reader agents Write findings to scratchpad files
    and return a one-line pointer. **NEVER `git stash` mid-session.** Check the
@@ -88,144 +78,163 @@
    Architect-gated AND needs the MVP §5 row first (mvp.md is OPERATOR-ONLY;
    deviations ride the R24.9 flagged shape — pending ratifications: S25's
    teaser_expiry source + {teaser,hard} labels; S26's mvp §6 in-app-only
-   win-back). **Safety-content needs the PM+Brand+QA joint copy-table
-   sign-off BEFORE code** (E9.1 IS safety content — this gate is Session 27's
-   step-0 core). `widget-state.json` remains a §10 surface; no entitlement /
-   teaser / winback bit enters any pre-unlock file (presence-only Bool
-   ceiling). Scanned string tables must be STRUCTS with STORED NON-OPTIONAL
-   properties (a nil String? child dodges the Mirror lexicon walk).
+   win-back). Safety-content needs the PM+Brand+QA joint copy-table sign-off
+   BEFORE code (executed in-panel; E4.2/S16/S27 precedent). `widget-state.json`
+   remains a §10 surface; no entitlement / teaser / winback bit enters any
+   pre-unlock file (presence-only Bool ceiling). Scanned string tables must be
+   STRUCTS with STORED NON-OPTIONAL properties (a nil String? child dodges the
+   Mirror lexicon walk — and S27: OPTIONAL SECTIONS in scanned tables get
+   `#require`d into the walk, never blind-Mirror'd; a lexicon over sourced
+   material (helpline rows) is a false-positive machine — scan AUTHORED
+   framing only).
 9. **BUDGET REALITY:** there is no zero-billed-run code session; free lanes
    exist, free runs do not. App-lane red evidence = the CI run on the red
    commit; package-lane red is the free local `swift test` (push red+green
    together — cancel-in-progress is FALSE on main, so two pushes = two full
    billed runs). A schema/shared-pass change sweeps the FUNCTION-level blast
    radius of every pin on it. NEW SPM deps land in the GREEN commit, never
-   red (R24.8) — none expected for E9.1/E9.2.
+   red (R24.8). **S27 NEW — the golden-rides-red maneuver (R27.12):** when a
+   green feature must shift existing goldens, land the pixel-affecting bytes
+   in the RED commit so the diffs are predicted red issues, then commit the
+   red run's own failure.png actuals (extract from the artifact xcresult:
+   zstd Data objects → the activity graph's failure payloadRefs, chronological
+   order == the CI log's issue order; hash-exclude old references; eyeball
+   the mapped images) as the green references. Requires the shifted render to
+   be red/green identical by construction. Snapshot-issue counts get a
+   PRE-WORDED fold-variance range when content may clip at AX5.
 
 ## Where we are
 
-- **The M1 loop + the discreet-capable widget suite + a build-COMPLETE
-  DORMANT monetization vertical:** age gate → quiz (slot-3 consent) →
-  summary → dashboard placeholder → panic → slip → undo; five widget
-  families (normal + discreet), per-widget quit binding, one-tap erase incl.
-  OS icon state + the entitlement reset step, the app-switcher shield.
-  E7.1's bundled paywall + E7.2's variant brain + E7.3's win-back
-  (eligibility + surfaces + fires) are all live code, all dormant until the
-  operator's TWO keys (RC first, then Superwall; the win-back additionally
-  needs the ASC promotional offer + the In-App Purchase Key upload — §8).
+- **The M1 loop + the discreet-capable widget suite + a build-COMPLETE DORMANT
+  monetization vertical + THE SAFETY LAYER:** age gate → quiz (slot-3 consent)
+  → summary → dashboard placeholder (now with the once-ever alcohol notice
+  card when an alcohol goal exists) → panic → slip (with the resources link)
+  → undo; five widget families (normal + discreet), per-widget quit binding,
+  one-tap erase incl. OS icon state + the entitlement reset + the notice
+  stamp, the app-switcher shield; the post-gate resources screen one tap from
+  Settings and every slip flow. E7.1/E7.2/E7.3 stay dormant until the
+  operator's keys (§8).
 - **StreakEngine 1.2.0 / WidgetToolkit 1.1.0 / PaywallKit 1.0.0 untouched.**
   purchases-ios 5.80.3 + SuperwallKit 4.16.1 + SnapshotTesting 1.19.3 +
-  TelemetryDeck 2.14.1 all exact-pinned. TestFlight LIVE.
-- Copy status: the §3 founder queue GAINS the 5 winback DRAFT strings + the
-  mvp §6 delivery-surface ratification + the 3.1.1 winback disclosure rider,
-  atop the carried teaser/paywall/settings items. Goldens still deferred to
-  the post-founder-copy batch.
-- An under-17 VERIFIED-helplines resources screen ALREADY EXISTS (E5.1: US
-  988; TR 112 until the operator's ALO-182 check) — E9.1 must rule
-  reuse-vs-new at step-0.
+  TelemetryDeck 2.14.1 all exact-pinned. TestFlight LIVE (Session 27 build).
+- Copy status: the §3 founder queue GAINS the S27 safety items (the 4 notice
+  strings — clinician+counsel emphasized, the resourcesScreen 4 now consumed
+  post-gate, the notMedicalCareDisclaimer REWORD treatment→care, "Support &
+  resources", the GLOBAL emergencyNote incl. the findahelpline.com pointer,
+  the E9.2 audit-checklist signature), atop the carried winback/teaser/
+  paywall/settings items. Goldens still deferred to the post-founder-copy
+  batch (the 6 slip-flow goldens were re-recorded THIS session as part of the
+  link landing — they now show the resources link).
+- **Epic 9 status:** E9.1 + E9.2 build-DONE; the permanent lexicon gates are
+  CI-live. Remaining: E9.3 (accessibility) + the operator sign-offs (helpline
+  number verification, clinician/counsel copy pass, the §7 copy-audit
+  signature, 17+/clinical metadata in ASC).
 
 ## Next session objective (one session, definition of done below)
 
-**Session 27 — E9.1: resources screen + helplines + alcohol notice
-(+E9.2 content-table audit, batchable).** Per plan: region-aware
-`helplines.json`, one tap from Settings and every slip flow; fixed alcohol
-withdrawal-danger notice shown once, calmly. Plan-named tests VERBATIM:
-`test_resources_reachableFromSettingsAndSlipFlow_oneTap`,
-`test_helplines_regionFallbackToGlobal`,
-`test_alcoholNotice_shownOnceOnAlcoholQuitCreation`,
-`test_resourcesViewed_firesWithSource`, `test_helplinesJSON_matchesSchema`;
-E9.2 adds `test_milestonesJSON_matchesSchema` +
-`test_milestoneCopy_containsNoMedicalClaimLexicon` (milestones.json ships
-since S21 — parts may be born-green; the batch decision is step-0's).
+**Session 28 — E9.3: accessibility pass.** Per plan: VoiceOver through
+quiz/panic/slip; haptics-only pacer; Dynamic Type max without truncation.
+Plan-named tests VERBATIM: `test_a11yAudit_quizPanicSlip_noViolations`
+(XCUITest `performAccessibilityAudit`),
+`test_hapticsOnlyPacer_runsWithoutVisualDependency`, snapshot tests at
+`.accessibility5` asserting no truncation on streak + paywall copy.
+Acceptance: MVP §7 accessibility gate green. Deps: E3.2, E4.1, E5.2, E7.2.
 
-0. STEP-0 candidates: (a) **the safety-content gate** (standing rule #8:
-   PM+Brand+QA joint copy-table sign-off BEFORE code — helplines + the
-   alcohol notice ARE safety content; the E4.2 slipCopy precedent); (b)
-   reuse-vs-new: the E5.1 under-17 resources screen already renders verified
-   helplines — does E9.1 extend that surface or mount a sibling? (c)
-   `resources_viewed(source)` value-domain {settings, slip_flow} (mvp §5) —
-   reconcile with the S16 ruling that the AGE-GATE resources surface fires
-   ZERO analytics; (d) the alcohol notice's once-semantics (where does
-   "shown once" persist — a §7 field? the AppSettings exact-set pin sweeps
-   same-commit); (e) the settings mount: DiscreetSettingsView is "discreet
-   toggles + icon picker, NOTHING more" BY RULING (R22.7) — a resources row
-   needs that ruling amended or a different settings surface; (f)
-   helplines.json schema + region-fallback semantics (bundled, ADR-9 — no
-   hot updates).
+0. STEP-0 candidates: (a) **the a11y-audit XCUITest's lane + flake posture** —
+   `performAccessibilityAudit` drives quiz/panic/slip in the UI-smoke lane;
+   scenario-29's quiz hand-off hang is STILL OPEN (deterministic-on-CI, 0-for-2
+   by two mechanisms) so a quiz-driving audit may hit the same wall — the
+   panel must rule the drive path (panic/slip legs are proven drivable — the
+   SlipFlowUITests precedent; the QUIZ leg may need the audit scoped or a
+   pre-worded valve), and safety rule #11 (test-suite §7: a11y tests on
+   safety paths may never be quarantined) constrains the valve design;
+   (b) **the AX5 paywall-copy truncation pin vs the deferred paywall golden
+   batch** (founder copy pass, S17 R5 + R24.1) — reconcile: AX5 snapshot pins
+   on paywall copy would mint goldens the batch policy defers; candidate
+   answers: pin streak surfaces now + defer the paywall half BY NAME, or
+   land text-metric (non-golden) truncation pins; (c) **the haptics-only
+   pacer's SURFACE**: `AppSettings.hapticOnlyBreathPacer` exists (defaulted
+   false) and `BreathPacer`/`LiveHapticsEngine` ship (E3.2), but NO toggle
+   surface exists — DiscreetSettingsView is toggles+icons+resources BY RULING
+   (R22.7 twice-amended); a haptics row needs a THIRD amendment ruling (the
+   a11y-obligation argument mirrors R27.10's compliance-not-creep) or its own
+   surface; (d) VoiceOver LABEL audit scope: identifiers ≠ labels — enumerate
+   the quiz/panic/slip elements needing explicit labels/traits (the S22
+   "Reset" a11y-label precedent); (e) accessory-family Dynamic Type is
+   CLAMPED by the system (S21 recorded) — the AX5 truncation pins scope to
+   home families + in-app surfaces only.
 1. Red first (app-lane, billed): per the panel's manifest.
-2. Green: the surface + data + fires; scope guards: the panic route's
-   thinness is untouched (the slip-flow entry is one tap FROM the slip flow,
-   never inside panic); no §10 change expected.
+2. Green: labels/traits + the pacer option + the AX5 pins; scope guards: the
+   panic route's thinness untouched; no §10 change expected; the frozen
+   scenario-29 stays frozen.
 3. Budget: **2 billed runs + 1 contingency.**
-4. At close: the runway drops to ~2–4 sessions to submission-ready.
+4. At close: Epic 9's build half closes; the runway drops to ~2 sessions
+   (StoreKit-config/contract + E10.2) to submission-ready.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
 1. E0.3 device measurement (`docs/spike-panic-latency.md`) — still the only
-   blocker on the permanent latency gate. **Best done in the ONE consolidated
-   physical sitting on TODAY's build (see §7's new day-counter row).**
-2. E3.3 + E6.2 + E6.3 device matrix rows (operator-expected §7) + the NEW
-   lock-screen day-counter verification row (re-add the "Streak" widget).
-3. Content tone review (§3) — GROWS: the 5 winback DRAFT strings + the mvp
-   §6 delivery-surface ratification + the 3.1.1 winback disclosure rider,
-   plus the carried teaser strings (3), the S25 MVP §5 ratifications, the
-   paywallCopy items (20 strings, REGISTER decision, legal riders), and
-   settings strings/icons/R22.10.
-4. GitHub Actions billing headroom (§4 — Session 26 used exactly 2; zero
+   blocker on the permanent latency gate. Best done in the ONE consolidated
+   physical sitting (§7).
+2. E3.3 + E6.2 + E6.3 device matrix rows (operator-expected §7) + the
+   lock-screen day-counter row + NEW: the S27 safety-layer eyeball rows.
+3. Content tone review (§3) — GROWS: the S27 safety items (see "Copy status"
+   above), plus the carried winback (5), teaser (3), paywallCopy (20 +
+   register decision), settings strings/icons, MVP §5/§6 ratifications, and
+   the 3.1.1 riders.
+4. GitHub Actions billing headroom (§4 — Session 27 used exactly 2; zero
    burned; contingency unused).
-5. TestFlight testers (§5) — carried; extra-timely once E9.1 lands.
+5. TestFlight testers (§5) — carried; the safety layer just landed, which was
+   the recommended bar for distributing an addiction-category beta.
 6. TelemetryDeck app ID (§8) — carried; the last gate on real funnel data.
-7. **§8 keys + config:** the RevenueCat key (the vertical's wake switch) →
-   the Superwall key + dashboard (placement `quiz_completed` + the NEW
-   `winback` placement, two variant paywalls, the price experiment, the
-   variant-id mapping) → **NEW (S26): the ASC promotional offer
-   (pay-up-front / 1 yr / $14.99 on `com.beyondkaira.ballast.annual`, offer
-   id `winback_annual`) + the In-App Purchase Key upload to the RC
-   dashboard** (promo signing). All sequenced at sandbox-matrix time;
-   nothing blocks builds.
+7. **§8 keys + config:** the RevenueCat key → the Superwall key + dashboard →
+   the ASC promotional offer + In-App Purchase Key upload. All sequenced at
+   sandbox-matrix time; nothing blocks builds.
 
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app name
-> **Ballast**, org `com.beyondkaira`). E7.3 is COMPLETE (red evidence
-> `29209285506` — 11/13 manifest-matched name-for-name, the 12th consecutive
-> predicted red; green `2ba3a35` CI `29209801255`; exactly 2 billed runs,
-> zero burned). **Session 27 = E9.1 resources/helplines/alcohol notice
-> (+E9.2 content audit, batchable) — the safety layer.** Local Swift
-> toolchain: `. ~/.local/share/swiftly/env.sh`.
+> **Ballast**, org `com.beyondkaira`). E9.1+E9.2 are COMPLETE (red evidence
+> `29245297054` — 4 designed reds / 8 issues name-for-name, the 13th
+> consecutive predicted red, + 2 designed golden shifts / 6 image issues
+> inside the pre-worded valve; green `cf75ba6` CI `29246823045`; exactly 2
+> billed runs, zero burned — the golden-rides-red maneuver, R27.12).
+> **Session 28 = E9.3 accessibility pass — VoiceOver, haptics-only pacer,
+> Dynamic Type max.** Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`.
 > **Standing gates:** CodeGraph query-first + sync at close; `swiftc -parse`
 > every touched file + neighbor import/annotation coverage + the deprecation
-> gate (docs-UNCONFIRMED spellings are nonexistent — SDK members verify
-> against TAGGED RAW SOURCE; keep the docs-verifier panel seat); the FOUR
-> burn gates (standing rule #3); UIApplication/UIKit app-only APIs never
-> enter Shared/Sources; access-level scan + Linux harness RUN empirically
-> under multiple host timezones (TZ=UTC minimum); JSON pins use key-SET
-> semantics; docs-only commits `[skip ci]`; check the STAGED set before
-> every commit; critics REPRODUCE risky constructs under
+> gate (docs-UNCONFIRMED spellings are nonexistent); the FOUR burn gates
+> (standing rule #3); UIApplication/UIKit app-only APIs never enter
+> Shared/Sources; access-level scan + Linux harness RUN empirically under
+> multiple host timezones (TZ=UTC minimum); JSON pins use key-SET semantics
+> over the REAL file shape; docs-only commits `[skip ci]`; check the STAGED
+> set before every commit; critics REPRODUCE risky constructs under
 > `-strict-concurrency=complete -warnings-as-errors`; NEVER `git stash`;
-> scanned string tables = STRUCTS with STORED NON-OPTIONAL properties; a
-> schema/shared-pass change sweeps FUNCTION-level pin blast radius;
-> `git fetch` + `git log origin/main` before every push; app-lane red
-> evidence = the CI run on the red commit (2 billed runs + 1 contingency);
-> the panic route NEVER queries entitlements/teaser/winback state; no
-> entitlement/teaser/winback bit enters any pre-unlock file; **SAFETY
-> CONTENT (helplines, alcohol notice) needs the PM+Brand+QA joint copy-table
-> sign-off BEFORE code (standing rule #8) — it is this session's step-0
-> core.**
-> READ FIRST: `docs/implementation-plan.md` E9.1+E9.2 rows + Epic 9 DoD, the
-> Session 26 ledger in `docs/past-prompts.md` (R26.1–R26.15), the Session 16
-> ledger (the E5.1 under-17 resources screen — the reuse-vs-new question),
-> `docs/mvp.md` feature 11 + §7 Safety, `docs/architecture.md` §5.1
-> (HelplineDirectory) if present, `docs/test-suite.md` §1/§3 resources
-> scenarios, `App/Sources/` (AgeGate resources surface, DiscreetSettingsView
-> — R22.7's "NOTHING more" ruling needs amending for a resources row),
-> `docs/session-rules.md`, operator-expected §3/§7/§8.
-> **This session:** STEP-0 rulings (a)–(f) → red (app-lane manifest per
+> scanned string tables = STRUCTS with STORED NON-OPTIONAL properties and
+> optional sections get `#require`d into the walk; a schema/shared-pass
+> change sweeps FUNCTION-level pin blast radius; `git fetch` + `git log
+> origin/main` before every push; app-lane red evidence = the CI run on the
+> red commit (2 billed runs + 1 contingency); the panic route NEVER queries
+> entitlements/teaser/winback state; no entitlement/teaser/winback bit enters
+> any pre-unlock file; **a11y tests on safety paths may never be quarantined
+> (test-suite §7 rule 11) — design the audit's drive path and any valve
+> around that constraint at step-0.**
+> READ FIRST: `docs/implementation-plan.md` E9.3 row + Epic 9 DoD, the
+> Session 27 ledger in `docs/past-prompts.md` (R27.1–R27.14 — esp. R27.9's
+> symbol palette, R27.10's compliance-amendment precedent for the haptics
+> toggle, R27.12's golden maneuver if goldens shift), the Session 25 ledger
+> (scenario-29's open hang — the a11y audit's quiz leg faces the same wall),
+> `docs/mvp.md` §7 accessibility rows, `docs/test-suite.md` §1/§3.3/§7
+> (rule 11), `App/Sources/BreathPacer.swift` + `LiveHapticsEngine.swift` +
+> `PanicFlowView.swift` (the pacer seams), `DiscreetSettingsView.swift`
+> (R22.7 twice-amended), `docs/session-rules.md`, operator-expected §3/§7/§8.
+> **This session:** STEP-0 rulings (a)–(e) → red (app-lane manifest per
 > panel) → green → verify → flag operator items. Budget: 2 billed runs + 1
 > contingency.
-> **At session end:** append the Session 27 ledger, overwrite this resume
+> **At session end:** append the Session 28 ledger, overwrite this resume
 > prompt (next per `roadmap.md`), update `docs/operator-expected.md`,
-> `codegraph sync`, commit `[skip ci]`, push, `gh run watch` green.
+> `codegraph sync`, commit `[skip ci]`, push, `gh run watch` green (verify
+> the conclusion via `gh run view --json` — the watcher's exit code lies).
 
 ## Standing rules reminders (do not relearn these)
 
@@ -238,62 +247,65 @@ since S21 — parts may be born-green; the batch decision is step-0's).
 - Analytics ONLY via the closed enum; zero events before opt-in; the widget
   extension can NEVER fire analytics. Wire values: `ballast.monthly`/
   `ballast.annual`; `variant` ∈ {"teaser","hard"}; `source` gains
-  "teaser_expiry" (S25, ratification pending); `offer` = {"winback_annual"}
-  (R26.8, single-member). **purchase fires ONLY on user-initiated PAID
-  (.active) completions — never trials, never restore, NO dedupe (R25.6);
-  a winback conversion co-fires winback_converted BEFORE purchase (R26.7,
-  no mutual exclusion).** winback_shown co-fires with
-  paywall_viewed(source:.winback) once per presentation — the paywall
-  funnel MUST be source-segmented (recorded).
+  "teaser_expiry" (S25, ratification pending); `offer` = {"winback_annual"};
+  `resources_viewed.source` ∈ {"settings","slip_flow"} CLOSED — the notice +
+  age-gate opens are intentionally uninstrumented (R27.4). purchase fires
+  ONLY on user-initiated PAID (.active) completions; winback_converted
+  co-fires BEFORE purchase; winback_shown co-fires with
+  paywall_viewed(source:.winback); the paywall funnel is source-segmented.
 - **Entitlement canon (S23+S24):** the mapper has NO clock; `willRenew`
   pin-ignored; the package persists ZERO bytes; `Product` = {monthly, annual}
   TIER. App-side: present-but-inactive ⇒ `isActive:false` NEVER nil; unknown
   SKU honors an active entitlement; `entitlements.all` is the extraction read.
 - **DORMANT canon (S24–S26):** key absent ⇒ the SDK symbol is never
   referenced at runtime. NEVER call `Purchases.configure` OR
-  `Superwall.configure` without the operator key. The Superwall assigner and
-  the lapse-observation edge are constructed only inside the RC-key branch
-  (the vertical wakes as a unit). The paywall screen is reachable ONLY via
-  the live gate or DEBUG `UITEST_PAYWALL=1|teaser`. `Superwall.reset()` is
-  NOT in the erase order (R25.2).
-- **Teaser canon (S25):** single-use escape; entitled ALWAYS wins; the grant
-  stamp is consent-independent; teaser state lives ONLY in AppSettings;
-  re-entry = the post-gate root's dashboard branch, live-model builds only —
-  E9's dashboard INHERITS `paywallReentry` (binding-on-future-surfaces).
-- **Win-back canon (S26):** eligibility = ANY `.lapsed` + observed-lapse
-  stamp ≥ 7d (vetoable); the stamp writer is nil→set ONLY, from the injected
-  clock, at the live refresh-adoption edge; the presentation is a
-  DISMISSIBLE OFFER (the "Not now" QuietButton — no event on dismiss), once
-  per process at the reentry gate + the eligible-only settings row; the hard
-  wall and teaser re-present stay close-free (R24.9); prices via
-  ProductCatalog constants (`annualWinbackDisplayPrice` "$14.99"), the
-  mechanics line carries discounted AND renewal price (two %@ slots).
+  `Superwall.configure` without the operator key. The paywall screen is
+  reachable ONLY via the live gate or DEBUG `UITEST_PAYWALL=1|teaser`.
+  `Superwall.reset()` is NOT in the erase order (R25.2).
+- **Teaser canon (S25):** single-use escape; entitled ALWAYS wins; teaser
+  state lives ONLY in AppSettings; re-entry = the post-gate root's dashboard
+  branch. **Win-back canon (S26):** eligibility = ANY `.lapsed` + stamp ≥ 7d;
+  dismissible OFFER once per process + the eligible-only settings row; prices
+  via ProductCatalog constants.
+- **Safety canon (S27, NEW):** the resources screen is STORE-FREE by
+  construction (bundled JSON + injected analytics — the cold slip route
+  depends on it); only `verified: true` rows render on ANY user surface (a
+  row joins when the operator flips its flag — ALO 182 still hidden); the
+  GLOBAL region stays NUMBER-FREE (no worldwide crisis number exists; a
+  phone row there would be fabricated); the E5.1 age-gate surface keeps its
+  own funcs, zero-fire + unmapped→US, byte-frozen; the alcohol notice is
+  once-EVER app-wide (both goal modes), inline amber card, "Got it" ≥
+  prominence, stamp at display, erase-swept; helpline rows are NEVER
+  lexicon-scanned (sourced material renders verbatim — rule #12).
 - The consent choice is a DEVICE SETTING; erase resets it OFF. Erase order:
-  rows (sweeps teaserExpiresAt + paywallVariantAssigned + lapseObservedAt) →
-  infallible local clears (incl. the trial dedupe marker) → owned files →
-  widget reload → `resetEntitlement()` → CloudKit purge LAST.
-- No shame copy (lexicons only GROW); no medical claims; no red anywhere;
+  rows (sweeps teaserExpiresAt + paywallVariantAssigned + lapseObservedAt +
+  alcoholNoticeShownAt) → infallible local clears (incl. the trial dedupe
+  marker) → owned files → widget reload → `resetEntitlement()` → CloudKit
+  purge LAST.
+- No shame copy (lexicons only GROW); no medical claims (the milestone gate
+  is PHRASE-ANCHORED — bare experiential vocabulary is sanctioned under
+  "commonly reported" framing); no red anywhere (the notice card is AMBER);
   motivations VERBATIM; the paywall bans countdowns/fake discounts/"one-time
-  offer" (brandkit §6.8) — the winback discount is REAL and stated as fact;
-  prices are NEVER copy-table literals; the hard variant has NO close.
+  offer"; prices are NEVER copy-table literals; the hard variant has NO close.
 - Monotonic fields never decrease; streaks freeze, never inflate (ADR-7); the
   widget floors at Day 1 and runs NO clock guard (ADR-6).
 - WITNESS discipline: three advance paths only; widgets never advance it.
 - Erase discipline: local-first; owned file-set = {panic-snapshot.json, panic
   outcome buffer, widget-state.json} in THREE enumeration sites; zero active
   quits ⇒ widget-state REMOVED (never present-empty); post-erase relaunch =
-  fresh install (entitlements survive BY DESIGN; a fresh teaser day and a
-  fresh winback clock are grantable post-erase — accepted fresh-install
-  semantics).
+  fresh install (entitlements survive BY DESIGN; a fresh teaser day, winback
+  clock and alcohol-notice stamp are all grantable post-erase — accepted
+  fresh-install semantics).
 - Panic path stays thin: panic surfaces NEVER open the store, query
-  entitlements, teaser, OR winback state (the init-order spy pins
-  entitlementModel == nil AND paywallAssigner == nil on the panic route);
-  the widget feed is label-free BY FIELD SET (R1) + presence-only discreet
-  (R22.1); the shield policy is tri-state FAIL-CLOSED.
+  entitlements, teaser, OR winback state; the panic-descended cold slip route
+  constructs NO analytics (its resources open is intentionally unmeasured —
+  R27.11); the widget feed is label-free BY FIELD SET (R1) + presence-only
+  discreet (R22.1); the shield policy is tri-state FAIL-CLOSED.
 - Never weaken a QA assertion; TDD red first; `cloudKitDatabase` stays `.none`
   until the §4.3 flip.
 - Snapshot goldens: light/dark ×5 families ×normal/discreet + AX5 home-only;
-  fixtures dated 2025; `pauseDate` freezes Text tickers; the ONBOARDING +
-  PAYWALL golden batch (incl. teaser + winback variants) waits for the
-  founder copy pass (S17 R5 + R24.1). SnapshotTesting 1.19.3 + TelemetryDeck
-  2.14.1 + purchases-ios 5.80.3 + SuperwallKit 4.16.1 pinned EXACT.
+  fixtures dated 2025 epoch 2026-07-07T12:00:00Z; `pauseDate`/frozen clocks
+  freeze tickers; the ONBOARDING + PAYWALL golden batch waits for the founder
+  copy pass (S17 R5 + R24.1); the SLIP-FLOW goldens now include the resources
+  link (S27 re-record). SnapshotTesting 1.19.3 + TelemetryDeck 2.14.1 +
+  purchases-ios 5.80.3 + SuperwallKit 4.16.1 pinned EXACT.

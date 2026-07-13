@@ -3,7 +3,8 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-12 (**Session 26 CLOSED: E7.3 DONE — Epic 7's BUILD half is now COMPLETE, and the whole monetization vertical stays fully DORMANT until you act.** The win-back: once your keys are live, a user whose trial (or paid plan) lapsed at least 7 days ago meets a calm 50%-off annual OFFER — "Your annual plan, now at half price. / $14.99 for your first year, then $29.99 per year. Cancel anytime." — at most once per app launch on re-entry, always DISMISSIBLE ("Not now" → dashboard; an offer never traps — your hard onboarding wall stays close-free), plus a persistent "See your plan options" row in Settings that only renders while eligible. The 7-day clock is an app-side observed-lapse stamp because we PROVED the alternative doesn't exist: Apple's win-back offers can't go below 1 MONTH and require prior PAID history (your 7-day trial-lapse cohort fails both), and RevenueCat's targeting has no lapse condition — so the discount mechanically rides an **App Store Connect promotional offer** you'll create at sandbox time (§8, NEW block incl. the In-App Purchase Key upload). **Billed runs: exactly the 2 planned, ZERO burned, contingency UNUSED** (the red run matched the panel's 11-test prediction name-for-name — the 12th consecutive). **Your session-open bug report (lock-screen day counter) was TRIAGED, no code change needed: the binary from 2 days ago predates the real widget — see the NEW §7 row (update + re-add the "Streak" widget once, ~2 min).** Your NEW asks: §3 gains 5 winback DRAFT strings + one mvp §6 ratification; §7 gains the day-counter row; §8 gains the promotional-offer block. Six-ish vetoable rulings at the bottom — the any-lapse eligibility and the once-per-launch offer cadence are the two worth your eye. Session 27 = E9.1 safety layer.) |
+| Last updated | 2026-07-13 (**Session 27 CLOSED: E9.1 + E9.2 DONE — the SAFETY LAYER is live in every build.** What that means concretely: a "Support & resources" row now sits at the bottom of Settings, the slip flow's forgiveness screen carries the same one-tap link (both routes — even a panic-descended slip), and both open a calm resources screen showing ONLY operator-verified helplines for the user's region; a user outside your US/TR maps meets an honest GLOBAL fallback — "call your local emergency number" + a pointer to findahelpline.com (a vetted 175+-country directory we live-checked) — never US numbers dressed as local, and NEVER an invented phone number (no legitimate worldwide crisis number exists, so the GLOBAL bucket is deliberately number-free); and the FIRST alcohol quit or reduce goal meets your safetyCopy.json withdrawal caution ONCE ever — a calm amber card on the dashboard, "Got it" always first-class, "See resources" one tap from the danger it names. E9.2's milestones audit is now a PERMANENT CI gate (phrase-anchored medical-claim lexicon + the "commonly reported" framing pinned on all 43 bodies) — the mechanical half of your §7 copy-audit signature is done by machines forever. **Billed runs: exactly the 2 planned, ZERO burned, contingency UNUSED** (the red run matched the panel's prediction name-for-name — the 13th consecutive — including the 6 slip-flow snapshot diffs the new link caused BY DESIGN; those goldens were re-recorded for FREE from the red run's own artifact instead of spending a third run). **Session-open check: NOTHING was required from you, open to close.** Your NEW asks: §3 gains the safety-copy block (the 4 alcohol-notice strings — your clinician+counsel pass is the SHIP gate, one disclaimer REWORD to eyeball, the new "Support & resources" label, and the GLOBAL fallback note incl. the findahelpline.com pointer to verify-or-veto) + the E9.2 audit signature; §7 gains a 2-minute safety-layer eyeball for the consolidated sitting. Vetoable rulings at the bottom — the notice's dashboard-mount gap (a hard-walled non-converter in the LIVE-keys era never reaches the dashboard, so never meets the notice) is the one worth your eye. Session 28 = E9.3 accessibility pass.) |
+| Superseded header (S26) | 2026-07-12 (**Session 26 CLOSED: E7.3 DONE — Epic 7's BUILD half is now COMPLETE, and the whole monetization vertical stays fully DORMANT until you act.** The win-back: once your keys are live, a user whose trial (or paid plan) lapsed at least 7 days ago meets a calm 50%-off annual OFFER — "Your annual plan, now at half price. / $14.99 for your first year, then $29.99 per year. Cancel anytime." — at most once per app launch on re-entry, always DISMISSIBLE ("Not now" → dashboard; an offer never traps — your hard onboarding wall stays close-free), plus a persistent "See your plan options" row in Settings that only renders while eligible. The 7-day clock is an app-side observed-lapse stamp because we PROVED the alternative doesn't exist: Apple's win-back offers can't go below 1 MONTH and require prior PAID history (your 7-day trial-lapse cohort fails both), and RevenueCat's targeting has no lapse condition — so the discount mechanically rides an **App Store Connect promotional offer** you'll create at sandbox time (§8, NEW block incl. the In-App Purchase Key upload). **Billed runs: exactly the 2 planned, ZERO burned, contingency UNUSED** (the red run matched the panel's 11-test prediction name-for-name — the 12th consecutive). **Your session-open bug report (lock-screen day counter) was TRIAGED, no code change needed: the binary from 2 days ago predates the real widget — see the NEW §7 row (update + re-add the "Streak" widget once, ~2 min).** Your NEW asks: §3 gains 5 winback DRAFT strings + one mvp §6 ratification; §7 gains the day-counter row; §8 gains the promotional-offer block. Six-ish vetoable rulings at the bottom — the any-lapse eligibility and the once-per-launch offer cadence are the two worth your eye. Session 27 = E9.1 safety layer.) |
 | Superseded header (S25) | 2026-07-12 (**Session 25 CLOSED: E7.2 DONE — the paywall now has its A/B variant brain, fully DORMANT until you act.** SuperwallKit 4.16.1 is linked (app target only), but with your Superwall key EMPTY (the shipping state) the SDK is literally never initialized — zero network, no identity minted — and every build renders the same hard-wall control paywall as last session; **TestFlight behaves byte-identically.** When you paste BOTH keys (RevenueCat first — the vertical wakes as a unit — then Superwall, the NEW §8 block), Superwall's dashboard decides teaser-vs-hard per install: the teaser arm adds a quiet "look around for a day" escape under the subscribe button (one day of full access, then the wall returns with a calm "your free day wrapped up" line — never a countdown), and the funnel events you'll read A/B results from (`paywall_viewed` with variant + source, `teaser_entered`, `purchase`) all fire only after consent. **Billed runs: 3 — the 2 planned + the contingency, ZERO burned** (the red run matched the panel's 16-test prediction name-for-name, the 11th consecutive; a would-be burn — a Swift concurrency trap in the one Superwall-importing file — was caught by the new standing probe on the free Linux box BEFORE the push; the contingency went to the quiz-funnel smoke's own pre-worded escape valve — it failed its single allowed run, but its new diagnostics finally DISPROVED the old wheel theory: the wheel was set correctly and the tap landed, and the gate→quiz hand-off still hung — a real finding the next diagnosis session starts from, with screenshots preserved in the failed run's artifact). **Your NEW asks: §3 gains 3 DRAFT teaser strings + two MVP §5 vocabulary ratifications, and §8 gains the Superwall key + dashboard block.** Seven-ish vetoable rulings at the bottom — the single-use teaser escape and the teaser-as-24h-duration are the two worth your eye. Session 26 = E7.3 win-back, closing Epic 7's build half.) |
 | Superseded header (S24) | 2026-07-12 (**Session 24 CLOSED: E7.1 APP HALF DONE — the whole monetization vertical now exists in the app, fully DORMANT until you act.** purchases-ios 5.80.3 is linked, but with your RevenueCat key EMPTY (the shipping state) the SDK is literally never initialized — zero network, no anonymous ID minted, and the quiz-summary Continue button still goes straight to the dashboard: **TestFlight behaves byte-identically to last session's build.** When you paste your RC public key (the NEW §8 item), the summary routes non-subscribers to a real paywall screen — $6.99/mo + $29.99/yr with the 3-day trial (the $39.99 test arm waits for Superwall next session), restore + retry always reachable, the Apple-required renewal disclosures rendered on-screen. The trial-start analytics event fires once per install era, only after consent, and one-tap erase now also clears the entitlement caches (honest note: a data wipe can NEVER revoke a subscription — entitlements live on the Apple account, and that is correct behavior, not a gap). **Billed runs: 4 — the planned 2 + the contingency + ONE over, with TWO burned** (§4 has the honest accounting: a one-word Swift concurrency mistake in a NEW test file, then a module-naming collision in the one file that can only compile on Apple hardware — BOTH turned out to be reproducible on the free Linux box after the fact, and both classes are now permanently gated so neither can recur). **Your NEW asks: §3 gains the 20 DRAFT paywall strings + one REAL register decision (your mvp.md's "No server. Nothing to leak." canon was deliberately NOT placed on the RevenueCat-brokered purchase screen — read §3), and §8 gains the RC-key item.** Seven vetoable rulings at the bottom — the hard-wall-no-close and the erase-cannot-revoke rulings are the two worth your eye. Session 25 = E7.2 Superwall variants.) |
 | Superseded header (S23) | 2026-07-12 (**Session 23 CLOSED: E7.1 PACKAGE HALF DONE — the app now has an entitlement BRAIN (PaywallKit 1.0.0), and nothing was needed from you, open to close.** The four-state machine (`never|trial|active|lapsed`) ships pure: no clock (offline can NEVER flip a paying user to locked-out — your architecture's anti-Quittr grace rule, enforced by construction), no persisted bytes (the "cache" is in-memory; RevenueCat's SDK owns durable caching app-side, later), no prices or SKUs (the state machine knows monthly-vs-annual and nothing else). Nothing renders it yet — no paywall screen exists; that is Session 24's job, and it is deliberate (the same package-half-first split your E6.1→E6.2 widget sessions used). **Billed runs: exactly the 1 planned, zero burned, contingency unused** (red evidence was FREE — the local Linux package lane predicted all 11 failing tests / 17 issues issue-for-issue, the 9th consecutive; red+green rode ONE push, CI `29192612869`). **Nothing new is expected from you** — §3 gains no strings (the package has no user-facing surface). One forward heads-up in §8: Session 24 wires RevenueCat DORMANT behind your RC key, exactly like the TelemetryDeck pattern you already know — your RC account + App Store Connect products become blocking only at sandbox-verification time, not for the build. Five vetoable rulings at the bottom; the one worth your eye is the OFFLINE GRACE call: a lapsed-while-offline trial keeps premium until the device next reaches RevenueCat — the direction your docs mandate, but it is a real product call now enforced by tests.) |
@@ -12,23 +13,22 @@
 | Superseded header (S20) | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (Session 27 = E9.1 safety layer:
-helplines/resources + the alcohol notice, +E9.2 content audit batchable —
-no new SDK, no new key; the one gate that session owns is the PM+Brand+QA
-safety-content sign-off, which is agent-panel work, not yours).
+Nothing below blocks the next session (Session 28 = E9.3 accessibility pass:
+VoiceOver + the haptics-only pacer + Dynamic Type — no new SDK, no new key,
+no operator gate; the pacer toggle's settings-surface ruling and the a11y
+audit's drive path are agent-panel work).
 
-> **Runway to launch (updated Session 26, delivery 28/32 = 87.5%).** Build
-> side: **~3–5 agent sessions (median 4) to a submission-ready build** —
-> S27 E9.1 helplines/resources (+E9.2 content audit, batchable) → E9.3
-> accessibility pass → the named StoreKit-config/contract session
+> **Runway to launch (updated Session 27, delivery 30/32 = 93.75%).** Build
+> side: **~2–4 agent sessions (median 3) to a submission-ready build** —
+> S28 E9.3 accessibility pass → the named StoreKit-config/contract session
 > (scenario-29 diagnosis from the preserved artifact + the event-spy sink +
 > the live signed win-back purchase call + the goldens batch — the goldens
 > also need your §3 copy pass FIRST) → E10.2 submission-package prep. E10.1
 > (external beta, ≥15 testers) runs on YOUR clock in parallel — **internal
-> TestFlight is already live** (today's Session 26 build is installable),
-> and external beta needs zero agent sessions strictly, though E9.1's
-> safety layer is strongly recommended before you distribute an
-> addiction-category beta. **Going LIVE is gated on the operator critical
+> TestFlight is already live** (today's Session 27 build is installable),
+> and **the safety layer that was the recommended bar for distributing an
+> addiction-category beta LANDED today** — external beta is unblocked from
+> the build side. **Going LIVE is gated on the operator critical
 > path, not on agent sessions:** the §3 copy pass (gates the golden batch),
 > the two §8 keys + RC/Superwall dashboards + the ASC products + the NEW
 > promotional offer/IAP-key items + the sandbox purchase matrix (gates
@@ -350,6 +350,35 @@ a live failure. Original context, for the record:
 
 ## 3. Content tone review — now fully TestFlight-visible — **+ NEW: E4.2 checklist signature (~15 min)**
 
+- [ ] **NEW (Session 27 — THE SAFETY-COPY BLOCK; your clinician + counsel pass
+      is the SHIP gate, not a build gate):** E9.1 made `safetyCopy.json` FULLY
+      consumed — every string in it now renders in TestFlight builds:
+      (a) the **alcohol withdrawal notice** (title "One thing worth knowing" +
+      body + "See resources" + "Got it") shows once on the first alcohol
+      quit/reduce goal — the panel signed the wording AS-IS (calm, hedged,
+      points to a professional, never says HOW to withdraw), but the file's
+      own `_meta` still says **"DRAFT — needs clinician + counsel sign-off"**
+      and that stays YOURS before public release; (b) the **resourcesScreen**
+      strings (title/intro/footer) now render post-gate too — re-read them in
+      the new context; (c) ONE REWORD to eyeball: `notMedicalCareDisclaimer`
+      lost the word "treatment" → "…not medical or mental-health **care**"
+      (the CI lexicon can't tell an honest negation from a claim; meaning
+      preserved — veto with different wording if counsel prefers);
+      (d) the NEW **"Support & resources"** label (Settings row + slip-flow
+      link, byte-identical) — DRAFT/founder-owned; (e) the NEW **GLOBAL
+      fallback note**: an unmapped-region user reads *"If you're in immediate
+      danger, call your local emergency number. To find a helpline in your
+      country, visit findahelpline.com."* — findahelpline.com is ThroughLine's
+      vetted global directory (we live-verified it); **verify-or-veto the
+      pointer** (removing the sentence is a one-line edit; the GLOBAL bucket
+      itself stays number-free BY RULING — never add a phone row there
+      without an official source, the file's `_meta` says so too).
+- [ ] **NEW (Session 27 — the E9.2 audit signature, ~10 min):** the mvp §7 row
+      "milestones say 'commonly reported'" + the medical-claim scan are now
+      PERMANENT CI (phrase-anchored lexicon; all 43 bodies framing-pinned).
+      Your half is the judgment call a wordlist can't make: read
+      `milestones.json` top to bottom for nuance (the E4.2-signature shape)
+      and record the sign-off by checking this box.
 - [ ] **NEW (Session 26 — E7.3 win-back, 5 DRAFT strings):**
       `paywallCopy.json` gains `winbackOfferLine` ("Your annual plan, now at
       half price."), `winbackMechanicsLineFmt` ("%@ for your first year,
@@ -680,8 +709,15 @@ a live failure. Original context, for the record:
       valve, ZERO burned**. **Session 26 (E7.3 win-back) used EXACTLY the 2
       planned runs — zero burned, contingency UNUSED** (red `29209285506` =
       the 11-test manifest name-for-name, the 12th consecutive predicted
-      red; green `29209801255` all-green + TestFlight). Session 27 (E9.1
-      safety layer) plans **2 billed runs + 1 contingency**; no new SPM dep.
+      red; green `29209801255` all-green + TestFlight). **Session 27 (E9.1
+      + E9.2 safety layer) used EXACTLY the 2 planned runs — zero burned,
+      contingency UNUSED** (red `29245297054` = the 4-test manifest
+      name-for-name + the 2 DESIGNED snapshot shifts, the 13th consecutive
+      predicted red; green `29246823045` all-green + TestFlight; the 6
+      shifted goldens were re-recorded for free from the red run's own
+      artifact — a new standing technique, so a planned golden change no
+      longer costs a third run). Session 28 (E9.3 accessibility) plans
+      **2 billed runs + 1 contingency**; no new SPM dep.
       Check Settings → Billing → spending limit before the session.
 - [ ] Optional, would eliminate the burned-run class entirely: a cheap self-hosted
       macOS runner or a pre-push `xcodebuild -quiet build` step.
@@ -725,6 +761,16 @@ a live failure. Original context, for the record:
 > your bug report. The SECOND physical sitting (sandbox purchase matrix +
 > payload audit) waits for your §8 keys/console work — sequenced, not now.
 
+- [ ] **NEW (Session 27 — the safety-layer eyeball, ~2 min, same sitting):**
+      on the newest build: (a) Settings (gear) → the "Support & resources"
+      row at the bottom → the resources screen shows YOUR region's verified
+      lines (US: 988 first, then SAMHSA/quitline/NAMI; TR: 112 + 171 + 115 —
+      182 stays hidden until your ALO-182 check flips its flag); tap a number
+      row and confirm the dial sheet opens with the number VERBATIM; (b) log
+      a slip → the forgiveness screen carries the same link one tap deep;
+      (c) if you have an alcohol quit (or create a reduce goal for one), the
+      amber "One thing worth knowing" card appears ONCE on the dashboard —
+      "Got it" dismisses forever, "See resources" opens the same screen.
 - [ ] **NEW (Session 26 — YOUR day-counter report, ~2 min):** you reported
       "lock screen day counter not working as of 2 days ago's binary."
       Triage verdict: **not a code bug** — the binary from 2 days ago
@@ -911,6 +957,42 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
 
 ## Decisions on record you can veto (FYI, no action needed)
 
+- **Session 27 (E9.1/E9.2) — the panel-signed rulings, each vetoable
+  (R27.1–R27.14; full grounds in the S27 ledger):**
+  1. **The alcohol notice mounts on the DASHBOARD, once EVER app-wide, both
+     goal modes** (R27.6). The recorded gap worth your eye: in the LIVE-keys
+     era a hard-walled non-converter never reaches the dashboard, so never
+     meets the notice (today, dormant, everyone does). Veto = move it to the
+     quiz summary (its own session — paywall-seam sequencing work).
+  2. **The notice's "See resources" tap fires NO analytics** (R27.4): the
+     `resources_viewed` source domain stays closed {settings, slip_flow};
+     an out-of-domain open is honest-by-omission (the S16 age-gate shape).
+     Veto = an `alcohol_notice` source value, which needs your mvp §5 row
+     first. Same posture: a panic-descended (cold-route) slip's resources
+     open is intentionally unmeasured — the panic path constructs no
+     analytics.
+  3. **The GLOBAL fallback is NUMBER-FREE and applies ONLY to the new
+     post-gate screen** (R27.7): no legitimate worldwide crisis number
+     exists, so the bucket carries calm guidance + the findahelpline.com
+     pointer; the age gate's blocked-minor surface keeps unmapped→US (a
+     verified 988 floor beats an empty bucket for a blocked minor). Veto
+     directions: unify both on GLOBAL (sweeps the S16 pins), or add
+     verified per-country rows as you verify them (flag flips are free).
+  4. **No region picker yet** (R27.7): device-region resolution + the GLOBAL
+     fallback ship; the picker (its `regionPickerLabel` string already
+     ships) waits for a session you request.
+  5. **The resources screen shows ALL verified rows for the region,
+     crisis-first, with NO active-quit filtering** (R27.8): hiding the
+     alcohol line from a vape-quit user is a safety anti-pattern. Veto =
+     category filtering or your-quits-first ordering.
+  6. **Once-shown means once EVER** (R27.5/R27.6): a second alcohol quit
+     never re-shows the notice (the resources screen stays one tap away);
+     one-tap erase sweeps the stamp, so a post-erase fresh install meets it
+     again. Veto = per-quit re-show.
+  7. **The notice card's glyph is `lifepreserver`, amber-tinted** (R27.9):
+     `info.circle` could not be doc-verified from the build box (the
+     standing rule treats unconfirmed spellings as nonexistent). If you
+     verify it in the SF Symbols app and prefer it, the swap is one word.
 - **Session 26 (E7.3) — the panel-signed rulings, each vetoable
   (R26.1–R26.15; full grounds in the S26 ledger):**
   1. **ANY lapse qualifies, not just trial-lapse** (R26.4): the entitlement

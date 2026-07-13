@@ -3872,3 +3872,158 @@ Total: exactly the 2 planned, ZERO burned, contingency UNUSED.
 - Scenario-29 diagnosis + event-spy sink + goldens: unchanged carries (S25).
 - Winback auto-present cadence (once per process) + any-lapse eligibility + the CloudKit
   lapse-stamp mirror: operator-vetoable (R26.4/R26.6/R26.1).
+
+## Session 27 — E9.1 safety layer + E9.2 content audit (2026-07-13)
+
+**Objective (resume prompt v3.9):** E9.1 — resources screen + region-aware helplines +
+alcohol withdrawal notice, one tap from Settings and every slip flow (+E9.2 content-table
+audit, batchable at step-0's discretion); step-0 rulings (a)–(f) with the safety-content
+gate as the core. Budget: 2 billed runs + 1 contingency.
+**Outcome: BOTH DONE in exactly 2 billed runs, ZERO burned, contingency UNUSED.** Red
+evidence = CI run `29245297054` on `bef2f80`: 4 designed-failing unit tests / EXACTLY 8
+issues, manifest-matched NAME-FOR-NAME with each failure's predicted reason verbatim —
+the 13th consecutive harness-predicted red — PLUS the 2 designed logged-stage golden
+shifts / 6 image issues, inside the pre-worded 4–8 fold-variance valve (the AX5 axes of
+`bestAndMomentum` clipped the new link below the fold and passed; all 4 axes of
+`degradedNoBest` diffed). 354 tests / 53 suites otherwise green — the E9.2 gates landed
+born-green exactly as scratch-predicted, zero collateral. Green = `cf75ba6`, run
+`29246823045` ALL-9-JOBS green + TestFlight. Delivery 30/32 = 93.75%.
+**Session-open operator check (the standing user ask): NOTHING was required** — three-way
+confirmed at open: operator-expected's own header pre-cleared Session 27 ("the one gate
+that session owns is the PM+Brand+QA safety-content sign-off, which is agent-panel work,
+not yours"); git clean and local == origin at `4ebf1ff` (no operator commits); the E4.2/
+E5.1/E8.2 precedent line confirms the rule-#8 joint sign-off is executed IN-PANEL with
+strings shipping DRAFT/founder-owned into the operator's §3 queue. Recorded at open, held
+open-to-close.
+
+### The step-0 panel (6 seats + lead arbitration → rulings R27.1–R27.14)
+
+Panel: PM, Architect, QA, Brand, adversarial burn-risk critic (REPRODUCE-not-reason),
+docs-verifier — 6 parallel workflow seats Writing findings to scratchpad files (the S14
+retry-cap lesson held: one-line pointers back, zero deaths). Full seat findings in the
+session scratchpad (SEAT-*.md + RULINGS-R27.md); the rulings:
+
+- **R27.1 — the safety-content gate was satisfied IN-PANEL; no operator action.** Signed
+  AS-IS: the alcoholWithdrawalNotice 4 strings + the resourcesScreen 4 (re-read
+  post-gate). SIGN-WITH-CHANGES: `notMedicalCareDisclaimer` "treatment"→"care" (the
+  substring matcher can't tell an honest negation from a claim; the reword keeps the
+  whole authored table walk-clean — Brand, burn-reproduced). NEW DRAFT: "Support &
+  resources" (ONE canonical label, byte-identical at both entry points). All → §3;
+  clinician+counsel stays the pre-SHIP operator gate.
+- **R27.2 — SIBLING surface + SIBLING pure selection; E5.1 byte-frozen.** New
+  `SafetyResourcesView` (store-free BY CONSTRUCTION — bundled JSON + injected analytics
+  only, which is what lets the cold slip route mount it) + pure
+  `SafetyResourcesSelection`. The verified-only filter REIMPLEMENTED, never promoted —
+  AgeGateResources/AgeGateBlockedView untouched, every S16 pin held with zero collateral.
+- **R27.3 — the fire canon.** `resources_viewed(source)` — case + closed
+  `ResourcesSource {settings, slip_flow}` already existed (E8.1); NO enum change, NO mvp
+  §5 edit. Fire = the `onSummaryAppear` precedent: model-held didFire guard, once per
+  PRESENTATION (a genuine reopen is a genuine second view — deliberately NOT the winback
+  once-per-process guard); source injected by the mount; consent-gated by construction.
+  The S16 reconciliation is STRUCTURAL: the age-gate surface has no analytics seam at
+  all; its zero-fire pin is untouched and an inverse-guard assertion documents the split.
+- **R27.4 — the notice's "See resources" opens the screen and fires NOTHING (vetoable,
+  unanimous).** nil source → skipped fire; the event's scope is documented as
+  {settings, slip_flow}-only so nobody misreads an undercount. Veto path = an
+  `alcohol_notice` source value, which is an mvp §5 ratification FIRST (R24.9 shape).
+- **R27.5 — `AppSettings.alcoholNoticeShownAt: Date?` (§7-approved in-panel, R26.1
+  shape).** The lapseObservedAt twin verbatim: nil=never; ONE writer
+  `recordAlcoholNoticeShown()` (nil→set, injected clock, in the sole SwiftData
+  importer); fetch-only reader. LANDED GREEN (QA: the plan-named red test pins the PURE
+  policy, so no red bytes referenced the field and the AgeGateTests exact-set edit
+  (8→9) rode the same green commit — rule #6 satisfied with zero unpredicted red).
+  Erase = row sweep (born-green) + the WinbackLapseStampTests-shape strengthen pins.
+- **R27.6 — the notice mounts on the DASHBOARD (RootPlaceholderView), once EVER
+  app-wide, both goal modes.** Architect over PM's summary-primary: both creation paths
+  converge at the dashboard; PostGateRootView/paywall seam untouched ⇒ no CTA collision
+  structurally. Presented as an INLINE amber card (Brand-signed; zero sheet contention
+  with the panic mounts), "Got it" ≥ prominence, stamp at display, once-per-process
+  @State latch. HONEST LIMITATION (recorded, vetoable): in the live-keys era a
+  hard-walled non-converter never reaches the dashboard and so never meets the notice;
+  today (dormant) everyone does. PM's summary mount is the recorded veto alternative.
+- **R27.7 — GLOBAL fallback: number-FREE, sibling-only.** The docs-verifier's hard
+  constraint decided the shape: `phoneDisplay`/`dialString` are required non-optional,
+  and ONE bad row nils the ENTIRE directory through `try?` — so a URL-only "Find a
+  Helpline" row CANNOT exist. GLOBAL = displayName + calm emergencyNote (local-emergency
+  line + the verified findahelpline.com pointer — ThroughLine, 175+ countries,
+  live-checked) + `resources: []`. E9.1 resolution: `regions[device] ?? regions["GLOBAL"]`;
+  the E5.1 age-gate keeps unmapped→US (a verified 988 floor for a blocked minor beats an
+  empty bucket). Region PICKER: OUT (vetoable); `regionPickerLabel` stays shipped-unconsumed.
+- **R27.8 — all verified rows for the region, crisis-first, NO active-quit filtering**
+  (safety = availability; hiding the alcohol line from a vape-quit user is a safety
+  anti-pattern). The ordering nicety was CUT per PM's own fence.
+- **R27.9 — NO new SF Symbol.** `info.circle` is docs-UNCONFIRMED on this box (rule #5 ⇒
+  nonexistent); the notice card, rows, links and header all reuse the S16-blessed
+  `lifepreserver`/`phone.fill`. (Docs-verifier also caught: `staryoflife` is a TYPO —
+  the real name is `staroflife`; `cross.case` unconfirmed → banned.)
+- **R27.10 — the SECOND R22.7 amendment:** DiscreetSettingsView gains the UNCONDITIONAL
+  resources row (host-callback `onResourcesRowTap`, the R26.6 shape; "one tap from
+  Settings" is an MVP §7 release-gate row, so this is compliance, not scope creep).
+  Never entitlement-gated (docs-verifier: the safety layer is RC/Superwall-symbol-free).
+  `DiscreetSettingsCopy.resourcesRowLabel` non-optional; floor 9→10. The leak lexicon
+  bans "Quitline"-class labels here — "Support & resources" verified clean empirically.
+- **R27.11 — slip-flow entry: an INTERNAL sheet in SlipFlowView, link on the logged
+  stage** directly after the fact statement (Brand: never on the confirm prompt — support
+  offered while confirming could read as judgment). Identifier `slip.resources.link`.
+  The cold route mounts it unchanged (store-free screen); its analytics seam is
+  route-honest: the store route vends the repository's live gate, the COLD route passes
+  `.disabled` — the panic-descended surface constructs no analytics (recorded refinement;
+  a cold-route resources open is intentionally unmeasured).
+- **R27.12 — THE GOLDEN-RIDES-RED MANEUVER (new house technique).** The lead
+  empirically arbitrated a seat contradiction (QA claimed zero golden risk; the
+  Architect claimed a shift; the goldens render the SHIPPING slipCopy.json — Architect
+  right), then landed the link + copy section IN THE RED COMMIT so the 6 failed axes'
+  own rendered actuals became the green references: extracted ON LINUX from
+  snapshot.xcresult (zstd graph objects → failure.png payloadRefs → chronological
+  mapping to the CI log's issue order → hash-verified against the old references →
+  visually confirmed), committed with green. Logged-stage pixels are red/green identical
+  by construction. ZERO re-record run spent; the budget stayed 2.
+- **R27.13 — E9.2 BATCHED IN as born-green permanent gates** (QA+burncritic+Architect
+  over PM's default-out; PM's fence honored: no production Milestones model — the tests
+  read the shipping JSON). The medical-claim lexicon is PHRASE-ANCHORED — the burn
+  critic REPRODUCED that a naive bare token ("breathing") false-fires on the shipping
+  vape table; in-test positive/negative matcher pins + the foundation floor + the ≥40
+  corpus floor + the 43/43 "commonly reported" framing sub-pin keep the gate
+  non-vacuous. Epic 9 DoD's "banned-lexicon tests permanent in CI" row: CLOSED.
+- **R27.14 — red/green split as run** (4 unit reds / 8 issues + 2 golden tests / 6
+  image issues; field + exact-set edit + stamp pins + copy reword + goldens all green).
+
+### Run accounting (§4-honest)
+- Run 1 — `29245297054` (`bef2f80`): red evidence. Unit lane: 4 designed failures / 8
+  issues name-for-name; snapshot lane: the 2 designed golden tests / 6 image issues
+  (valve range 4–8); all other lanes green.
+- Run 2 — `29246823045` (`cf75ba6`): all flips verified; ALL-9-JOBS green + TestFlight.
+Total: exactly the 2 planned, ZERO burned, contingency UNUSED.
+
+### Process notes (ultracode session)
+- The 6-seat panel ran as ONE parallel workflow (~614k tokens, 6/6 seats returned
+  one-line pointers to scratchpad files — zero StructuredOutput deaths). Two context
+  errors were caught INSIDE the loop: QA corrected the lead's CONTEXT.md floor claim
+  (9, not 27) and the lead empirically overturned QA's no-golden-risk claim — the
+  cross-check pattern (seats verify context; lead verifies seat contradictions with
+  probes) is what kept the manifest exact.
+- The burn critic's probe ledger (8 probes, all RUN): the non-optional-section decode
+  burn (A2 THROWS — takes E5.1's resourcesScreen down with it) and the Mirror
+  nil-child dodge (corpus 10→5) directly shaped R27.1's #require discipline and the
+  optional-section shapes; the planted importer-grep test confirmed the SwiftData lint
+  fires on a non-Persistence importer (the stamp writer went into QuitRepository).
+- Harness discipline: red-mode 31/31 checks ×3 TZ (UTC/Berlin/Kiritimati) under
+  -strict-concurrency=complete -warnings-as-errors over the exact shipping bytes BEFORE
+  the red push (a real bug caught: the schema pin initially missed helplines.json's
+  top-level `regions` nesting); green-mode ALL-PASS ×3 TZ before the green push.
+- xcresult-on-Linux extraction is now a recorded technique (no xcresulttool needed):
+  the Data/ objects are zstd; the activity graph names failure.png payloadRefs with
+  timestamps that map to the CI log's issue order; old-reference hash-exclusion +
+  visual confirmation close the loop.
+
+### Known limitations / carried
+- The live-era notice gap (hard-walled non-converter; R27.6) — vetoable, revisit with
+  the paywall-era sessions or the operator's veto to a summary mount.
+- The cold-route slip resources open fires nothing (R27.11) — intentional, recorded.
+- The region picker stays deferred ("the full resources epic" shipped fallback-only);
+  `regionPickerLabel` remains shipped-but-unconsumed. E9.2's HUMAN audit-checklist
+  signature = operator §3 (the mechanical half is permanent CI now).
+- resources_viewed's scope is {settings, slip_flow} ONLY — the notice + age-gate opens
+  are intentionally uninstrumented (S4 documentation note rides §3).
+- Scenario-29 diagnosis + event-spy sink + the founder-copy golden batch: unchanged
+  carries (S25/S26).
