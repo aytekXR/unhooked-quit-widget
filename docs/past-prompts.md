@@ -4209,3 +4209,167 @@ Total: **5 = 2 planned + 1 contingency + 2 over, 1 burned.**
   announcements: deferred by name.
 - Scenario-29 diagnosis + event-spy sink + the founder-copy golden batch
   (now bundling the R28.13 visual pass): Session 29 / operator-gated.
+
+## Session 29 — the named StoreKit-config/contract session (2026-07-13)
+
+**Objective (resume-prompt v4.1):** scenario-29 diagnosis (artifact-first) + the event-spy
+sink + the live signed win-back purchase call; goldens batch operator-gated. Budget: 2
+billed runs + 1 contingency.
+
+**Outcome: DONE in 3 billed runs = the 2 planned + the contingency, ZERO burned.**
+Scenario-29 DIAGNOSED at zero billed cost from the preserved run 29205964725 artifact and
+RE-LANDED GREEN on its FIRST allowed run (the valve stands unused — a first for this smoke's
+three-session history); the consent-honest DebugEventSpySink + a11y read bridge are LIVE and
+PROVEN (the R25.9 "unproven XCUITest read-path tech" worked first try); the signed win-back
+purchase seam is BUILT dormant + config-declared + parse/contract-pinned, with the LIVE
+signed authorization deferred BY NAME to the operator sandbox tier (§8 IAP key —
+docs-verified unexercisable keyless). The contingency went to a pre-existing panic-smoke
+flake (NOT this session's diff; artifact-diagnosed, drive-hardened — R29.10).
+**Session-open operator check: NOTHING required (three-way confirmed; recorded
+open-to-close).**
+
+### The headline finding — scenario-29's "hang" dissolved by the artifact
+
+Run 29205964725's uismoke.xcresult was parsed RAW on the Linux box (Apple's fileBacked2
+compact token stream — a ~100-line parser: decompress the zstd payload objects, parse the
+`[T`/`[S<len>:`/`K<len>:`/`V<len>:` tokens, walk ActionTestPlanRunSummaries → summaryRef →
+activity tree → payloadRefs; screenshots, AX hierarchies and failure timestamps all
+recoverable without Xcode — NEW HOUSE TECHNIQUE, reused the same day on run 29273795616):
+- **LEG 1 (driven): THERE WAS NO HANG.** The wheel verified at 1990, the gate tap
+  synthesized, and the failure-time AX hierarchy shows the quiz FULLY MOUNTED
+  (quiz.progress "Step 1 of 11", all six habit chips, the disabled Continue) — the
+  `gate-handoff-timed-out` screenshot shows the quiz ON SCREEN. The smoke failed because
+  it waited on `quiz.flow` — a nested `.contain` CONTAINER id that never surfaces to
+  XCUITest (the Session-09 lesson; A11yAuditUITests:214 anchors `quiz.continue` for exactly
+  this reason). ALL THREE of the dead smoke's blocking waits (`quiz.flow`, `summary.card`,
+  `paywall.card`) were non-surfacing container ids.
+- **LEG 2 (seeded): a REAL latent defect, named.** The relaunch sat forever on the
+  circle.dashed placeholder because `RepositoryProvider.startIfNeeded` sets
+  `started = true` BEFORE its do-block and swallows a store-open/recompute throw with NO
+  retry — the terminate→relaunch+UITEST_RESET store race makes the throw likely on the
+  shared CI sim, and `UITEST_SEED_AGE_VERIFIED` sits DOWNSTREAM of the publish (never
+  reached; S25's `debugSeedApplied` fix addressed a different failure and never got its
+  chance).
+- The wheel theory stays dead; both S18+S25 mechanisms are explained by NAMED defects.
+
+### Rulings
+
+- **R29.1 (STEP-0 a):** diagnosis = artifact-first, EXECUTED at zero billed cost (above).
+- **R29.2:** the re-land is a SINGLE DRIVEN LEG on artifact-proven surfacing anchors
+  (quiz.flow→quiz.continue, summary.card→summary.cta, paywall.card→paywall.cta); the
+  seeded fallback is RETIRED (hooks stay landed+inert); the UITEST_QUIZ mount is REJECTED
+  as the smoke's vehicle — lead-verified: the mount composes QuizFlowModel with `.disabled`
+  analytics AND no onComplete, so that path can neither fire the funnel (kills Tail-A) nor
+  reach the summary (kills Tail-B). The driven real-gate leg is the ONLY eachStepFiresEvent
+  carrier. The smoke rode the GREEN run (R28.6 first-run-is-evidence) and PASSED its one
+  allowed run in 45.5s; the pre-worded valve v2 stands in the file header, UNUSED. The
+  paywall is an in-place content branch (not a sheet), so ONE bridge overlay on
+  PostGateRootView's ZStack survives the whole funnel.
+- **R29.3:** the dead `quiz.flow` identifier DELETED app-side (nothing queried it; the
+  `.contain` grouping stays).
+- **R29.4:** the startIfNeeded no-retry is a REAL latent product defect (one transient
+  store-open throw strands a real user on the spinner forever), DEFERRED BY NAME
+  (grow-only, R28.13 shape, in-code comment at the catch): a retry is a §9-owner decision
+  (spin-loop risk on a genuinely broken store; nil must keep reading as "cover" for the
+  §6.3 shield tri-state).
+- **R29.5 (STEP-0 b):** DebugEventSpySink = #if DEBUG @MainActor @Observable final class
+  DECORATING the chosen transport at the ONE composition site
+  (RepositoryProvider.liveRepository), armed ONLY by UITEST_EVENT_SPY=1. Consent-honesty is
+  STRUCTURAL (fire() gates BEFORE sink.receive — the spy carries NO consent read of its
+  own; privacy-binding). Read bridge = a DEBUG+armed 1×1 LEAF overlay (`debug.eventSpy`)
+  whose accessibilityValue is the ordered entry list; entries are wire names + `:N` ordinal
+  for quiz_step_completed ONLY (data minimization — never payload values). App-Group-file
+  bridge REJECTED on zero-persistence grounds. The view reads the spy via
+  `analyticsService.sink as? DebugEventSpySink` (no singleton). MVP §5 motion: NONE (no new
+  event/property/fire site; the §9 privacy-test triad untouched — stated per privacy seat).
+  THE SEQUENCE TRUTH (from pins, not the doc string): the driven vape/quit walk observes
+  quiz_step_completed 3,4,5,6,7,8,9,10,11,13 (slot 12 allowance + slot 2 customName
+  conditional-hidden; slot 1 + onboarding_started gate-swallowed pre-consent) →
+  quiz_completed → paywall_viewed. test-suite.md §1.4 gained the reconciliation note
+  ("1…14" = canonical DOMAIN; the observed sequence is the consent-honest one).
+  quit_created has NO fire site (case pre-wired, unfired) — verified, so nothing else can
+  enter the spy on this drive. E2E asserted EXACTLY this, twice (pre-CTA and post-mount) —
+  green first try.
+- **R29.6 (STEP-0 c):** the LIVE RC-signed promotional-offer purchase is NOT exercisable
+  without ASC keys — docs-verified, two independent blockers: (i) purchases-ios 5.80.3
+  `promotionalOffer(forProductDiscount:product:)` POSTs to RC's /offers endpoint to sign
+  (PurchasesOrchestrator.swift:2111; needs RC configured + network + the operator's IAP
+  key; NO offline/local signing path in the SDK — even RC's own integration tests hit the
+  backend under SKTestSession); (ii) SKTestSession has NO signature-skip member (docs-JSON
+  exhaustively grepped; docs-UNCONFIRMED ⇒ nonexistent) and Apple documents no
+  xcodebuild-scriptable local promo-offer signing. SKTestSession runtime tier NOT ATTEMPTED
+  (rejected as the burn magnet); StoreKitTest never linked. Session-honest deliverables
+  instead: (a) `winback_annual` adHocOffer DECLARED in Ballast.storekit (v3 shape from RC's
+  own Xcode-generated configs: payUpFront / 14.99 / P1Y / 1) + parse-pinned (red = offerID
+  presence only — no Apple schema, #5b caution; green tightened the value pins on the same
+  evidence class as the existing price pins); (b) the app-side signed seam BUILT dormant:
+  RevenueCatPurchaser.purchaseWinback() — discounts.first{offerIdentifier ==
+  winbackOfferID} → promotionalOffer(forProductDiscount:product:) →
+  purchase(package:promotionalOffer:), outcome-mapped exactly like purchase(plan:);
+  PostGateRootView's winback source injects it (one branch; keyless structurally
+  unreachable); (c) the wire-shape contract in Contract_RevenueCat:
+  TestStoreProductDiscount (public test double) + the pinned-SPI `@_spi(Internal)
+  promotionalOffer(withSignedDataIdentifier:...)` round-trips the offer id with zero
+  backend — SPI acceptable ONLY under the exact 5.80.3 pin; (d) all 3
+  monetization-importer-lint anchors extended to admit PARENTHESIZED attributes
+  (`@_spi(Internal) import` would dodge `@[A-Za-z_]+ ` — gates only grow). After this
+  session the ONLY thing between the app and a live signed 50%-off discount is the
+  operator's IAP-key upload — zero further app-side code (PM M3 runway ruling).
+- **R29.7 (STEP-0 d):** budget split as planned (run 1 red / run 2 green / contingency
+  reserved). Drop order was ranked (Track-3 runtime pre-dropped by R29.6 → Track-2 E2E
+  bridge → Track 1 never) and never needed.
+- **R29.8:** the red manifest — 5 designed unit fails / 5 issues, name-for-name (the 15th
+  consecutive predicted red): the winback parse pin + the 4 spy pins (capture /
+  order+format / mixed-phase consent-honesty / bridge join). Red commit = inert seams only;
+  every red REHEARSED empirically on the free box first (the R1 walk RUN over the exact
+  shipping storekit bytes ×3 TZ; the spy shape RUN red→green under -swift-version 6
+  -strict-concurrency=complete -warnings-as-errors — Observation imports clean on Linux).
+- **R29.9 (vetoable):** a missing winback discount on the fetched product (ASC/dashboard
+  drift) fails HONESTLY (.failed → the never-trap retry/restore surface) instead of
+  silently purchasing at FULL price after "half price" copy. One-line change if the
+  operator prefers a full-price fallback.
+- **R29.10 (contingency ruling):** run 2's ONLY red was PanicFlowUITests — a pre-existing
+  safety-path smoke, green ~16 sessions, UNTOUCHED by the diff (the panic path's bytes are
+  behaviorally identical to run 1's, which passed minutes earlier). Artifact-diagnosed via
+  the new parser: the second skip tap SYNTHESIZED cleanly but was SWALLOWED mid
+  step-transition — the failure-time hierarchy still showed the TIMER step, every later
+  wait ran exactly one step behind, and the final tree sat on redirect with the flow
+  healthy (every landed tap advanced correctly). Per §7 rule 11 a flaking safety test
+  halts merges until FIXED — the fix rode the contingency commit: the skip/exit/averted
+  taps gained the S25 wheel discipline (verify the tap took; ONLY when the previous step's
+  title is provably still on screen, ONE bounded re-tap with a screenshot attached — the
+  guard makes double-advance impossible; every assertion byte-unchanged). NEW HOUSE FACT:
+  a synthesized tap landing mid step-transition can be silently swallowed — any
+  multi-step UI drive needs took-verification, not tap-and-hope (the wheel lesson,
+  generalized).
+
+### Run accounting (§4-honest)
+- **Run 1 — 29272338401 (29a0ab8, red):** DESIGNED — unit lane 371 tests / EXACTLY the 5
+  designed issues, name-for-name at the designed assertion sites with the predicted value
+  expansions; snapshot + uismoke + every free lane green. The 15th consecutive
+  harness-predicted red.
+- **Run 2 — 29273795616 (698bff7, green):** all 5 reds FLIPPED (unit 376/376 green);
+  snapshot green; the re-landed scenario-29 smoke PASSED its one allowed run (45.5s —
+  driven gate, full walk, both bridge reads); the ONLY red = the pre-existing
+  PanicFlowUITests swallowed-tap flake (R29.10). TestFlight blocked by the lane. SPENT on
+  designed evidence + the flake's complete diagnosis artifact — not burned.
+- **Run 3 — 29275973732 (f0154ac, contingency):** the R29.10 drive hardening — ALL-GREEN
+  (unit 372/372, snapshot 29/29, PanicFlowUITests green in 26s on the hardened drive,
+  QuizFunnelUITests green AGAIN — its second consecutive first-class pass) + TestFlight
+  uploaded.
+- **Total: 3 = 2 planned + the contingency, ZERO burned.**
+
+### Operator asks (delta)
+- §8's winback block gained the UPDATE paragraph: the app-side signed path is BUILT and
+  key-gated; the standing "open Ballast.storekit once in Xcode 26" rider now also
+  normalizes the new adHocOffers entry; R29.9 rides as the one new vetoable. NO new
+  strings, no new device rows, no new keys, no new §3 items — zero new operator asks.
+
+### Known limitations / carried
+- The LIVE signed authorization + §4.2's StoreKitTest/RC-sandbox runtime tiers stay
+  operator-key-gated (recorded, not a gap).
+- R29.4 startIfNeeded no-retry (latent, defer-by-name, in-code comment).
+- R28.13 a11y-visual debt + the goldens batch: unchanged, operator §3-gated.
+- The 2 default-axis hapticsOnly goldens remain valid-but-stale (S28 carry).
+- Scenario-30 (paywall variant B purchase E2E) remains the deferred purchase-leg E2E —
+  operator sandbox tier.
