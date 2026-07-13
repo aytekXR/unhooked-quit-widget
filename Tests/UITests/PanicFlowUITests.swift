@@ -35,26 +35,53 @@ final class PanicFlowUITests: XCTestCase {
         )
 
         // Every step is skippable; four skips land on the exit states.
+        //
+        // S29 drive hardening (run 29273795616, artifact-diagnosed — R29.10):
+        // a synthesized tap can be SWALLOWED when it lands mid step-transition.
+        // The run-2 flake's failure-time hierarchies prove the class: after the
+        // second skip "succeeded", the app was still ON the timer step, and
+        // every later wait ran exactly one step behind while the flow advanced
+        // correctly on every tap that landed. The drive gains the S25 wheel
+        // discipline — verify the tap TOOK; if the PREVIOUS step is provably
+        // still on screen, ONE bounded re-tap with evidence attached. The
+        // guard makes a double-advance impossible (the re-tap fires only when
+        // the previous title still exists) and every assertion is unchanged.
         let skip = app.buttons["panic.flow.skip"]
+        var previous = "breath"
         for step in ["timer", "reasons", "redirect"] {
             XCTAssertTrue(skip.waitForExistence(timeout: 10), "each step offers its skip affordance")
             skip.tap()
+            if !app.staticTexts["panic.flow.step.\(step).title"].waitForExistence(timeout: 10),
+               app.staticTexts["panic.flow.step.\(previous).title"].exists {
+                attach(app, name: "skip-tap-swallowed-on-\(previous)")
+                skip.tap() // ONE bounded re-tap (the S25 wheel-retry shape)
+            }
             XCTAssertTrue(
                 app.staticTexts["panic.flow.step.\(step).title"].waitForExistence(timeout: 10),
                 "skip must advance to the \(step) step"
             )
+            previous = step
         }
         skip.tap() // redirect → exits
-
         let averted = app.buttons["panic.flow.exit.averted"]
+        if !averted.waitForExistence(timeout: 10),
+           app.staticTexts["panic.flow.step.redirect.title"].exists {
+            attach(app, name: "skip-tap-swallowed-on-redirect")
+            skip.tap() // ONE bounded re-tap
+        }
         XCTAssertTrue(
             averted.waitForExistence(timeout: 10),
             "the exit states must offer 'urge passed' (PRD §6.4 step 5)"
         )
         averted.tap()
 
+        let celebration = app.staticTexts["panic.flow.celebration.copy"]
+        if !celebration.waitForExistence(timeout: 10), averted.exists {
+            attach(app, name: "averted-tap-swallowed-on-exits")
+            averted.tap() // ONE bounded re-tap (same class, same guard)
+        }
         XCTAssertTrue(
-            app.staticTexts["panic.flow.celebration.copy"].waitForExistence(timeout: 10),
+            celebration.waitForExistence(timeout: 10),
             "urge passed must land on the quiet celebration (the averted confirmation copy)"
         )
         XCTAssertFalse(
@@ -62,5 +89,14 @@ final class PanicFlowUITests: XCTestCase {
                 .matching(identifier: "root.placeholder").firstMatch.exists,
             "the whole flow stays inside the panic route — never the normal hierarchy (ADR-6)"
         )
+    }
+
+    /// Stage-boundary screenshot, deleted on success (the S18-owed diagnostic
+    /// shape; fires only when a swallowed-tap retry engages).
+    private func attach(_ app: XCUIApplication, name: String) {
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = name
+        attachment.lifetime = .deleteOnSuccess
+        add(attachment)
     }
 }
