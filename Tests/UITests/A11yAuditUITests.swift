@@ -68,12 +68,14 @@ import XCTest
 /// `waitForExistence` (never a sleep) so every audit is reached deterministically.
 @MainActor
 final class A11yAuditUITests: XCTestCase {
-    /// R28.13 — the in-scope audit classes (all confirmed members EXCEPT the
+    /// R28.13 — the in-scope audit classes: the FULL iOS member set EXCEPT the
     /// three pixel-coupled classes deferred BY NAME with run 29262073722's
-    /// artifact as the finding ledger; see the file header).
+    /// artifact as the finding ledger (see the file header). Per-member PLATFORM
+    /// availability is docs-JSON-verified (the run-29264641853 burn lesson:
+    /// `.action`/`.parentChild` EXIST but are macOS-14-only — existence on the
+    /// type is not availability on the platform; every member below is iOS 17.0).
     private static let auditTypes: XCUIAccessibilityAuditType = [
-        .action, .elementDetection, .hitRegion, .parentChild,
-        .sufficientElementDescription, .trait,
+        .elementDetection, .hitRegion, .sufficientElementDescription, .trait,
     ]
 
     /// SAFETY leg (rule 11 — NEVER quarantined/valved/suppressed). Drives the
