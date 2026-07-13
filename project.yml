@@ -150,6 +150,16 @@ targets:
       # even for an iPhone-only app (upload error 90023 without it). The light 1024
       # is alpha-stripped — the marketing icon must not carry an alpha channel.
       - App/Resources/Assets.xcassets
+      # R30.6 (Session 31): the APP executable's required-reason privacy manifest —
+      # Apple rejects submissions without one (since May 2024). Bundle-ROOT resource
+      # (Copy Bundle Resources lands top-level files at the iOS bundle root, Apple's
+      # required location). Content = the S31 verified per-executable sweep:
+      # UserDefaults [CA92.1 app-standard + 1C8F.1 App-Group] — and the collected-data
+      # half in LOCKSTEP with docs/app-privacy-label.md (R30.4 LIVE rows; re-derives
+      # with the label on any enum/SDK/consent change). The widget .appex carries its
+      # OWN manifest with a DIFFERENT reason set — never share one file across targets.
+      - path: App/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
     dependencies:
       - target: UnhookedWidgets
       - package: StreakEngine
@@ -204,6 +214,17 @@ targets:
     sources:
       - Widgets/Sources
       - Shared/Sources
+      # R30.6 (Session 31): the WIDGET executable's OWN required-reason manifest —
+      # the .appex is a distinct executable and it reaches App-Group UserDefaults
+      # via Shared/PanicLaunchFlag.swift:34 from the extension-side panic intents
+      # (OpenPanicIntent/OpenPanicControlIntent), so the per-executable docs rule
+      # mandates a second PrivacyInfo.xcprivacy here: UserDefaults [1C8F.1] ONLY
+      # (no .standard compiles into this target — CA92.1 must NOT appear), empty
+      # collected-data (the widget can NEVER fire analytics, standing rule). First
+      # resource wired into this target; .appex bundle root, same mechanism as the
+      # app's content files.
+      - path: Widgets/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
     dependencies:
       # E6.2: Shared/Sources now compiles the family views/composer, which import
       # WidgetToolkit (planner/entries) and StreakEngine (the ONE money formula —
