@@ -218,6 +218,27 @@ struct PanicEntryPointTests {
         )
     }
 
+    /// DESIGNED RED (Session 28 manifest R2): the production init's last mile — the
+    /// envelope preference handed to `PanicFlowView(quit:script:source:hapticsOnlyPacer:)`
+    /// must land on the model (the `threadsInjectedSource` pin's shape). RED because
+    /// the red commit's init accepts the parameter but does not thread it (the model
+    /// still constructs with its false default); GREEN passes it through.
+    @Test func test_panicFlowView_threadsHapticsOnlyPacerIntoModel() throws {
+        let script = try #require(
+            PanicScript.loadShipping(),
+            "the shipping panicScript.json must bundle for the production flow init"
+        )
+
+        let view = PanicFlowView(
+            quit: card("Vaping"), script: script, source: .lockscreenWidget, hapticsOnlyPacer: true
+        )
+
+        #expect(
+            view.model.hapticsOnlyPacer == true,
+            "the persisted eyes-free preference must reach PanicFlowModel.hapticsOnlyPacer — an accepted-but-unthreaded parameter leaves every cold launch on the visual pacer"
+        )
+    }
+
     // MARK: - In-app entry (the fourth source)
 
     /// The in-app entry point (E3.3's fourth source — the only one that is NOT a cold

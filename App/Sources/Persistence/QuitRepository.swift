@@ -989,6 +989,26 @@ final class QuitRepository {
         return (try? context.fetch(descriptor).first?.discreetIconId) ?? nil
     }
 
+    /// E9.3 (R28.2) — the ONE writer of `AppSettings.hapticOnlyBreathPacer` (the
+    /// eyes-free pacer preference). The `setDiscreetMode` shape MINUS the widget
+    /// reload: the flag feeds the panic pre-cache ENVELOPE (the cold route renders
+    /// it), never the widget feed — so save → rebuild, no `scheduleWidgetReload()`.
+    /// Fires NO analytics (no MVP §5 row for an accessibility preference).
+    func setHapticOnlyBreathPacer(_ enabled: Bool) throws {
+        let settings = try fetchOrCreateAppSettings()
+        settings.hapticOnlyBreathPacer = enabled
+        try context.save()
+        rebuildSnapshots()
+    }
+
+    /// E9.3 — fetch-only read for the settings toggle's state (the `discreetIconId`
+    /// shape; fail-closed to false — the visual pacer is the default mode).
+    func hapticOnlyBreathPacer() -> Bool {
+        var descriptor = FetchDescriptor<AppSettings>()
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor).first?.hapticOnlyBreathPacer) ?? false
+    }
+
     /// E5.2 — read-only lookup for `onboarding_started`'s variant (R3: read verbatim,
     /// "" until E7/Superwall writes it — E5.2 fabricates nothing). Fetch-only, never
     /// creates the settings row (the fail-closed `isAgeGatePassed` read precedent).

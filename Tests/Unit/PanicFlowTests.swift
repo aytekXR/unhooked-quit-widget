@@ -383,6 +383,60 @@ struct PanicFlowTests {
         #expect(hapticsOnly.model.hapticsOnlyPacer == true)
     }
 
+    /// E9.3 plan-named (DESIGNED RED, Session 28 manifest R3): the eyes-free pacer,
+    /// end to end the way the COLD ROUTE composes it — the preference persisted on the
+    /// pre-cache envelope, read back the way the mount reads it, threaded through the
+    /// PRODUCTION view init — runs with zero visual dependency. RED at the composed
+    /// read (the red commit's production init accepts but does not thread the flag);
+    /// the rhythm sub-asserts are the name's "runs" half and hold at the model tier:
+    /// the FULL shipping 4-7-8×3 pattern is emitted at init while `pacerStartedAt`
+    /// is still nil — no view, no TimelineView, no animation frame ever ran.
+    @Test func test_hapticsOnlyPacer_runsWithoutVisualDependency() throws {
+        // The persisted half: a stamped envelope read back through the store —
+        // exactly the artifact + read the cold mount performs (ADR-6: never SwiftData).
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("e93-snap-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let store = PanicSnapshotStore(directoryURL: directory)
+        try store.write(PanicSnapshot(quits: [card("Vaping")], hapticOnlyBreathPacer: true))
+        let envelope = try #require(store.read(), "a stamped envelope must round-trip")
+        let script = try #require(
+            PanicScript.loadShipping(),
+            "the shipping panicScript.json must bundle for the production flow init"
+        )
+
+        let view = PanicFlowView(
+            quit: envelope.quits.first,
+            script: script,
+            source: .lockscreenWidget,
+            hapticsOnlyPacer: envelope.hapticOnlyBreathPacer ?? false
+        )
+        #expect(
+            view.model.hapticsOnlyPacer == true,
+            "the cold route's composed read (envelope → production init → model) must select the eyes-free pacer"
+        )
+
+        // The runs-without-visual-dependency half (model tier, view-free): the full
+        // rhythm is already emitted while no visual timing source exists.
+        let f = try FlowFixture(quit: card("Vaping"), hapticsOnlyPacer: true)
+        #expect(
+            f.model.pacerStartedAt == nil,
+            "no view .task has run — the rhythm below was produced with zero visual dependency"
+        )
+        #expect(
+            f.haptics.patterns == [BreathPacerPattern(inhale: 4, hold: 7, exhale: 8, rounds: 3)],
+            "the COMPLETE 4-7-8×3 pattern reaches the haptics engine at entry — the eyes-free user gets the whole cadence from taps alone"
+        )
+        f.model.skip()
+        f.model.skip()
+        f.model.skip()
+        f.model.selectRedirect("breathe")
+        #expect(
+            f.haptics.patterns.count == 2,
+            "re-entering the pacer from the redirect menu re-arms the full rhythm, still view-free"
+        )
+    }
+
     // MARK: - Flow steps (plan-named)
 
     @Test func test_panicFlow_everyStepSkippable() throws {
@@ -554,6 +608,10 @@ struct PanicFlowTests {
             "the reasons step is never blank — the fallback ships in the script"
         )
         #expect(script.step(.breath)?.hapticOnlyLabel?.isEmpty == false, "haptics-only mode has its own instruction line")
+        #expect(
+            script.step(.breath)?.instructionNonVisual?.isEmpty == false,
+            "the taps-anchored instruction ships (R28.4) — haptics-only mode must never render 'Follow the circle' with no circle drawn"
+        )
         #expect(script.entryTitleDiscreet == "Take a moment.", "discreet entry carries zero habit context")
         #expect(script.exit("averted")?.confirmation?.isEmpty == false, "the quiet celebration renders the averted confirmation copy")
         #expect(script.exit("slipped")?.routesTo == "slipFlow")

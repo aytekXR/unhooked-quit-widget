@@ -37,6 +37,15 @@ struct PanicSnapshot: Codable, Sendable, Equatable {
 
     var schemaVersion: Int = PanicSnapshot.currentSchemaVersion
     var quits: [QuitSnapshot]
+    // E9.3 additive (R28.2): the device-global eyes-free pacer preference, stamped
+    // ENVELOPE-level (never per-card — it is not a quit attribute) from AppSettings
+    // by the repository rebuild, so the cold panic route selects the haptics-only
+    // pacer without opening the store (ADR-6). Optional under the SAME schemaVersion
+    // (the E4.1 additive rule): a pre-E9.3 cache decodes with it nil and the flow
+    // keeps the visual pacer — never a decode failure on the panic path. §10: a
+    // render-necessary, content-free accessibility Bool — the `discreet` flag's
+    // admissibility class, not an entitlement/teaser/winback bit (R28.2, vetoable).
+    var hapticOnlyBreathPacer: Bool?
 }
 
 /// Reader/writer for `panic-snapshot.json`. Lives in Shared (compiled into both

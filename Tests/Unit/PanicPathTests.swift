@@ -678,4 +678,31 @@ struct PanicPathTests {
         )
         #expect(slipCard.label == "Late-night wine")
     }
+
+    // MARK: - E9.3 · the eyes-free pacer preference channel (R28.2)
+
+    /// DESIGNED RED (Session 28 manifest R1): the ONE writer persists the preference
+    /// and its rebuild stamps the pre-cache ENVELOPE — the cold panic route's only
+    /// legal read source (ADR-6: the store never opens on that path). RED because the
+    /// red commit's rebuild does not stamp the envelope yet (the field decodes nil ⇒
+    /// reads false); GREEN stamps it from AppSettings inside `rebuildPanicSnapshot`.
+    @Test func test_hapticOnlyBreathPacer_stampedIntoPreCacheFromSettings() throws {
+        let h = try Harness()
+        _ = try h.repository.createQuit(habitCategory: .vape)
+
+        try h.repository.setHapticOnlyBreathPacer(true)
+
+        #expect(
+            h.repository.hapticOnlyBreathPacer() == true,
+            "the setter persists the AppSettings field (the discreetIconId read shape)"
+        )
+        let snapshot = try #require(
+            h.panicSnapshotStore.read(),
+            "the setter's rebuild rewrites the pre-cache (an active quit exists)"
+        )
+        #expect(
+            snapshot.hapticOnlyBreathPacer == true,
+            "the setter's rebuild must stamp the eyes-free preference onto the pre-cache envelope — the cold panic route reads ONLY this file (ADR-6), so an unstamped envelope strands the preference in the store"
+        )
+    }
 }

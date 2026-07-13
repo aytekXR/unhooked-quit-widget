@@ -20,6 +20,13 @@ struct PanicScript: Codable, Equatable, Sendable {
         var instruction: String
         var pacer: Pacer?
         var hapticOnlyLabel: String?
+        /// E9.3 (R28.4) — the taps-anchored instruction for surfaces where "Follow
+        /// the circle" is false or unperceivable: rendered as the scaffold line in
+        /// haptics-only mode, and spoken (a11y label) over the visual instruction in
+        /// bloom mode. OPTIONAL for decode tolerance (the additive-field rule): a
+        /// script without it falls back to `instruction` — never a decode failure
+        /// on the panic path.
+        var instructionNonVisual: String?
         var subtext: String?
         var motivationsToken: String?
         var emptyFallback: String?

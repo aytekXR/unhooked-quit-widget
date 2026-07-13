@@ -22,13 +22,14 @@ struct PanicFlowView: View {
 
     /// Production wiring for the cold panic route. E3.3: the launch's TRUE origin
     /// threads in from the pre-frame capture (UnhookedApp → PanicPlaceholderView) or the
-    /// in-app entry — the `.lockscreenWidget` hardcode is dead. `hapticsOnlyPacer` stays
-    /// false until a settings writer exists (the E5+ seam; the store is off-limits on
-    /// this path). E4.1 attaches the REAL slip flow: the mount is driven off
-    /// `model.slipHandoff` (set by `exitSlipped`) through the view's `onChange` seam
-    /// below, so `onSlipRoute` is a required-by-initializer no-op — the routing lives
-    /// in state.
-    init(quit: QuitSnapshot?, script: PanicScript, source: PanicSource) {
+    /// in-app entry — the `.lockscreenWidget` hardcode is dead. E9.3 (R28.2):
+    /// `hapticsOnlyPacer` is the persisted preference read off the pre-cache ENVELOPE
+    /// by the mount (the store stays off-limits on this path — the settings writer
+    /// stamps the envelope so this route never opens SwiftData). E4.1 attaches the
+    /// REAL slip flow: the mount is driven off `model.slipHandoff` (set by
+    /// `exitSlipped`) through the view's `onChange` seam below, so `onSlipRoute` is a
+    /// required-by-initializer no-op — the routing lives in state.
+    init(quit: QuitSnapshot?, script: PanicScript, source: PanicSource, hapticsOnlyPacer: Bool = false) {
         _model = State(initialValue: PanicFlowModel(
             quit: quit,
             script: script,
@@ -168,7 +169,13 @@ private struct BreathStepView: View {
         StepScaffold(
             identifier: "panic.flow.step.breath",
             title: model.entryTitle,
-            instruction: step?.instruction ?? "",
+            // E9.3 (R28.4): in haptics-only mode "Follow the circle" is a literal
+            // falsehood (no circle is drawn) — the taps-anchored line renders
+            // instead, falling back to the visual instruction for a script that
+            // predates the field (decode-tolerant optional).
+            instruction: model.hapticsOnlyPacer
+                ? (step?.instructionNonVisual ?? step?.instruction ?? "")
+                : (step?.instruction ?? ""),
             skipLabel: step?.skipLabel ?? "",
             onSkip: { model.skip() }
         ) {

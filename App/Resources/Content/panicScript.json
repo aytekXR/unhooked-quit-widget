@@ -13,6 +13,7 @@
       "instruction": "Follow the circle. In for 4, hold for 7, out for 8. Three rounds.",
       "pacer": { "inhaleSeconds": 4, "holdSeconds": 7, "exhaleSeconds": 8, "cycles": 3, "hapticGuided": true },
       "hapticOnlyLabel": "Feel the taps — in, hold, out.",
+      "instructionNonVisual": "Breathe with the taps. In for 4, hold for 7, out for 8. Three rounds.",
       "skipLabel": "Skip breathing"
     },
     {
