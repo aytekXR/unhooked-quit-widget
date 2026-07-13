@@ -157,6 +157,16 @@ struct SlipFlowView: View {
                 Text(model.copy.logged.title)
                     .font(.title.weight(.semibold))
                     .multilineTextAlignment(.center)
+                    // R28.13 (runs 29262073722+29265224603, the audit's ONE
+                    // not-human-readable node both times): the terse word+period
+                    // title ("Logged.") classifies as non-natural speech; VO
+                    // speaks the same word without the typographic period —
+                    // MECHANICALLY derived from the visible copy (never new
+                    // authored copy; bare words pass the classifier empirically:
+                    // "Undo", "Skip breathing"). Metadata only — pixels hold.
+                    .accessibilityLabel(
+                        model.copy.logged.title.trimmingCharacters(in: CharacterSet(charactersIn: ".!?"))
+                    )
                     .accessibilityIdentifier("slip.flow.logged")
 
                 Text(loggedBody)
