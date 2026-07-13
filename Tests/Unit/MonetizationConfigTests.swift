@@ -137,5 +137,20 @@ struct MonetizationConfigTests {
             winback != nil,
             "the annual SKU must declare the winback_annual promotional offer — adHocOffers is empty until the green config adds it"
         )
+
+        // GREEN-side tightened value pins (same evidence class as this file's
+        // existing price pins — the v3 entry shape is taken from RC's own
+        // Xcode-generated configs, and the operator's standing "open once in
+        // Xcode 26" rider (§8) normalizes it): pay-up-front, 1 year, $14.99 —
+        // the R26.2 offer, id-for-id and price-for-price with the catalog.
+        if let winback {
+            #expect(winback["paymentMode"] as? String == "payUpFront", "the R26.2 mechanism is Pay Up Front")
+            #expect(winback["subscriptionPeriod"] as? String == "P1Y", "one year")
+            #expect(winback["numberOfPeriods"] as? Int == 1)
+            #expect(
+                "$" + ((winback["displayPrice"] as? String) ?? "") == ProductCatalog.annualWinbackDisplayPrice,
+                "the two config homes agree: the storekit offer price IS the catalog's $14.99, rendered"
+            )
+        }
     }
 }

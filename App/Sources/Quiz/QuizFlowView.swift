@@ -31,8 +31,12 @@ struct QuizFlowView: View {
         }
         .padding(20)
         .onAppear { model.onFirstScreenAppear() }
+        // S29 (R29.3): the container's `.contain` grouping stays (real
+        // VoiceOver structure); its old "quiz.flow" identifier is DELETED —
+        // a nested-container id never surfaces to XCUITest (Session 09), it
+        // trapped the S25 smoke (run 29205964725, artifact-proven), and
+        // nothing queries it. Anchor on quiz.continue / quiz.progress.
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("quiz.flow")
     }
 
     /// Thin visible-progress track (brand/secondary fill on the sunken track).

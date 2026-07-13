@@ -151,6 +151,17 @@ final class RepositoryProvider {
             // repository nil and the placeholder UI standing. The full-screen
             // recovery flow (CloudKit re-hydration → offer erase-and-restart) is a
             // later epic's deliberate feature — nothing to silently retry here.
+            //
+            // S29 (R29.4, LATENT FINDING deferred BY NAME — the R28.13 grow-only
+            // shape): `started = true` is set BEFORE the do-block, so ONE
+            // transient throw here strands the user on the circle.dashed
+            // placeholder for the whole process lifetime with no retry — this is
+            // exactly what run 29205964725's seeded leg recorded on CI (the
+            // terminate→relaunch+UITEST_RESET store race). A retry/recovery is a
+            // §9-owner design decision (a naive retry could spin on a genuinely
+            // broken store, and the nil state must keep reading as "cover" for
+            // the §6.3 shield tri-state) — it rides the recovery-flow epic, not
+            // a StoreKit session.
         }
     }
 
@@ -177,12 +188,22 @@ final class RepositoryProvider {
         // operator drops the TelemetryDeck app ID (operator-expected §8). Zero
         // events before consent, by construction.
         let appID = AnalyticsConfiguration.telemetryDeckAppID
-        let sink: any AnalyticsSink
-        if appID.isEmpty {
-            sink = NoopAnalyticsSink()
-        } else {
-            sink = TelemetryDeckSink(appID: appID)
-        }
+        let transport: any AnalyticsSink = appID.isEmpty
+            ? NoopAnalyticsSink()
+            : TelemetryDeckSink(appID: appID)
+        // S29 (R29.5, the recorded R25.9 design): the consent-honest event spy
+        // DECORATES the chosen transport — armed ONLY by UITEST_EVENT_SPY=1
+        // (an un-armed DEBUG build wires the plain transport, unchanged;
+        // release compiles the branch out). It sits at the SINK tier,
+        // downstream of fire()'s ADR-8 guard, so it can never observe a
+        // swallowed event.
+        #if DEBUG
+        let sink: any AnalyticsSink = DebugEventSpySink.isArmed
+            ? DebugEventSpySink(wrapping: transport)
+            : transport
+        #else
+        let sink = transport
+        #endif
         // The consent closure needs the repository, but the service is a
         // repository constructor arg — the late-bound holder breaks the cycle.
         // Fail-closed default until the reference lands; `isOptedIn` is only ever

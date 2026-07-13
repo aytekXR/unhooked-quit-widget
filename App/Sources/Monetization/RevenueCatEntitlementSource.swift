@@ -139,4 +139,53 @@ enum RevenueCatPurchaser {
             return .failed
         }
     }
+
+    /// S29 (R29.6) — E7.3's named deferral, closed app-side: the SIGNED
+    /// win-back purchase. The ASC promotional offer (`winback_annual`,
+    /// pay-up-front $14.99/1yr on the SAME control annual SKU — R26.2) is
+    /// RC-signed SERVER-side: `promotionalOffer(forProductDiscount:product:)`
+    /// POSTs to RC's /offers endpoint and needs the operator's In-App
+    /// Purchase Key on the RC dashboard (5.80.3
+    /// PurchasesOrchestrator.swift:2111, source-verified; there is no
+    /// offline/local signing path in the SDK — the live authorization stays
+    /// key-gated, §8). Keyless builds never reach here (the live paywall
+    /// path never composes; the DEBUG render injects inert actions).
+    ///
+    /// A missing discount on the fetched product (ASC/dashboard drift) fails
+    /// HONESTLY: after "half price" copy, silently charging full price would
+    /// betray the screen — `.failed` keeps the never-trap surface (retry +
+    /// restore both reachable) instead. Vetoable ruling, recorded S29.
+    static func purchaseWinback() async -> PurchaseOutcome {
+        do {
+            let offerings = try await Purchases.shared.offerings()
+            guard let package = (offerings.current?.availablePackages ?? [])
+                .first(where: { $0.storeProduct.productIdentifier == ProductCatalog.annualSKU })
+            else {
+                return .failed
+            }
+            guard let discount = package.storeProduct.discounts
+                .first(where: { $0.offerIdentifier == ProductCatalog.winbackOfferID })
+            else {
+                return .failed
+            }
+            let signed = try await Purchases.shared.promotionalOffer(
+                forProductDiscount: discount,
+                product: package.storeProduct
+            )
+            let result = try await Purchases.shared.purchase(
+                package: package,
+                promotionalOffer: signed
+            )
+            if result.userCancelled { return .cancelled }
+            return .completed(
+                EntitlementStateMapper.state(
+                    from: RevenueCatEntitlementMapper.snapshot(
+                        from: RevenueCatEntitlementSource.entitlementView(of: result.customerInfo)
+                    )
+                )
+            )
+        } catch {
+            return .failed
+        }
+    }
 }

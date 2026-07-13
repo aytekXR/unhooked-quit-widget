@@ -44,7 +44,15 @@
         },
         {
           "adHocOffers" : [
-
+            {
+              "displayPrice" : "14.99",
+              "internalID" : "BA11A570-0007-4000-8000-000000000007",
+              "numberOfPeriods" : 1,
+              "offerID" : "winback_annual",
+              "paymentMode" : "payUpFront",
+              "referenceName" : "Winback annual 50% (pay up front, 1 year)",
+              "subscriptionPeriod" : "P1Y"
+            }
           ],
           "codeOffers" : [
 

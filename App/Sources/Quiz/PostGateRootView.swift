@@ -74,10 +74,33 @@ struct PostGateRootView: View {
         ZStack {
             content
         }
+        .overlay(alignment: .bottomTrailing) { debugEventSpyBridge }
         .task { makeModelIfNeeded() }
         .onChange(of: provider?.repository == nil) { _, _ in
             makeModelIfNeeded()
         }
+    }
+
+    /// S29 (R29.5) — the event spy's a11y READ bridge: a visually-inert 1×1
+    /// LEAF element (never a `.contain` container — the Session-09 lesson)
+    /// whose accessibilityValue is the spy's ordered wire-name list. It sits
+    /// on the post-gate ZStack, OUTSIDE `content`, so it survives every
+    /// branch of the funnel (quiz → summary → paywall, all in-place content
+    /// swaps). Exists ONLY when the spy env var arms it (DEBUG builds; the
+    /// a11y-audit legs never arm it, so the audits never meet an unlabeled
+    /// stray) — release compiles it out entirely.
+    @ViewBuilder private var debugEventSpyBridge: some View {
+        #if DEBUG
+        if DebugEventSpySink.isArmed,
+           let spy = provider?.repository?.analyticsService.sink as? DebugEventSpySink {
+            Color.clear
+                .frame(width: 1, height: 1)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Debug event spy")
+                .accessibilityValue(spy.accessibilityBridgeValue)
+                .accessibilityIdentifier("debug.eventSpy")
+        }
+        #endif
     }
 
     /// The three-way completion seam (E5.3, Architect Q2) — mirrors the pure
@@ -223,7 +246,14 @@ struct PostGateRootView: View {
             echoAssignment: { try? repository.setPaywallVariantAssigned($0) }
         )
         paywall = PaywallModel(
-            purchase: { await RevenueCatPurchaser.purchase(plan: $0) },
+            // S29 (R29.6): the winback surface purchases through the SIGNED
+            // promotional-offer path (the plan argument is moot — the offer
+            // is always the discounted control annual); every other source
+            // keeps the standard purchase. Keyless builds never compose this
+            // closure (the live path is entitlement-model-gated above).
+            purchase: source == .winback
+                ? { _ in await RevenueCatPurchaser.purchaseWinback() }
+                : { await RevenueCatPurchaser.purchase(plan: $0) },
             restore: { await RevenueCatPurchaser.restore() },
             // E7.3 (R26.7): the win-back presentation co-fires the
             // offer-scoped impression BEFORE the universal one, through the

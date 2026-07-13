@@ -38,22 +38,33 @@ final class DebugEventSpySink: AnalyticsSink {
         self.base = base
     }
 
-    /// RED (S29 designed-inert seam): forwards only — the capture lands with
-    /// the green commit.
+    /// Records the bridge entry, then forwards — capture-then-forward keeps
+    /// the observed order identical to the transport's.
     func receive(_ event: AnalyticsEvent) {
+        capturedEntries.append(Self.entry(for: event))
         base.receive(event)
     }
 
     /// What the hidden bridge element exposes as its `accessibilityValue`:
-    /// the comma-joined entry list. RED: empty until green.
+    /// the comma-joined entry list (format pinned by DebugEventSpyTests).
     var accessibilityBridgeValue: String {
-        ""
+        capturedEntries.joined(separator: ",")
     }
 
     /// The arming read (composition-site + bridge-overlay gate). Inert unless
     /// the UITest launch environment sets it — the S18 `UITEST_RESET` shape.
     static var isArmed: Bool {
         ProcessInfo.processInfo.environment["UITEST_EVENT_SPY"] == "1"
+    }
+
+    /// One entry per fire: the wire name, `:N`-suffixed for quiz_step_completed
+    /// ONLY (the funnel assertion needs order-by-slot; every other payload
+    /// parameter stays out — S29-P1 data minimization).
+    private static func entry(for event: AnalyticsEvent) -> String {
+        if case let .quizStepCompleted(stepNumber) = event {
+            return "\(AnalyticsEventKind.quizStepCompleted.rawValue):\(stepNumber)"
+        }
+        return event.kind.rawValue
     }
 }
 #endif

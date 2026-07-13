@@ -1,6 +1,13 @@
 import Foundation
 import PaywallKit
-import RevenueCat
+// S29: @_spi(Internal) — the winback wire-shape contract constructs a
+// PromotionalOffer WITHOUT the RC backend via the SDK's own SPI
+// (StoreProductDiscount.promotionalOffer(withSignedDataIdentifier:...),
+// 5.80.3 StoreProductDiscount.swift:122). Acceptable ONLY because
+// purchases-ios is exact-pinned at 5.80.3 (SPI cannot drift under the pin);
+// a version bump re-verifies it at this contract tier BY DESIGN. This file
+// stays the lint-allowlisted second importer.
+@_spi(Internal) import RevenueCat
 import Testing
 @testable import Unhooked
 
@@ -117,5 +124,50 @@ struct Contract_RevenueCat {
         for (rc, mirrored) in pairs {
             #expect(RevenueCatEntitlementSource.periodType(from: rc) == mirrored)
         }
+    }
+
+    /// S29 (R29.6) — the winback WIRE-SHAPE contract: a real 5.80.3
+    /// `StoreProductDiscount` minted from the SDK's public test double
+    /// (`TestStoreProductDiscount`, docs "Test Data" — public init +
+    /// `toStoreProductDiscount()`) carries our offer id, and a
+    /// `PromotionalOffer` assembled around it (via the pinned-SPI
+    /// constructor — the same discount+SignedData pair
+    /// `purchase(package:promotionalOffer:)` transmits) round-trips both
+    /// halves. Assumption guarded: the discount RC signs and the discount
+    /// StoreKit applies are keyed by OUR `winback_annual` id, id-for-id
+    /// with ProductCatalog and the Ballast.storekit adHocOffer. Incident
+    /// prevented: an SDK bump renaming `offerIdentifier`/`SignedData`
+    /// members would silently unkey the 50%-off purchase — it must fail
+    /// HERE, not in the operator's sandbox sitting. Zero network, zero
+    /// StoreKit runtime (the SDK signs server-side; the LIVE authorization
+    /// stays key-gated, §8 — born-green contract tier BY DESIGN).
+    @Test func contract_winbackPromotionalOffer_roundTripsOfferIdentifier() throws {
+        let discount = TestStoreProductDiscount(
+            identifier: ProductCatalog.winbackOfferID,
+            price: 14.99,
+            localizedPriceString: "$14.99",
+            paymentMode: .payUpFront,
+            subscriptionPeriod: .init(value: 1, unit: .year),
+            numberOfPeriods: 1,
+            type: .promotional
+        ).toStoreProductDiscount()
+        #expect(
+            discount.offerIdentifier == ProductCatalog.winbackOfferID,
+            "the SDK discount carries our ASC offer id — the key purchaseWinback() matches on"
+        )
+
+        let nonce = try #require(UUID(uuidString: "BA11A570-0008-4000-8000-000000000008"))
+        let offer = discount.promotionalOffer(
+            withSignedDataIdentifier: ProductCatalog.winbackOfferID,
+            keyIdentifier: "CONTRACTKEY",
+            nonce: nonce,
+            signature: "contract-fixture-signature",
+            timestamp: 1_783_425_600
+        )
+        #expect(offer.discount.offerIdentifier == ProductCatalog.winbackOfferID)
+        #expect(
+            offer.signedData.identifier == ProductCatalog.winbackOfferID,
+            "the signed half is keyed by the SAME offer id — one id, two halves, no drift"
+        )
     }
 }
