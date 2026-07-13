@@ -102,4 +102,40 @@ struct MonetizationConfigTests {
         #expect(ProductCatalog.monthlyDisplayPrice == "$6.99")
         #expect(ProductCatalog.annualControlDisplayPrice == "$29.99")
     }
+
+    /// S29 (R29.6, designed-red): the win-back promotional offer is CONFIG —
+    /// the annual control SKU must declare the ASC promotional-offer id the
+    /// app requests and the analytics domain pins (`winback_annual`, R26.8),
+    /// so the local `.storekit` file and the operator's ASC console can never
+    /// drift apart silently. RED: every subscription's `adHocOffers` is `[]`
+    /// until the green config adds the entry. Presence-only pin at red —
+    /// Apple publishes no formal .storekit schema (S24), so the ENTRY's inner
+    /// key spellings are #5b-unconfirmable from docs alone; the green commit
+    /// tightens the value pins (payUpFront / 14.99 / P1Y / 1) on the same
+    /// evidence class as this file's existing price pins, and the operator's
+    /// standing "open once in Xcode 26" rider (§8) now also normalizes this
+    /// entry.
+    @Test func test_storekitConfig_annualSKU_declaresWinbackAnnualPromotionalOffer() throws {
+        let url = try #require(
+            Bundle(for: MonetizationConfigBundleToken.self)
+                .url(forResource: "Ballast", withExtension: "storekit"),
+            "Ballast.storekit must ship as a UnhookedTests resource (never the app bundle)"
+        )
+        let root = try #require(
+            try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+        )
+        let groups = try #require(root["subscriptionGroups"] as? [[String: Any]])
+        let subscriptions = groups.flatMap { $0["subscriptions"] as? [[String: Any]] ?? [] }
+        let annual = try #require(
+            subscriptions.first { $0["productID"] as? String == Self.annualSKU },
+            "the annual control subscription exists (the M8 pin already holds this)"
+        )
+
+        let offers = annual["adHocOffers"] as? [[String: Any]] ?? []
+        let winback = offers.first { $0["offerID"] as? String == ProductCatalog.winbackOfferID }
+        #expect(
+            winback != nil,
+            "the annual SKU must declare the winback_annual promotional offer — adHocOffers is empty until the green config adds it"
+        )
+    }
 }
