@@ -88,7 +88,7 @@ Target ratio: roughly **70 / 20 / 4 / 3 / 3** by test count (unit / integration 
   30. `e2e_paywallVariantB_startTrial_dashboardShowsEntitledState` — through StoreKitTest purchase sheet.
   31. `e2e_panicFromColdLaunchFlag_breath_timer_reasons_redirect_urgeAvertedLogsStat` — the 90-second flow end to end; asserts the user's verbatim onboarding motivation string is rendered in the reasons step.
   32. `e2e_panicExitISlipped_slipFlowTwoTaps_momentumShown_undoAvailable` — slip in ≤2 taps AC + recovery framing screen reached.
-  33. `e2e_voiceOverCompletesQuizPanicAndSlipFlows` — accessibility release criterion driven with `XCUIDevice` accessibility audit APIs (`performAccessibilityAudit`).
+  33. `e2e_voiceOverCompletesQuizPanicAndSlipFlows` — accessibility release criterion driven with the accessibility audit API (`XCUIApplication.performAccessibilityAudit(for:_:)` — the API lives on XCUIApplication, not XCUIDevice; corrected Session 28). *Shipped (E9.3, Session 28) as the per-leg family `test_a11yAudit_{panicFlow,slipFlow,quizFlow}_noViolations` in `Tests/UITests/A11yAuditUITests.swift` — ONE slot (this one); panic/slip legs are §7-rule-11 safety legs; audit scope per R28.13 (grow-only class exclusions, findings ledger = CI run 29262073722's artifact).*
   34. `e2e_discreetModeOn_altIconTimer_noHabitNounAnywhereInUI` — walks every screen with discreet mode enabled asserting the banned-noun list against the accessibility tree.
   35. `e2e_iCloudOffMode_everythingFunctional_eraseAllReturnsToFreshInstall` — MVP feature #13.
   36. `e2e_teaserVariantA_teaserExpiry_paywallRepresentedWithSourceTeaserExpiry` — the A/B's second impression path.

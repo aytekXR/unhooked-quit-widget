@@ -3,7 +3,8 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-13 (**Session 27 CLOSED: E9.1 + E9.2 DONE — the SAFETY LAYER is live in every build.** What that means concretely: a "Support & resources" row now sits at the bottom of Settings, the slip flow's forgiveness screen carries the same one-tap link (both routes — even a panic-descended slip), and both open a calm resources screen showing ONLY operator-verified helplines for the user's region; a user outside your US/TR maps meets an honest GLOBAL fallback — "call your local emergency number" + a pointer to findahelpline.com (a vetted 175+-country directory we live-checked) — never US numbers dressed as local, and NEVER an invented phone number (no legitimate worldwide crisis number exists, so the GLOBAL bucket is deliberately number-free); and the FIRST alcohol quit or reduce goal meets your safetyCopy.json withdrawal caution ONCE ever — a calm amber card on the dashboard, "Got it" always first-class, "See resources" one tap from the danger it names. E9.2's milestones audit is now a PERMANENT CI gate (phrase-anchored medical-claim lexicon + the "commonly reported" framing pinned on all 43 bodies) — the mechanical half of your §7 copy-audit signature is done by machines forever. **Billed runs: exactly the 2 planned, ZERO burned, contingency UNUSED** (the red run matched the panel's prediction name-for-name — the 13th consecutive — including the 6 slip-flow snapshot diffs the new link caused BY DESIGN; those goldens were re-recorded for FREE from the red run's own artifact instead of spending a third run). **Session-open check: NOTHING was required from you, open to close.** Your NEW asks: §3 gains the safety-copy block (the 4 alcohol-notice strings — your clinician+counsel pass is the SHIP gate, one disclaimer REWORD to eyeball, the new "Support & resources" label, and the GLOBAL fallback note incl. the findahelpline.com pointer to verify-or-veto) + the E9.2 audit signature; §7 gains a 2-minute safety-layer eyeball for the consolidated sitting. Vetoable rulings at the bottom — the notice's dashboard-mount gap (a hard-walled non-converter in the LIVE-keys era never reaches the dashboard, so never meets the notice) is the one worth your eye. Session 28 = E9.3 accessibility pass.) |
+| Last updated | 2026-07-13 (**Session 28 CLOSED: E9.3 DONE — the ACCESSIBILITY PASS; Epic 9's build half is COMPLETE.** What that means concretely: a visually-impaired user can now run the entire panic loop EYES-FREE — a new "Breathe with taps" switch in the settings sheet makes the breath pacer haptics-only, and the preference reaches even the cold lock-screen panic launch (the store never opens on that path — the bit rides the same pre-cached file the panic screen already reads); VoiceOver now reads honest labels through quiz, panic, and slip (the commitment slider speaks its WORDS — "Ready to start today" — never "50 percent"; every field/stepper/icon-picker state is named); the breath step gained a taps-anchored instruction because "Follow the circle" was literally false in haptics-only mode; and a PERMANENT runtime accessibility audit now gates every merge (Apple's own audit engine, driven through quiz/panic/slip on CI). The audit's very first run EARNED ITS KEEP: it caught a real broken VoiceOver sentence on the forgiveness screen ("Your momentum is still ." — an empty number slot; fixed, with a new never-dangle composition rule) and an untappable 4pt progress element (fixed). It ALSO enumerated real CONTRAST + TEXT-SCALING violations (your teal buttons and secondary text sit under WCAG on several frames) — those fixes are brand-palette decisions whose golden re-records cascade, so they are deferred BY NAME with the full finding ledger to the a11y-visual/golden-batch session (which already waits on your §3 copy pass — colors+copy+goldens land in ONE re-record). **Billed runs: 5 = the 2 planned + the contingency + 2 over, 1 BURNED** (§4 has the honest accounting: two docs-listed audit options exist only on macOS — the per-platform availability check is now a standing gate; every other run produced designed evidence, incl. two free golden re-records from CI's own artifacts). **Session-open check: NOTHING was required from you, open to close.** Your NEW asks: §3 gains the 4 a11y DRAFT strings (each with alternatives) + two copy niceties the audit surfaced; §7 gains a 2-minute eyes-free/VoiceOver eyeball. Vetoable rulings at the bottom — the DEFERRED CONTRAST findings are the one worth your eye. Session 29 = the StoreKit-config/contract session.) |
+| Superseded header (S27) | 2026-07-13 (**Session 27 CLOSED: E9.1 + E9.2 DONE — the SAFETY LAYER is live in every build.** What that means concretely: a "Support & resources" row now sits at the bottom of Settings, the slip flow's forgiveness screen carries the same one-tap link (both routes — even a panic-descended slip), and both open a calm resources screen showing ONLY operator-verified helplines for the user's region; a user outside your US/TR maps meets an honest GLOBAL fallback — "call your local emergency number" + a pointer to findahelpline.com (a vetted 175+-country directory we live-checked) — never US numbers dressed as local, and NEVER an invented phone number (no legitimate worldwide crisis number exists, so the GLOBAL bucket is deliberately number-free); and the FIRST alcohol quit or reduce goal meets your safetyCopy.json withdrawal caution ONCE ever — a calm amber card on the dashboard, "Got it" always first-class, "See resources" one tap from the danger it names. E9.2's milestones audit is now a PERMANENT CI gate (phrase-anchored medical-claim lexicon + the "commonly reported" framing pinned on all 43 bodies) — the mechanical half of your §7 copy-audit signature is done by machines forever. **Billed runs: exactly the 2 planned, ZERO burned, contingency UNUSED** (the red run matched the panel's prediction name-for-name — the 13th consecutive — including the 6 slip-flow snapshot diffs the new link caused BY DESIGN; those goldens were re-recorded for FREE from the red run's own artifact instead of spending a third run). **Session-open check: NOTHING was required from you, open to close.** Your NEW asks: §3 gains the safety-copy block (the 4 alcohol-notice strings — your clinician+counsel pass is the SHIP gate, one disclaimer REWORD to eyeball, the new "Support & resources" label, and the GLOBAL fallback note incl. the findahelpline.com pointer to verify-or-veto) + the E9.2 audit signature; §7 gains a 2-minute safety-layer eyeball for the consolidated sitting. Vetoable rulings at the bottom — the notice's dashboard-mount gap (a hard-walled non-converter in the LIVE-keys era never reaches the dashboard, so never meets the notice) is the one worth your eye. Session 28 = E9.3 accessibility pass.) |
 | Superseded header (S26) | 2026-07-12 (**Session 26 CLOSED: E7.3 DONE — Epic 7's BUILD half is now COMPLETE, and the whole monetization vertical stays fully DORMANT until you act.** The win-back: once your keys are live, a user whose trial (or paid plan) lapsed at least 7 days ago meets a calm 50%-off annual OFFER — "Your annual plan, now at half price. / $14.99 for your first year, then $29.99 per year. Cancel anytime." — at most once per app launch on re-entry, always DISMISSIBLE ("Not now" → dashboard; an offer never traps — your hard onboarding wall stays close-free), plus a persistent "See your plan options" row in Settings that only renders while eligible. The 7-day clock is an app-side observed-lapse stamp because we PROVED the alternative doesn't exist: Apple's win-back offers can't go below 1 MONTH and require prior PAID history (your 7-day trial-lapse cohort fails both), and RevenueCat's targeting has no lapse condition — so the discount mechanically rides an **App Store Connect promotional offer** you'll create at sandbox time (§8, NEW block incl. the In-App Purchase Key upload). **Billed runs: exactly the 2 planned, ZERO burned, contingency UNUSED** (the red run matched the panel's 11-test prediction name-for-name — the 12th consecutive). **Your session-open bug report (lock-screen day counter) was TRIAGED, no code change needed: the binary from 2 days ago predates the real widget — see the NEW §7 row (update + re-add the "Streak" widget once, ~2 min).** Your NEW asks: §3 gains 5 winback DRAFT strings + one mvp §6 ratification; §7 gains the day-counter row; §8 gains the promotional-offer block. Six-ish vetoable rulings at the bottom — the any-lapse eligibility and the once-per-launch offer cadence are the two worth your eye. Session 27 = E9.1 safety layer.) |
 | Superseded header (S25) | 2026-07-12 (**Session 25 CLOSED: E7.2 DONE — the paywall now has its A/B variant brain, fully DORMANT until you act.** SuperwallKit 4.16.1 is linked (app target only), but with your Superwall key EMPTY (the shipping state) the SDK is literally never initialized — zero network, no identity minted — and every build renders the same hard-wall control paywall as last session; **TestFlight behaves byte-identically.** When you paste BOTH keys (RevenueCat first — the vertical wakes as a unit — then Superwall, the NEW §8 block), Superwall's dashboard decides teaser-vs-hard per install: the teaser arm adds a quiet "look around for a day" escape under the subscribe button (one day of full access, then the wall returns with a calm "your free day wrapped up" line — never a countdown), and the funnel events you'll read A/B results from (`paywall_viewed` with variant + source, `teaser_entered`, `purchase`) all fire only after consent. **Billed runs: 3 — the 2 planned + the contingency, ZERO burned** (the red run matched the panel's 16-test prediction name-for-name, the 11th consecutive; a would-be burn — a Swift concurrency trap in the one Superwall-importing file — was caught by the new standing probe on the free Linux box BEFORE the push; the contingency went to the quiz-funnel smoke's own pre-worded escape valve — it failed its single allowed run, but its new diagnostics finally DISPROVED the old wheel theory: the wheel was set correctly and the tap landed, and the gate→quiz hand-off still hung — a real finding the next diagnosis session starts from, with screenshots preserved in the failed run's artifact). **Your NEW asks: §3 gains 3 DRAFT teaser strings + two MVP §5 vocabulary ratifications, and §8 gains the Superwall key + dashboard block.** Seven-ish vetoable rulings at the bottom — the single-use teaser escape and the teaser-as-24h-duration are the two worth your eye. Session 26 = E7.3 win-back, closing Epic 7's build half.) |
 | Superseded header (S24) | 2026-07-12 (**Session 24 CLOSED: E7.1 APP HALF DONE — the whole monetization vertical now exists in the app, fully DORMANT until you act.** purchases-ios 5.80.3 is linked, but with your RevenueCat key EMPTY (the shipping state) the SDK is literally never initialized — zero network, no anonymous ID minted, and the quiz-summary Continue button still goes straight to the dashboard: **TestFlight behaves byte-identically to last session's build.** When you paste your RC public key (the NEW §8 item), the summary routes non-subscribers to a real paywall screen — $6.99/mo + $29.99/yr with the 3-day trial (the $39.99 test arm waits for Superwall next session), restore + retry always reachable, the Apple-required renewal disclosures rendered on-screen. The trial-start analytics event fires once per install era, only after consent, and one-tap erase now also clears the entitlement caches (honest note: a data wipe can NEVER revoke a subscription — entitlements live on the Apple account, and that is correct behavior, not a gap). **Billed runs: 4 — the planned 2 + the contingency + ONE over, with TWO burned** (§4 has the honest accounting: a one-word Swift concurrency mistake in a NEW test file, then a module-naming collision in the one file that can only compile on Apple hardware — BOTH turned out to be reproducible on the free Linux box after the fact, and both classes are now permanently gated so neither can recur). **Your NEW asks: §3 gains the 20 DRAFT paywall strings + one REAL register decision (your mvp.md's "No server. Nothing to leak." canon was deliberately NOT placed on the RevenueCat-brokered purchase screen — read §3), and §8 gains the RC-key item.** Seven vetoable rulings at the bottom — the hard-wall-no-close and the erase-cannot-revoke rulings are the two worth your eye. Session 25 = E7.2 Superwall variants.) |
@@ -13,14 +14,16 @@
 | Superseded header (S20) | 2026-07-12 (**Session 20 CLOSED: E6.1 widget timeline provider DONE — 1 billed run, zero burned.** WidgetToolkit stopped being a stub: it now owns the streak timeline planner (day rollover at local midnight, stale-grace, ticking counters). **Nothing was needed from you, open to close — and nothing new blocks Session 21.** Two things worth your eye, both below: (1) §4 — the "possibly ZERO billed runs" hope from the last close was WRONG and is struck; there is no such thing as a free code session. (2) The **NEW ADR-11 day rule** in the veto list: your widget will say "Day 2" the morning after someone quits on Tuesday night — not 24 hours later. That is a product decision and it is now binding on the dashboard too. Session 21 = E6.2, which finally makes a real widget render on the lock screen.) |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. It is TRACKED (in `docs/`) so the operator can read it anywhere on the go. The untracked root `OPERATOR-TODO.md` is now just a pointer here. |
 
-Nothing below blocks the next session (Session 28 = E9.3 accessibility pass:
-VoiceOver + the haptics-only pacer + Dynamic Type — no new SDK, no new key,
-no operator gate; the pacer toggle's settings-surface ruling and the a11y
-audit's drive path are agent-panel work).
+Nothing below blocks the next session (Session 29 = the named
+StoreKit-config/contract session: scenario-29 diagnosis from the preserved
+S25 artifact + the debug event-spy sink + the live signed win-back purchase
+call against the local StoreKit test config — no new SDK, no new key, no
+operator gate; the goldens batch is NOT in it because it waits on your §3
+copy pass).
 
-> **Runway to launch (updated Session 27, delivery 30/32 = 93.75%).** Build
-> side: **~2–4 agent sessions (median 3) to a submission-ready build** —
-> S28 E9.3 accessibility pass → the named StoreKit-config/contract session
+> **Runway to launch (updated Session 28, delivery 31/32 = 96.9%).** Build
+> side: **~1–3 agent sessions (median 2) to a submission-ready build** —
+> the named StoreKit-config/contract session
 > (scenario-29 diagnosis from the preserved artifact + the event-spy sink +
 > the live signed win-back purchase call + the goldens batch — the goldens
 > also need your §3 copy pass FIRST) → E10.2 submission-package prep. E10.1
@@ -350,6 +353,26 @@ a live failure. Original context, for the record:
 
 ## 3. Content tone review — now fully TestFlight-visible — **+ NEW: E4.2 checklist signature (~15 min)**
 
+- [ ] **NEW (Session 28 — THE A11Y-COPY BLOCK, 4 DRAFT strings + 2 niceties,
+      ~10 min):** (a) the settings toggle label **"Breathe with taps"**
+      (alternatives on record: "Eyes-free breathing" / "Haptic breath
+      guide") + its footer **"The breathing exercise guides you with gentle
+      taps, so you can follow it with the screen off or your eyes
+      closed."** (2 alts recorded) — the panel's one binding condition:
+      never frame the mode as an accessibility accommodation (it is
+      first-class, eyes-free-for-anyone; brandkit §8); (b) the taps-anchored
+      breath instruction **"Breathe with the taps. In for 4, hold for 7,
+      out for 8. Three rounds."** (2 alts recorded) — it renders INSTEAD of
+      "Follow the circle…" in haptics-only mode (where no circle is drawn)
+      and is what VoiceOver speaks over the visual pacer; PANIC-PATH copy,
+      so your clinician+counsel pass is its ship gate too; the shipping
+      "Feel the taps — in, hold, out." stands verbatim; (c) TWO copy
+      niceties the audit/goldens surfaced, yours to keep-or-fix with the
+      copy pass: the panic entry title "Let's take this one wave at a
+      time." TRUNCATES at max Dynamic Type ("Let's take t…" — pinned by the
+      existing goldens; a shorter title fixes it), and the degraded slip
+      path shows "Logged." twice (title + body echo).
+
 - [ ] **NEW (Session 27 — THE SAFETY-COPY BLOCK; your clinician + counsel pass
       is the SHIP gate, not a build gate):** E9.1 made `safetyCopy.json` FULLY
       consumed — every string in it now renders in TestFlight builds:
@@ -601,6 +624,20 @@ a live failure. Original context, for the record:
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
+- [ ] Session 28 (E9.3 a11y) used **5** billed runs = the 2 planned + the
+      contingency + 2 over, **1 BURNED**: run 3 hit a TEST-BUILD failure
+      because two docs-listed audit-scope options (`.action`,
+      `.parentChild`) exist ONLY on macOS — docs-confirmed existence is not
+      platform availability, and the per-member `platforms` check is now a
+      standing gate (#5b). Every other run produced designed evidence: run
+      1 = the red manifest name-for-name (verbatim failure strings, the
+      14th consecutive); run 2 = all flips + the audit family's first
+      execution (its complete finding ledger — two real defects fixed, the
+      contrast/text-scaling debt enumerated); run 4 = the repaired audits
+      green (panic+quiz) + the 4 degraded-slip goldens re-recorded by CI
+      itself; run 5 = all-green + TestFlight. Two golden re-record batches
+      this session cost ZERO extra runs (extracted from CI's own artifacts).
+
 - [ ] Session 15 used **3** billed macOS runs (**1 burned**: a new test file was
       missing an import — TEST BUILD FAILED with no red evidence; the gate that
       closes this class is now standing rule #2 in the resume prompt). Session 16
@@ -761,6 +798,18 @@ a live failure. Original context, for the record:
 > your bug report. The SECOND physical sitting (sandbox purchase matrix +
 > payload audit) waits for your §8 keys/console work — sequenced, not now.
 
+- [ ] **NEW (Session 28 — the eyes-free/VoiceOver eyeball, ~2 min, same
+      sitting):** on the newest build: (a) Settings (gear) → toggle
+      **"Breathe with taps"** ON → lock the phone → hit the lock-screen
+      panic button → the breath step shows the hand-tap glyph + "Breathe
+      with the taps…" instead of the circle, and the 4-7-8 rhythm arrives
+      as TAPS you can follow with your eyes shut (this is the part no
+      simulator can verify — the haptic pattern's feel is yours to judge;
+      its correctness is device-test 40, also carried here); (b) toggle it
+      back OFF → the visual bloom returns; (c) with VoiceOver on, swipe
+      through one quiz step, the panic steps, and a slip log — every
+      control should announce a sensible name (the commitment slider says
+      its WORDS, the icon picker says which icon is selected).
 - [ ] **NEW (Session 27 — the safety-layer eyeball, ~2 min, same sitting):**
       on the newest build: (a) Settings (gear) → the "Support & resources"
       row at the bottom → the resources screen shows YOUR region's verified
@@ -956,6 +1005,44 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
 ---
 
 ## Decisions on record you can veto (FYI, no action needed)
+
+- **Session 28 (E9.3) — the panel-signed rulings, each vetoable
+  (R28.1–R28.13; full grounds in the S28 ledger):**
+  1. **THE ONE WORTH YOUR EYE — the deferred contrast/text-scaling findings
+     (R28.13):** Apple's audit measured sub-WCAG contrast on the panic
+     skip + "I slipped" buttons, the slip confirm-cancel/undo, several
+     secondary texts, and the disabled quiz Continue (white on faint teal
+     ≈1.3:1), plus text that clips under large type on the redirect
+     options/skip/confirm subtext. Every finding is preserved in run
+     29262073722's CI artifact. The fixes are BRAND decisions (a darker
+     teal / stronger secondary) whose golden re-records cascade, so they
+     ride the a11y-visual/golden-batch session WITH your copy pass. The
+     audit classes stay excluded IN-CODE (grow-only, documented) until
+     then — the app ships today with those violations, dormant-monetization
+     era, pre-external-beta. Veto = pull the visual pass forward as its own
+     session.
+  2. **The eyes-free preference rides the panic pre-cache file (R28.2):** a
+     render-necessary, content-free accessibility Bool joins the same
+     pre-unlock-readable file the panic screen already reads (the discreet
+     flag's admissibility class; presence-only, stamped only when ON). The
+     panic route still never opens the store. Veto = an app-group
+     UserDefaults key instead (more moving parts, same exposure).
+  3. **The toggle lives on the Discreet Mode screen (R28.3, the THIRD
+     R22.7 amendment)** — one settings sheet, universally framed
+     ("eyes-free for anyone", never an accommodation). Veto = its own
+     settings surface.
+  4. **The audit family is split per-leg under the plan's single name
+     (R28.6):** panic/slip legs can never be quarantined (rule 11); the
+     quiz leg carries a pre-worded valve; the quiz mount is a DEBUG-only
+     direct mount that bypasses the age-gate SCREEN in the test lane only
+     (the gate's un-bypassability stays unit-pinned).
+  5. **"Logged." speaks as "Logged" to VoiceOver (R28.13):** the audit's
+     classifier rejects terse word+period labels; the visible title is
+     untouched (it is your copy). Veto = retitle in the copy pass.
+  6. **Two stale-within-tolerance goldens (R28.4/R27.12):** the default-size
+     haptics-only goldens still depict "Follow the circle…" within the 1%
+     pixel tolerance; they re-record free with the next touch of that
+     family.
 
 - **Session 27 (E9.1/E9.2) — the panel-signed rulings, each vetoable
   (R27.1–R27.14; full grounds in the S27 ledger):**

@@ -4027,3 +4027,185 @@ Total: exactly the 2 planned, ZERO burned, contingency UNUSED.
   are intentionally uninstrumented (S4 documentation note rides §3).
 - Scenario-29 diagnosis + event-spy sink + the founder-copy golden batch: unchanged
   carries (S25/S26).
+
+## Session 28 — E9.3: accessibility pass (2026-07-13)
+
+**Objective (resume prompt v4.0):** E9.3 — VoiceOver through quiz/panic/slip;
+haptics-only pacer; Dynamic Type max without truncation; plan-named tests
+VERBATIM; step-0 rulings (a)–(e). Budget: 2 billed runs + 1 contingency.
+**Outcome: DONE in 5 billed runs = the 2 planned + the contingency + 2 over,
+1 BURNED** (the S24 honest-accounting shape; every non-burned run produced
+designed evidence, and BOTH golden re-record batches were extracted FREE from
+CI's own artifacts — R27.12 executed twice). Red evidence = CI `29259860083`
+on `46d9ca2`: **unit lane 3 designed-failing / 3 issues NAME-FOR-NAME with
+each predicted failure string VERBATIM — the 14th consecutive
+harness-predicted red**; 364/55 otherwise green (the born-green panic-script
+lexicon gate + decode strengthen passed exactly as scratch-predicted, zero
+collateral). The designed golden family (snapshot_breathStep_hapticsOnly)
+failed with **2 image issues — BELOW the pre-worded 3–4 valve, by the INVERSE
+mechanism**: the AX5 axes diffed (0.98 perceptual floor) while the DEFAULT
+axes passed WITHIN the 1%/0.98 tolerance. NEW HOUSE FACT: a small visible
+text change may not fire default-size axes at all — calibrate golden-shift
+valves on the TOLERANCE FLOOR, not only fold-clipping. Green arc: `4bc8829`
+(flips + toggle + labels + audit family) → `b80c33d` (R28.13 contingency) →
+`2346cba` (burn repair) → `3b6d692` (golden adoption + the title label) →
+run `29267286952` ALL-GREEN + TestFlight. **Session-open operator check (the
+standing user ask): NOTHING required — three-way confirmed at open**
+(operator-expected's header pre-cleared Session 28; git clean, local ==
+origin at `13df12e`; the open rulings were agent-panel work). Recorded at
+open, held open-to-close. Delivery 31/32 = 96.9%; **Epic 9's build half
+CLOSED.**
+
+### The step-0 panel (6 seats + lead arbitration → rulings R28.1–R28.13)
+
+Panel: PM, Architect, QA, Brand, adversarial burn-risk critic
+(REPRODUCE-not-reason), docs-verifier — one parallel workflow (~698k tokens,
+6/6 one-line pointers, zero deaths); three further verification workflows
+(red-verify, green-build ×4 disjoint implementers, green-verify) — ~2.4M
+subagent tokens total. TWO lead cross-seat corrections (the S27 cross-check
+pattern): QA's "0 golden shifts" predated Brand's breath-instruction defect
+(R27.12 invoked); Brand's "no golden covers the haptics-only frame" was
+wrong. The rulings:
+
+- **R28.1 — scope:** the three plan-named deliverables + channel + toggle +
+  labels; OUT: scenario-29 (frozen), brandkit §8's "inline offer on first
+  pacer run", live per-phase VO announcements, region picker, device test 40.
+- **R28.2 — the channel = the pre-cache ENVELOPE.**
+  `PanicSnapshot.hapticOnlyBreathPacer: Bool?` — envelope-level (never
+  per-card), OPTIONAL mandatory (burn-reproduced keyNotFound on pre-field
+  caches), PRESENCE-ONLY stamp (`? true : nil`, the R22.1 minimization
+  discipline). ONE writer `setHapticOnlyBreathPacer` (setDiscreetMode shape
+  MINUS widget reload, NO analytics) + fetch-only reader; reads ride the
+  SINGLE existing pre-frame read (cold UnhookedApp / warm+in-app
+  RootPlaceholderView); resolver signatures untouched; panic purity pins
+  green. Over the app-group-key alternative: identical §10 exposure, but the
+  envelope inherits write/launch-refresh/erase lifecycle for free. PM's
+  warm-only VETOED (dishonest to MVP §7 — the cold lock-screen route is
+  where eyes-free matters most). **§10 ruling (vetoable): a
+  render-necessary, content-free a11y Bool is NOT a banned pre-unlock bit**
+  (the `discreet` flag's admissibility class).
+- **R28.3 — the toggle = the THIRD R22.7 amendment** (compliance-not-creep
+  per R27.10; MVP §7 names the option as a release gate). Header-less
+  Section on DiscreetSettingsView; Toggle through the repository (try? +
+  re-read token; no analytics). Copy joint-signed IN-PANEL:
+  `hapticPacerRowLabel` "Breathe with taps" (+2 alts), `hapticPacerFooter`
+  (+2 alts); NEVER accommodation-framed (brandkit §8). Floor 10→12
+  same-commit; DRAFT → operator §3.
+- **R28.4 — the breath-instruction defect + R27.12.** "Follow the circle."
+  is literally false in haptics-only mode and misdirects VO in bloom mode.
+  NEW optional `PanicScript.Step.instructionNonVisual` = "Breathe with the
+  taps. In for 4, hold for 7, out for 8. Three rounds." (joint-signed —
+  panic is a safety path; +2 alts; DRAFT §3). Haptics-only renders it (the
+  pixel bytes rode the RED commit per R27.12); bloom mode hears it via a
+  defaulted `StepScaffold.instructionAccessibilityLabel` (metadata).
+  `hapticOnlyLabel` stands verbatim.
+- **R28.5 — the red manifest:** 3 designed reds / 3 issues, unit lane,
+  deterministic (the stamp pin, the threading pin, and the plan-named
+  `test_hapticsOnlyPacer_runsWithoutVisualDependency` end-to-end with
+  view-free rhythm sub-asserts: the full shipping 4-7-8×3 emitted at init
+  with `pacerStartedAt == nil`, re-armed from the redirect). Matched
+  verbatim as run.
+- **R28.6 — the audit family: GREEN commit, per-leg, rule-11 shaped.**
+  `test_a11yAudit_{panicFlow,slipFlow,quizFlow}_noViolations` — the plan
+  name delivered as a family on scenario 33's ONE slot (the R26.8 rename
+  precedent; cap unchanged). Panic/slip = SAFETY legs (never
+  quarantined/valved/suppressed); quiz = valve-eligible (pre-worded).
+  Audit-issue lists are NOT name-for-name predictable ⇒ audit tests never
+  enter a red manifest (their first run IS the finding ledger).
+  test-suite.md:91's "XCUIDevice" recorded as docs drift (the API is
+  XCUIApplication-only, iOS 17+, no #available at the iOS-26 floor; no
+  issue handler — its Bool semantics are docs-unconfirmed).
+- **R28.7 — AX5:** streak half ALREADY SHIPPED (widget small/medium + slip +
+  panic AX5 axes = test 18's delivery); paywall half DEFERRED BY NAME to the
+  founder-copy golden batch (R24.1 extended: each surface incl. its AX5
+  axes); the text-metric pin NOT adopted; accessory clamp stands (S21). Net
+  new goldens: 0 (the only golden motion was designed).
+- **R28.8 — labels/traits, DERIVED/TRAIT only:** the quiz slider speaks its
+  WORD ECHO as the a11y value (brandkit §6 "never just a number") with the
+  sibling echo hidden; stepper label+value; both text fields labeled from
+  on-screen copy; slip undo `.accessibilityHint(windowNote)`; reflection
+  field labeled; icon-picker `.isSelected`. Zero new authored strings
+  beyond R28.3/R28.4; metadata-only (the raster sees layers, never a11y
+  metadata — reproduced from the pinned SnapshotTesting source).
+- **R28.9 — the born-green panic-script lexicon gate** closed a REAL
+  pre-existing hole (panicScript step strings shipped unscanned):
+  reflection walk over all decoded strings vs the shame lexicon (+ leak on
+  the discreet-rendered fields), 35-string corpus, floor 30, matcher pins;
+  scratch-verified over the shipping bytes FIRST (R27.13 shape); rode red
+  born-green, passed.
+- **R28.10 — red/green split + budget:** one red push, one green push; as
+  run, plus the contingency arc below.
+- **R28.11 — no analytics motion** anywhere (no event, no source value; the
+  toggle fires nothing; UITEST hooks DEBUG-inert).
+- **R28.12 — operator asks:** §3 the 4 DRAFT strings + alternatives + two
+  copy niceties; §7 the eyes-free/VoiceOver eyeball row. Vetoables recorded.
+- **R28.13 (mid-session, the contingency ruling — vetoable):** the audit's
+  first run found REAL violations on all three legs. Fix-now (golden-safe or
+  deterministically re-recorded): the forgiveness screen's dangling
+  "momentum is still ." (a REAL product defect — `SlipLoggedComposition`:
+  a template sentence with an unfilled token drops WHOLE; filled path
+  byte-identical, harness-proven over the shipping templates; its 4
+  degradedNoBest goldens re-recorded via DELETED-references record-missing —
+  deterministic 4/4, adopted from run 4's artifact, eyeballed) + the 4pt
+  `quiz.progress` hit-region sliver (44pt floor +
+  `accessibilityRespondsToUserInteraction(false)`) + the title's VO label
+  drops its typographic period (the classifier's ONE not-human-readable
+  node BOTH runs — "Logged."; bare words pass empirically). Defer-BY-NAME
+  (grow-only, in-code, artifact-documented): the {.contrast, .dynamicType,
+  .textClipped} classes — sub-WCAG teal/secondary contrast + DT-scaling
+  clipping across goldened panic/slip surfaces — Brand-palette + layout
+  decisions cascading through the golden matrix → the a11y-visual pass
+  rides the founder-copy golden-batch session (colors+copy+goldens, ONE
+  re-record). The session-rules large-issue branch, applied verbatim.
+
+### The lead's mid-green fix (the S25-stall burn, killed pre-push)
+
+The audit implementer's quiz leg initially rode UITEST_SEED_AGE_VERIFIED —
+the exact S25 seeded-leg stall. Fixed by the TWO-LEVEL `UITEST_QUIZ` direct
+mount (AgeGateContainerView first-branch → PostGateRootView → QuizFlowView
+over the shipping config, `.disabled` analytics): launch→audited-frame is
+pure view composition — no repository publish, no gate model, no store
+read. The quiz leg's env is `UITEST_QUIZ=1` alone. (This mount is ALSO
+Session 29's scenario-29 diagnosis tooling: it proves the quiz RENDERS fine
+on CI — the hang lives in the gate-pass → post-gate re-render chain.)
+
+### Run accounting (§4-honest)
+
+- Run 1 — `29259860083` (`46d9ca2`): red evidence. Unit 3/3 name-for-name
+  (strings VERBATIM); the designed golden family at 2 issues (below the
+  3–4 valve — the tolerance-floor mechanism, recorded); all else green.
+- Run 2 — `29262073722` (`4bc8829`): all 3 reds FLIPPED + the 2 AX5
+  re-records matched + unit/snapshot green — and the audit family's first
+  `.all` execution produced its complete finding ledger (SPENT, not
+  burned). TestFlight blocked by design.
+- Run 3 — `29264641853` (`b80c33d`): **BURNED — the first since S24.**
+  Test-build failure: `.action`/`.parentChild` are macOS-14-ONLY.
+  **NEW STANDING GATE #5b:** docs-confirmed EXISTENCE is not platform
+  AVAILABILITY — every member of a multi-platform option set gets its own
+  docs-JSON `platforms` check before code (the iOS-17 audit set:
+  {elementDetection, hitRegion, sufficientElementDescription, trait,
+  contrast, dynamicType, textClipped}).
+- Run 4 — `29265224603` (`2346cba`): the repaired contingency. Panic + quiz
+  audits GREEN on the scoped set; the slip leg isolated its final finding
+  (the title label); the 4 deleted degradedNoBest references re-recorded by
+  CI (designed 4/4). SPENT, not burned.
+- Run 5 — `29267286952` (`3b6d692`): the adopted references + the title's
+  VO label — ALL-GREEN + TestFlight.
+Total: **5 = 2 planned + 1 contingency + 2 over, 1 burned.**
+
+### Known limitations / carried
+
+- **The R28.13 debt** (the vetoable worth the operator's eye): contrast +
+  DT-scaling findings enumerated in run `29262073722`'s artifact; classes
+  excluded in-code (grow-only) until the a11y-visual/golden-batch session.
+  MVP §7's accessibility checkbox stays honestly UNCHECKED until then.
+- The panic entry title truncates at AX5 (pre-existing, golden-pinned,
+  copy-adjacent → §3); the degraded slip path shows "Logged." twice
+  (title + body echo → §3 nicety); the 2 default-axis hapticsOnly goldens
+  are valid-but-stale within tolerance (re-record with the next touch).
+- The quiz audit leg's pre-worded valve stands unused (the leg passed once
+  the hit-region fix landed).
+- brandkit §8's "inline offer on first pacer run" + live per-phase VO
+  announcements: deferred by name.
+- Scenario-29 diagnosis + event-spy sink + the founder-copy golden batch
+  (now bundling the R28.13 visual pass): Session 29 / operator-gated.
