@@ -60,22 +60,21 @@ extension Theme {
         static let contentMaxWidth: CGFloat = 560
     }
 
-    /// Type scale (brandkit §3 as machine values). Only the roles that need a
-    /// POINT size live here — every other role is a Dynamic-Type text style used
-    /// directly (`.title2`, `.body`, `.subheadline`, `.footnote`).
+    /// Type scale (brandkit §3 as machine values). Only DECORATIVE glyphs need a
+    /// point size. Every role that renders TEXT is a Dynamic-Type text style used
+    /// directly (`.largeTitle`, `.title2`, `.body`, `.subheadline`, `.footnote`) —
+    /// including the summary's hero numeral.
     ///
-    /// These are BASE sizes for `@ScaledMetric(relativeTo:)`: the rendered size
-    /// scales with Dynamic Type (the fixed-size `.font(.system(size:))` form does
-    /// NOT scale at all — the defect UIR-1 closes on the summary hero). `heroCap`
-    /// is brandkit §8's "streakHero caps its scaling at accessibility-XL and
-    /// switches to a stacked layout rather than shrinking": the numeral grows to
-    /// the cap and then the layout — not the glyph — gives way.
+    /// R33.12 (run 29303961082, artifact-measured): Apple's `.dynamicType` audit
+    /// reports *"User will not be able to change the font size"* for text sized by a
+    /// point value — a `.font(.system(size:))` carries no type metrics, and a
+    /// `@ScaledMetric` driving the number does NOT rescue it. So there is deliberately
+    /// NO `heroBase`/`heroCap` here: a token that hands a point size to a `Text` would
+    /// be a token for writing the bug. The glyph sizes below are safe BECAUSE they are
+    /// `Image`s (SF Symbols), which the audit does not scan for type scaling — proven
+    /// on the same run, where both screen glyphs passed the full set.
     enum type {
-        /// `type/streakHero`-class numerals (the summary savings figure).
-        static let heroBase: CGFloat = 56
-        /// The ceiling the hero numeral scales to (≈ accessibility-XL).
-        static let heroCap: CGFloat = 96
-        /// Decorative SF-Symbol screen glyphs (age gate, blocked screen).
+        /// Decorative SF-Symbol screen glyphs (age gate, blocked screen) — never text.
         static let screenGlyphBase: CGFloat = 44
         static let screenGlyphCap: CGFloat = 72
     }

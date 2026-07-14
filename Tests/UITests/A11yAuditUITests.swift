@@ -341,8 +341,17 @@ final class A11yAuditUITests: XCTestCase {
         // The hero must be the money figure variant, not the absent-savings reframe:
         // auditing the degraded card would silently skip the numeral this leg exists
         // to protect.
+        //
+        // Queried across ALL element types, not `staticTexts`: the id rides a block
+        // that `.accessibilityElement(children: .ignore)` COLLAPSES into one element,
+        // and a collapsed SwiftUI group surfaces to XCUITest as `.other`, not as a
+        // static text. Run 29303961082 proved it — the hero rendered (the audit
+        // screenshotted "~$1,350") while this assertion, then written against
+        // `staticTexts`, failed. The lesson is Session 09's, again: never assume the
+        // element TYPE an identifier lands on.
+        let hero = app.descendants(matching: .any)["summary.savings"]
         XCTAssertTrue(
-            app.staticTexts["summary.savings"].waitForExistence(timeout: 5),
+            hero.waitForExistence(timeout: 5),
             "the fixture renders the SAVINGS hero (the variant whose Dynamic-Type behaviour UIR-1 fixed)"
         )
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)

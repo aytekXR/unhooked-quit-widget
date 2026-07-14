@@ -101,18 +101,38 @@ surfaces** (age gate, quiz, consent, summary).
 | Token | Value | Grounds |
 |---|---|---|
 | `Theme.layout.contentMaxWidth` | 560 | brandkit §5 grid — one column, iPad-safe without a second layout, keeps body copy near the ~34ch conversational measure |
-| `Theme.type.heroBase` / `heroCap` | 56 / 96 | The `type/streakHero` numeral's `@ScaledMetric` BASE and its ceiling. brandkit §8: the hero "caps its scaling at accessibility-XL and switches to a stacked layout **rather than shrinking**" |
-| `Theme.type.screenGlyphBase` / `Cap` | 44 / 72 | Decorative SF-Symbol screen marks (age gate, blocked) — Dynamic-Type-bound like everything else |
+| `Theme.type.screenGlyphBase` / `Cap` | 44 / 72 | Decorative SF-Symbol screen marks (age gate, blocked) — Dynamic-Type-bound like everything else. The ONLY point sizes in the registry, and they are safe precisely because they size `Image`s, never text (R33.12) |
 
-**The point-size rule (R33.6, lint-enforced):** a font size that is a NUMBER does
-not scale with Dynamic Type at all. Every point size on a UIR'd surface is driven
-by `@ScaledMetric(relativeTo:)` from a `Theme.type.*` base (the `PanicFlowView`
-`reasonSize` precedent) — so a size that is a VARIABLE is sanctioned and a size
-that is a LITERAL is banned. `Tests/Unit/OnboardingLayoutLintTests.swift` enforces
-exactly that distinction, plus the bans on `.minimumScaleFactor`, `.lineLimit(1)`,
-`.buttonStyle(.plain)` and `.background(.quaternary` — the four idioms UIR-1
-removed. Its scope is the surfaces already regenerated (AgeGate + Quiz) and it
-GROWS with each UIR session; it never shrinks.
+**The point-size rule (R33.12 — the ruling a billed run WROTE, replacing the R33.6
+this session first shipped).** UIR-1's first attempt encoded what everyone believed:
+that a fixed `.font(.system(size: 56))` is the defect and a `@ScaledMetric`-driven
+`.font(.system(size: heroSize))` is the cure. Run `29303961082` says otherwise. Its
+audit fired on the summary hero **as rewritten** — twice — with the verdict *"User
+will not be able to change the font size of this SwiftUI.AccessibilityNode."* The
+truth the element screenshots forced:
+
+- **A point size on TEXT is un-scalable to the audit no matter what drives it.** The
+  font carries no type metrics; `@ScaledMetric` changes a NUMBER, not the font's
+  contract. The sanctioned form is a TEXT STYLE —
+  `.font(.system(.largeTitle, design: .rounded, weight: .bold))`.
+- **A point size on a decorative `Image` is fine.** Both screen glyphs use exactly the
+  `@ScaledMetric` + `.system(size:)` form and PASSED the full set on that same run —
+  the audit does not scan an SF Symbol for type scaling. This is why
+  `screenGlyphBase/Cap` survive and `heroBase/heroCap` were DELETED: a token that
+  hands a point size to a `Text` is a token for writing the bug.
+- **`ViewThatFits` is banned on any audited surface.** It sizes its candidates at a
+  fixed ideal, so the audit reports every `Text` inside it as un-scalable — it fired
+  on the hero's suffix too, and that suffix carried a plain `.title3` TEXT STYLE. The
+  CONTAINER was the defect, not the font. brandkit §8's "switches to a stacked layout
+  rather than shrinking" is read off `@Environment(\.dynamicTypeSize)` instead.
+
+`Tests/Unit/OnboardingLayoutLintTests.swift` enforces all of it — the point-size ban
+(`Image` chains exempted), `ViewThatFits`, `.minimumScaleFactor`, `.lineLimit(1)`,
+`.buttonStyle(.plain)`, `.background(.quaternary` — with calibration tests that pin
+the two facts a reader would otherwise get backwards: a `@ScaledMetric` point size on
+text still FIRES, and a point size on a glyph does NOT. Its scope is the surfaces
+already regenerated (AgeGate + Quiz) and it GROWS with each UIR session; it never
+shrinks.
 
 ### 5.2 The Dynamic-Type trigger, and the structure that answers it (R33.5)
 
@@ -131,6 +151,15 @@ stay BELOW that text's accessibility-size height** (44 is safe for `.body`; 56 i
 not). `OnboardingScaffold` makes the first half structural and every UIR-1 surface
 obeys the second. `.fixedSize(horizontal: false, vertical: true)` on every wrapping
 `Text` is the belt to that braces.
+
+**What run 29303961082 added to this table.** The S28 mechanism above is real but
+INCOMPLETE — it explains predicted CLIPPING, and it is silent about the second, more
+basic thing the audit checks: whether the text can change size at all. UIR-1's own
+first draft obeyed every row of this table and still fired, because its hero sized
+text by a point value inside a `ViewThatFits`. The completed rule is R33.12 in §5.1.
+The general lesson is the one this project keeps re-learning: **an audit's finding
+ledger is written by running it, not by reasoning about it** — the same way R32.9
+(disabled `.plain` labels dim to 2.14:1) could only be measured, never derived.
 
 ## 6. Themed primitives (UIR-0 BUILT them; **UIR-1 ADOPTED them on onboarding**)
 

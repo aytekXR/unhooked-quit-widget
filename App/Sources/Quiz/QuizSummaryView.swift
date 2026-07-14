@@ -14,10 +14,11 @@ import SwiftUI
 ///   large sizes by `.lineLimit(1)` + `.minimumScaleFactor(0.5)`, i.e. by SHRINKING
 ///   the one number the screen exists to show. brandkit §8 forbids exactly that
 ///   ("caps its scaling at accessibility-XL and switches to a stacked layout rather
-///   than shrinking"). Now: `@ScaledMetric` grows it with the user's type size,
-///   `Theme.type.heroCap` caps it, and `ViewThatFits` changes the LAYOUT (inline →
-///   stacked → one type step down) when the figure runs out of width. Nothing is
-///   squeezed; the glyph keeps its designed weight;
+///   than shrinking"). Now it is the `.largeTitle` TEXT STYLE (which carries the type
+///   metrics the audit demands), and the LAYOUT — not the glyph — gives way at
+///   accessibility sizes: the figure and its suffix stack. See `heroFigure` for why
+///   the `ViewThatFits` ladder this session first shipped had to be RETIRED (R33.12);
+///   it is the one thing here that a billed run, not reasoning, settled;
 /// - the CTA rides `PrimaryButtonStyle` (was a hand-rolled Capsule + `.plain`).
 ///
 /// House rules honored: no red anywhere (teal/indigo only), the hero numeral is
@@ -34,8 +35,9 @@ struct QuizSummaryView: View {
     let onContinue: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// `type/streakHero`, Dynamic-Type-bound (brandkit §3) — the fixed 56pt is gone.
-    @ScaledMetric(relativeTo: .largeTitle) private var heroSize: CGFloat = Theme.type.heroBase
+    /// brandkit §8's stacked-at-accessibility-sizes rule, read from the environment
+    /// rather than measured (R33.12 — see `heroFigure`).
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var revealed = false
 
     var body: some View {
@@ -123,55 +125,48 @@ struct QuizSummaryView: View {
         .accessibilityIdentifier(heroParts != nil ? "summary.savings" : "summary.savingsAbsent")
     }
 
-    /// The figure itself. `ViewThatFits` picks the first layout that actually fits
-    /// the width it is given: the designed inline baseline pair, else the stacked
-    /// form (brandkit §8's answer to accessibility sizes), else the stacked form one
-    /// type step down. The NUMERAL is never squeezed to fit — the LAYOUT gives way.
-    private func heroFigure(_ parts: (amount: String, suffix: String)) -> some View {
-        let point = min(heroSize, Theme.type.heroCap)
-        return ViewThatFits(in: .horizontal) {
-            heroInline(parts, point: point)
-            heroStacked(parts, point: point)
-            heroStacked(parts, point: point * Self.heroStepDown)
-        }
-    }
-
-    private func heroInline(
-        _ parts: (amount: String, suffix: String), point: CGFloat
-    ) -> some View {
-        HStack(alignment: .lastTextBaseline, spacing: Theme.space.s1 / 2) {
-            heroAmount(parts.amount, point: point)
-            if !parts.suffix.isEmpty {
-                heroSuffix(parts.suffix)
+    /// The figure itself. brandkit §8's rule — "switches to a stacked layout rather
+    /// than shrinking" — is read off the ENVIRONMENT (`dynamicTypeSize`), not measured
+    /// by a `ViewThatFits` ladder. R33.12, artifact-forced: `ViewThatFits` sizes its
+    /// candidates at a FIXED ideal and Apple's `.dynamicType` audit then reports every
+    /// Text inside it as *"User will not be able to change the font size"* — it fired
+    /// on BOTH hero Texts in run 29303961082, including the suffix, which carries a
+    /// plain `.title3` TEXT STYLE. The container, not the font, was the defect.
+    @ViewBuilder private func heroFigure(_ parts: (amount: String, suffix: String)) -> some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(spacing: 0) {
+                heroAmount(parts.amount)
+                if !parts.suffix.isEmpty { heroSuffix(parts.suffix) }
+            }
+        } else {
+            HStack(alignment: .lastTextBaseline, spacing: Theme.space.s1 / 2) {
+                heroAmount(parts.amount)
+                if !parts.suffix.isEmpty { heroSuffix(parts.suffix) }
             }
         }
     }
 
-    private func heroStacked(
-        _ parts: (amount: String, suffix: String), point: CGFloat
-    ) -> some View {
-        VStack(spacing: 0) {
-            heroAmount(parts.amount, point: point)
-            if !parts.suffix.isEmpty {
-                heroSuffix(parts.suffix)
-            }
-        }
-    }
-
-    private func heroAmount(_ amount: String, point: CGFloat) -> some View {
+    private func heroAmount(_ amount: String) -> some View {
         Text(amount)
             // SF Pro Rounded, monospaced digits (brandkit §3 `type/streakHero`):
             // rounded for warmth without whimsy, monospaced so a live figure never
-            // jitters. The SIZE is Dynamic-Type-derived, never a literal.
-            .font(.system(size: point, weight: .bold, design: .rounded))
+            // jitters. The size is the `.largeTitle` TEXT STYLE — the only form the
+            // audit accepts (a `.system(size:)` point size carries no type metrics,
+            // even when a `@ScaledMetric` drives the number), and the only one that
+            // still FITS the card at accessibility sizes: the 56→96pt figure this
+            // replaces overflowed the card's width and was reported clipped.
+            .font(.system(.largeTitle, design: .rounded, weight: .bold))
             .monospacedDigit()
             .foregroundStyle(Theme.color.contentPrimary.color)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private func heroSuffix(_ suffix: String) -> some View {
         Text(suffix)
             .font(.title3.weight(.medium))
             .foregroundStyle(Theme.color.contentSecondary.color)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     /// The user's own words, verbatim, in their order — dignified weight, but
@@ -221,9 +216,4 @@ struct QuizSummaryView: View {
         let amount = parts.amount.hasPrefix("~") ? String(parts.amount.dropFirst()) : parts.amount
         return "about \(amount) \(data.savingsCaption)"
     }
-
-    /// The single type step the hero may drop when even the stacked form overflows
-    /// (a very large figure on a very narrow screen). A LAYOUT decision, not a
-    /// glyph squeeze — `minimumScaleFactor` is what brandkit §8 rules out.
-    private static let heroStepDown: CGFloat = 0.72
 }

@@ -11,18 +11,27 @@ import Testing
 // re-introduced the exact idioms that made onboarding text un-scalable in the first
 // place. This lint can, for free, on every lane.
 //
-// Each banned idiom below is a REAL defect this session removed, not a style
-// preference:
+// Each banned idiom below is a REAL defect this session removed, and the two that
+// carry `R33.12` were not reasoned out — they were MEASURED, in the audit's own
+// element screenshots from run 29303961082:
 //
-//   • `.font(.system(size: <literal>` — a fixed point size does not respond to
-//     Dynamic Type AT ALL. The summary hero shipped as `.font(.system(size: 56…))`.
-//     The sanctioned form is `@ScaledMetric` (the PanicFlowView `reasonSize`
-//     precedent) feeding `.font(.system(size: <variable>…))`, so a size that is a
-//     VARIABLE is fine and a size that is a NUMBER is not — which is exactly what
-//     the literal-digit match distinguishes.
+//   • `.font(.system(size: …))` ON TEXT — banned for ANY size, literal or variable.
+//     A point-size font carries no type metrics, so Apple's audit reports *"User will
+//     not be able to change the font size of this SwiftUI.AccessibilityNode"* — and a
+//     `@ScaledMetric` driving the number does NOT rescue it (the hero shipped exactly
+//     that way and fired anyway). The sanctioned form is a TEXT STYLE:
+//     `.font(.system(.largeTitle, design: .rounded, weight: .bold))`.
+//     Decorative `Image` glyphs are EXEMPT — the audit does not scan an SF Symbol for
+//     type scaling, and both screen glyphs passed the full set on that same run. The
+//     lint tracks `Image(` modifier chains so it can tell the two apart.
+//   • `ViewThatFits` — banned on any audited surface. It sizes its candidates at a
+//     FIXED ideal, and the audit then reports every Text inside it as un-scalable. It
+//     fired on BOTH hero Texts, including the suffix, which carried a plain `.title3`
+//     text style — the CONTAINER, not the font, was the defect. brandkit §8's
+//     "switches to a stacked layout rather than shrinking" must be read off
+//     `@Environment(\.dynamicTypeSize)` instead.
 //   • `.minimumScaleFactor(` — shrink-to-fit. brandkit §8 rules it out for the hero
-//     in as many words ("caps its scaling at accessibility-XL and switches to a
-//     stacked layout rather than shrinking"). The layout gives way, never the glyph.
+//     in as many words. The layout gives way, never the glyph.
 //   • `.lineLimit(1)` — a one-line cap on copy that must be free to wrap is how text
 //     gets truncated at accessibility sizes.
 //   • `.buttonStyle(.plain)` — R32.9: the plain style silently composites a DISABLED
@@ -35,13 +44,6 @@ import Testing
 // are UIR-3's and UIR-2's to close) — a repo-wide ban would fail today and would be
 // a lie about what has actually been fixed. The scope GROWS as each UIR session
 // closes its surfaces; it never shrinks.
-//
-// Born-green (R31.4 valve): the designed red's entire evidence value is reproduced
-// FREE — the suite fires on the pre-UIR-1 bytes (verified in the pre-push Linux
-// rehearsal: the old QuizSummaryView alone carries `.font(.system(size: 56`,
-// `.minimumScaleFactor(0.5)`, `.lineLimit(1)` and `.buttonStyle(.plain)` — 4 hits in
-// one file) and passes on the shipping bytes; the green run's own results prove the
-// tests executed.
 @Suite("UIR-1 · onboarding layout lint")
 struct OnboardingLayoutLintTests {
     /// The directories UIR-1 rebuilt. Grow-only: UIR-2 adds the dashboard, UIR-3 the
@@ -55,6 +57,7 @@ struct OnboardingLayoutLintTests {
         ".lineLimit(1)",
         ".buttonStyle(.plain)",
         ".background(.quaternary",
+        "ViewThatFits",
     ]
 
     /// Repo root from this file's compile-time path (Tests/Unit/<file> → up 3) —
@@ -80,19 +83,7 @@ struct OnboardingLayoutLintTests {
                 guard url.pathExtension == "swift" else { continue }
                 scannedFiles += 1
                 let source = try String(contentsOf: url, encoding: .utf8)
-                for (index, rawLine) in source.components(separatedBy: "\n").enumerated() {
-                    let code = Self.strippingComment(rawLine)
-                    for idiom in Self.bannedIdioms where code.contains(idiom) {
-                        violations.append("\(url.lastPathComponent):\(index + 1) uses '\(idiom)'")
-                    }
-                    if let literal = Self.literalFontSize(in: code) {
-                        violations.append(
-                            "\(url.lastPathComponent):\(index + 1) hardcodes a font size "
-                            + "('.font(.system(size: \(literal)') — it will not scale with Dynamic Type; "
-                            + "drive it from @ScaledMetric (Theme.type.*)"
-                        )
-                    }
-                }
+                violations += Self.scan(source, in: url.lastPathComponent)
             }
         }
 
@@ -115,41 +106,104 @@ struct OnboardingLayoutLintTests {
 
     /// The gate must gate itself (the ThemeContrastTests calibration discipline): a
     /// lint that cannot fire on the very bytes it was written to remove is vacuous.
-    /// These are the EXACT idioms the pre-UIR-1 `QuizSummaryView` hero carried.
-    @Test func test_theLint_firesOnThePreUIR1HeroIdioms() {
-        let preUIR1Hero = """
-        Text(parts.amount)
-            .font(.system(size: 56, weight: .bold, design: .rounded))
-            .monospacedDigit()
-            .minimumScaleFactor(0.5)
-            .lineLimit(1)
+    /// These are the EXACT idioms the pre-UIR-1 `QuizSummaryView` hero carried, plus
+    /// the `ViewThatFits` ladder that UIR-1's own FIRST attempt shipped and the audit
+    /// then rejected.
+    @Test func test_theLint_firesOnEveryRetiredHeroIdiom() {
+        let retiredHero = """
+        ViewThatFits(in: .horizontal) {
+            Text(parts.amount)
+                .font(.system(size: 56, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
         }
         .buttonStyle(.plain)
         """
-        var hits = 0
-        for rawLine in preUIR1Hero.components(separatedBy: "\n") {
-            let code = Self.strippingComment(rawLine)
-            for idiom in Self.bannedIdioms where code.contains(idiom) { hits += 1 }
-            if Self.literalFontSize(in: code) != nil { hits += 1 }
-        }
         #expect(
-            hits == 4,
-            "the lint must catch all four pre-UIR-1 hero idioms (fixed size, shrink, one-line cap, plain style) — it caught \(hits)"
+            Self.scan(retiredHero, in: "fixture").count == 5,
+            """
+            the lint must catch all five retired idioms (ViewThatFits, the point-size \
+            font, shrink-to-fit, the one-line cap, the plain style) — it caught \
+            \(Self.scan(retiredHero, in: "fixture").count)
+            """
         )
     }
 
-    /// The sanctioned form must NOT fire: a size driven by a @ScaledMetric variable
-    /// is exactly what we want people to write.
-    @Test func test_theLint_acceptsScaledMetricDrivenSizes() {
-        let shipping = ".font(.system(size: min(heroSize, Theme.type.heroCap), weight: .bold, design: .rounded))"
+    /// A `@ScaledMetric` variable does NOT make a point-size font acceptable ON TEXT —
+    /// that is the exact form run 29303961082 rejected, and the exact form a reader of
+    /// the old lint would have believed was sanctioned.
+    @Test func test_theLint_firesOnAScaledMetricDrivenPointSize_onText() {
+        let scaledButStillPointSized = """
+        Text(amount)
+            .font(.system(size: min(heroSize, Theme.type.heroCap), weight: .bold))
+        """
         #expect(
-            Self.literalFontSize(in: shipping) == nil,
-            "a @ScaledMetric-driven font size is the SANCTIONED form — the lint must not fire on it"
+            Self.scan(scaledButStillPointSized, in: "fixture").count == 1,
+            "a @ScaledMetric-driven POINT SIZE on text is still un-scalable to the audit — the lint must fire"
         )
+    }
+
+    /// The two sanctioned forms must NOT fire: a TEXT STYLE on text, and a point size
+    /// on a decorative `Image` glyph (both passed the full audit on the same run).
+    @Test func test_theLint_acceptsTextStylesAndImageGlyphs() {
+        let sanctionedText = """
+        Text(amount)
+            .font(.system(.largeTitle, design: .rounded, weight: .bold))
+            .monospacedDigit()
+        """
         #expect(
-            Self.bannedIdioms.allSatisfy { !shipping.contains($0) },
-            "the sanctioned hero line contains no banned idiom"
+            Self.scan(sanctionedText, in: "fixture").isEmpty,
+            "a text-style font is THE sanctioned form — the lint must not fire on it"
         )
+
+        let sanctionedGlyph = """
+        Image(systemName: "calendar")
+            .font(.system(size: min(glyphSize, Theme.type.screenGlyphCap), weight: .light))
+            .accessibilityHidden(true)
+        """
+        #expect(
+            Self.scan(sanctionedGlyph, in: "fixture").isEmpty,
+            "a decorative SF-Symbol glyph may carry a point size — the audit does not scan images for type scaling"
+        )
+    }
+
+    // MARK: - The rules
+
+    /// Every violation in one source, in line order.
+    ///
+    /// The `Image(` chain state is what lets one line-based rule serve both facts the
+    /// audit taught us: a point size is a DEFECT on text and FINE on a glyph. A line
+    /// that opens an `Image(...)` starts a chain; the `.modifier` lines that follow
+    /// belong to it; any other statement ends it.
+    private static func scan(_ source: String, in fileName: String) -> [String] {
+        var violations: [String] = []
+        var inImageChain = false
+
+        for (index, rawLine) in source.components(separatedBy: "\n").enumerated() {
+            let code = strippingComment(rawLine)
+            let trimmed = code.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty else { continue }
+
+            if trimmed.hasPrefix("Image(") {
+                inImageChain = true
+            } else if !trimmed.hasPrefix(".") {
+                inImageChain = false
+            }
+
+            for idiom in bannedIdioms where code.contains(idiom) {
+                violations.append("\(fileName):\(index + 1) uses '\(idiom)'")
+            }
+            if !inImageChain, let size = pointSizedFont(in: code) {
+                violations.append(
+                    "\(fileName):\(index + 1) sizes TEXT by a point value "
+                    + "('.font(.system(size: \(size)') — it carries no type metrics, so Apple's audit "
+                    + "reports it un-scalable even under @ScaledMetric (R33.12). Use a text style: "
+                    + ".font(.system(.largeTitle, design: .rounded, weight: .bold))"
+                )
+            }
+        }
+        return violations
     }
 
     /// Prose may still discuss the idioms it bans (this file does, at length), so a
@@ -164,13 +218,14 @@ struct OnboardingLayoutLintTests {
         return String(line[..<range.lowerBound])
     }
 
-    /// Returns the literal point size when a line hardcodes one in
-    /// `.font(.system(size: <digits>`; nil when the size is an expression.
-    private static func literalFontSize(in code: String) -> String? {
+    /// Returns the size EXPRESSION when a line sizes a font by a point value —
+    /// `56` and `min(heroSize, …)` alike. Both are defects on text; only a text style
+    /// (`.font(.system(.largeTitle, …))`, which never matches this needle) is not.
+    private static func pointSizedFont(in code: String) -> String? {
         let needle = ".font(.system(size: "
         guard let start = code.range(of: needle) else { return nil }
         let rest = code[start.upperBound...]
-        let digits = rest.prefix { $0.isNumber || $0 == "." }
-        return digits.isEmpty ? nil : String(digits)
+        let expression = rest.prefix { $0 != "," && $0 != ")" }
+        return expression.isEmpty ? nil : String(expression)
     }
 }
