@@ -140,8 +140,19 @@ own STEP-0):**
   permanent unit gates (`ThemeContrastTests` 30 pairs ×2 modes, `ThemeSourceLintTests`).
   **`.contrast` is RESTORED to the a11y audit on all three legs — the R28.13
   exclusion list shrank for the first time**; `.dynamicType`/`.textClipped` remain
-  excluded and are now owned BY NAME (quiz→UIR-1, slip→UIR-2, panic→UIR-3).
-- **UIR-1 — Onboarding:** age gate + quiz + consent + summary.
+  excluded and are now owned BY NAME (quiz→UIR-1, panic + slip→UIR-3).
+- **UIR-1 — Onboarding: ✅ DONE (Session 33, 2 billed runs).** Age gate + quiz +
+  consent + summary regenerated on the Theme layer, copy bytes byte-identical.
+  Delivered the `OnboardingScaffold` primitive (content scrolls / actions pinned —
+  the Dynamic-Type fix as STRUCTURE), the style adoptions (R33.8), a 44pt floor on
+  the blocked screen's helpline dial link (R33.10), and `OnboardingLayoutLintTests`.
+  **`.dynamicType` + `.textClipped` are RESTORED on all three onboarding legs — the
+  exclusion list shrinks a second time — and the age gate and summary are AUDITED FOR
+  THE FIRST TIME** (5 legs, 6 frames). The audit's own finding ledger produced
+  **R33.12**, the session's discovery: a point size on TEXT is un-scalable to Apple's
+  audit no matter what drives it (a `@ScaledMetric` does not rescue it), and
+  `ViewThatFits` makes every `Text` inside it un-scalable too. Only panic and slip
+  remain excluded, owned by UIR-3.
 - **UIR-2 — Dashboard + widget families** (× discreet).
 - **UIR-3 — Panic + slip flows** (safety pre-sign-off; copy untouched).
 - **UIR-4 — Paywall (hard/teaser/winback) + settings + resources.**

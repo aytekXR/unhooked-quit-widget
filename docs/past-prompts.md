@@ -4782,3 +4782,160 @@ zero runs were re-spent; the only cost was the reconstruction read.
 - OQ-1/OQ-2, R29.4, scenario-30 purchase leg, MVP §7 a11y box (UIR-5 + §7), label
   wire-verify (§8) — carried.
 - Next: **Session 33 = UIR-1 (onboarding: age gate + quiz + consent + summary)**.
+
+## Session 33 — UIR-1: onboarding (2026-07-14)
+
+**Objective (resume-prompt v4.5):** the age gate + quiz + consent step + summary,
+redesigned on the UIR-0 system: primitives adopted, type/spacing tokens adopted, the
+quiz frames' `.dynamicType`/`.textClipped` debt CLOSED. Copy bytes byte-identical.
+Budget: 2 billed runs + 1 contingency.
+
+**Outcome: DONE in exactly the 2 planned runs — contingency UNUSED, ZERO burned.**
+Run 1 (`29303961082`) was the designed finding-ledger run (R28.6: an audit test's
+first run IS its ledger; it never enters a red manifest). Run 2 (`29305198868`) is
+green. The `.dynamicType`/`.textClipped` exclusion list SHRANK for the second session
+running — it now excludes only panic and slip, owned by name by UIR-3.
+
+### The free win: the S28 artifact was still on the shelf (R33.0)
+
+Before spending anything, the S28 run's artifact (`29262073722`, 73 MB, unexpired) was
+pulled and its xcresult token-stream parsed on the free Linux box. That run is the only
+full-set execution of Apple's accessibility audit this project had ever done, and it
+carried the ledger for exactly the two classes UIR-1 owed. It said: `.dynamicType` fired
+5× — *"Text of this SwiftUI.AccessibilityNode may be clipped at larger Dynamic Type
+sizes"* — and every element screenshot, extracted and read, was a **panic redirect row
+(×4) or the slip forgiveness body**. `.textClipped` fired ZERO times. **The quiz leg
+fired nothing in either class.** Its debt was payable all along, which turned the
+session's central question from "can we close it?" into "what else can we afford to
+audit while we're here?" — and paid for the two NEW legs (age gate, summary).
+
+### The session's real discovery (R33.12) — and the two reviewers it overruled
+
+UIR-1's first draft (run 1) encoded what everyone believed, including all three
+independent design agents, the judge panel, and me: a FIXED `.font(.system(size: 56))`
+is the defect; a `@ScaledMetric`-driven `.font(.system(size: heroSize))` is the cure;
+and `ViewThatFits` (inline → stacked → stepped-down) is brandkit §8's
+"switches to a stacked layout rather than shrinking", expressed in code.
+
+Run 1 failed on ONE leg — the summary — with 3 findings, and its element screenshots
+refuted all of that:
+
+| finding | element (screenshotted) | verdict |
+|---|---|---|
+| Dynamic Type font sizes are partially unsupported | `~$1,350` | *User will not be able to change the font size of this SwiftUI.AccessibilityNode* |
+| Dynamic Type font sizes are partially unsupported | `/year` | same |
+| Text clipped | `~$1,350` | may be clipped at larger Dynamic Type sizes |
+
+`/year` is the killer. It carries a plain `.title3` — a TEXT STYLE — and fired anyway.
+So the point-size font could not be the whole cause. The only property the two firing
+Texts share, and that no PASSING Text on the same screen has (eyebrow `.footnote`,
+caption `.subheadline`, window line, motivations, CTA — all clean), is their container.
+
+- **`ViewThatFits` makes its children un-scalable to the audit.** It sizes candidates
+  at a fixed ideal, so every `Text` inside reads as un-scalable. The ladder adopted AS
+  the accessibility fix WAS the defect. brandkit §8's rule is now read off
+  `@Environment(\.dynamicTypeSize)` — `isAccessibilitySize` stacks the figure — and the
+  glyph still never shrinks.
+- **A point size on TEXT is un-scalable no matter what drives it.** `@ScaledMetric`
+  changes a NUMBER; the font still carries no type metrics. Sanctioned form: a TEXT
+  STYLE (`.system(.largeTitle, design: .rounded, weight: .bold)`). This also cured the
+  third finding — the 56→96pt figure simply did not FIT the card's width at
+  accessibility sizes, which is what "may be clipped" was predicting.
+- **A point size on a decorative `Image` is FINE.** Both screen glyphs use the exact
+  `@ScaledMetric` + `.system(size:)` idiom and PASSED the full set on the same run —
+  the audit does not scan an SF Symbol for type scaling. Hence `screenGlyphBase/Cap`
+  survive while `heroBase`/`heroCap` were DELETED: a token that hands a point size to a
+  `Text` is a token for writing the bug.
+
+This is the R32.9 pattern exactly: a house fact that could only be MEASURED, never
+derived. The lint had encoded the derived belief (it *sanctioned* the idiom the audit
+rejects); it now encodes the measured one, tracks `Image(` modifier chains to tell a
+glyph from a label, and carries calibration tests pinning both directions.
+
+**Two adversarial reviewers were overruled by the run, and this is the ledger's point.**
+Both demanded suppression handlers on the age-gate leg — one for the wheel picker's
+`.dynamicType` ("near-certain"), one for the helpline `Link`'s
+`.sufficientElementDescription` ("a hard merge block on an un-valveable leg"). The
+age-gate leg **passed both frames clean**. Had either been taken, a rule-11 SAFETY leg
+would have been permanently blinded to real findings on the strength of a guess, and
+the picker fact would never have been learned. R28.6's no-handler rule stands, now with
+EXECUTED evidence behind it rather than a docs gap.
+
+### Rulings (each vetoable)
+
+- **R33.1 (the audit set SPLITS).** One shared `auditTypes` becomes two:
+  `safetyAuditTypes` (panic + slip — 5 known findings, both rule-11 legs that may never
+  be valved) and `onboardingAuditTypes` (the FULL seven). REJECTED: restoring the two
+  classes to the SHARED set — the artifact proved in advance that it would fire the 5
+  known findings on two un-valveable legs. A guaranteed burn, avoided for free.
+- **R33.2 (goldens: DON'T-MINT).** UIR-1 mints no snapshot goldens; the founder's §3
+  copy pass will re-record onboarding anyway (the ONE-re-record promise, R24.1/R32.5).
+  What replaces them is stronger than pixels: the full audit set on FIVE frames, a new
+  source lint, and the unchanged funnel smoke.
+- **R33.3 (the audit family — 5 legs, 6 frames).** NEW: `ageGate` (rule-11 SAFETY —
+  entry frame AND blocked frame, reached by driving the REAL wheel to a failing year;
+  no DEBUG hook needed, the gate IS the first screen) and `summary` (valve-eligible).
+  The quiz leg gains the CONSENT frame. All inside scenario 33's ONE slot (R26.8/R28.6).
+- **R33.4 (ONE new DEBUG mount).** `UITEST_SUMMARY`, two-level (container forwards →
+  `PostGateRootView` renders), `#if DEBUG`-walled so release COMPILES IT OUT. `.disabled`
+  analytics, no repository, no store. The fixture supplies only what a USER supplies
+  (savings number, currency, risk-window token, motivation words — the last two being
+  verbatim `quizConfig.json` labels); every framing string still comes from the shipping
+  `summaryCopy.json` through the real `SummaryPresentation.make`.
+- **R33.5 (the S28 DT vocabulary, now structural).** Content SCROLLS; actions are
+  PINNED; a height floor on anything containing text stays BELOW that text's
+  accessibility-size height (44 safe for `.body`, 56 is not — the S28 redirect-row
+  finding class); `.fixedSize(horizontal: false, vertical: true)` on every wrapping
+  `Text`. Encoded ONCE, in the new `OnboardingScaffold` primitive. **Incomplete on its
+  own** — see R33.12, which is the half only a run could write.
+- **R33.7 (the wheel).** Stays `.pickerStyle(.wheel)` (the funnel smoke drives it) but
+  LOSES its `.frame(maxHeight: 180)`, and lives in the scaffold's PINNED slot so its own
+  scroll gesture cannot fight an ancestor's. It then PASSED the full audit — the fixed
+  frame was the only real risk, and it is gone.
+- **R33.8 (adopt the STYLES, not the wrapper view).** `PrimaryButtonStyle` /
+  `QuietButtonStyle` / `AnswerChipStyle` applied to the EXISTING Buttons. Every frozen
+  identifier stays on the exact element it was already on — a restyle can never move an
+  anchor the smoke or the audit legs depend on.
+- **R33.9 (the new unit gate, born-green — R31.4 valve).** `OnboardingLayoutLintTests`
+  bans, on the surfaces UIR-1 owns: a point size on TEXT (`Image` chains exempt),
+  `ViewThatFits`, `.minimumScaleFactor(`, `.lineLimit(1)`, `.buttonStyle(.plain)`
+  (R32.9), `.background(.quaternary`. Scope GROWS per UIR session, never shrinks. Free
+  rehearsal ×3 TZ over the exact shipping bytes: fires on the pre-UIR-1 corpus, 0 on the
+  shipping corpus, calibration 5/5 + both directions of R33.12 pinned.
+- **R33.10 (a real defect found by reasoning, not by a run).** The blocked screen's
+  helpline DIAL LINK — the single thing that screen exists to get tapped, on the surface
+  a distressed minor reads — shipped as a ~26pt-tall target, under the 44pt motor floor.
+  Now full-width at the floor.
+- **R33.11 (the scroll-reset invariant).** v1 got it from `.id(step.id)` ON the
+  ScrollView; the scaffold would have silently dropped it (a stable ScrollView inherits
+  the previous question's offset — invisible on an iPhone 15 at default type, real on an
+  SE or at accessibility sizes). The scaffold takes a `contentID` and puts it on the
+  ScrollView, so the header/actions keep stable identity and the progress bar still
+  ANIMATES its fill instead of jumping.
+- **R33.12 (the point-size + container rule — see above).** Text is sized by a TEXT
+  STYLE, never a point value, whatever drives it. `ViewThatFits` is banned on audited
+  surfaces. Decorative `Image` glyphs may carry a point size. RETIRES the R33.6 this
+  session first shipped ("a size that is a VARIABLE is fine") — it was derived, and it
+  was wrong.
+- **R33.13 (never assume the element TYPE an identifier lands on).** The summary gate
+  asserted `staticTexts["summary.savings"]`, but the id rides a block collapsed by
+  `.accessibilityElement(children: .ignore)`, which surfaces to XCUITest as `.other` —
+  the hero RENDERED (the audit screenshotted it) while the assertion failed. Queried
+  across all element types now. Session 09's lesson, re-taught by a leg that had never
+  run before.
+- **R33.14 (scope fences held).** Zero copy bytes (no JSON table touched; not one new
+  user-facing string literal). No privacy surface, no analytics motion, no new SPM dep.
+  Panic/slip/widgets/Shared untouched → all 95 goldens byte-stable, CI-proven on both runs.
+
+### Carried / known limitations
+- `.dynamicType`/`.textClipped` remain excluded on the panic and slip legs — owned BY
+  NAME by UIR-3, with the exact 5 elements already known from the S28 artifact.
+- `SafetyResourcesView` still carries the last `.background(.quaternary` system fill and
+  the same phone-number-only `Link` label as the blocked screen once did (UIR-4's
+  surface; not currently exposed by any audit leg). Named, not fixed.
+- The summary's VoiceOver label composes the authored word "about" in Swift rather than
+  JSON. Pre-existing (predates UIR-1), passes `.sufficientElementDescription`, and a
+  change would be a copy change — left alone deliberately.
+- The onboarding + paywall golden batch still waits on the founder's §3 copy pass
+  (post-UIR, ONE re-record).
+- Next: **Session 34 = UIR-2 (dashboard + widget families × discreet)**.
