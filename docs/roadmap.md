@@ -113,25 +113,34 @@ from its run artifacts (the established free maneuver); the operator's §3-gated
 batch remains ONE final re-record (final copy + final palette together — the
 Session 28 promise stands, UIR widens its scope, not its count).
 
-**Tooling note (honesty record):** the operator's directive referenced a "uipro"
-tool, and mid-Session-31 the operator reported it INSTALLED. Verified twice on the
-build box (2026-07-14, session open + after the report): no skill/plugin/MCP tool
-by that name is visible in this environment (skills registry, both plugin
-surfaces, MCP/deferred tool list — the only marketplace is claude-plugins-official,
-uipro-free). The install either landed on another machine (the Mac?) or did not
-take — a discrepancy only the operator can resolve (operator-expected §9).
-**Standing instruction:** the moment a tool named "uipro" IS available in a
-session's environment, UIR sessions load it and use it as the PRIMARY UI
-regeneration tool — the multi-agent design workflows (independent redesign
-proposals per surface → judge panel → synthesis, per `agent-workflows.md`) plus
-the snapshot lane are the execution vehicle either way, with uipro slotting in as
-the generator when present. UIR does not block on it.
+**Tooling note (honesty record — RESOLVED in Session 32):** the operator's directive
+referenced a "uipro" tool, and mid-Session-31 the operator reported it INSTALLED;
+S31 could not find it and recorded the discrepancy. **Session 32 found it: `uipro`
+v2.11.0 is an npm CLI on this box's PATH** (`~/.nvm/versions/node/v20.20.2/bin/uipro`)
+— the S31 probes searched the skill/plugin/MCP surfaces, not PATH binaries, so the
+tool was present all along. `uipro init -a claude` installs its "UI/UX Pro Max"
+skill under `.claude/skills/` (gitignored — machine-local tooling, the `.codegraph`
+precedent). **Standing instruction (unchanged in force, now executable):** UIR
+sessions probe `which uipro` at open and drive it as the PRIMARY generator — with
+the brandkit + `docs/design/tokens-v2.md` canon OVERRIDING it wherever they conflict
+(every stock uipro palette ships a red destructive token, banned in this product;
+its font suggestions assume Google Fonts, not our SF-only rule). The adopt/override
+record for UIR-0 is tokens-v2 §8. The multi-agent design workflows (independent
+redesign proposals per surface → judge panel → synthesis, per `agent-workflows.md`)
+plus the snapshot lane remain the execution vehicle; uipro is the generator inside
+it, never the authority.
 
 **Session plan (each one-objective, standard loop, budget ruled per-session at its
 own STEP-0):**
-- **UIR-0 — Design system:** regenerated tokens (color/type/spacing/motion) + the
-  component kit + the WCAG-clean palette closing R28.13; deliverable = a
-  brandkit-tokens addendum + a Theme layer in code + re-recorded goldens.
+- **UIR-0 — Design system: ✅ DONE (Session 32, 2 billed runs).** Delivered
+  `docs/design/tokens-v2.md` (the brandkit addendum of record — 5 LIGHT hexes
+  drift-corrected, R32.7), the `App/Sources/DesignSystem` Theme layer (data-first
+  `ColorToken` registry + `ContrastMath` + `ThemeMetrics` + 5 primitives), the
+  colors-only swap of all 12 view files, 64 re-recorded panic/slip goldens, and two
+  permanent unit gates (`ThemeContrastTests` 30 pairs ×2 modes, `ThemeSourceLintTests`).
+  **`.contrast` is RESTORED to the a11y audit on all three legs — the R28.13
+  exclusion list shrank for the first time**; `.dynamicType`/`.textClipped` remain
+  excluded and are now owned BY NAME (quiz→UIR-1, slip→UIR-2, panic→UIR-3).
 - **UIR-1 — Onboarding:** age gate + quiz + consent + summary.
 - **UIR-2 — Dashboard + widget families** (× discreet).
 - **UIR-3 — Panic + slip flows** (safety pre-sign-off; copy untouched).

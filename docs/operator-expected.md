@@ -3,7 +3,8 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — updated at every session close (operator request, Session 10) |
-| Last updated | 2026-07-14 (**Session 31 CLOSED: R30.6 DONE in exactly 1 billed run — born-green ruled, contingency UNUSED, ZERO burned; the LAST Apple submission blocker in the build is closed.** What that means concretely: your app now ships the `PrivacyInfo.xcprivacy` "required-reason API" manifests Apple has rejected apps without since May 2024 — and the docs-check gate earned its keep TWICE: (1) the reason code carried since S30 (CA92.1) turned out to be the app-only code; the App-Group suite your panic pre-cache rides needs a DIFFERENT documented code (**1C8F.1**) — the app manifest declares both, each tied to verified call sites; (2) a finding nobody had: **the widget extension needs its OWN manifest** — the panic intents run inside the widget process and write the App-Group launch flag, so Apple's per-executable rule mandates a second manifest in the .appex ([1C8F.1] only, honestly empty collected-data). The app manifest's collected-data half now mirrors your App Privacy label doc row-for-row — **label and manifest move TOGETHER from now on** (if counsel repicks the OQ-2 taxonomy, one session updates label doc + manifest + pin as one edit). Permanent key-set pins gate all of it in CI; LiveClock's boot-time-ish reads were classified OFF Apple's list (no false declaration). **Session-open check: NOTHING was required from you, open to close.** TWO more things from this session: (a) **your UI Reactor mandate is in the roadmap** — v1.1 adds Phase 2.5 (Epic UIR: full UI/UX regeneration in 6 sessions, copy bytes untouched, closes the S28 WCAG contrast debt by construction, gates submission screenshots — waivable by you); **Session 32 = UIR-0, the design-token session**; (b) **the "uipro" tool you reported installed is NOT visible on the build box** — checked twice (skills, plugin marketplaces, MCP tools); see the NEW §9: tell us where it lives or how to install it and UIR will drive it; meanwhile UIR proceeds on the documented workflows. Budget FYI: your **Claude monthly spend limit is NO LONGER hit** — verified empirically this session (a canary + a 6-agent sweep/verify/judge workflow ran clean); the §4 S30 item is closed.) |
+| Last updated | 2026-07-14 (**Session 32 CLOSED: UIR-0, the UI Reactor's design-system session — DONE in exactly 2 billed runs (the 2 planned; contingency UNUSED, ZERO burned).** What that means concretely: your app now has a REAL design system in code — one Theme layer every screen reads its colors from, machine-verified against WCAG before anything renders it — and **the accessibility CONTRAST audit that Session 28 had to switch off is back ON, permanently, on all three audited flows** (panic, slip, quiz). The S28 findings you deferred (teal buttons and gray text your users couldn't read — 18 failing element pairs, the worst at 1.38:1 where 4.5:1 is the floor) are CLOSED by construction: the new palette is your brandkit's, but machine-checked — and the check found your brandkit's own §2 prose carried four contrast claims that don't hold on real surfaces (its caution amber, positive green, indigo and gray-caption values all computed BELOW their stated ratios; five light-mode hexes were nudged darker by a few percent to fix it — imperceptible hue-wise, documented side-by-side in the new `docs/design/tokens-v2.md` §7 — dark mode needed zero changes). Every panic/slip screenshot golden re-recorded on the new palette (64 files, including the 2 stale ones carried since S28 — that debt closes); the 31 widget/overlay goldens provably did not move. A permanent unit gate now FAILS the build if any future color edit dips below WCAG — the audit can never silently rot again. **The session's real discovery:** Apple's contrast audit DOES inspect DISABLED buttons, and SwiftUI's plain button style silently re-dims a disabled label to ~50% opacity on top of whatever color you set — so a button that computes 5.9:1 on paper renders at 2.1:1 on screen (we measured the actual pixels in the run's own artifact). The disabled CTAs now ride our own button primitive, which renders exactly what the tokens say. **ALSO: the §9 uipro mystery is SOLVED, nothing needed from you** — uipro WAS installed on this box all along, as an npm command-line tool (the previous session's probes looked at AI-assistant plugin surfaces, not the shell PATH). It generated design input this session; where its stock suggestions contradicted your brand rules (every palette it offers ships a RED destructive color — banned in this product) your brandkit won, with the adopt/override record in tokens-v2 §8. **Session-open check: NOTHING was required from you, open to close.** One process note in the interest of honesty: you killed the session after the final green run but before its documentation commit; the close was reconstructed from the run artifacts and the session's own on-disk drafts — no code was re-run and no CI runs were re-spent. Next: Session 33 = UIR-1, the onboarding redesign (age gate + quiz + consent + summary) on the new system.) |
+| Superseded header (S31) | 2026-07-14 (**Session 31 CLOSED: R30.6 DONE in exactly 1 billed run — born-green ruled, contingency UNUSED, ZERO burned; the LAST Apple submission blocker in the build is closed.** What that means concretely: your app now ships the `PrivacyInfo.xcprivacy` "required-reason API" manifests Apple has rejected apps without since May 2024 — and the docs-check gate earned its keep TWICE: (1) the reason code carried since S30 (CA92.1) turned out to be the app-only code; the App-Group suite your panic pre-cache rides needs a DIFFERENT documented code (**1C8F.1**) — the app manifest declares both, each tied to verified call sites; (2) a finding nobody had: **the widget extension needs its OWN manifest** — the panic intents run inside the widget process and write the App-Group launch flag, so Apple's per-executable rule mandates a second manifest in the .appex ([1C8F.1] only, honestly empty collected-data). The app manifest's collected-data half now mirrors your App Privacy label doc row-for-row — **label and manifest move TOGETHER from now on** (if counsel repicks the OQ-2 taxonomy, one session updates label doc + manifest + pin as one edit). Permanent key-set pins gate all of it in CI; LiveClock's boot-time-ish reads were classified OFF Apple's list (no false declaration). **Session-open check: NOTHING was required from you, open to close.** TWO more things from this session: (a) **your UI Reactor mandate is in the roadmap** — v1.1 adds Phase 2.5 (Epic UIR: full UI/UX regeneration in 6 sessions, copy bytes untouched, closes the S28 WCAG contrast debt by construction, gates submission screenshots — waivable by you); **Session 32 = UIR-0, the design-token session**; (b) **the "uipro" tool you reported installed is NOT visible on the build box** — checked twice (skills, plugin marketplaces, MCP tools); see the NEW §9: tell us where it lives or how to install it and UIR will drive it; meanwhile UIR proceeds on the documented workflows. Budget FYI: your **Claude monthly spend limit is NO LONGER hit** — verified empirically this session (a canary + a 6-agent sweep/verify/judge workflow ran clean); the §4 S30 item is closed.) |
 | Superseded header (S30) | 2026-07-13 (**Session 30 CLOSED: E10.2 submission-package prep, the BUILD-side half — DONE in exactly 1 billed run, contingency UNUSED, ZERO burned.** What that means concretely: the submission package now exists as far as a build agent can take it — (1) **`docs/review-notes.md`**, a paste-ready App Review notes DRAFT (the age-gate/quiz path, why there is no demo account, exactly how a reviewer exercises the lock-screen Panic control, the 17+ clinical posture, the privacy story) with every claim anchored to a shipped test so you can defend it — your clinician+counsel pass is its ship gate, and the three decisions it deliberately does NOT make for you (teaser-vs-hard review build, keys-at-submission, the 17+ rating) are surfaced in its §3; (2) **`docs/app-privacy-label.md`**, the App Privacy label derived row-by-row from the code (three collected rows, all "not linked / not tracking": product interaction + the habit CATEGORY + purchase history once your RC key lands; NO identifiers row; code-derived until your §8 app ID lets the MITM audit verify it on the wire) ready for you to enter in App Store Connect — one taxonomy judgment call is yours/counsel's (OQ-2, veto list); (3) a **permanent explicit-terms/no-medical metadata lint** now gates every merge (born-green — your shipping surfaces were already clean: 357 copy strings + the bundle names + the widget/control strings, zero violations); (4) **`docs/submission-checklist.md`** wires every MVP §7 release box to its exact CI evidence or its operator owner — NO box was auto-ticked, and the honest gaps are named in it. **TWO real finds worth your eye:** (a) **the app ships no PrivacyInfo.xcprivacy "required-reason API" manifest — Apple rejects apps without one (since 2024); a REAL submission blocker, and Session 31 (the last build session) closes it — no action needed from you**; (b) two in-app spots render the words "Porn"/"Weed" (the panic multi-quit picker + the widget setup screen) — the Brand seat wants "Adult content"/"Cannabis", but an existing brand-signed test deliberately PINS the current words, so it is YOUR call (OQ-1, veto list; not an App-Review blocker either way). **Session-open check: NOTHING was required from you, open to close.** One budget FYI (§4): your **Claude monthly spend limit was hit mid-session** — the agent panel's last worker died on it (zero loss; findings were already on disk by standing rule) and the session finished inline; until you raise it or the month rolls, sessions run without agent fan-outs (slower, not blocked). Session 31 = the PrivacyInfo.xcprivacy manifest, the last build session.) |
 | Superseded header (S29) | 2026-07-13 (**Session 29 CLOSED: the StoreKit-config/contract session — the funnel is now MACHINE-PROVEN end to end, and the win-back's 50%-off purchase is one key-upload from live.** What that means concretely: the two-year-flaky "gate→quiz hang" was DISSOLVED with evidence — we parsed the failed run's raw test archive on the Linux box (screenshots + accessibility trees, no Xcode needed) and found the quiz had been mounting FINE all along; the old test was waiting on an identifier that never appears in the accessibility tree, while the seeded fallback's stall is a real named app defect (a store-open failure is silently swallowed with no retry — documented in code, deferred by name for the recovery-flow epic). The funnel smoke re-landed on correct anchors and PASSED ITS FIRST RUN: real age gate → the 11-step quiz → summary → paywall mount, with every analytics event's order asserted end-to-end through a new consent-honest debug event spy (it can only ever see what the consent gate lets through — structurally). The win-back seam: RevenueCat signs promotional offers SERVER-side with your In-App Purchase Key — we proved no keyless path exists — so the complete signed-purchase code is BUILT and dormant, the local StoreKit test config declares the same winback_annual offer (CI-pinned against drift), and **your IAP-key upload is now the ONLY thing between the app and the live discount — zero further code.** **Billed runs: exactly 3 = the 2 planned + the contingency, ZERO burned** (§4: the red run matched all 5 predicted failures name-for-name — the 15th consecutive; the contingency went to a PRE-EXISTING panic-smoke flake our diff didn't cause: a tap swallowed mid-animation, artifact-proven, the drive now verifies every tap took). **Session-open check: NOTHING was required from you, open to close, and there are ZERO new asks** — §8's winback block just gained an update note (the signed path is built; your Xcode-26 open-and-save rider now also covers the new offer entry) and one vetoable ruling (on offer-config drift the purchase fails honestly rather than charging full price after "half price" copy). Session 30 = E10.2 submission-package prep, the LAST build session.) |
 | Superseded header (S28) | 2026-07-13 (**Session 28 CLOSED: E9.3 DONE — the ACCESSIBILITY PASS; Epic 9's build half is COMPLETE.** What that means concretely: a visually-impaired user can now run the entire panic loop EYES-FREE — a new "Breathe with taps" switch in the settings sheet makes the breath pacer haptics-only, and the preference reaches even the cold lock-screen panic launch (the store never opens on that path — the bit rides the same pre-cached file the panic screen already reads); VoiceOver now reads honest labels through quiz, panic, and slip (the commitment slider speaks its WORDS — "Ready to start today" — never "50 percent"; every field/stepper/icon-picker state is named); the breath step gained a taps-anchored instruction because "Follow the circle" was literally false in haptics-only mode; and a PERMANENT runtime accessibility audit now gates every merge (Apple's own audit engine, driven through quiz/panic/slip on CI). The audit's very first run EARNED ITS KEEP: it caught a real broken VoiceOver sentence on the forgiveness screen ("Your momentum is still ." — an empty number slot; fixed, with a new never-dangle composition rule) and an untappable 4pt progress element (fixed). It ALSO enumerated real CONTRAST + TEXT-SCALING violations (your teal buttons and secondary text sit under WCAG on several frames) — those fixes are brand-palette decisions whose golden re-records cascade, so they are deferred BY NAME with the full finding ledger to the a11y-visual/golden-batch session (which already waits on your §3 copy pass — colors+copy+goldens land in ONE re-record). **Billed runs: 5 = the 2 planned + the contingency + 2 over, 1 BURNED** (§4 has the honest accounting: two docs-listed audit options exist only on macOS — the per-platform availability check is now a standing gate; every other run produced designed evidence, incl. two free golden re-records from CI's own artifacts). **Session-open check: NOTHING was required from you, open to close.** Your NEW asks: §3 gains the 4 a11y DRAFT strings (each with alternatives) + two copy niceties the audit surfaced; §7 gains a 2-minute eyes-free/VoiceOver eyeball. Vetoable rulings at the bottom — the DEFERRED CONTRAST findings are the one worth your eye. Session 29 = the StoreKit-config/contract session.) |
@@ -657,6 +658,17 @@ a live failure. Original context, for the record:
 
 ## 4. GitHub Actions billing headroom — ~2 min per session
 
+- [ ] Session 32 (UIR-0, the design system) used **exactly 2 billed runs — the
+      2 planned, contingency UNUSED, ZERO burned.** Run 1 (`29295414489`,
+      commit `d1c529a`) = the designed red: exactly the 64 predicted
+      "no reference on disk" golden failures (the palette moved, so every
+      panic/slip screenshot must be re-recorded — there is no free way to get
+      an adoptable PNG without a run), with the unit + accessibility lanes
+      GREEN on it, which is what actually PROVED the WCAG closure. It also
+      surfaced the R32.9 disabled-button discovery for free. Run 2
+      (`29296599848`, commit `0a3402f`) = the 64 re-recorded goldens adopted
+      straight out of run 1's own artifact + the R32.9 fix → all nine jobs
+      green, TestFlight uploaded.
 - [ ] Session 31 (R30.6 privacy manifests) used **exactly 1 billed run,
       contingency UNUSED, ZERO burned** — run 1 (`29290910960`, commit
       `c9d8478`) = the born-green single push (both manifests + project.yml
@@ -1113,31 +1125,66 @@ env `UITEST_SEED_PANIC_SNAPSHOT=1` (two-quit pre-cache: "Vaping" + one discreet)
 
 ---
 
-## 9. NEW (Session 31) — the "uipro" discrepancy: where does it live? (~2 min)
+## 9. ✅ RESOLVED (Session 32) — the "uipro" discrepancy: it was on the box all along
 
-You said mid-Session-31: *"We have installed uipro to refactor ui."* The build
-box cannot see it — verified twice on 2026-07-14 (session open + right after
-your message): no skill named uipro, no plugin (the only installed marketplace
-is `claude-plugins-official`, which does not carry one), no MCP/deferred tool.
-Two likely explanations, only you can tell which:
+**Nothing is needed from you. Closed.**
 
-- [ ] **It was installed somewhere else** (your Mac's Claude Code, claude.ai,
-      a different machine/profile). If so and you want UIR sessions to use it,
-      make it visible HERE: install it on this machine/profile, or tell the
-      next session the marketplace/plugin name (or MCP server config) and it
-      will install it session-open.
-- [ ] **The install didn't take.** Re-run it and confirm the name as it
-      appears — the next session probes for it at session open either way
-      (the standing instruction is in roadmap §2.5 and resume-prompt §9:
-      the moment a uipro tool is visible, it becomes UIR's primary
-      generator).
+Resolution (2026-07-14): `which uipro` →
+`~/.nvm/versions/node/v20.20.2/bin/uipro` (v2.11.0) — **an npm command-line
+tool**, which is exactly why Session 31's probes missed it: they searched the
+AI-assistant surfaces (skills registry, plugin marketplaces, MCP tools) and
+never looked at the shell PATH. You had installed it correctly; we looked in the
+wrong places. `uipro init -a claude` installs its "UI/UX Pro Max" skill into
+`.claude/skills/` (gitignored — machine-local tooling, the same treatment
+`.codegraph` gets).
 
-**This does NOT block anything** — UIR-0 (Session 32) runs on the documented
-multi-agent design workflows regardless; uipro slots in whenever it appears.
+UIR sessions now drive it as the generator per your standing instruction, with
+one rule: **where its stock output contradicts your brand canon, your canon
+wins** — every palette it ships carries a RED destructive token (banned in this
+product), its wellness style pick self-reports low contrast, and its type advice
+assumes Google Fonts against our SF-only rule. What we ADOPTED from it (its UX
+acceptance criteria — WCAG floors, token-driven single-source theming, dark+light
+co-design, disabled-state emphasis, visible focus, tabular numerals, scrim
+ranges) and what we OVERRODE is recorded in `docs/design/tokens-v2.md` §8.
+
+ONE FYI, no action needed: it rides nvm's node v20.20.2 — if you change the
+default node version on this box, uipro may drop off PATH. Sessions probe
+`which uipro` at open either way.
+
+- [x] Locate/confirm uipro — **found: PATH binary, this box, v2.11.0**
 
 ---
 
 ## Decisions on record you can veto (FYI, no action needed)
+
+- **Session 32 (UIR-0, the design system) — the rulings, each vetoable
+  (R32.1–R32.9; full grounds in the S32 ledger):** the four worth your eye:
+  1. **Five LIGHT palette hexes were CORRECTED away from your brandkit §2
+     prose** (primary `#0E7A6F`→`#0C6F65`, caution `#9A6B00`→`#8C6100`,
+     positive `#2E7D4F`→`#2C774B`, secondary `#5B6ABF`→`#5262BC`, tertiary
+     `#8A9097`→`#80868E`). Grounds: your brandkit's own claimed contrast
+     ratios were never machine-verified, and four of them FAIL their stated
+     thresholds on real surfaces (caution 4.34, positive-on-sunken 4.27,
+     secondary-on-sunken 4.18, tertiary 2.73–2.98 against a 4.5 floor). The
+     corrections are hue-preserving lightness walks — a few percent darker,
+     side-by-side in `docs/design/tokens-v2.md` §7. **Dark mode needed zero
+     changes.** Veto = say the word and a session reverts any of them, at the
+     cost of re-opening the matching WCAG failures (and re-disabling the
+     contrast audit on the affected frames).
+  2. **Disabled buttons now render as "ghost"** (gray text on a sunken gray
+     capsule) instead of brandkit §6.1's 40%-opacity teal. Grounds: the
+     40%-opacity form computes 1.4–3.1:1 at EVERY alpha value, the very first
+     quiz screen shows a disabled Continue, and Apple's audit inspects
+     disabled controls (R32.9). Veto = restore the 40% form and accept a
+     permanently-failing contrast audit on the quiz + age-gate frames.
+  3. **The paywall's free-trial badge sits on a NEUTRAL capsule now** —
+     green-on-green-tint computes 4.29:1, under the 4.5 floor. Veto = keep the
+     green tint and exclude that pair from the gate.
+  4. **The contrast audit is RESTORED on the crisis paths** — from now on a
+     contrast regression HALTS merges. That is the point of the session, but
+     it is real new hardness and you should know it exists: any future color
+     change that dips below WCAG fails CI until it is fixed or the pair is
+     deliberately de-registered.
 
 - **Session 31 (R30.6 privacy manifests + the UIR roadmap change) — the
   rulings, each vetoable (R31.1–R31.8; full grounds in the S31 ledger):**

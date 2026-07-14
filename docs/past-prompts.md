@@ -4616,3 +4616,169 @@ rule-6 write-findings-to-files discipline stays permanent regardless.
   purchase-leg E2E (sandbox tier), MVP §7 a11y box honestly UNCHECKED — carried.
 - Next: **Session 32 = UIR-0 (design-system tokens + component kit + the WCAG-clean
   palette closing R28.13)** per roadmap v1.1 Phase 2.5.
+
+---
+
+## Session 32 — UIR-0: the design system (2026-07-14)
+
+**Objective (resume-prompt v4.4):** the UI Reactor's foundation — regenerated tokens
+(color/type/spacing/motion) + the component kit + the WCAG-clean palette closing
+R28.13 by construction; deliverables `docs/design/tokens-v2.md` + a Theme layer +
+themed primitives; NO screen rewiring, NO copy bytes, NO motion polish. Budget: 2
+billed runs + 1 contingency.
+
+**Outcome: DONE in exactly 2 billed runs (the 2 planned; contingency UNUSED, ZERO
+burned).** The Theme layer (`App/Sources/DesignSystem`: data-first `ColorToken` +
+`Theme` registry + `ContrastMath` + `ThemeMetrics` + 5 primitives) is the app's
+single color source; all 12 view files swapped in place (colors ONLY — layout/
+structure/copy byte-identical); `.contrast` RESTORED to the a11y audit on all three
+legs (the R28.13 exclusion list SHRINKS for the first time — the one sanctioned
+direction change); 64 panic/slip goldens re-recorded from run 1's artifact (incl.
+the 2 carried-stale hapticsOnly goldens — that debt closes); the 31 class-B goldens
+(29 widget + 2 privacy overlay) byte-stable as predicted. TWO permanent unit gates
+land born-green: `ThemeContrastTests` (30 registered pairs ×2 modes, key-set pinned,
+gate-gates-itself calibrated on the S28 white-on-system-teal fixture = 2.57) and
+`ThemeSourceLintTests` (the retired-idiom ban, comment-stripped, grow-only).
+**Session-open operator check: NOTHING required (three-way confirmed)** — AND the
+§9 uipro discrepancy RESOLVED: uipro v2.11.0 IS on the build box as an npm CLI on
+PATH (`~/.nvm/versions/node/v20.20.2/bin/uipro`) — the S31 probes checked
+skills/plugins/MCP, not PATH binaries. `uipro init -a claude` installed its skill to
+`.claude/skills/` (now gitignored, the `.codegraph` precedent); it was driven as the
+UIR-0 generator.
+
+### Rulings (each vetoable)
+
+- **R32.1 (STEP-0 a — Theme shape):** STATIC token namespace (`enum Theme`), not
+  environment injection: one theme ships; zero lookup on the panic first frame
+  (ADR-6); Sendable-clean. `ColorToken` is a Foundation-only struct holding
+  0xRRGGBB DATA (light+dark); SwiftUI `Color` derives in a separate UIKit file via
+  docs-checked `UIColor(dynamicProvider:)` (iOS 13) + `Color(uiColor:)` (iOS 15).
+  Registries are EXPLICIT (`allColorTokens` + `contrastPairs` — statics are not
+  Mirror-able); key-SET pinned; growing the palette is a deliberate two-place edit.
+- **R32.2 (scope):** in-place COLORS-ONLY substitution across the 12 App/Sources
+  view files; type/spacing/motion tokens land as API (`ThemeMetrics`) consumed by
+  the primitives, screens adopt them with their UIR-1…4 sessions. Primitives BUILT
+  + isolated (PrimaryButton w/ pressed/ghost-disabled/loading, QuietButtonStyle,
+  AnswerChipStyle, ThemedProgressBar, themedCard/CautionCard/SelectionTint), NOT
+  adopted by screens. `AppSwitcherPrivacyOverlay` untouched (its hardcoded hexes ARE
+  surface/base; golden byte-stability by construction). `DiscreetSettingsView` (List
+  root) + `AgeGateContainerView` (router over un-UIR'd subtrees) keep system
+  container backgrounds until their sessions.
+- **R32.3 (STEP-0 b + audit restoration):** `.contrast` is TOKEN-CLOSABLE — every
+  failing pair on the five audited frames (18 sub-WCAG pairs, worst 1.38) closes via
+  three token substitutions + two primitive-level fixes: (1) scheme-aware
+  `onPrimary` (the dark-mode white-on-teal 1.99 defect class — raw `.white` retired
+  everywhere); (2) the GHOST disabled treatment — contentSecondary on surfaceSunken
+  (5.64 L / 8.80 D) deliberately replacing brandkit §6.1's "40% opacity" (an
+  alpha-dimmed fill computes 1.38–3.07 at every alpha; Apple's `.contrast` behavior
+  on disabled controls is undocumented — ghost is safe either way; the audited first
+  quiz frame SHOWS a disabled Continue). `.dynamicType` + `.textClipped` stay
+  excluded BY NAME — layout-bound: quiz→UIR-1, slip→UIR-2, panic (incl. the AX5
+  entry-title truncation)→UIR-3. Also: the paywall trial badge moves to a NEUTRAL
+  sunken capsule (positive-on-positive-tint computes 4.29 — sub-threshold).
+- **R32.4 (STEP-0 c — the run plan):** red-rides-golden, delete→record-missing→
+  adopt (SnapshotTesting 1.19.3 `record: .missing` on a deleted reference
+  WRITES-then-FAILS — verified in the pinned source; born-green run 1 is IMPOSSIBLE
+  for shifted goldens; keep-and-diff yields no adoptable PNG). Run 1 = designed
+  snapshot red (exactly 64) with unit+uismoke GREEN — the uismoke green IS the
+  R28.13 closure evidence, decoupled from the snapshot bookkeeping red (lanes run
+  independently). The doc-only snapshots-rerecorded label gate: confirmed unenforced
+  in CI (direct-push sessions; no obstruction).
+- **R32.5 (STEP-0 d — AX5):** the 32 flow ax5 goldens re-record in the SAME batch
+  (they shift identically; leaving them stale would fail every future run). The S28
+  ONE-re-record promise binds the FINAL founder copy+palette batch only — UIR-0
+  moves zero copy bytes, so the promise is not consumed.
+- **R32.6 (STEP-0 e — uipro):** FOUND (see outcome). Driven as generator with the
+  binding canon as constraint set: its palette output OVERRIDDEN (no on-canon
+  deep-teal row; every uipro palette row ships a banned red destructive token; its
+  wellness style pick self-reports low contrast; Google-fonts suggestions vs our
+  SF-only rule); its UX rules ADOPTED as acceptance criteria (WCAG floors →
+  tightened to ≥4.6 working target, token-driven single-source theming, dark+light
+  co-designed, disabled emphasis, visible focus, tabular numerals, 40–60% scrim).
+  Recorded in tokens-v2 §8. `.claude/skills/` gitignored.
+- **R32.7 (palette drift corrections):** brandkit §2's claimed ratios were never
+  machine-verified; four claims FAIL their own thresholds on real surfaces (caution
+  4.34, positive-on-sunken 4.27, secondary-on-sunken 4.18, tertiary 2.73–2.98). Five
+  LIGHT hexes minimally corrected (hue-preserving lightness walk): primary
+  #0E7A6F→#0C6F65, caution #9A6B00→#8C6100, positive #2E7D4F→#2C774B, secondary
+  #5B6ABF→#5262BC, tertiary #8A9097→#80868E. DARK canon passes as written — zero
+  changes. Full table: tokens-v2 §7.
+- **R32.8 (scope fences held):** zero copy bytes (diff-verified per file); no privacy
+  surface touched; no store action; no new SDK/dep; widgets/Shared untouched (29
+  widget goldens byte-stable); no motion values changed; the walking-skeleton pinned
+  copy untouched.
+
+### The born-green evidence (R31.4 valve, applied)
+
+The two new unit gates rode the green path with the designed red's entire evidence
+value reproduced FREE pre-push: the Linux rehearsal harness compiled the EXACT
+shipping bytes (ColorToken/Theme/ContrastMath) + replicated every assertion under
+`-swift-version 6 -strict-concurrency=complete -warnings-as-errors` ×3 host TZ
+(UTC/Berlin/Kiritimati) — PASS on real tokens; FIRE on a mutated token
+(primary→systemTeal: 7 pairs fire, reproducing the S28 2.57 value exactly) and on an
+emptied registry (the count floor); the source lint FIRED LIVE on the 9
+not-yet-swapped files mid-session and went clean after the swap. ShapeChecks (burn
+gate a): the new ButtonStyle/@Environment/ViewModifier/dynamicProvider shapes
+strict-flags-typechecked on Linux. Docs checks (#5): `UIColor(dynamicProvider:)`
+iOS 13+ / `Color(uiColor:)` iOS 15+, both current, floor 26.
+
+### R32.9 (the run-1 finding + fix — a REAL discovery, zero extra billed cost)
+
+Run 1's uismoke: the rule-11 panic + slip legs PASSED with `.contrast` restored
+(48.98s / 32.56s — the R28.13 closure held on the safety paths first try), but the
+QUIZ leg fired ONE issue: "Contrast failed for SwiftUI.AccessibilityNode".
+Artifact-first diagnosis (the S29 fileBacked2 technique — zstd payloads, token-stream
+walk to the failure's attachments): the element screenshot IS the ghost-disabled
+Continue, and pixel measurement of the run's own PNG shows the label RENDERED at
+**2.14:1** while the authored pair computes 5.89 — because **`.buttonStyle(.plain)`
+composites a disabled Button's entire label at ~50% opacity ON TOP of any explicit
+foregroundStyle**. Two standing lessons, both banked: (a) **Apple's `.contrast` audit
+DOES inspect disabled controls** — the "WCAG exempts inactive components" assumption
+does not transfer to the audit; (b) the ghost treatment must be delivered through a
+CUSTOM ButtonStyle (no automatic dimming). FIX: the two ghost CTAs (quiz + age-gate
+Continue) adopt `PrimaryButtonStyle` — the one sanctioned amendment to R32.2's
+primitives-not-adopted fence, because the primitive IS the fix (it renders the ghost
+tokens as authored: 5.64 L / 8.80 D, registry-pinned). The fix rode the
+already-planned adopt push — no contingency run consumed. Every OTHER element on all
+five audited frames passed Apple's rendered-pixel check exactly as the computed
+registry predicted.
+
+### Run accounting (§4-honest)
+- **Run 1 — 29295414489 (d1c529a, red BY DESIGN):** snapshot RED with exactly the
+  predicted 64 record-missing failures (40 panic + 24 slip; all 31 class-B PASSED —
+  widgets, overlay, smoke); unit GREEN (both new gates executed in the full suite);
+  Linux package/lint lanes GREEN; uismoke panic+slip legs GREEN, quiz leg RED on the
+  R32.9 finding. Prediction: 5 of 6 lanes name-for-name; the quiz miss is the
+  recorded R32.9 discovery (SPENT on designed evidence + a real finding, not burned).
+- **Run 2 — 29296599848 (0a3402f, green):** the 64 artifact PNGs adopted (eyeballed
+  ×3: exits light / forgiveness dark / hapticsOnly light) + the R32.9 fix → ALL NINE
+  JOBS GREEN as predicted (build+unit+snapshot 95/95+uismoke, both package lanes,
+  all three lint gates, TestFlight upload).
+- **Total: 2 = the 2 planned, contingency UNUSED, ZERO burned.**
+
+### Session-close note (process, not product)
+The session was KILLED by the operator after run 2 went green but before the
+docs-close commit landed. The close was reconstructed from the run artifacts, the
+two commit messages, and the session's own on-disk drafts (the standing
+"critics/readers Write findings to files" rule paid for itself a third time — the
+ledger, resume, and operator drafts all survived the kill). Zero code was re-run and
+zero runs were re-spent; the only cost was the reconstruction read.
+
+### Operator asks (delta)
+- **§9 CLOSED** — uipro found + used (nothing needed from you; FYI: it is an npm CLI,
+  so it rides nvm's node version — if you change the default node version, re-check
+  `which uipro`).
+- No new asks. §3/§7/§8 carried unchanged.
+
+### Known limitations / carried
+- `.dynamicType`/`.textClipped` audit classes still excluded (layout-bound; named to
+  UIR-1/2/3 per R32.3).
+- The primitives are BUILT-not-adopted (except the two R32.9 ghost CTAs); the quiz
+  chips' 14pt rounding vs the primitive's brandkit pill is a named drift UIR-1 closes.
+- brandkit §2 prose still carries the pre-correction hexes/claims — tokens-v2 is the
+  addendum of record; a brandkit v1.1 edit is founder-owned (§3-class).
+- Tight watch pairs (registry-pinned, passing): tertiary-on-sunken 3.11 L,
+  primary-text-on-selection-tint 4.72 L.
+- OQ-1/OQ-2, R29.4, scenario-30 purchase leg, MVP §7 a11y box (UIR-5 + §7), label
+  wire-verify (§8) — carried.
+- Next: **Session 33 = UIR-1 (onboarding: age gate + quiz + consent + summary)**.
