@@ -51,19 +51,16 @@ struct AgeGateView: View {
             } label: {
                 Text(copy.continueLabel)
                     .font(.body.weight(.semibold))
-                    // The GHOST disabled treatment (R32.3): contentSecondary on sunken
-                    // until a year is picked, then onPrimary on primary (scheme-aware).
-                    .foregroundStyle(
-                        (model.selectedBirthYear == nil ? Theme.color.contentSecondary : Theme.color.brandOnPrimary).color
-                    )
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(
-                        (model.selectedBirthYear == nil ? Theme.color.surfaceSunken : Theme.color.brandPrimary).color,
-                        in: Capsule()
-                    )
             }
-            .buttonStyle(.plain)
+            // The GHOST disabled treatment DELIVERED THROUGH the primitive
+            // (R32.9): `.buttonStyle(.plain)` auto-dims a disabled label to
+            // ~50% opacity over any explicit foregroundStyle (rendered 2.14:1
+            // on the quiz's identical CTA — run 29295414489, artifact-measured).
+            // PrimaryButtonStyle renders the ghost tokens as authored
+            // (content2-on-sunken 5.6:1 L / 8.8:1 D, registry-pinned).
+            .buttonStyle(PrimaryButtonStyle())
             .disabled(model.selectedBirthYear == nil)
             .accessibilityIdentifier("ageGate.continue")
 

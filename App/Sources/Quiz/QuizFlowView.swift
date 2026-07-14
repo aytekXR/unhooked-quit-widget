@@ -94,23 +94,19 @@ struct QuizFlowView: View {
             } label: {
                 Text(model.engine.config.controls.continueLabel)
                     .font(.body.weight(.semibold))
-                    // The GHOST disabled treatment (R32.3): content/secondary on
-                    // sunken (5.6:1 L / 8.8:1 D) — the old label-at-full-alpha over
-                    // a 35% teal fill computed 1.4–3.1:1 at every alpha, and the
-                    // audited first quiz step SHOWS a disabled Continue. Enabled =
-                    // onPrimary on primary (scheme-aware; the dark white-on-teal
-                    // 1.99:1 defect retires with the raw .white).
-                    .foregroundStyle(
-                        (continueDisabled ? Theme.color.contentSecondary : Theme.color.brandOnPrimary).color
-                    )
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(
-                        (continueDisabled ? Theme.color.surfaceSunken : Theme.color.brandPrimary).color,
-                        in: Capsule()
-                    )
             }
-            .buttonStyle(.plain)
+            // The GHOST disabled treatment DELIVERED THROUGH the primitive
+            // (R32.9, the run-29295414489 finding): `.buttonStyle(.plain)`
+            // composites a disabled Button's whole label at ~50% opacity ON TOP
+            // of any explicit foregroundStyle — the authored content2-on-sunken
+            // (5.6:1) RENDERED at 2.14:1 and fired the restored `.contrast`
+            // audit on this very frame (artifact-measured, element screenshot).
+            // A custom ButtonStyle gets no automatic dimming: PrimaryButtonStyle
+            // renders enabled = onPrimary-on-primary and disabled = the ghost
+            // tokens EXACTLY as authored (both registry-pinned).
+            .buttonStyle(PrimaryButtonStyle())
             .disabled(continueDisabled)
             .accessibilityIdentifier("quiz.continue")
 
