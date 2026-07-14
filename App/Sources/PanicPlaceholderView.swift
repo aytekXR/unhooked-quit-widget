@@ -35,6 +35,7 @@ struct PanicPlaceholderView: View {
     var body: some View {
         content
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .themedScreenSurface() // UIR-0: surface/base behind the panic route (ADR-6: constant work)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("root.panicPlaceholder")
             .onAppear {
@@ -79,7 +80,7 @@ private struct BreatheFrame: View {
         VStack(spacing: 16) {
             Image(systemName: "wind")
                 .font(.system(size: 56))
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Text("You're here. Breathe.")
                 .font(.title.weight(.semibold))
@@ -109,14 +110,14 @@ private struct PanicQuitPickerView: View {
                     } label: {
                         HStack(spacing: 12) {
                             Image(systemName: "circle.dashed")
-                                .foregroundStyle(.teal)
+                                .foregroundStyle(Theme.color.brandPrimary.color)
                                 .accessibilityHidden(true)
                             Text(quit.label ?? "Your goal")
                                 .font(.body.weight(.medium))
                             Spacer()
                         }
                         .padding(14)
-                        .background(.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+                        .background(Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint), in: RoundedRectangle(cornerRadius: 14))
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("panic.quitPicker.row.\(quit.id.uuidString)")

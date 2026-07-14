@@ -36,3 +36,8 @@ AuthKey_*.p8
 
 # CodeGraph index — machine-local, never committed
 .codegraph/
+
+# uipro (UI/UX Pro Max) skill files — machine-local design tooling installed by
+# `uipro init -a claude` (operator-expected §9, resolved Session 32); third-party
+# generated assets, re-installable, never committed (the .codegraph precedent).
+.claude/skills/

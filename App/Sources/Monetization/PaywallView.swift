@@ -37,7 +37,7 @@ struct PaywallView: View {
                     if model.selectedPlan == .annual {
                         Text(data.trialMechanicsLine)
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.color.contentSecondary.color)
                             .multilineTextAlignment(.center)
                             .accessibilityIdentifier("paywall.trialMechanics")
                     }
@@ -48,7 +48,7 @@ struct PaywallView: View {
                     // the brandkit floor — small, but never truncated.
                     Text(data.autoRenewDisclosure)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("paywall.renewalTerms")
@@ -64,6 +64,7 @@ struct PaywallView: View {
             footerActions
         }
         .padding(20)
+        .themedScreenSurface() // UIR-0: surface/base behind the paywall
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("paywall.card")
         // The ONE presentation fire (R25.5): onAppear delegates to the
@@ -85,7 +86,7 @@ struct PaywallView: View {
             if let eyebrow = data.expiryEyebrow {
                 Text(eyebrow)
                     .font(.footnote.weight(.medium))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier("paywall.expiryEyebrow")
             }
@@ -97,17 +98,17 @@ struct PaywallView: View {
                 VStack(spacing: 4) {
                     Text(offer.offerLine)
                         .font(.footnote.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                         .accessibilityIdentifier("paywall.winback.offer")
                     Text(offer.mechanicsLine)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                         .accessibilityIdentifier("paywall.winback.mechanics")
                     Text(offer.reassurance)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                 }
             }
@@ -116,7 +117,7 @@ struct PaywallView: View {
                 .multilineTextAlignment(.center)
             Text(data.subhead)
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
         }
     }
@@ -154,25 +155,27 @@ struct PaywallView: View {
                         .font(.title3.weight(.semibold))
                     Text(priceLine)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                 }
                 Spacer()
                 if let badge {
                     Text(badge)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Theme.color.positive.color)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(.green.opacity(0.12), in: Capsule())
+                        // NEUTRAL sunken capsule (R32.3): positive text on a positive
+                        // tint computes 4.29:1, sub-WCAG — the badge fill stays neutral.
+                        .background(Theme.color.surfaceSunken.color, in: Capsule())
                 }
                 // Selection carries a checkmark, never color alone (the
                 // Session 16 micro-rule / quiz chip precedent).
                 Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(selected ? Color.teal : Color.secondary)
+                    .foregroundStyle((selected ? Theme.color.brandPrimary : Theme.color.contentSecondary).color)
             }
             .padding(16)
             .background(
-                selected ? Color.teal.opacity(0.10) : Color.secondary.opacity(0.06),
+                selected ? Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint) : Theme.color.surfaceSunken.color,
                 in: RoundedRectangle(cornerRadius: 24)
             )
         }
@@ -186,7 +189,7 @@ struct PaywallView: View {
                 .font(.footnote.weight(.medium))
             Text(data.positioningNotes)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
         }
         .multilineTextAlignment(.center)
     }
@@ -200,7 +203,7 @@ struct PaywallView: View {
             VStack(spacing: 10) {
                 Label(data.failureBanner, systemImage: "arrow.clockwise.circle")
                     .font(.footnote)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(Theme.color.caution.color)
                     .multilineTextAlignment(.leading)
                 Button {
                     Task { await model.purchaseSelectedPlan() }
@@ -209,15 +212,15 @@ struct PaywallView: View {
                         .font(.footnote.weight(.semibold))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityIdentifier("paywall.retry")
             }
             .padding(12)
-            .background(.orange.opacity(0.10), in: RoundedRectangle(cornerRadius: 12))
+            .background(Theme.color.caution.color.opacity(Theme.alpha.cautionTint), in: RoundedRectangle(cornerRadius: 12))
         case .restoredEmpty:
             Text(data.restoreEmpty)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier("paywall.restoreEmpty")
         case .idle, .working, .unlocked:
@@ -232,16 +235,17 @@ struct PaywallView: View {
             } label: {
                 Group {
                     if model.phase == .working {
-                        ProgressView().tint(.white)
+                        ProgressView().tint(Theme.color.brandOnPrimary.color)
                     } else {
                         Text(model.selectedPlan == .annual ? data.ctaTrial : data.ctaMonthly)
                     }
                 }
                 .font(.body.weight(.semibold))
-                .foregroundStyle(.white)
+                // brand/onPrimary is scheme-aware by construction (the raw .white retires).
+                .foregroundStyle(Theme.color.brandOnPrimary.color)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(Color.teal, in: Capsule())
+                .background(Theme.color.brandPrimary.color, in: Capsule())
             }
             .buttonStyle(.plain)
             .disabled(model.phase == .working)
@@ -263,13 +267,13 @@ struct PaywallView: View {
                             .font(.body)
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .disabled(model.phase == .working)
                     .accessibilityIdentifier("paywall.teaser.escape")
 
                     Text(escape.note)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                         .accessibilityIdentifier("paywall.teaser.note")
                 }
@@ -288,7 +292,7 @@ struct PaywallView: View {
                         .font(.body)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .disabled(model.phase == .working)
                 .accessibilityIdentifier("paywall.winback.dismiss")
             }
@@ -309,7 +313,7 @@ struct PaywallView: View {
             }
             .buttonStyle(.plain)
             .font(.footnote)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.color.contentSecondary.color)
         }
     }
 }

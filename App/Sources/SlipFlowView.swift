@@ -28,7 +28,6 @@ struct SlipFlowView: View {
     /// construction, so BOTH routes mount it unchanged.
     @State private var showsResources = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.colorScheme) private var colorScheme
 
     /// Injected only to anchor the undo banner's `TimelineView` schedule (the sanctioned
     /// view-side time source; production code never reads `Date()` directly). The gate
@@ -45,7 +44,7 @@ struct SlipFlowView: View {
 
     var body: some View {
         content
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .themedScreenSurface() // UIR-0: surface/base behind every slip stage
             // Motion/standard 300ms spring — a slip is procedurally identical to any
             // other log; it never borrows the panic flow's 600ms calm fade.
             .animation(
@@ -87,7 +86,7 @@ struct SlipFlowView: View {
     private var slipGlyph: some View {
         Image(systemName: "arrow.uturn.backward.circle")
             .font(.system(size: 56, weight: .light))
-            .foregroundStyle(.teal)
+            .foregroundStyle(Theme.color.brandPrimary.color)
             .accessibilityHidden(true)
     }
 
@@ -103,7 +102,7 @@ struct SlipFlowView: View {
                     .multilineTextAlignment(.center)
                 Text(model.copy.confirm.body)
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
             }
             // Shown ONLY after a failed durable write — calm, neutral, retryable
@@ -111,7 +110,7 @@ struct SlipFlowView: View {
             if model.retryNoteVisible, let retryNote = model.copy.confirm.retryNote {
                 Text(retryNote)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier("slip.flow.confirm.retryNote")
             }
@@ -122,9 +121,11 @@ struct SlipFlowView: View {
                 } label: {
                     Text(model.copy.confirm.confirmLabel)
                         .font(.body.weight(.semibold))
-                        .foregroundStyle(primaryLabelColor)
+                        // brand/onPrimary is scheme-aware by construction (the old
+                        // manual dark-ternary retires; 6.0:1 L / 7.0:1 D, pinned).
+                        .foregroundStyle(Theme.color.brandOnPrimary.color)
                         .frame(maxWidth: .infinity, minHeight: 56) // touch.panic
-                        .background(.teal, in: RoundedRectangle(cornerRadius: 16))
+                        .background(Theme.color.brandPrimary.color, in: RoundedRectangle(cornerRadius: 16))
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -135,7 +136,7 @@ struct SlipFlowView: View {
                 } label: {
                     Text(model.copy.confirm.cancelLabel)
                         .font(.body)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .frame(maxWidth: .infinity, minHeight: 56)
                         .contentShape(Rectangle())
                 }
@@ -171,7 +172,7 @@ struct SlipFlowView: View {
 
                 Text(loggedBody)
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
 
                 // E9.1 (R27.11) — the calm post-log support offer (mvp feature 11:
@@ -184,7 +185,7 @@ struct SlipFlowView: View {
                     } label: {
                         Label(resources.linkLabel, systemImage: "lifepreserver")
                             .font(.footnote.weight(.medium))
-                            .foregroundStyle(.teal)
+                            .foregroundStyle(Theme.color.brandPrimary.color)
                             .frame(minHeight: 44)
                             .contentShape(Rectangle())
                     }
@@ -197,14 +198,14 @@ struct SlipFlowView: View {
                 if let motivation = model.framing?.motivation, !motivation.isEmpty {
                     Text(motivationEcho(motivation))
                         .font(.system(.callout, design: .default))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Theme.color.contentPrimary.color)
                         .multilineTextAlignment(.center)
                 }
 
                 if let encouragement = model.copy.encouragement.first {
                     Text(encouragement)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                 }
 
@@ -241,7 +242,7 @@ struct SlipFlowView: View {
                     } label: {
                         Label(model.copy.undo.undoLabel, systemImage: "arrow.uturn.backward.circle")
                             .font(.body.weight(.semibold))
-                            .foregroundStyle(.teal)
+                            .foregroundStyle(Theme.color.brandPrimary.color)
                             .frame(maxWidth: .infinity, minHeight: 56) // touch.panic
                             .contentShape(Rectangle())
                     }
@@ -253,14 +254,14 @@ struct SlipFlowView: View {
 
                     Text(model.copy.undo.windowNote)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity)
-                // NEUTRAL — secondary fill, never amber/red.
+                // NEUTRAL — sunken surface fill, never amber/red.
                 .background(
-                    Color(.secondarySystemBackground),
+                    Theme.color.surfaceSunken.color,
                     in: RoundedRectangle(cornerRadius: 16)
                 )
             }
@@ -272,7 +273,7 @@ struct SlipFlowView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(model.copy.reflection.prompt)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
             TextField(model.copy.reflection.placeholder, text: $noteText, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(2...4)
@@ -291,7 +292,7 @@ struct SlipFlowView: View {
         VStack(spacing: 20) {
             Image(systemName: "checkmark.circle")
                 .font(.system(size: 64, weight: .light))
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Text(model.copy.undo.undoneConfirmation)
                 .font(.title2.weight(.semibold))
@@ -320,11 +321,6 @@ struct SlipFlowView: View {
 
     private func motivationEcho(_ motivation: String) -> String {
         model.copy.motivationEcho.replacingOccurrences(of: "{{motivation}}", with: motivation)
-    }
-
-    /// Dark mode's lighter teal needs dark text for contrast (the ExitsView precedent).
-    private var primaryLabelColor: Color {
-        colorScheme == .dark ? Color.black.opacity(0.85) : .white
     }
 
     /// A plain, locale-stable humanization of an archived streak for the `{{bestStreak}}`

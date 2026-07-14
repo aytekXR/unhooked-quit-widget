@@ -44,7 +44,7 @@ struct PanicFlowView: View {
 
     var body: some View {
         content
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .themedScreenSurface() // UIR-0: surface/base behind every panic frame
             .animation(.easeInOut(duration: reduceMotion ? 0.2 : 0.6), value: model.stage)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("panic.flow")
@@ -138,7 +138,7 @@ private struct StepScaffold<Content: View>: View {
             if let subtext {
                 Text(subtext)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
             }
             SkipButton(label: skipLabel, action: onSkip)
@@ -159,7 +159,7 @@ private struct SkipButton: View {
         Button(action: action) {
             Text(label)
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .frame(maxWidth: .infinity, minHeight: 56)
                 .contentShape(Rectangle())
         }
@@ -208,7 +208,7 @@ private struct BreathStepView: View {
             VStack(spacing: 16) {
                 Image(systemName: "hand.tap")
                     .font(.system(size: 44))
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                     .accessibilityHidden(true)
                 Text(model.script.step(.breath)?.hapticOnlyLabel ?? "")
                     .font(.title3.weight(.medium))
@@ -217,7 +217,7 @@ private struct BreathStepView: View {
                     HStack(spacing: 10) {
                         ForEach(1...pattern.rounds, id: \.self) { _ in
                             Circle()
-                                .fill(.teal.opacity(0.35))
+                                .fill(Theme.color.brandPrimary.color.opacity(Theme.alpha.bloomTick))
                                 .frame(width: 12, height: 12)
                         }
                     }
@@ -233,7 +233,7 @@ private struct BreathStepView: View {
         } else {
             Image(systemName: "wind")
                 .font(.system(size: 56))
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
         }
     }
@@ -255,9 +255,11 @@ private struct BreathBloomView: View {
             let progress = pattern.phaseProgress(at: elapsed)
             ZStack {
                 Circle()
-                    .stroke(.teal.opacity(0.25), lineWidth: 2)
+                    .stroke(Theme.color.brandPrimary.color.opacity(Theme.alpha.bloomRing), lineWidth: 2)
                 Circle()
-                    .fill(.teal.opacity(reduceMotion ? pulseOpacity(progress) : 0.28))
+                    .fill(Theme.color.brandPrimary.color.opacity(
+                        reduceMotion ? pulseOpacity(progress) : Theme.alpha.bloomFill
+                    ))
                     .scaleEffect(reduceMotion ? 1 : bloomScale(progress))
             }
             .frame(width: 220, height: 220)
@@ -307,7 +309,7 @@ private struct TimerStepView: View {
         ) {
             Image(systemName: "timer")
                 .font(.system(size: 56, weight: .light))
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
         }
     }
@@ -384,7 +386,10 @@ private struct RedirectStepView: View {
                         }
                         .padding(.horizontal, 16)
                         .frame(maxWidth: .infinity, minHeight: 56) // touch.panic
-                        .background(.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+                        .background(
+                            Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint),
+                            in: RoundedRectangle(cornerRadius: 14)
+                        )
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -400,14 +405,13 @@ private struct RedirectStepView: View {
 
 private struct ExitsView: View {
     let model: PanicFlowModel
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(spacing: 16) {
             Spacer()
             Image(systemName: "wind")
                 .font(.system(size: 44, weight: .light))
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Spacer()
             Button {
@@ -415,10 +419,11 @@ private struct ExitsView: View {
             } label: {
                 Text(model.exitLabel("averted") ?? "")
                     .font(.body.weight(.semibold))
-                    // Dark mode's lighter teal needs dark text for contrast.
-                    .foregroundStyle(colorScheme == .dark ? Color.black.opacity(0.85) : .white)
+                    // brand/onPrimary is scheme-aware by construction (6.0:1 L /
+                    // 7.0:1 D, registry-pinned) — the old manual ternary retires.
+                    .foregroundStyle(Theme.color.brandOnPrimary.color)
                     .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(.teal, in: RoundedRectangle(cornerRadius: 16))
+                    .background(Theme.color.brandPrimary.color, in: RoundedRectangle(cornerRadius: 16))
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -428,7 +433,7 @@ private struct ExitsView: View {
             } label: {
                 Text(model.exitLabel("slipped") ?? "")
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .frame(maxWidth: .infinity, minHeight: 56)
                     .contentShape(Rectangle())
             }
@@ -450,7 +455,7 @@ private struct CelebrationView: View {
         VStack(spacing: 20) {
             Image(systemName: "checkmark.circle")
                 .font(.system(size: 64, weight: .light))
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Text(model.script.exit("averted")?.confirmation ?? "")
                 .font(.title2.weight(.semibold))

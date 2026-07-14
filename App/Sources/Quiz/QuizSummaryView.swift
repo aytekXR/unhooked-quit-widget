@@ -46,15 +46,17 @@ struct QuizSummaryView: View {
             Button(action: onContinue) {
                 Text(data.cta)
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(.white)
+                    // brand/onPrimary is scheme-aware by construction (the raw .white retires).
+                    .foregroundStyle(Theme.color.brandOnPrimary.color)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color.teal, in: Capsule())
+                    .background(Theme.color.brandPrimary.color, in: Capsule())
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("summary.cta")
         }
         .padding(20)
+        .themedScreenSurface() // UIR-0: surface/base behind the summary card
         .opacity(revealed ? 1 : 0)
         .onAppear {
             model.onSummaryAppear()
@@ -72,7 +74,7 @@ struct QuizSummaryView: View {
         VStack(spacing: 8) {
             Text(data.eyebrow)
                 .font(.footnote.weight(.medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
 
             if let parts = heroParts {
                 HStack(alignment: .lastTextBaseline, spacing: 2) {
@@ -84,12 +86,12 @@ struct QuizSummaryView: View {
                     if !parts.suffix.isEmpty {
                         Text(parts.suffix)
                             .font(.title3.weight(.medium))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.color.contentSecondary.color)
                     }
                 }
                 Text(data.savingsCaption)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
             } else {
                 Text(data.savingsAbsent)
@@ -111,7 +113,7 @@ struct QuizSummaryView: View {
             VStack(spacing: 8) {
                 Text(data.motivationIntro)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                 ForEach(data.motivations, id: \.self) { word in
                     Text(word)
                         .font(.title3.weight(.semibold))

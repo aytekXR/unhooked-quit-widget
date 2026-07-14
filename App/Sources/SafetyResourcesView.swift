@@ -106,7 +106,7 @@ struct SafetyResourcesView: View {
             VStack(spacing: 20) {
                 Image(systemName: "lifepreserver")
                     .font(.system(size: 44, weight: .light))
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                     .accessibilityHidden(true)
 
                 Text(data.title)
@@ -115,7 +115,7 @@ struct SafetyResourcesView: View {
 
                 Text(data.intro)
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
 
                 if !data.emergencyNote.isEmpty {
@@ -134,12 +134,13 @@ struct SafetyResourcesView: View {
                 if let footerDisclaimer = data.footerDisclaimer {
                     Text(footerDisclaimer)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                 }
             }
             .padding(20)
         }
+        .themedScreenSurface() // UIR-0: surface/base behind the resources screen
         .onAppear { model.viewed(data.source) }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("resources.screen")
@@ -154,7 +155,7 @@ struct SafetyResourcesView: View {
                 .multilineTextAlignment(.center)
             Text(row.descr)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
             if let url = URL(string: "tel:\(row.dialString)") {
                 Link(destination: url) {
@@ -164,7 +165,7 @@ struct SafetyResourcesView: View {
                         Text(verbatim: row.phoneDisplay)
                             .font(.body.weight(.semibold))
                     }
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                 }
             } else {
                 Text(verbatim: row.phoneDisplay)

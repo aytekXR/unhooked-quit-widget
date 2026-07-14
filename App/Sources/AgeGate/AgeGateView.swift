@@ -16,7 +16,7 @@ struct AgeGateView: View {
 
             Image(systemName: "calendar")
                 .font(.system(size: 44, weight: .light))
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
 
             Text(copy.title)
@@ -25,13 +25,13 @@ struct AgeGateView: View {
 
             Text(copy.body)
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 4) {
                 Text(copy.yearLabel)
                     .font(.footnote.weight(.medium))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                 Picker(copy.yearLabel, selection: $model.selectedBirthYear) {
                     // The unpicked placeholder row — "no passing year pre-selected"
                     // (PM §4): the wheel rests here until the user chooses.
@@ -51,11 +51,15 @@ struct AgeGateView: View {
             } label: {
                 Text(copy.continueLabel)
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(.white)
+                    // The GHOST disabled treatment (R32.3): contentSecondary on sunken
+                    // until a year is picked, then onPrimary on primary (scheme-aware).
+                    .foregroundStyle(
+                        (model.selectedBirthYear == nil ? Theme.color.contentSecondary : Theme.color.brandOnPrimary).color
+                    )
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(
-                        model.selectedBirthYear == nil ? Color.teal.opacity(0.35) : Color.teal,
+                        (model.selectedBirthYear == nil ? Theme.color.surfaceSunken : Theme.color.brandPrimary).color,
                         in: Capsule()
                     )
             }
@@ -65,12 +69,13 @@ struct AgeGateView: View {
 
             Text(copy.footer)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
 
             Spacer(minLength: 12)
         }
         .padding(20)
+        .themedScreenSurface() // UIR-0: surface/base behind the age-gate entry
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("ageGate.entry")
     }

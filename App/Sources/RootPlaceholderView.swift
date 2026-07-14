@@ -72,6 +72,7 @@ struct RootPlaceholderView: View {
             }
         }
         .padding(20)
+        .themedScreenSurface() // UIR-0: surface/base behind the root skeleton
         .sheet(item: $resources) { presented in
             SafetyResourcesView(
                 source: presented.source,
@@ -121,13 +122,13 @@ struct RootPlaceholderView: View {
         VStack(spacing: 12) {
             Image(systemName: "circle.dashed")
                 .font(.largeTitle)
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Text("Walking skeleton")
                 .font(.title2.weight(.semibold))
             Text("Nothing here yet — features arrive epic by epic.")
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
         }
         .padding(20)
@@ -172,10 +173,10 @@ struct RootPlaceholderView: View {
                     .font(.body.weight(.semibold))
                 Spacer()
             }
-            .foregroundStyle(.teal)
+            .foregroundStyle(Theme.color.brandPrimary.color)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 56)
-            .background(.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+            .background(Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint), in: RoundedRectangle(cornerRadius: 14))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -210,11 +211,11 @@ struct RootPlaceholderView: View {
                             .font(.body.weight(.medium))
                         Spacer()
                         Image(systemName: "arrow.uturn.backward.circle")
-                            .foregroundStyle(.teal)
+                            .foregroundStyle(Theme.color.brandPrimary.color)
                     }
                     .padding(.horizontal, 16)
                     .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(.teal.opacity(0.10), in: RoundedRectangle(cornerRadius: 14))
+                    .background(Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint), in: RoundedRectangle(cornerRadius: 14))
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -234,7 +235,7 @@ struct RootPlaceholderView: View {
             } label: {
                 Label(dashboardCopy.undoLabel, systemImage: "arrow.uturn.backward.circle")
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                     .frame(maxWidth: .infinity, minHeight: 56)
                     .contentShape(Rectangle())
             }
@@ -243,7 +244,7 @@ struct RootPlaceholderView: View {
         .padding(16)
         .frame(maxWidth: .infinity)
         // NEUTRAL — secondary fill, never amber/red (same as the slip flow's banner).
-        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+        .background(Theme.color.surfaceSunken.color, in: RoundedRectangle(cornerRadius: 16))
     }
 
     /// E9.1 (R27.6) — the once-per-process notice consideration: runs when the
@@ -271,21 +272,21 @@ struct RootPlaceholderView: View {
         VStack(spacing: 12) {
             HStack(spacing: 8) {
                 Image(systemName: "lifepreserver")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(Theme.color.caution.color)
                     .accessibilityHidden(true)
                 Text(notice.title)
                     .font(.body.weight(.semibold))
             }
             Text(notice.body)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
             Button {
                 showsAlcoholNotice = false
             } label: {
                 Text(notice.dismissLabel)
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .contentShape(Rectangle())
             }
@@ -296,7 +297,7 @@ struct RootPlaceholderView: View {
             } label: {
                 Text(notice.primaryActionLabel)
                     .font(.footnote.weight(.medium))
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                     .frame(minHeight: 44)
                     .contentShape(Rectangle())
             }
@@ -306,7 +307,7 @@ struct RootPlaceholderView: View {
         .padding(16)
         .frame(maxWidth: .infinity)
         // Amber semantic/caution ONLY — never red (§2 hard rule), calm typography.
-        .background(.orange.opacity(0.10), in: RoundedRectangle(cornerRadius: 16))
+        .background(Theme.color.caution.color.opacity(Theme.alpha.cautionTint), in: RoundedRectangle(cornerRadius: 16))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("alcoholNotice.card")
     }
@@ -327,10 +328,10 @@ struct RootPlaceholderView: View {
                     .font(.body.weight(.medium))
                 Spacer()
             }
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.color.contentSecondary.color)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 56)
-            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14))
+            .background(Theme.color.surfaceSunken.color, in: RoundedRectangle(cornerRadius: 14))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

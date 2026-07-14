@@ -63,7 +63,7 @@ struct DiscreetSettingsView: View {
                     onWinbackRowTap()
                 } label: {
                     Label(copy.winbackRowLabel, systemImage: "tag")
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Theme.color.contentPrimary.color)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings.winback.row")
@@ -84,7 +84,7 @@ struct DiscreetSettingsView: View {
                     onResourcesRowTap()
                 } label: {
                     Label(copy.resourcesRowLabel, systemImage: "lifepreserver")
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Theme.color.contentPrimary.color)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings.resources.row")
@@ -166,11 +166,11 @@ struct DiscreetSettingsView: View {
         } label: {
             HStack {
                 Text(title)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Theme.color.contentPrimary.color)
                 Spacer()
                 if current == iconID {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(.teal)
+                        .foregroundStyle(Theme.color.brandPrimary.color)
                         .accessibilityHidden(true)
                 }
             }

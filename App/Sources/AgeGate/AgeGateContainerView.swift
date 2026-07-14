@@ -73,7 +73,7 @@ struct AgeGateContainerView: View {
             VStack(spacing: 12) {
                 Image(systemName: "circle.dashed")
                     .font(.largeTitle)
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                     .accessibilityHidden(true)
             }
             .padding(20)

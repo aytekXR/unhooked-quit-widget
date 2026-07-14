@@ -29,20 +29,22 @@ import XCTest
 /// issue fails. The audit is iOS-17+ / XCUIAutomation and the deployment floor
 /// is iOS 26, so there is NO `#available` guard (a dead guard is banned).
 ///
-/// AUDIT SCOPE (R28.13 — the recorded, grow-only debt): every leg audits
-/// `Self.auditTypes` = all confirmed types EXCEPT {.contrast, .dynamicType,
-/// .textClipped}. The first full-`.all` run (CI 29262073722, the run whose
-/// artifact enumerates every finding) proved those three classes are
-/// PIXEL-COUPLED on goldened surfaces: the fixes are brand-palette decisions
-/// (teal button/secondary-text contrast) and type-scaling layout growth whose
-/// re-records cascade across the panic/slip golden matrix — a deliberate visual
-/// pass with Brand sign-off, deferred BY NAME to the a11y-visual/golden-batch
-/// session, NOT a class this file may silently keep excluding afterward (the
-/// gate only GROWS: restoring a class means deleting it from the exclusion here
-/// and fixing what fires). The in-scope set keeps the binding classes live on
-/// every leg — element detection, hit regions, labels/descriptions, traits,
-/// actions, parent/child structure — which is what rule 11 protects on the
-/// safety legs.
+/// AUDIT SCOPE (R28.13 → UIR-0/Session 32, the one sanctioned direction change):
+/// every leg audits `Self.auditTypes` = all confirmed types EXCEPT
+/// {.dynamicType, .textClipped}. **`.contrast` is RESTORED (R32.3)** — UIR-0's
+/// tokens-v2 palette swap closed the S28 contrast findings BY CONSTRUCTION:
+/// every fg/bg pair the audited frames render is registered in
+/// `Theme.contrastPairs` and pinned ≥ its WCAG threshold by the unit lane's
+/// `ThemeContrastTests`, so a palette regression fails unit BEFORE it could
+/// fire here on a rule-11 safety leg. The TWO remaining exclusions are
+/// LAYOUT-BOUND (type-scaling growth/clipping — the S28 artifact's
+/// .dynamicType/.textClipped set): they ride their surfaces' structural
+/// sessions (quiz → UIR-1, slip → UIR-2, panic incl. the AX5 entry-title
+/// truncation → UIR-3) and may only shrink from here (the gate only GROWS:
+/// restoring a class means deleting it from the exclusion AND fixing what
+/// fires). The in-scope set keeps the binding classes live on every leg —
+/// element detection, hit regions, labels/descriptions, traits, contrast —
+/// which is what rule 11 protects on the safety legs.
 ///
 /// Drive paths — audit LOW-FUZZ frames ONLY (no TimelineView, no live animation;
 /// the breath pacer's bloom + haptics ticks are `.accessibilityHidden`, but its
@@ -68,14 +70,16 @@ import XCTest
 /// `waitForExistence` (never a sleep) so every audit is reached deterministically.
 @MainActor
 final class A11yAuditUITests: XCTestCase {
-    /// R28.13 — the in-scope audit classes: the FULL iOS member set EXCEPT the
-    /// three pixel-coupled classes deferred BY NAME with run 29262073722's
-    /// artifact as the finding ledger (see the file header). Per-member PLATFORM
+    /// R28.13 → R32.3 — the in-scope audit classes: the FULL iOS member set
+    /// EXCEPT the two LAYOUT-BOUND classes deferred BY NAME with run
+    /// 29262073722's artifact as the finding ledger (see the file header;
+    /// `.contrast` restored in UIR-0 — the tokens-v2 palette closes it by
+    /// construction, unit-pinned in ThemeContrastTests). Per-member PLATFORM
     /// availability is docs-JSON-verified (the run-29264641853 burn lesson:
     /// `.action`/`.parentChild` EXIST but are macOS-14-only — existence on the
     /// type is not availability on the platform; every member below is iOS 17.0).
     private static let auditTypes: XCUIAccessibilityAuditType = [
-        .elementDetection, .hitRegion, .sufficientElementDescription, .trait,
+        .contrast, .elementDetection, .hitRegion, .sufficientElementDescription, .trait,
     ]
 
     /// SAFETY leg (rule 11 — NEVER quarantined/valved/suppressed). Drives the

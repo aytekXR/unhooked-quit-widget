@@ -33,7 +33,7 @@ struct AgeGateBlockedView: View {
             VStack(spacing: 20) {
                 Image(systemName: "lifepreserver")
                     .font(.system(size: 44, weight: .light))
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                     .accessibilityHidden(true)
 
                 Text(copy.title)
@@ -42,7 +42,7 @@ struct AgeGateBlockedView: View {
 
                 Text(copy.body)
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
 
                 if !blocked.emergencyNote.isEmpty {
@@ -61,7 +61,7 @@ struct AgeGateBlockedView: View {
                 if let footerDisclaimer {
                     Text(footerDisclaimer)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                 }
 
@@ -70,7 +70,7 @@ struct AgeGateBlockedView: View {
                 } label: {
                     Text(copy.goBackLabel)
                         .font(.body.weight(.medium))
-                        .foregroundStyle(.teal)
+                        .foregroundStyle(Theme.color.brandPrimary.color)
                         .padding(.vertical, 10)
                 }
                 .buttonStyle(.plain)
@@ -78,6 +78,7 @@ struct AgeGateBlockedView: View {
             }
             .padding(20)
         }
+        .themedScreenSurface() // UIR-0: surface/base behind the blocked screen
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("ageGate.blocked")
     }
@@ -90,7 +91,7 @@ struct AgeGateBlockedView: View {
                 .multilineTextAlignment(.center)
             Text(row.descr)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
             if let url = URL(string: "tel:\(row.dialString)") {
                 Link(destination: url) {
@@ -100,7 +101,7 @@ struct AgeGateBlockedView: View {
                         Text(verbatim: row.phoneDisplay)
                             .font(.body.weight(.semibold))
                     }
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(Theme.color.brandPrimary.color)
                 }
             } else {
                 Text(verbatim: row.phoneDisplay)

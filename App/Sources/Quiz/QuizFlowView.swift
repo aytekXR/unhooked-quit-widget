@@ -30,6 +30,7 @@ struct QuizFlowView: View {
             controls
         }
         .padding(20)
+        .themedScreenSurface() // UIR-0: surface/base behind the quiz
         .onAppear { model.onFirstScreenAppear() }
         // S29 (R29.3): the container's `.contain` grouping stays (real
         // VoiceOver structure); its old "quiz.flow" identifier is DELETED —
@@ -47,9 +48,9 @@ struct QuizFlowView: View {
         return GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Color(.systemGray5))
+                    .fill(Theme.color.surfaceSunken.color)
                 Capsule()
-                    .fill(.indigo)
+                    .fill(Theme.color.brandSecondary.color)
                     .frame(width: max(8, proxy.size.width * fraction))
                     .animation(.easeOut(duration: 0.2), value: position.index)
             }
@@ -84,7 +85,7 @@ struct QuizFlowView: View {
                         .multilineTextAlignment(.center)
                 }
                 .font(.subheadline)
-                .foregroundStyle(.orange)
+                .foregroundStyle(Theme.color.caution.color)
                 .accessibilityIdentifier("quiz.retryNote")
             }
 
@@ -93,11 +94,19 @@ struct QuizFlowView: View {
             } label: {
                 Text(model.engine.config.controls.continueLabel)
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(.white)
+                    // The GHOST disabled treatment (R32.3): content/secondary on
+                    // sunken (5.6:1 L / 8.8:1 D) — the old label-at-full-alpha over
+                    // a 35% teal fill computed 1.4–3.1:1 at every alpha, and the
+                    // audited first quiz step SHOWS a disabled Continue. Enabled =
+                    // onPrimary on primary (scheme-aware; the dark white-on-teal
+                    // 1.99:1 defect retires with the raw .white).
+                    .foregroundStyle(
+                        (continueDisabled ? Theme.color.contentSecondary : Theme.color.brandOnPrimary).color
+                    )
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(
-                        continueDisabled ? Color.teal.opacity(0.35) : Color.teal,
+                        (continueDisabled ? Theme.color.surfaceSunken : Theme.color.brandPrimary).color,
                         in: Capsule()
                     )
             }
@@ -113,7 +122,7 @@ struct QuizFlowView: View {
                 } label: {
                     Text(model.engine.config.controls.backLabel)
                         .font(.body)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.color.contentSecondary.color)
                         // Quiet visual, full 44pt hit target (brandkit §5 floor).
                         .frame(maxWidth: .infinity, minHeight: 44)
                         .contentShape(Rectangle())
@@ -167,7 +176,7 @@ private struct QuizStepContent: View {
             if let helper = step.helper {
                 Text(helper)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
             }
             control
@@ -249,15 +258,19 @@ private struct QuizStepContent: View {
                         Spacer(minLength: 0)
                         // Selection carries a glyph, never color alone (brandkit §8).
                         Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(selected ? Color.white : Color.secondary)
+                            .foregroundStyle(
+                                (selected ? Theme.color.brandOnPrimary : Theme.color.contentSecondary).color
+                            )
                             .accessibilityHidden(true)
                     }
-                    .foregroundStyle(selected ? Color.white : Color.primary)
+                    .foregroundStyle(
+                        (selected ? Theme.color.brandOnPrimary : Theme.color.contentPrimary).color
+                    )
                     .padding(.horizontal, 16)
                     .padding(.vertical, 13)
                     .frame(maxWidth: .infinity)
                     .background(
-                        selected ? Color.teal : Color(.systemGray6),
+                        (selected ? Theme.color.brandPrimary : Theme.color.surfaceSunken).color,
                         in: RoundedRectangle(cornerRadius: 14)
                     )
                 }
@@ -281,15 +294,19 @@ private struct QuizStepContent: View {
                         Spacer(minLength: 0)
                         // Selection carries a glyph, never color alone (brandkit §8).
                         Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(selected ? Color.white : Color.secondary)
+                            .foregroundStyle(
+                                (selected ? Theme.color.brandOnPrimary : Theme.color.contentSecondary).color
+                            )
                             .accessibilityHidden(true)
                     }
-                    .foregroundStyle(selected ? Color.white : Color.primary)
+                    .foregroundStyle(
+                        (selected ? Theme.color.brandOnPrimary : Theme.color.contentPrimary).color
+                    )
                     .padding(.horizontal, 16)
                     .padding(.vertical, 13)
                     .frame(maxWidth: .infinity)
                     .background(
-                        selected ? Color.teal : Color(.systemGray6),
+                        (selected ? Theme.color.brandPrimary : Theme.color.surfaceSunken).color,
                         in: RoundedRectangle(cornerRadius: 14)
                     )
                 }
@@ -306,12 +323,12 @@ private struct QuizStepContent: View {
             // (brandkit §6.6); echoes come verbatim from the audited table.
             Text(currentEcho)
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(.teal)
+                .foregroundStyle(Theme.color.brandPrimary.color)
                 // The word echo is the Slider's own a11y VALUE below — hide this
                 // sibling Text so VoiceOver reads the commitment once, not twice.
                 .accessibilityHidden(true)
             Slider(value: $sliderValue, in: 0...1)
-                .tint(.teal)
+                .tint(Theme.color.brandPrimary.color)
                 .onChange(of: sliderValue) { _, value in
                     model.record(QuizAnswer(
                         stepID: step.id, choiceIDs: [],
