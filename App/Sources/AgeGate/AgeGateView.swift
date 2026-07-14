@@ -4,76 +4,108 @@ import SwiftUI
 /// from the audited `ageGateCopy.json` table (lexicon-scanned in CI); the picker is
 /// a wheel (no keyboard, no invalid input, discreet) with NO pre-selected passing
 /// year — the CTA stays disabled until an explicit choice (the gate never nudges).
-/// House style: teal accents, SF Symbols only, no red anywhere (brandkit §2.1).
+///
+/// UIR-1 (Session 33) — regenerated on the UIR-0 system, copy byte-identical:
+/// - `OnboardingScaffold`: the text zone SCROLLS (the old plain `VStack` + `Spacer`
+///   pair could not grow, so at accessibility sizes the title/body/footer had
+///   nowhere to go — the S28 `.dynamicType` failure mode, structurally);
+/// - the wheel stays a wheel (`.pickerStyle(.wheel)` — the funnel smoke drives it
+///   via `pickerWheels.adjust(toPickerWheelValue:)`) and stays OUTSIDE the
+///   ScrollView, so its own scroll gesture never competes with an ancestor's;
+/// - its `.frame(maxHeight: 180)` is GONE: a fixed frame around text-rendering rows
+///   is Apple's own documented Dynamic-Type clipping trigger. The wheel now takes
+///   its intrinsic height;
+/// - the glyph and every text role scale with Dynamic Type (`@ScaledMetric` —
+///   `PanicFlowView`'s `reasonSize` is the shape precedent); nothing shrinks;
+/// - the CTA rides `PrimaryButtonStyle`, whose disabled state is the GHOST form
+///   (R32.9: `.buttonStyle(.plain)` auto-dims a disabled label ~50% ON TOP of any
+///   foregroundStyle — an authored 5.9:1 rendered at 2.14:1 and fired the audit).
 struct AgeGateView: View {
     @Bindable var model: AgeGateModel
 
     private let copy = (AgeGateCopy.loadShipping() ?? .degraded).gate
 
+    /// Dynamic-Type-bound screen glyph (brandkit §8: everything scales). Capped so
+    /// a decorative mark can never crowd out the content it decorates.
+    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = Theme.type.screenGlyphBase
+
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer(minLength: 12)
+        OnboardingScaffold {
+            VStack(spacing: Theme.space.s5) {
+                Image(systemName: "calendar")
+                    .font(.system(size: min(glyphSize, Theme.type.screenGlyphCap), weight: .light))
+                    .foregroundStyle(Theme.color.brandPrimary.color)
+                    .accessibilityHidden(true)
 
-            Image(systemName: "calendar")
-                .font(.system(size: 44, weight: .light))
-                .foregroundStyle(Theme.color.brandPrimary.color)
-                .accessibilityHidden(true)
+                Text(copy.title)
+                    .font(.title.weight(.semibold))
+                    .foregroundStyle(Theme.color.contentPrimary.color)
+                    .multilineTextAlignment(.center)
+                    // Take the natural height whatever the parent proposes — the
+                    // anti-clipping guarantee, paired with the scaffold's ScrollView.
+                    .fixedSize(horizontal: false, vertical: true)
 
-            Text(copy.title)
-                .font(.title.weight(.semibold))
-                .multilineTextAlignment(.center)
-
-            Text(copy.body)
-                .font(.body)
-                .foregroundStyle(Theme.color.contentSecondary.color)
-                .multilineTextAlignment(.center)
-
-            VStack(spacing: 4) {
-                Text(copy.yearLabel)
-                    .font(.footnote.weight(.medium))
+                Text(copy.body)
+                    .font(.body)
                     .foregroundStyle(Theme.color.contentSecondary.color)
-                Picker(copy.yearLabel, selection: $model.selectedBirthYear) {
-                    // The unpicked placeholder row — "no passing year pre-selected"
-                    // (PM §4): the wheel rests here until the user chooses.
-                    Text(verbatim: "—").tag(Int?.none)
-                    ForEach(model.selectableYears.reversed(), id: \.self) { year in
-                        Text(verbatim: String(year)).tag(Int?.some(year))
-                    }
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        } actions: {
+            VStack(spacing: Theme.space.s5) {
+                yearPicker
+
+                Button {
+                    guard let year = model.selectedBirthYear else { return }
+                    model.submit(birthYear: year)
+                } label: {
+                    Text(copy.continueLabel)
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        // Padding, never a height floor: a floor that exceeds the
+                        // label's natural accessibility-size height reads to Apple's
+                        // audit as a cap on the text (the redirect-row finding class).
+                        .padding(.vertical, Theme.space.s4)
                 }
-                .pickerStyle(.wheel)
-                .frame(maxHeight: 180)
-                .accessibilityIdentifier("ageGate.yearPicker")
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(model.selectedBirthYear == nil)
+                .accessibilityIdentifier("ageGate.continue")
+
+                Text(copy.footer)
+                    .font(.footnote)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-
-            Button {
-                guard let year = model.selectedBirthYear else { return }
-                model.submit(birthYear: year)
-            } label: {
-                Text(copy.continueLabel)
-                    .font(.body.weight(.semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-            }
-            // The GHOST disabled treatment DELIVERED THROUGH the primitive
-            // (R32.9): `.buttonStyle(.plain)` auto-dims a disabled label to
-            // ~50% opacity over any explicit foregroundStyle (rendered 2.14:1
-            // on the quiz's identical CTA — run 29295414489, artifact-measured).
-            // PrimaryButtonStyle renders the ghost tokens as authored
-            // (content2-on-sunken 5.6:1 L / 8.8:1 D, registry-pinned).
-            .buttonStyle(PrimaryButtonStyle())
-            .disabled(model.selectedBirthYear == nil)
-            .accessibilityIdentifier("ageGate.continue")
-
-            Text(copy.footer)
-                .font(.footnote)
-                .foregroundStyle(Theme.color.contentSecondary.color)
-                .multilineTextAlignment(.center)
-
-            Spacer(minLength: 12)
         }
-        .padding(20)
-        .themedScreenSurface() // UIR-0: surface/base behind the age-gate entry
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("ageGate.entry")
+    }
+
+    /// The wheel: a sunken well the year sits in (`surface/sunken` — the same
+    /// recessed-input language the quiz's fields and chips speak). No fixed height.
+    private var yearPicker: some View {
+        VStack(spacing: Theme.space.s1) {
+            Text(copy.yearLabel)
+                .font(.footnote.weight(.medium))
+                .foregroundStyle(Theme.color.contentSecondary.color)
+
+            Picker(copy.yearLabel, selection: $model.selectedBirthYear) {
+                // The unpicked placeholder row — "no passing year pre-selected"
+                // (PM §4): the wheel rests here until the user chooses.
+                Text(verbatim: "—").tag(Int?.none)
+                ForEach(model.selectableYears.reversed(), id: \.self) { year in
+                    Text(verbatim: String(year)).tag(Int?.some(year))
+                }
+            }
+            .pickerStyle(.wheel)
+            .accessibilityIdentifier("ageGate.yearPicker")
+        }
+        .padding(.vertical, Theme.space.s2)
+        .frame(maxWidth: .infinity)
+        .background(
+            Theme.color.surfaceSunken.color,
+            in: RoundedRectangle(cornerRadius: Theme.radius.m)
+        )
     }
 }

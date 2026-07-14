@@ -6,13 +6,26 @@ import SwiftUI
 /// (Architect S2), so a missing block is simply omitted and the rhythm closes up
 /// — the card reads as intentional in every degraded permutation, never broken.
 ///
+/// UIR-1 (Session 33) — regenerated on the UIR-0 system, copy byte-identical:
+/// - the payoff is now an actual CARD (`themedCard()` — `surface/raised` + hairline
+///   over the base surface), which is what brandkit §6.7 always specified;
+/// - **the hero numeral finally scales.** It was `.font(.system(size: 56))` — a
+///   FIXED point size, which does not respond to Dynamic Type AT ALL — rescued at
+///   large sizes by `.lineLimit(1)` + `.minimumScaleFactor(0.5)`, i.e. by SHRINKING
+///   the one number the screen exists to show. brandkit §8 forbids exactly that
+///   ("caps its scaling at accessibility-XL and switches to a stacked layout rather
+///   than shrinking"). Now: `@ScaledMetric` grows it with the user's type size,
+///   `Theme.type.heroCap` caps it, and `ViewThatFits` changes the LAYOUT (inline →
+///   stacked → one type step down) when the figure runs out of width. Nothing is
+///   squeezed; the glyph keeps its designed weight;
+/// - the CTA rides `PrimaryButtonStyle` (was a hand-rolled Capsule + `.plain`).
+///
 /// House rules honored: no red anywhere (teal/indigo only), the hero numeral is
 /// the single hero (motivation words get dignified weight but never rival it),
-/// motion is one `motion/calm` fade (600ms easeInOut; Reduce Motion → quick
-/// crossfade; NO count-up — a slot-machine money tick reads as hype),
-/// `.background(_:in:)` form only, 44pt+ targets, `summary.*` a11y ids for the
-/// E2E lane. quiz_completed fires from `model.onSummaryAppear()` in `.onAppear`
-/// — once per completion, guarded in the model (NOT in this view's body).
+/// motion is one `motion/calm` fade (Reduce Motion → quick crossfade; NO count-up
+/// — a slot-machine money tick reads as hype), 44pt+ targets, `summary.*` a11y ids
+/// for the E2E lane. quiz_completed fires from `model.onSummaryAppear()` in
+/// `.onAppear` — once per completion, guarded in the model (NOT in this view's body).
 struct QuizSummaryView: View {
     let model: QuizFlowModel
     let data: SummaryViewData
@@ -21,46 +34,31 @@ struct QuizSummaryView: View {
     let onContinue: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// `type/streakHero`, Dynamic-Type-bound (brandkit §3) — the fixed 56pt is gone.
+    @ScaledMetric(relativeTo: .largeTitle) private var heroSize: CGFloat = Theme.type.heroBase
     @State private var revealed = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            ScrollView {
-                VStack(spacing: 28) {
-                    savingsBlock
-                    if let windowLine = data.windowLine {
-                        Text(windowLine)
-                            .font(.body)
-                            .multilineTextAlignment(.center)
-                            .accessibilityIdentifier("summary.window")
-                    }
-                    motivationBlock
-                }
-                .padding(.top, 32)
-                .frame(maxWidth: .infinity)
+        OnboardingScaffold {
+            VStack(spacing: Theme.space.s6) {
+                summaryCard
             }
-            .scrollBounceBehavior(.basedOnSize)
-
-            Spacer(minLength: 0)
-
+        } actions: {
             Button(action: onContinue) {
                 Text(data.cta)
                     .font(.body.weight(.semibold))
-                    // brand/onPrimary is scheme-aware by construction (the raw .white retires).
-                    .foregroundStyle(Theme.color.brandOnPrimary.color)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Theme.color.brandPrimary.color, in: Capsule())
+                    .padding(.vertical, Theme.space.s4)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PrimaryButtonStyle())
             .accessibilityIdentifier("summary.cta")
         }
-        .padding(20)
-        .themedScreenSurface() // UIR-0: surface/base behind the summary card
         .opacity(revealed ? 1 : 0)
         .onAppear {
             model.onSummaryAppear()
-            withAnimation(.easeInOut(duration: reduceMotion ? 0.2 : 0.6)) {
+            withAnimation(.easeInOut(
+                duration: reduceMotion ? Theme.motion.quick : Theme.motion.calm
+            )) {
                 revealed = true
             }
         }
@@ -68,35 +66,54 @@ struct QuizSummaryView: View {
         .accessibilityIdentifier("summary.card")
     }
 
+    /// brandkit §6.7's QuitSummaryCard: the hero figure, the risk-window line, and
+    /// the user's own motivations — one raised card, one rhythm, each block dropping
+    /// out cleanly when its data is absent.
+    private var summaryCard: some View {
+        VStack(spacing: Theme.space.s6) {
+            savingsBlock
+
+            if let windowLine = data.windowLine {
+                Text(windowLine)
+                    .font(.body)
+                    .foregroundStyle(Theme.color.contentPrimary.color)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("summary.window")
+            }
+
+            motivationBlock
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Theme.space.s8)
+        .padding(.horizontal, Theme.space.s5)
+        .themedCard()
+    }
+
     /// The hero zone: eyebrow + the savings figure (or the non-monetary reframe
-    /// at a calmer weight — no empty crater where 64pt used to be).
+    /// at a calmer weight — no empty crater where the numeral used to be).
     private var savingsBlock: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.space.s2) {
             Text(data.eyebrow)
                 .font(.footnote.weight(.medium))
                 .foregroundStyle(Theme.color.contentSecondary.color)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
             if let parts = heroParts {
-                HStack(alignment: .lastTextBaseline, spacing: 2) {
-                    Text(parts.amount)
-                        .font(.system(size: 56, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
-                    if !parts.suffix.isEmpty {
-                        Text(parts.suffix)
-                            .font(.title3.weight(.medium))
-                            .foregroundStyle(Theme.color.contentSecondary.color)
-                    }
-                }
+                heroFigure(parts)
+
                 Text(data.savingsCaption)
                     .font(.subheadline)
                     .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             } else {
                 Text(data.savingsAbsent)
                     .font(.title3.weight(.medium))
+                    .foregroundStyle(Theme.color.contentPrimary.color)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .accessibilityElement(children: .ignore)
@@ -106,17 +123,82 @@ struct QuizSummaryView: View {
         .accessibilityIdentifier(heroParts != nil ? "summary.savings" : "summary.savingsAbsent")
     }
 
+    /// The figure itself. `ViewThatFits` picks the first layout that actually fits
+    /// the width it is given: the designed inline baseline pair, else the stacked
+    /// form (brandkit §8's answer to accessibility sizes), else the stacked form one
+    /// type step down. The NUMERAL is never squeezed to fit — the LAYOUT gives way.
+    private func heroFigure(_ parts: (amount: String, suffix: String)) -> some View {
+        let point = min(heroSize, Theme.type.heroCap)
+        return ViewThatFits(in: .horizontal) {
+            heroInline(parts, point: point)
+            heroStacked(parts, point: point)
+            heroStacked(parts, point: point * Self.heroStepDown)
+        }
+    }
+
+    private func heroInline(
+        _ parts: (amount: String, suffix: String), point: CGFloat
+    ) -> some View {
+        HStack(alignment: .lastTextBaseline, spacing: Theme.space.s1 / 2) {
+            heroAmount(parts.amount, point: point)
+            if !parts.suffix.isEmpty {
+                heroSuffix(parts.suffix)
+            }
+        }
+    }
+
+    private func heroStacked(
+        _ parts: (amount: String, suffix: String), point: CGFloat
+    ) -> some View {
+        VStack(spacing: 0) {
+            heroAmount(parts.amount, point: point)
+            if !parts.suffix.isEmpty {
+                heroSuffix(parts.suffix)
+            }
+        }
+    }
+
+    private func heroAmount(_ amount: String, point: CGFloat) -> some View {
+        Text(amount)
+            // SF Pro Rounded, monospaced digits (brandkit §3 `type/streakHero`):
+            // rounded for warmth without whimsy, monospaced so a live figure never
+            // jitters. The SIZE is Dynamic-Type-derived, never a literal.
+            .font(.system(size: point, weight: .bold, design: .rounded))
+            .monospacedDigit()
+            .foregroundStyle(Theme.color.contentPrimary.color)
+    }
+
+    private func heroSuffix(_ suffix: String) -> some View {
+        Text(suffix)
+            .font(.title3.weight(.medium))
+            .foregroundStyle(Theme.color.contentSecondary.color)
+    }
+
     /// The user's own words, verbatim, in their order — dignified weight, but
     /// never rivaling the hero (the 40pt panicReason treatment is ReasonsView's).
     @ViewBuilder private var motivationBlock: some View {
         if !data.motivations.isEmpty {
-            VStack(spacing: 8) {
+            VStack(spacing: Theme.space.s3) {
+                // A hairline rule, drawn from the token (never the system Divider,
+                // whose colour lives outside the Theme layer).
+                Rectangle()
+                    .fill(Theme.color.borderHairline.color)
+                    .frame(height: 1)
+                    .padding(.bottom, Theme.space.s1)
+                    .accessibilityHidden(true)
+
                 Text(data.motivationIntro)
                     .font(.subheadline)
                     .foregroundStyle(Theme.color.contentSecondary.color)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+
                 ForEach(data.motivations, id: \.self) { word in
                     Text(word)
                         .font(.title3.weight(.semibold))
+                        .foregroundStyle(Theme.color.contentPrimary.color)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             .accessibilityIdentifier("summary.motivations")
@@ -124,8 +206,8 @@ struct QuizSummaryView: View {
     }
 
     /// Splits the formatter's display string ("~$1,350/year") so the numeral is
-    /// the hero and "/year" sits subordinate on the same baseline — both parts
-    /// come FROM the tested display string; the view invents no copy.
+    /// the hero and "/year" sits subordinate — both parts come FROM the tested
+    /// display string; the view invents no copy.
     private var heroParts: (amount: String, suffix: String)? {
         guard let line = data.savingsLine else { return nil }
         guard line.hasSuffix("/year") else { return (line, "") }
@@ -139,4 +221,9 @@ struct QuizSummaryView: View {
         let amount = parts.amount.hasPrefix("~") ? String(parts.amount.dropFirst()) : parts.amount
         return "about \(amount) \(data.savingsCaption)"
     }
+
+    /// The single type step the hero may drop when even the stacked form overflows
+    /// (a very large figure on a very narrow screen). A LAYOUT decision, not a
+    /// glyph squeeze — `minimumScaleFactor` is what brandkit §8 rules out.
+    private static let heroStepDown: CGFloat = 0.72
 }

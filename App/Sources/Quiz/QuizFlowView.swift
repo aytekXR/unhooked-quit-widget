@@ -4,33 +4,43 @@ import SwiftUI
 /// screen from the audited config, a thin progress bar (visible position — R9,
 /// never the analytics slot), Back always available past the first step, and a
 /// bottom-pinned Continue (one-hand rule). Every string renders verbatim from
-/// `quizConfig.json` (DRAFT, founder-owned, lexicon-scanned); house style: teal
-/// accents, indigo progress (brand/secondary), SF Symbols only, no red anywhere,
-/// selected chips carry a checkmark (never color alone), `.background(_:in:)`
-/// form only (Session 16 micro-rule).
+/// `quizConfig.json` (DRAFT, founder-owned, lexicon-scanned).
+///
+/// UIR-1 (Session 33) — regenerated on the UIR-0 system, copy byte-identical:
+/// - `OnboardingScaffold` owns the skeleton (progress pinned on top, question
+///   scrolls, Continue pinned at the bottom on the brandkit §5 measure);
+/// - the hand-rolled progress track becomes `ThemedProgressBar`, the hand-rolled
+///   chips become `AnswerChipStyle` — which closes the KNOWN 14pt-vs-pill drift
+///   (brandkit §6.5 says `radius/full`; the v1 chips rounded to 14) — and Back
+///   becomes `QuietButtonStyle` (brandkit §6.2: the escape hatch is never a
+///   `.plain` orphan);
+/// - the free-text/spend/allowance controls leave the system's `.roundedBorder`
+///   for the app's own sunken-well treatment, so the quiz has ONE input language;
+/// - every text role is Dynamic-Type-bound and `.fixedSize`-guaranteed its natural
+///   height; the Continue label keeps PADDING (never a height floor — a floor that
+///   exceeds the label's accessibility-size height is what Apple's audit reads as
+///   a clipped-text cap: the S28 redirect-row finding class).
 struct QuizFlowView: View {
     @Bindable var model: QuizFlowModel
 
     var body: some View {
-        VStack(spacing: 24) {
+        // The step id is the SCROLL VIEW's identity, not the question's: on a step
+        // change the scaffold rebuilds its scroll view, so the next question opens at
+        // the top (v1 got this from `.id(step.id)` ON the ScrollView; a stable scroll
+        // view would silently inherit the previous question's offset and could open a
+        // step below the fold on a small screen or at accessibility sizes) and the
+        // step's transient controls re-hydrate with it (Back re-creates the content
+        // from the preserved answer — AC5). The progress bar and Continue keep stable
+        // identity outside it, so the bar still animates its fill instead of jumping.
+        OnboardingScaffold(contentID: model.currentStep?.id) {
             progressBar
-
+        } content: {
             if let step = model.currentStep {
-                ScrollView {
-                    QuizStepContent(step: step, model: model)
-                        .padding(.top, 8)
-                }
-                .scrollBounceBehavior(.basedOnSize)
-                // Re-hydrate the step's transient controls whenever the step changes
-                // (Back re-creates the content from the preserved answer — AC5).
-                .id(step.id)
+                QuizStepContent(step: step, model: model)
             }
-
-            Spacer(minLength: 0)
+        } actions: {
             controls
         }
-        .padding(20)
-        .themedScreenSurface() // UIR-0: surface/base behind the quiz
         .onAppear { model.onFirstScreenAppear() }
         // S29 (R29.3): the container's `.contain` grouping stays (real
         // VoiceOver structure); its old "quiz.flow" identifier is DELETED —
@@ -40,49 +50,42 @@ struct QuizFlowView: View {
         .accessibilityElement(children: .contain)
     }
 
-    /// Thin visible-progress track (brand/secondary fill on the sunken track).
+    /// Thin visible-progress track (brand/secondary fill on the sunken track —
+    /// momentum is indigo so streak and progress are never confused, brandkit §2.1).
     private var progressBar: some View {
         let position = model.progressPosition
         let fraction = position.total > 0
             ? Double(position.index) / Double(position.total) : 0
-        return GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Theme.color.surfaceSunken.color)
-                Capsule()
-                    .fill(Theme.color.brandSecondary.color)
-                    .frame(width: max(8, proxy.size.width * fraction))
-                    .animation(.easeOut(duration: 0.2), value: position.index)
-            }
-        }
-        .frame(height: 4)
-        // R28.13 (the run-29262073722 audit's hit-region finding): a 4pt-tall
-        // accessibility element is an un-targetable sliver for assistive tech.
-        // The VISUAL stays the 4pt capsule; the a11y element's frame grows to the
-        // 44pt floor, and the element is explicitly non-interactive (it is an
-        // announcement, not a control).
-        .frame(minHeight: 44)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(String(
-            format: model.engine.config.controls.progressA11yFormat,
-            position.index, position.total
-        ))
-        .accessibilityRespondsToUserInteraction(false)
-        .accessibilityIdentifier("quiz.progress")
+        return ThemedProgressBar(fraction: fraction)
+            .animation(.easeOut(duration: Theme.motion.quick), value: position.index)
+            // R28.13 (the run-29262073722 audit's hit-region finding): a 4pt-tall
+            // accessibility element is an un-targetable sliver for assistive tech.
+            // The VISUAL stays the 4pt capsule; the a11y element's frame grows to the
+            // 44pt floor, and the element is explicitly non-interactive (it is an
+            // announcement, not a control).
+            .frame(minHeight: Theme.touch.minTarget)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(String(
+                format: model.engine.config.controls.progressA11yFormat,
+                position.index, position.total
+            ))
+            .accessibilityRespondsToUserInteraction(false)
+            .accessibilityIdentifier("quiz.progress")
     }
 
     private var controls: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Theme.space.s3) {
             // SHOULD-4: the calm completion-retry surface — shown only when the
             // durable save failed; the checkpoint survived, Continue retries. Amber
             // + icon + text, never color alone (brandkit §2.2); string from the
             // audited table.
             if model.completionFailed {
-                HStack(spacing: 6) {
+                HStack(spacing: Theme.space.s2) {
                     Image(systemName: "arrow.clockwise.circle")
                         .accessibilityHidden(true)
                     Text(model.engine.config.controls.retryNote)
                         .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .font(.subheadline)
                 .foregroundStyle(Theme.color.caution.color)
@@ -95,7 +98,7 @@ struct QuizFlowView: View {
                 Text(model.engine.config.controls.continueLabel)
                     .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                    .padding(.vertical, Theme.space.s4)
             }
             // The GHOST disabled treatment DELIVERED THROUGH the primitive
             // (R32.9, the run-29295414489 finding): `.buttonStyle(.plain)`
@@ -117,13 +120,8 @@ struct QuizFlowView: View {
                     model.back()
                 } label: {
                     Text(model.engine.config.controls.backLabel)
-                        .font(.body)
-                        .foregroundStyle(Theme.color.contentSecondary.color)
-                        // Quiet visual, full 44pt hit target (brandkit §5 floor).
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(QuietButtonStyle())
                 .accessibilityIdentifier("quiz.back")
             }
         }
@@ -162,20 +160,24 @@ private struct QuizStepContent: View {
     @State private var allowanceValue: Int = 0
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Theme.space.s5) {
             if let title = step.title {
                 Text(title)
                     .font(.title2.weight(.semibold))
+                    .foregroundStyle(Theme.color.contentPrimary.color)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             if let helper = step.helper {
                 Text(helper)
                     .font(.subheadline)
                     .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             control
+                .padding(.top, Theme.space.s1)
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("quiz.step.\(step.id)")
@@ -187,22 +189,31 @@ private struct QuizStepContent: View {
         case .singleChoice, .multiChoice:
             choiceChips
         case .freeText:
-            TextField(step.placeholder ?? "", text: $freeText)
-                .textFieldStyle(.roundedBorder)
-                .submitLabel(.done)
-                .onChange(of: freeText) { _, text in
-                    model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: text))
-                }
+            themedField(
+                placeholder: step.placeholder ?? "",
+                text: $freeText,
                 // A placeholder is not a name once typing clears it — label the field
                 // with the question already on screen (its title, else its helper).
-                .accessibilityLabel(step.title ?? step.helper ?? "")
-                .accessibilityIdentifier("quiz.customNameField")
+                label: step.title ?? step.helper ?? "",
+                identifier: "quiz.customNameField"
+            )
+            .submitLabel(.done)
+            .onChange(of: freeText) { _, text in
+                model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: text))
+            }
         case .decimalInput where step.id == "allowance":
             Stepper(value: $allowanceValue, in: 0...99) {
                 Text(verbatim: "\(allowanceValue)")
                     .font(.title3.weight(.semibold))
                     .monospacedDigit()
+                    .foregroundStyle(Theme.color.contentPrimary.color)
             }
+            .padding(.horizontal, Theme.space.s4)
+            .padding(.vertical, Theme.space.s3)
+            .background(
+                Theme.color.surfaceSunken.color,
+                in: RoundedRectangle(cornerRadius: Theme.radius.s)
+            )
             .onChange(of: allowanceValue) { _, value in
                 model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: String(value)))
             }
@@ -212,16 +223,18 @@ private struct QuizStepContent: View {
             .accessibilityValue("\(allowanceValue)")
             .accessibilityIdentifier("quiz.allowanceStepper")
         case .decimalInput:
-            TextField(step.placeholder ?? "0", text: $freeText)
-                .textFieldStyle(.roundedBorder)
-                .keyboardType(.decimalPad)
-                .onChange(of: freeText) { _, text in
-                    model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: text))
-                }
+            themedField(
+                placeholder: step.placeholder ?? "0",
+                text: $freeText,
                 // Label with the question already on screen (its title, else its
                 // helper) — the placeholder stops being the field's only name.
-                .accessibilityLabel(step.title ?? step.helper ?? "")
-                .accessibilityIdentifier("quiz.spendField")
+                label: step.title ?? step.helper ?? "",
+                identifier: "quiz.spendField"
+            )
+            .keyboardType(.decimalPad)
+            .onChange(of: freeText) { _, text in
+                model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: text))
+            }
         case .slider:
             commitmentSlider
         case .consent:
@@ -233,6 +246,40 @@ private struct QuizStepContent: View {
         }
     }
 
+    /// The app's ONE input well (UIR-1): a sunken field with a hairline edge — the
+    /// same recessed language the unselected chips and the year wheel speak. The
+    /// system `.roundedBorder` was the last un-themed control in onboarding.
+    private func themedField(
+        placeholder: String,
+        text: Binding<String>,
+        label: String,
+        identifier: String
+    ) -> some View {
+        TextField(placeholder, text: text)
+            .textFieldStyle(.plain)
+            .font(.body)
+            .foregroundStyle(Theme.color.contentPrimary.color)
+            // Label + id sit on the FIELD, before any chrome: the element XCUITest
+            // queries and VoiceOver speaks must be the TextField itself, never the
+            // decorated container around it.
+            .accessibilityLabel(label)
+            .accessibilityIdentifier(identifier)
+            // The 44pt floor likewise sits on the FIELD, not on a wrapper: the
+            // hit-region audit measures the element's own frame (brandkit §5 motor
+            // floor). 44 stays BELOW the label's accessibility-size height, so it is
+            // a floor the text grows past — never a cap it is trapped under.
+            .frame(maxWidth: .infinity, minHeight: Theme.touch.minTarget)
+            .padding(.horizontal, Theme.space.s4)
+            .background(
+                Theme.color.surfaceSunken.color,
+                in: RoundedRectangle(cornerRadius: Theme.radius.s)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.radius.s)
+                    .strokeBorder(Theme.color.borderHairline.color, lineWidth: 1)
+            )
+    }
+
     /// E8.2 — the calm two-choice consent control: both choices are the SAME
     /// pill as every answer chip (equal peers — never a primary + quiet pair;
     /// the one primary on screen stays the shared Continue). Taps route through
@@ -241,36 +288,16 @@ private struct QuizStepContent: View {
     /// pick: nothing pre-selected on a fresh mount or resume, the user's own
     /// choice re-hydrates on a within-session Back.
     private var consentChoices: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Theme.space.s3) {
             ForEach(step.choices ?? [], id: \.id) { choice in
                 let optsIn = choice.id == "optIn"
                 let selected = model.consentChoice == optsIn
                 Button {
                     model.recordConsent(optsIn)
                 } label: {
-                    HStack(spacing: 8) {
-                        Text(choice.label)
-                            .font(.body.weight(selected ? .semibold : .regular))
-                        Spacer(minLength: 0)
-                        // Selection carries a glyph, never color alone (brandkit §8).
-                        Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(
-                                (selected ? Theme.color.brandOnPrimary : Theme.color.contentSecondary).color
-                            )
-                            .accessibilityHidden(true)
-                    }
-                    .foregroundStyle(
-                        (selected ? Theme.color.brandOnPrimary : Theme.color.contentPrimary).color
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 13)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        (selected ? Theme.color.brandPrimary : Theme.color.surfaceSunken).color,
-                        in: RoundedRectangle(cornerRadius: 14)
-                    )
+                    chipLabel(choice.label, selected: selected)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(AnswerChipStyle(isSelected: selected))
                 .accessibilityAddTraits(selected ? [.isSelected] : [])
                 .accessibilityIdentifier("quiz.choice.\(choice.id)")
             }
@@ -278,48 +305,48 @@ private struct QuizStepContent: View {
     }
 
     private var choiceChips: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Theme.space.s3) {
             ForEach(step.choices ?? [], id: \.id) { choice in
                 let selected = selectedIDs.contains(choice.id)
                 Button {
                     toggle(choice.id)
                 } label: {
-                    HStack(spacing: 8) {
-                        Text(choice.label)
-                            .font(.body.weight(selected ? .semibold : .regular))
-                        Spacer(minLength: 0)
-                        // Selection carries a glyph, never color alone (brandkit §8).
-                        Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(
-                                (selected ? Theme.color.brandOnPrimary : Theme.color.contentSecondary).color
-                            )
-                            .accessibilityHidden(true)
-                    }
-                    .foregroundStyle(
-                        (selected ? Theme.color.brandOnPrimary : Theme.color.contentPrimary).color
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 13)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        (selected ? Theme.color.brandPrimary : Theme.color.surfaceSunken).color,
-                        in: RoundedRectangle(cornerRadius: 14)
-                    )
+                    chipLabel(choice.label, selected: selected)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(AnswerChipStyle(isSelected: selected))
                 .accessibilityAddTraits(selected ? [.isSelected] : [])
                 .accessibilityIdentifier("quiz.choice.\(choice.id)")
             }
         }
     }
 
+    /// The chip's inner label. The style owns the pill, the fill, and the label
+    /// colour; the CALLER owns the checkmark — selection is never colour alone
+    /// (brandkit §8), and the glyph must survive any restyle.
+    private func chipLabel(_ label: String, selected: Bool) -> some View {
+        HStack(spacing: Theme.space.s2) {
+            Text(label)
+                .font(.body.weight(selected ? .semibold : .regular))
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(
+                    (selected ? Theme.color.brandOnPrimary : Theme.color.contentSecondary).color
+                )
+                .accessibilityHidden(true)
+        }
+    }
+
     private var commitmentSlider: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Theme.space.s3) {
             // The value echoes in WORDS beside the control, never a bare number
             // (brandkit §6.6); echoes come verbatim from the audited table.
             Text(currentEcho)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.color.brandPrimary.color)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 // The word echo is the Slider's own a11y VALUE below — hide this
                 // sibling Text so VoiceOver reads the commitment once, not twice.
                 .accessibilityHidden(true)

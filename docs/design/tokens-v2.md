@@ -92,10 +92,66 @@ canon, restated: spacing 4/8/12/16/20/24/32/40/48; radii 10/16/24/full(pill);
 motion instant 100ms · quick 200ms · standard 300ms spring(0.35, 0.85) · calm
 600ms · breath 4-7-8 sinusoidal; touch 44 global / 56 panic+slip; type roles
 per brandkit §3 (SF system only, Dynamic-Type-bound; Rounded for the streak
-hero alone; no weight <400). Screens keep their current metrics until their
-UIR session — the swap was colors-only (R32.2).
+hero alone; no weight <400). Screens adopt these WITH their own UIR session —
+UIR-0's swap was colors-only (R32.2); **UIR-1 adopted them on the onboarding
+surfaces** (age gate, quiz, consent, summary).
 
-## 6. Themed primitives (BUILT, NOT ADOPTED — adoption is UIR-1…4's work)
+### 5.1 UIR-1 additions (Session 33)
+
+| Token | Value | Grounds |
+|---|---|---|
+| `Theme.layout.contentMaxWidth` | 560 | brandkit §5 grid — one column, iPad-safe without a second layout, keeps body copy near the ~34ch conversational measure |
+| `Theme.type.heroBase` / `heroCap` | 56 / 96 | The `type/streakHero` numeral's `@ScaledMetric` BASE and its ceiling. brandkit §8: the hero "caps its scaling at accessibility-XL and switches to a stacked layout **rather than shrinking**" |
+| `Theme.type.screenGlyphBase` / `Cap` | 44 / 72 | Decorative SF-Symbol screen marks (age gate, blocked) — Dynamic-Type-bound like everything else |
+
+**The point-size rule (R33.6, lint-enforced):** a font size that is a NUMBER does
+not scale with Dynamic Type at all. Every point size on a UIR'd surface is driven
+by `@ScaledMetric(relativeTo:)` from a `Theme.type.*` base (the `PanicFlowView`
+`reasonSize` precedent) — so a size that is a VARIABLE is sanctioned and a size
+that is a LITERAL is banned. `Tests/Unit/OnboardingLayoutLintTests.swift` enforces
+exactly that distinction, plus the bans on `.minimumScaleFactor`, `.lineLimit(1)`,
+`.buttonStyle(.plain)` and `.background(.quaternary` — the four idioms UIR-1
+removed. Its scope is the surfaces already regenerated (AgeGate + Quiz) and it
+GROWS with each UIR session; it never shrinks.
+
+### 5.2 The Dynamic-Type trigger, and the structure that answers it (R33.5)
+
+The S28 audit (run 29262073722 — the only full-set execution to date) fired
+`.dynamicType` on exactly 5 elements: the 4 panic redirect rows and the slip
+forgiveness body. Their element screenshots and the code behind them give the
+mechanism, and the quiz's PASSING elements give the control:
+
+| | fired | passed |
+|---|---|---|
+| container | non-scrollable, height-bounded (`StepScaffold`) | inside a `ScrollView` |
+| row height | `.frame(maxWidth: .infinity, minHeight: 56)` — a floor ABOVE the label's accessibility-size height (~53pt for `.body`), which reads as a CAP | padding only (`.padding(.vertical, 13)`) — no floor at all |
+
+So: **content must scroll, and a height floor on anything containing text must
+stay BELOW that text's accessibility-size height** (44 is safe for `.body`; 56 is
+not). `OnboardingScaffold` makes the first half structural and every UIR-1 surface
+obeys the second. `.fixedSize(horizontal: false, vertical: true)` on every wrapping
+`Text` is the belt to that braces.
+
+## 6. Themed primitives (UIR-0 BUILT them; **UIR-1 ADOPTED them on onboarding**)
+
+**Adoption record.** UIR-1 adopts the STYLES, never the `PrimaryButton` wrapper
+view: every accessibility identifier stays on the exact element it was already on,
+so the funnel smoke's drive and the audit's anchors are untouched by a restyle
+(R33.8). Adopted on the onboarding surfaces: `PrimaryButtonStyle` (both CTAs +
+the summary CTA), `QuietButtonStyle` (quiz Back, blocked "Go back"),
+`AnswerChipStyle` (quiz chips AND the consent pair — closing the known 14pt-vs-pill
+drift), `ThemedProgressBar` (quiz progress), `themedCard` (summary card, helpline
+rows), `themedScreenSurface` (via the scaffold). Remaining consumers — dashboard
+(UIR-2), panic/slip (UIR-3), paywall/settings/resources (UIR-4).
+
+### OnboardingScaffold (NEW in UIR-1 — `Primitives/OnboardingScaffold.swift`)
+
+The onboarding screen shell, and the Dynamic-Type fix ITSELF rather than a styling
+choice: `header` (pinned) · `content` (SCROLLS) · `actions` (pinned), all on the
+`Theme.layout.contentMaxWidth` measure. Content that scrolls can always grow;
+actions that are pinned are never below the fold (brandkit §5's one-hand rule);
+and the age gate's wheel picker lives in the pinned slot precisely so its own
+scroll gesture never competes with an ancestor ScrollView's.
 
 | Primitive | File | States (registry-backed) |
 |---|---|---|

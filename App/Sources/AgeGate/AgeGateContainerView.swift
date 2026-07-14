@@ -40,14 +40,15 @@ struct AgeGateContainerView: View {
     }
 
     @ViewBuilder private var content: some View {
-        if Self.uiTestQuizMount {
-            // E9.3 (R28.6) — the a11y-audit quiz leg's FIRST branch: forwards
-            // straight to the post-gate router, whose own UITEST_QUIZ branch
-            // renders the quiz over the shipping config. Pure view composition —
-            // no repository publish, no gate model, no store read stands between
-            // launch and the audited frame (the S25 seeded-leg stall waited on
-            // exactly those; this hook waits on nothing). DEBUG-only, release-inert
-            // BY CONSTRUCTION; the gate's un-bypassability stays unit-pinned (S18).
+        if Self.uiTestOnboardingMount {
+            // E9.3 (R28.6) + UIR-1 (R33.4) — the a11y-audit onboarding legs' FIRST
+            // branch: forwards straight to the post-gate router, whose own
+            // UITEST_QUIZ / UITEST_SUMMARY branches render the quiz or the payoff
+            // screen over the shipping tables. Pure view composition — no repository
+            // publish, no gate model, no store read stands between launch and the
+            // audited frame (the S25 seeded-leg stall waited on exactly those; this
+            // hook waits on nothing). DEBUG-only, release-inert BY CONSTRUCTION; the
+            // gate's un-bypassability stays unit-pinned (S18).
             PostGateRootView()
         } else if let model {
             switch model.phase {
@@ -95,15 +96,21 @@ struct AgeGateContainerView: View {
         #endif
     }
 
-    /// E9.3 (R28.6) — the a11y-audit quiz-leg switch (the UITEST_PAYWALL family):
-    /// mirrors PostGateRootView's own UITEST_QUIZ branch one level up so the audit's
-    /// launch never depends on the repository publishing or a gate model — the
-    /// scenario-29 wall's two known mechanisms. Inert in release BY CONSTRUCTION.
-    private static var uiTestQuizMount: Bool {
+    /// E9.3 (R28.6) — the a11y-audit onboarding-leg switch (the UITEST_PAYWALL
+    /// family): mirrors PostGateRootView's own UITEST_QUIZ / UITEST_SUMMARY branches
+    /// one level up so the audit's launch never depends on the repository publishing
+    /// or a gate model — the scenario-29 wall's two known mechanisms. Inert in
+    /// release BY CONSTRUCTION.
+    ///
+    /// UIR-1 (R33.4) widens it to the summary leg. The AGE-GATE legs need no hook at
+    /// all: the gate is the app's first screen, so a fresh install (UITEST_RESET) IS
+    /// its mount — the audit drives the real wheel, exactly as a user does.
+    private static var uiTestOnboardingMount: Bool {
         #if DEBUG
-        ProcessInfo.processInfo.environment["UITEST_QUIZ"] == "1"
+        let environment = ProcessInfo.processInfo.environment
+        return environment["UITEST_QUIZ"] == "1" || environment["UITEST_SUMMARY"] == "1"
         #else
-        false
+        return false
         #endif
     }
 

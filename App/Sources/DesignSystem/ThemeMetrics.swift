@@ -50,4 +50,33 @@ extension Theme {
         /// Pressed-state scale (brandkit §6.1).
         static let pressedScale: CGFloat = 0.98
     }
+
+    /// Layout constants (brandkit §5 grid). UIR-1 adopts these: the single-column
+    /// measure keeps body copy near the ~34ch line-length rule ("the quiz reads
+    /// like a conversation, not a form") and makes every screen iPad-safe without
+    /// a second layout.
+    enum layout {
+        /// Content column ceiling (brandkit §5: "content max-width 560pt").
+        static let contentMaxWidth: CGFloat = 560
+    }
+
+    /// Type scale (brandkit §3 as machine values). Only the roles that need a
+    /// POINT size live here — every other role is a Dynamic-Type text style used
+    /// directly (`.title2`, `.body`, `.subheadline`, `.footnote`).
+    ///
+    /// These are BASE sizes for `@ScaledMetric(relativeTo:)`: the rendered size
+    /// scales with Dynamic Type (the fixed-size `.font(.system(size:))` form does
+    /// NOT scale at all — the defect UIR-1 closes on the summary hero). `heroCap`
+    /// is brandkit §8's "streakHero caps its scaling at accessibility-XL and
+    /// switches to a stacked layout rather than shrinking": the numeral grows to
+    /// the cap and then the layout — not the glyph — gives way.
+    enum type {
+        /// `type/streakHero`-class numerals (the summary savings figure).
+        static let heroBase: CGFloat = 56
+        /// The ceiling the hero numeral scales to (≈ accessibility-XL).
+        static let heroCap: CGFloat = 96
+        /// Decorative SF-Symbol screen glyphs (age gate, blocked screen).
+        static let screenGlyphBase: CGFloat = 44
+        static let screenGlyphCap: CGFloat = 72
+    }
 }

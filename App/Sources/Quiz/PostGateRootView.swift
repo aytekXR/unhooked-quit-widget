@@ -70,6 +70,26 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// UIR-1 (R33.4) — the a11y-audit SUMMARY leg's mount, on the UITEST_QUIZ
+    /// precedent above: a DEBUG-only launch-env switch, inert in every release build
+    /// BY CONSTRUCTION. The summary is the one onboarding surface no drive can reach
+    /// deterministically without completing the whole quiz (11 steps, two of them
+    /// keyboard-bound), and it is the surface whose Dynamic-Type behaviour UIR-1
+    /// rebuilt — so the audit needs a mount, exactly as the quiz leg did.
+    ///
+    /// It opens NO path to habit content: it renders the payoff SCREEN over the
+    /// shipping copy table and a fixture, with `.disabled` analytics (so the
+    /// summary's quiz_completed fire is structurally impossible — the model has no
+    /// completion handoff either), no repository, no store, and a no-op forward
+    /// seam. The gate's un-bypassability stays unit-pinned (S18).
+    private static var uiTestSummaryMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_SUMMARY"] == "1"
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ZStack {
             content
@@ -122,6 +142,8 @@ struct PostGateRootView: View {
                 config: QuizConfig.loadShipping() ?? .degraded,
                 analytics: .disabled
             ))
+        } else if Self.uiTestSummaryMount {
+            debugSummaryMount
         } else if let paywall, let paywallData {
             PaywallView(
                 data: paywallData,
@@ -198,6 +220,42 @@ struct PostGateRootView: View {
                     if phase == .active { checkPaywallReentry() }
                 }
         }
+    }
+
+    /// R33.4 — the summary leg's frame, compiled out of release ENTIRELY (not merely
+    /// unreachable). It renders the REAL view through the REAL assembler
+    /// (`SummaryPresentation.make`), so the audited frame is the shipping one: savings
+    /// hero + risk-window line + motivation echo, the three blocks whose layout UIR-1
+    /// changed.
+    ///
+    /// What the fixture supplies is exactly what a USER supplies in production — never
+    /// copy: the savings NUMBER, the currency, the risk-window TOKEN (which
+    /// `SummaryCopy.phrase(forToken:)` resolves to the shipping phrase), and the
+    /// user's own motivation WORDS. The two motivation words here are lifted verbatim
+    /// from `quizConfig.json`'s motivations step (choice labels "Energy" / "Money") —
+    /// an audited table, so no string on this frame is authored here. Every framing
+    /// string (eyebrow, caption, intro, CTA) comes from `summaryCopy.json` as always.
+    @ViewBuilder private var debugSummaryMount: some View {
+        #if DEBUG
+        QuizSummaryView(
+            model: QuizFlowModel(
+                config: QuizConfig.loadShipping() ?? .degraded,
+                analytics: .disabled
+            ),
+            data: SummaryPresentation.make(
+                inputs: QuizSummaryInputs(
+                    savings: 1350,
+                    currencyCode: "USD",
+                    riskToken: "evenings",
+                    motivations: ["Energy", "Money"]
+                ),
+                copy: SummaryCopy.loadShipping() ?? .degraded
+            ),
+            onContinue: {}
+        )
+        #else
+        EmptyView()
+        #endif
     }
 
     /// Display inputs from persisted truth (Architect MUST-FIX 6): the profile's
