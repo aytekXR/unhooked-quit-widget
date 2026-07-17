@@ -5042,3 +5042,91 @@ prior run wrote is the current run's free coverage.**
 - The onboarding + paywall golden batch still waits on the founder's §3 copy pass (post-UIR, ONE
   re-record). The dashboard's goldens do NOT (its copy is audited/data), so they were minted now.
 - Next: **Session 35 = UIR-3 (panic + slip flows)** — safety pre-sign-off, copy untouched.
+
+## Session 35 — UIR-3: panic + slip flows (2026-07-17)
+
+**Objective (resume-prompt v4.7):** regenerate the panic + slip flows on the Theme layer,
+copy byte-identical, and CLOSE the `.dynamicType`/`.textClipped` exclusion list to ZERO.
+SAFETY surfaces — the stricter PM+Brand+QA pre-code sign-off (agent-workflows §2.2). Budget:
+2 billed runs + 1 contingency.
+
+**Outcome: DONE in exactly the 2 planned runs — contingency UNUSED, ZERO burned.** Run 1
+(`29613685655`) was the designed golden-mint + first-full-set-audit run (build SUCCESS, unit +
+UI-smoke GREEN, snapshot RED writing 64 record-missing goldens). Run 2 (`29615144684`) is green
+with the 64 goldens adopted. **The `.dynamicType`/`.textClipped` exclusion list is CLOSED to
+ZERO** — every leg (age gate, quiz, summary, panic, slip) now runs the full 7-type
+`onboardingAuditTypes`; `safetyAuditTypes` is deleted.
+
+### The second first-audit that DIDN'T fire (R35.1)
+
+The panic + slip a11y legs are rule-11 SAFETY legs — they can NEVER be valved, quarantined, or
+suppressed. UIR-3 moved them to the full set (adding `.dynamicType` + `.textClipped`) for the
+first time, and **they passed CLEAN on run 1** — the same outcome the dashboard's first audit had
+in S34, and for the same reason: R33.5 + R33.12 were already known, so the surfaces were rebuilt
+to obey them BEFORE the set flip, in the SAME atomic commit (the audit-type flip never landed in
+a prior commit where an unfixed element could have turned a rule-11 leg permanently red). The
+project has now had two consecutive clean first-audits on newly-opened surfaces — the ledger a
+prior run wrote (R32.9, R33.10, R33.12) is the current run's free coverage.
+
+### The fix — the S28 mechanism, closed (R35.2)
+
+The S28 audit fired `.dynamicType` on 5 elements: 4 panic redirect rows + the slip forgiveness
+frame's undo button. The shared mechanism: `.frame(maxWidth: .infinity, minHeight: 56)` — a floor
+JUST ABOVE the label's accessibility-size height (~53pt for `.body`) in a non-scrollable,
+height-bounded container, which the audit reads as "the text is constrained to a fixed height."
+UIR-3 replaced **all 8** such floors (SkipButton, 4 redirect rows, both ExitsView buttons, both
+confirmStage buttons, the undo button) with **growing PADDING** (`Theme.space.s5` = 20pt vertical:
+20 + ~17pt `.body` + 20 = 57pt at default, 20 + ~53pt AX5 + 20 = 93pt — never a cap). The pill/fill
+now grows with the text. `StepScaffold` and `confirmStage` now SCROLL their content with the
+actions PINNED below (R33.5), so a title/body can grow at accessibility sizes without pushing the
+controls off-screen — proven in the redirect and confirm AX5 goldens (the pill wraps and grows,
+the Skip/Log-it buttons pin, nothing clips).
+
+### The reasons text — the last @ScaledMetric point size (R35.3)
+
+`ReasonsStepView` sized the user's own words with a `@ScaledMetric(relativeTo: .largeTitle)` point
+value (40pt) + `.minimumScaleFactor(0.5)` — the exact R33.12 defect (a point size on Text is
+un-scalable to the audit however it is driven, and shrink-to-fit is banned). It moved onto the
+`.largeTitle` TEXT STYLE and dropped `.minimumScaleFactor`. Note: the reasons FRAME is deliberately
+NOT audited (the panic leg drives past it to audit the redirect + exits frames), so this was a
+correctness/lint fix, not an audit requirement — but leaving a known point-size-on-text on a safety
+surface while CLAIMING to close the DT exclusion would have been dishonest.
+
+### The rulings
+
+- **R35.4 (STEP-0: DON'T grow the layout-lint scope to panic/slip).** Growing it would force
+  removing every `.buttonStyle(.plain)` (a blanket lint ban) → a ButtonStyle refactor that CHANGES
+  SHAPES + adds golden churn + risk on SAFETY surfaces. Ruled AGAINST it (a deviation from
+  resume-prompt v4.7, for safety-surface restraint): the `.plain` buttons are never disabled (the
+  R32.9 dimming concern doesn't apply), and the full-set audit legs are the permanent gate for
+  panic/slip layout correctness from run 1 forward. The `.plain` → ButtonStyle adoption + the lint
+  scope growth ride a later cleanup / UIR-5.
+- **R35.5 (token adoption without shape change).** The redirect rows adopt `themedSelectionTint`
+  (same render as the retired inline background); the confirm/undo neutral surfaces stay
+  `surface/sunken` inline (NOT `themedCard`, which is raised+hairline — wrong semantic). No
+  PrimaryButtonStyle/QuietButtonStyle adoption (they change shape — deferred). Motion tokens
+  unchanged (panic `motion/calm` 0.6; slip `motion/standard` spring).
+- **R35.6 (the reasons paging vs. scroll tension).** `StepScaffold` gained a `scrollsContent: Bool`
+  flag: the redirect/breath/timer steps scroll (`true`), but the reasons step keeps its OWN paging
+  scroll (`false`) so the two don't fight for the vertical gesture. Cost: at AX5 the reasons
+  frame's TITLE truncates (the non-scrolling scaffold can't fit a wrapped `.title` + a
+  full-viewport reason page + the pinned Skip). This is non-audited, non-regressing (the old
+  scaffold was non-scrolling too), and AX5-only — a proper paging→scroll-list treatment at
+  accessibility sizes is a UIR-5 AX-axis item, named.
+- **R35.7 (scope fences held).** 64 class-A goldens re-recorded (delete → write-then-fail → adopt →
+  green; each visually verified). Zero copy bytes; no privacy surface, no analytics motion, no new
+  SPM dep; the dashboard, onboarding, widgets, Shared, and the packages all untouched → their
+  goldens byte-stable (CI-proven both runs). Total golden count unchanged at 103 (the 64 shifted in
+  place). All 22 panic/slip accessibility identifiers stayed on their elements (R33.8).
+
+### Carried / known limitations
+- **Reasons-frame AX5 title truncation (R35.6):** a UIR-5 AX-axis polish item (paging→scroll at
+  accessibility sizes on the non-audited reasons frame).
+- **`.buttonStyle(.plain)` on panic/slip + the lint-scope growth (R35.4):** deferred to a cleanup /
+  UIR-5 (would force a shape-changing ButtonStyle refactor on safety surfaces).
+- **The `motion/calm` ring appear animation (dashboard) + panic/slip motion polish** remain UIR-5.
+- `SafetyResourcesView` still carries the last `.background(.quaternary` fill + a phone-number-only
+  `Link` label — UIR-4's surface (paywall + settings + resources).
+- The onboarding + paywall golden batch still waits on the founder's §3 copy pass (post-UIR, ONE
+  re-record). Panic/slip/dashboard goldens are stable now (copy audited/data).
+- Next: **Session 36 = UIR-4 (paywall (hard/teaser/winback) + settings + resources).**

@@ -165,8 +165,16 @@ own STEP-0):**
   stayed untouched and the 29 widget goldens byte-stable — the typography fix rides UIR-5. 8 dashboard
   goldens minted (95 → 103); the `.dynamicType`/`.textClipped` exclusion list still holds panic + slip
   (UIR-3's job).
-- **UIR-3 — Panic + slip flows** (safety pre-sign-off; copy untouched; closes the
-  `.dynamicType`/`.textClipped` exclusion list to zero).
+- **UIR-3 — Panic + slip flows: ✅ DONE (Session 35, 2 billed runs).** The panic and slip
+  flows (rule-11 SAFETY surfaces) are regenerated on the Theme layer with a PM+Brand+QA
+  pre-code sign-off; copy byte-identical. **The `.dynamicType`/`.textClipped` exclusion list
+  is CLOSED to ZERO** — all 8 `minHeight: 56` floors became growing PADDING (the exact S28
+  mechanism), `StepScaffold`/`confirmStage` now scroll with pinned actions (R33.5), the reasons
+  text moved off a `@ScaledMetric` point size onto the `.largeTitle` text style (R33.12), and
+  both audit legs joined the full 7-type set (`safetyAuditTypes` deleted). **The rule-11 legs
+  passed CLEAN on run 1** (the second consecutive clean first-audit; contingency unused). 64
+  class-A goldens re-recorded, each visually verified. Carried: the reasons-frame AX5 title
+  truncation and the `.buttonStyle(.plain)` → ButtonStyle refactor ride UIR-5.
 - **UIR-4 — Paywall (hard/teaser/winback) + settings + resources.**
 - **UIR-5 — Motion/polish + AX5 axes** + consolidated golden-batch prep for the
   operator's §3 sitting.

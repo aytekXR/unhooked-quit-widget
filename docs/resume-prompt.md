@@ -2,15 +2,17 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v4.7 |
-| Last updated | 2026-07-17 (Session 34 close: **UIR-2 DONE in exactly 2 billed runs** — the 2 planned, contingency UNUSED, ZERO burned. The **real `StreakDashboardCard` + `StreakRing`** are built on the Theme layer — the `RootPlaceholderView` "walking skeleton" that had stood in for the dashboard since Session 18 is RETIRED, replaced by one card per active quit (streak-day hero, flame + momentum figure, the momentum ring, money saved, next-milestone bar). **Copy is byte-identical** (R34.2, copyBlockerFound=FALSE): every string is audited (`"saved"`/`"next milestone"`, pinned byte-identical to `StreakWidgetStyle`) or pure ADR-11 data; the §3-blocked polish strings ship empty-guarded. **The dashboard is AUDITED FOR THE FIRST TIME and its first audit passed CLEAN** (R34.3) — the first UIR surface to fire nothing, because R33.12 was already known and the card was built to it from the first byte (the free layout lint pre-empted every `.dynamicType` idiom; `children:.contain` + 4.5-clean tokens pre-empted the rest). **Widgets were DEFERRED at STEP-0** (R34.7): the 5 families are on-spec bar two minor brandkit-§3 typography defects; `StreakWidgetViews.swift` was UNTOUCHED so the 29 widget goldens stay byte-stable and no golden churn entered the budget. 8 dashboard goldens minted (95 → 103); the a11y exclusion list did not shrink this session (panic + slip remain, UIR-3's job).) |
-| Phase | Phase 2.5 (UI Reactor): pre-UIR build 100% DONE; **UIR-0 + UIR-1 + UIR-2 DONE**; UIR-3…UIR-5 remain; everything else operator-gated |
-| Next session objective | **Session 35: UIR-3 — panic + slip flows, regenerated on the UIR-0/1/2 system (SAFETY surfaces — stricter pre-code sign-off; copy untouched)** |
+| Document | Resume Prompt v4.8 |
+| Last updated | 2026-07-17 (Session 35 close: **UIR-3 DONE in exactly 2 billed runs** — the panic + slip flows (rule-11 SAFETY surfaces) are regenerated on the Theme layer with a PM+Brand+QA pre-code sign-off, copy byte-identical. **The `.dynamicType`/`.textClipped` exclusion list is CLOSED to ZERO** — all 8 `minHeight: 56` floors became growing PADDING (the exact S28 mechanism), `StepScaffold`/`confirmStage` scroll with pinned actions (R33.5), the reasons text moved off a `@ScaledMetric` point size onto `.largeTitle` (R33.12), both audit legs joined the full 7-type set and `safetyAuditTypes` is deleted. **The rule-11 panic/slip legs passed CLEAN on run 1** (the SECOND consecutive clean first-audit — the ledger a prior run wrote is the current run's free coverage). 64 class-A goldens re-recorded + visually verified; total unchanged at 103. STEP-0: did NOT grow the lint scope to panic/slip (would force a shape-changing `.buttonStyle(.plain)` refactor on safety surfaces — the full-set audit legs are the gate instead; deferred to UIR-5). Carried: the reasons-frame AX5 title truncation (R35.6, a UIR-5 AX-axis item) and the `.plain`→ButtonStyle refactor. Superseded S34 header below.) |
+| _superseded_ | (Session 34 close: **UIR-2 DONE in exactly 2 billed runs** — the 2 planned, contingency UNUSED, ZERO burned. The **real `StreakDashboardCard` + `StreakRing`** are built on the Theme layer — the `RootPlaceholderView` "walking skeleton" that had stood in for the dashboard since Session 18 is RETIRED, replaced by one card per active quit (streak-day hero, flame + momentum figure, the momentum ring, money saved, next-milestone bar). **Copy is byte-identical** (R34.2, copyBlockerFound=FALSE): every string is audited (`"saved"`/`"next milestone"`, pinned byte-identical to `StreakWidgetStyle`) or pure ADR-11 data; the §3-blocked polish strings ship empty-guarded. **The dashboard is AUDITED FOR THE FIRST TIME and its first audit passed CLEAN** (R34.3) — the first UIR surface to fire nothing, because R33.12 was already known and the card was built to it from the first byte (the free layout lint pre-empted every `.dynamicType` idiom; `children:.contain` + 4.5-clean tokens pre-empted the rest). **Widgets were DEFERRED at STEP-0** (R34.7): the 5 families are on-spec bar two minor brandkit-§3 typography defects; `StreakWidgetViews.swift` was UNTOUCHED so the 29 widget goldens stay byte-stable and no golden churn entered the budget. 8 dashboard goldens minted (95 → 103); the a11y exclusion list did not shrink this session (panic + slip remain, UIR-3's job).) |
+| Phase | Phase 2.5 (UI Reactor): pre-UIR build 100% DONE; **UIR-0 + UIR-1 + UIR-2 + UIR-3 DONE**; UIR-4 + UIR-5 remain; everything else operator-gated |
+| Next session objective | **Session 36: UIR-4 — paywall (hard/teaser/winback) + settings + resources, regenerated on the UIR-0…3 system (resources is a SAFETY surface — pre-code sign-off; copy untouched)** |
 
-> **What changed in Session 34:** the app finally has the dashboard the brandkit always
-> specified, on the design system, with a clean first a11y audit. Every later UIR session
-> inherits the pattern (a first audit CAN pass clean when the contract is known and the free
-> lint enforces it). Full ledger: Session 34 in `docs/past-prompts.md` (R34.1–R34.8).
+> **What changed in Session 35:** every screen the build has (age gate, quiz, summary,
+> dashboard, panic, slip) now runs Apple's FULL accessibility audit — the exclusion list is
+> EMPTY. Two consecutive clean first-audits (dashboard, then panic+slip) prove the pattern: a
+> first audit passes clean when the contract (R33.5/R33.12) is already known and the free lint +
+> the same-commit fix enforce it. Full ledger: Session 35 in `docs/past-prompts.md` (R35.1–R35.7).
 
 ---
 
@@ -163,12 +165,14 @@
 
 - **The pre-UIR build side is 100% DONE.**
 - **Phase 2.5 — Epic UIR (roadmap §2.5, operator-mandated): UIR-0 DONE (S32),
-  UIR-1 DONE (S33), UIR-2 DONE (S34).** Remaining: UIR-3 panic+slip → UIR-4
-  paywall+settings+resources → UIR-5 motion/AX5/golden-batch prep. Binding
-  constraints: copy BYTE-IDENTICAL, no red anywhere, a11y only strengthens, privacy
-  surfaces untouched, ADR-6 panic latency, safety surfaces keep the stricter
-  pre-code sign-off loop, goldens re-record per-session from run artifacts, the
-  operator's §3 batch stays ONE final re-record.
+  UIR-1 DONE (S33), UIR-2 DONE (S34), UIR-3 DONE (S35).** Remaining: UIR-4
+  paywall+settings+resources → UIR-5 motion/AX5/golden-batch prep. **The
+  `.dynamicType`/`.textClipped` exclusion list is CLOSED to ZERO — every leg runs the
+  full 7-type set; `safetyAuditTypes` is deleted.** Binding constraints: copy
+  BYTE-IDENTICAL, no red anywhere, a11y only strengthens, privacy surfaces untouched,
+  ADR-6 panic latency, safety surfaces keep the stricter pre-code sign-off loop,
+  goldens re-record per-session from run artifacts, the operator's §3 batch stays ONE
+  final re-record.
 - **StreakEngine 1.2.0 / WidgetToolkit 1.1.0 / PaywallKit 1.0.0 untouched.**
   purchases-ios 5.80.3 + SuperwallKit 4.16.1 + SnapshotTesting 1.19.3 +
   TelemetryDeck 2.14.1 exact-pinned. TestFlight LIVE.
@@ -185,39 +189,52 @@
 
 ## Next session objective (one session, definition of done below)
 
-**Session 35 — UIR-3: panic + slip flows, on the UIR-0/1/2 system:**
+**Session 36 — UIR-4: paywall (hard/teaser/winback) + settings + resources, on the
+UIR-0…3 system:**
 
 1. **Session-open checks:** the standing three-way operator check + `which uipro`.
-2. **SAFETY pre-sign-off (the stricter loop, agent-workflows §2.2):** panic/slip are
-   safety-content surfaces — the PM+Brand+QA panel signs the redesign SPEC BEFORE
-   code (a multi-agent gate, NOT an operator gate; copy is untouched so no §3 copy
-   pass is needed). ADR-6: NO new blocking work enters the panic launch path.
-3. **Regenerate panic + slip on the Theme layer + primitives** (adopt the styles,
-   never move an accessibility identifier — the R33.8 rule: the funnel smoke's drive
-   and the audit's anchors must stay put). Bring the R33.12 contract in and **CLOSE
-   the `.dynamicType`/`.textClipped` exclusion list to ZERO**: the 4 panic redirect
-   rows + the slip forgiveness body are the exact 5 elements (S28 artifact); the fix
-   is the R33.5 mechanism (content scrolls; no height floor above a label's
-   accessibility height — the 56pt panic/slip targets are the known tension, resolve
-   them per R33.5). Move the panic/slip legs to the FULL `onboardingAuditTypes` set.
-   Add `App/Sources` panic/slip dirs (or files) to `OnboardingLayoutLintTests.scopedDirectories`.
-4. **Goldens:** panic (40) + slip (24) class-A goldens are on the tokens-v2 palette
-   as of S32; a STRUCTURAL restyle re-records them (plan red→adopt-from-artifact, the
-   S34 maneuver — VISUALLY VERIFY every re-recorded golden). Rule the exact golden
-   count + run budget at STEP-0 — this is the session's real cost.
-5. **Constraints:** copy bytes BYTE-IDENTICAL; the panic route NEVER queries
-   entitlements/teaser/winback; the shield policy is tri-state FAIL-CLOSED; ADR-6
-   latency; safety copy is founder-owned.
-6. **NOT this session:** paywall/settings/resources (UIR-4), motion polish (UIR-5),
-   the widget typography fix (UIR-5), any copy byte, any privacy surface.
-0. STEP-0 candidates: (a) the panic+slip golden run budget (the dominant cost — a
-   structural restyle re-records up to 64 class-A goldens); (b) whether the panic/slip
-   audit legs move to the full set THIS session (they are rule-11 SAFETY legs — NEVER
-   valved/suppressed, so a designed-red finding-ledger run is expected — mine the S28
-   artifact FIRST for the exact 5 DT elements and build to R33.5/R33.12 so the legs
-   pass); (c) how far the lint scope grows.
+2. **RESOURCES is a SAFETY surface** — the PM+Brand+QA panel signs its redesign SPEC
+   BEFORE code (agent-workflows §2.2; a multi-agent gate, NOT an operator gate; copy
+   untouched so no §3 copy pass). `SafetyResourcesView` still carries the last
+   `.background(.quaternary` fill in the app AND a phone-number-only `Link` label —
+   both close here (the `.quaternary` → a Theme surface; the DIAL link → a 44pt floor,
+   the R33.10 precedent). Only `verified: true` rows render; the GLOBAL region stays
+   NUMBER-FREE (safety canon S27).
+3. **PAYWALL copy is DRAFT (operator §3-pending)** — like onboarding, UIR-4 will very
+   likely **mint NO new paywall goldens** (they would be thrown away by the §3 pass;
+   the R33.2 DON'T-MINT ruling). The paywall is reachable ONLY via the live gate or
+   DEBUG `UITEST_PAYWALL=1|teaser`; the panic route NEVER reaches it. Regenerate its
+   layout on the Theme layer + primitives (PrimaryButtonStyle for the CTA, QuietButton
+   for restore/terms, `themedCard`/`radius/l` plan cards, the trial badge on a NEUTRAL
+   sunken capsule — R32.3), R33.12/R33.5 obeyed. The paywall bans countdowns/fake
+   discounts/"one-time offer"; prices are NEVER copy-table literals; the hard variant
+   has NO close. Consider a paywall a11y-audit leg only if a DEBUG mount can render it
+   deterministically without draft copy in a golden (rule at STEP-0).
+4. **SETTINGS (`DiscreetSettingsView`)** — keeps its system container background UNTIL
+   UIR-4 (S32 canon); this is that session. Regenerate on the Theme layer + primitives;
+   its goldens (if any) re-record. Copy byte-identical.
+5. **Goldens:** settings + resources restyle re-records THEIR goldens (plan
+   red→adopt-from-artifact, the S34/S35 maneuver — VISUALLY VERIFY each). Paywall
+   likely mints none (draft copy). Rule the exact golden count + run budget at STEP-0.
+6. **Constraints:** copy BYTE-IDENTICAL; the DORMANT monetization canon holds (no
+   `configure` without keys; the paywall's never-trap surface: retry + restore always
+   reachable); the resources screen is STORE-FREE by construction; no privacy surface.
+7. **NOT this session:** motion polish (UIR-5), the widget typography fix (UIR-5), the
+   reasons-frame AX5 title (UIR-5), the `.plain`→ButtonStyle refactor + panic/slip lint
+   scope (UIR-5), any copy byte, any privacy surface.
+0. STEP-0 candidates: (a) whether the paywall mints goldens (probably NO — draft copy)
+   vs settings/resources (yes); (b) whether a paywall a11y-audit leg is affordable
+   given the draft copy (a DEBUG mount + `children:.contain` per S34); (c) the lint
+   scope growth (settings/resources are candidates; the paywall's draft-copy churn
+   argues for care); (d) the run budget.
 
-At close: overwrite this prompt for UIR-4; the UIR ledger grows R35.x.
+At close: overwrite this prompt for UIR-5 (the FINAL UIR session — motion/polish + AX5
+axes + the consolidated golden-batch prep for the operator's §3 sitting); the UIR ledger
+grows R36.x.
+
+**After UIR-5, the agent-doable UIR work is COMPLETE and the project is BLOCKED on the
+operator critical path** (G0 rename, §3 copy pass, §8 keys + sandbox matrix, device rows +
+E0.3 latency, external beta, submission) — see the operator-owned blockers below.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
@@ -230,7 +247,7 @@ At close: overwrite this prompt for UIR-4; the UIR ledger grows R35.x.
    ratifications + the 3.1.1 riders. The §3 pass gates the FINAL golden batch
    (post-UIR: final copy + final palette, ONE re-record). **The dashboard's own copy
    is audited/data, so its 8 goldens are NOT in that batch — they are stable now.**
-4. GitHub Actions billing headroom (§4 — Session 34 used exactly 2). Spend limit
+4. GitHub Actions billing headroom (§4 — Session 35 used exactly 2). Spend limit
    LIFTED; fan-outs available.
 5. TestFlight testers (§5) — carried; the funnel E2E is machine-proven.
 6. TelemetryDeck app ID (§8) — carried; gates the label/manifest wire-verify.
@@ -241,14 +258,14 @@ At close: overwrite this prompt for UIR-4; the UIR ledger grows R35.x.
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app **Ballast**, org
-> `com.beyondkaira`). Session 34 is CLOSED (exactly 2 billed runs = the 2 planned,
-> contingency UNUSED, ZERO burned; UIR-2 DONE — the real `StreakDashboardCard` +
-> `StreakRing` built on the Theme layer, the walking-skeleton placeholder RETIRED,
-> copy byte-identical, the dashboard's FIRST a11y audit passed CLEAN, widgets deferred
-> and byte-stable, 8 goldens minted 95→103).
-> **Session 35 = UIR-3: panic + slip flows (SAFETY surfaces — the stricter PM+Brand+QA
-> pre-code sign-off; copy untouched; CLOSE the `.dynamicType`/`.textClipped` exclusion
-> list to zero).**
+> `com.beyondkaira`). Session 35 is CLOSED (exactly 2 billed runs = the 2 planned,
+> contingency UNUSED, ZERO burned; UIR-3 DONE — panic + slip regenerated on the Theme
+> layer, copy byte-identical, the `.dynamicType`/`.textClipped` exclusion list CLOSED
+> to ZERO on every leg, the rule-11 panic/slip legs passed the full set CLEAN on run 1,
+> 64 goldens re-recorded + visually verified).
+> **Session 36 = UIR-4: paywall (hard/teaser/winback) + settings + resources (resources
+> is a SAFETY surface — the stricter PM+Brand+QA pre-code sign-off; copy untouched;
+> paywall copy is DRAFT so likely mint NO paywall goldens — the R33.2 rule).**
 > Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`.
 > **Session-open:** the three-way operator check + `which uipro`.
 > **Standing gates:** CodeGraph query-first + `codegraph sync` at close; `swiftc
@@ -271,31 +288,34 @@ At close: overwrite this prompt for UIR-4; the UIR ledger grows R35.x.
 > TEXT STYLES only; no `ViewThatFits`; point sizes only on decorative `Image`s; content
 > scrolls, actions pin; the AX-size pivot reads `isAccessibilitySize`). In-app motion is
 > UIR-5's scope.
-> READ FIRST: the Session 34 ledger (R34.1–R34.8) in `docs/past-prompts.md`,
-> `docs/design/tokens-v2.md` (§5.1 R33.12 + §6 the primitives incl. the shipped
-> `StreakRing`), `docs/roadmap.md` §2.5, `docs/frontend-brandkit.md` §6 (items 3/10/11/12/13
-> = panic + slip components) + §8, the S28 ledger's DT/clipping finding list,
-> `docs/operator-expected.md` §3, `docs/session-rules.md`.
-> **This session:** STEP-0 rulings (the panic+slip golden budget is the cost; the DT
-> exclusion list closes) → the panic + slip regeneration + the safety pre-sign-off →
-> verify → flag operator items.
-> Budget: plan 2 billed runs + 1 contingency (the class-A golden re-record decision at
-> STEP-0 may raise this — rule it explicitly).
-> **At session end:** append the Session 35 ledger, overwrite this resume prompt
-> (UIR-4), update `docs/operator-expected.md`, `codegraph sync`, commit `[skip ci]`,
-> push, `gh run watch` green (verify the conclusion via `gh run view --json` — the
-> watcher's exit code lies).
+> READ FIRST: the Session 35 ledger (R35.1–R35.7) + Session 34 (R34.1–R34.8) in
+> `docs/past-prompts.md`, `docs/design/tokens-v2.md` (§5.1 R33.12 + §6 the primitives),
+> `docs/roadmap.md` §2.5, `docs/frontend-brandkit.md` §6 (items 7/8/14/15 = paywall,
+> settings, resources) + §8, `docs/operator-expected.md` §3 (the paywall/settings/
+> winback DRAFT copy items), `App/Sources/Monetization/PaywallView.swift`,
+> `App/Sources/DiscreetSettingsView.swift`, `App/Sources/SafetyResourcesView.swift`,
+> `docs/session-rules.md`.
+> **This session:** STEP-0 rulings (paywall likely mints NO goldens — draft copy;
+> settings/resources re-record; resources is a safety surface) → the paywall + settings
+> + resources regeneration + the resources safety pre-sign-off → verify → flag operator
+> items.
+> Budget: plan 2 billed runs + 1 contingency (rule the golden budget at STEP-0).
+> **At session end:** append the Session 36 ledger, overwrite this resume prompt
+> (UIR-5, the FINAL UIR session), update `docs/operator-expected.md`, `codegraph sync`,
+> commit `[skip ci]`, push, `gh run watch` green (verify the conclusion via `gh run
+> view --json` — the watcher's exit code lies).
 
 ## Standing rules reminders (do not relearn these)
 
-- **Theme canon (S32, amended S33/S34):** `docs/design/tokens-v2.md` IS the palette
+- **Theme canon (S32, amended S33/S34/S35):** `docs/design/tokens-v2.md` IS the palette
   record; `Theme.contrastPairs` is the WCAG gate (unit-lane, key-set pinned, grow-only —
-  33 pairs as of S34); the a11y audit set is PER-LEG (R33.1) — `safetyAuditTypes` for
-  panic/slip TODAY (UIR-3 moves them to the FULL seven), the full seven for the three
-  onboarding legs + the dashboard leg; widgets stay luminance-only and NEVER import Theme;
-  `AppSwitcherPrivacyOverlay` keeps its hardcoded surface hexes until its goldens are
-  deliberately re-recorded; `DiscreetSettingsView` keeps its system container background
-  until UIR-4. `Theme.type` holds ONLY glyph point sizes — no hero/text point size (R33.12).
+  33 pairs as of S34); **the a11y audit set is now ONE FULL SET for EVERY leg (UIR-3
+  closed the exclusion to zero; `safetyAuditTypes` is deleted)** — age gate/quiz/summary/
+  dashboard/panic/slip all run the full seven; widgets stay luminance-only and NEVER
+  import Theme; `AppSwitcherPrivacyOverlay` keeps its hardcoded surface hexes until its
+  goldens are deliberately re-recorded; **`DiscreetSettingsView` keeps its system
+  container background until UIR-4 — that is Session 36.** `Theme.type` holds ONLY glyph
+  point sizes — no hero/text point size (R33.12).
   The `StreakRing` is a Shape (`Circle().trim().stroke(StrokeStyle(lineWidth:6))`), not a
   point-size glyph.
 - **ADR-11 binding:** displayed "Day N" = 1-based CALENDAR day at local midnight in the
