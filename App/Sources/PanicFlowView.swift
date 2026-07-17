@@ -112,9 +112,30 @@ private struct StepScaffold<Content: View>: View {
     var subtext: String?
     let skipLabel: String
     let onSkip: () -> Void
+    /// UIR-3 (R33.5): the header+content SCROLL and the skip is PINNED below. The
+    /// reasons step manages its OWN paging scroll, so it passes `false` to avoid a
+    /// gesture-fighting nested scroll (its content fills the frame instead).
+    var scrollsContent: Bool = true
     @ViewBuilder var content: () -> Content
 
     var body: some View {
+        VStack(spacing: 0) {
+            if scrollsContent {
+                ScrollView { scaffoldBody }
+                    .scrollBounceBehavior(.basedOnSize)
+            } else {
+                scaffoldBody
+            }
+            // R33.5 one-hand rule: skip is PINNED below the scroll, never scrolls off.
+            SkipButton(label: skipLabel, action: onSkip)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(identifier)
+    }
+
+    private var scaffoldBody: some View {
         VStack(spacing: 20) {
             VStack(spacing: 10) {
                 Text(title)
@@ -134,18 +155,17 @@ private struct StepScaffold<Content: View>: View {
             }
             .padding(.top, 28)
             content()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Scrolling steps take natural height; the paging reasons step fills.
+                .frame(maxWidth: .infinity, maxHeight: scrollsContent ? nil : .infinity)
             if let subtext {
                 Text(subtext)
                     .font(.footnote)
                     .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
             }
-            SkipButton(label: skipLabel, action: onSkip)
         }
-        .padding(20)
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier(identifier)
+        .padding(.horizontal, 20)
+        .padding(.bottom, Theme.space.s5)
     }
 }
 
@@ -160,7 +180,11 @@ private struct SkipButton: View {
             Text(label)
                 .font(.body)
                 .foregroundStyle(Theme.color.contentSecondary.color)
-                .frame(maxWidth: .infinity, minHeight: 56)
+                // R33.5: the 56pt panic target rides PADDING, never a minHeight floor —
+                // 20 + ~17pt(.body) + 20 = 57pt at default, growing with the text at
+                // accessibility sizes (never a cap above the label's AX height).
+                .padding(.vertical, Theme.space.s5)
+                .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -319,8 +343,6 @@ private struct TimerStepView: View {
 
 private struct ReasonsStepView: View {
     let model: PanicFlowModel
-    /// type/panicReason: 40pt Semibold, scales with .largeTitle (brandkit §3).
-    @ScaledMetric(relativeTo: .largeTitle) private var reasonSize: CGFloat = 40
 
     var body: some View {
         let step = model.script.step(.reasons)
@@ -329,7 +351,10 @@ private struct ReasonsStepView: View {
             title: step?.title ?? "",
             instruction: step?.instruction ?? "",
             skipLabel: step?.skipLabel ?? "",
-            onSkip: { model.skip() }
+            onSkip: { model.skip() },
+            // The reasons paging scroll owns the vertical gesture — don't nest it in
+            // the scaffold's outer scroll (R33.5 scroll is satisfied by the paging one).
+            scrollsContent: false
         ) {
             if model.reasons.isEmpty {
                 // Never blank: the script's fallback line stands in.
@@ -352,10 +377,13 @@ private struct ReasonsStepView: View {
     }
 
     private func reasonText(_ text: String) -> some View {
+        // R33.12: the user's words ride a TEXT STYLE (`.largeTitle`), never a
+        // `@ScaledMetric`-driven point size — a point size on Text is un-scalable to
+        // Apple's audit however it is driven. `.minimumScaleFactor` (shrink-to-fit) is
+        // dropped with it: the layout gives way, never the glyph (brandkit §8).
         Text(text)
-            .font(.system(size: reasonSize, weight: .semibold))
+            .font(.largeTitle.weight(.semibold))
             .multilineTextAlignment(.center)
-            .minimumScaleFactor(0.5)
             .frame(maxWidth: .infinity)
     }
 }
@@ -384,12 +412,13 @@ private struct RedirectStepView: View {
                                 .font(.body.weight(.medium))
                             Spacer()
                         }
-                        .padding(.horizontal, 16)
-                        .frame(maxWidth: .infinity, minHeight: 56) // touch.panic
-                        .background(
-                            Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint),
-                            in: RoundedRectangle(cornerRadius: 14)
-                        )
+                        // R33.5: the 56pt panic target rides PADDING (16h + 20v), so the
+                        // tinted pill grows with the label at accessibility sizes instead
+                        // of a minHeight floor that reads as a cap (the S28 defect).
+                        .padding(.horizontal, Theme.space.s4)
+                        .padding(.vertical, Theme.space.s5)
+                        .frame(maxWidth: .infinity)
+                        .themedSelectionTint(cornerRadius: 14)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -422,7 +451,9 @@ private struct ExitsView: View {
                     // brand/onPrimary is scheme-aware by construction (6.0:1 L /
                     // 7.0:1 D, registry-pinned) — the old manual ternary retires.
                     .foregroundStyle(Theme.color.brandOnPrimary.color)
-                    .frame(maxWidth: .infinity, minHeight: 56)
+                    // R33.5: 56pt target via padding, so the filled pill grows with text.
+                    .padding(.vertical, Theme.space.s5)
+                    .frame(maxWidth: .infinity)
                     .background(Theme.color.brandPrimary.color, in: RoundedRectangle(cornerRadius: 16))
                     .contentShape(Rectangle())
             }
@@ -434,7 +465,9 @@ private struct ExitsView: View {
                 Text(model.exitLabel("slipped") ?? "")
                     .font(.body)
                     .foregroundStyle(Theme.color.contentSecondary.color)
-                    .frame(maxWidth: .infinity, minHeight: 56)
+                    // R33.5: 56pt target via padding, never a minHeight floor.
+                    .padding(.vertical, Theme.space.s5)
+                    .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)

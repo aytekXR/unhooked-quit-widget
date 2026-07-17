@@ -31,23 +31,19 @@ import XCTest
 /// issue fails. The audit is iOS-17+ / XCUIAutomation and the deployment floor
 /// is iOS 26, so there is NO `#available` guard (a dead guard is banned).
 ///
-/// ── AUDIT SCOPE — PER-LEG SETS (UIR-1, ruling R33.3; was ONE shared set) ──────
-/// The exclusion list may only SHRINK (R32.3). UIR-1 shrinks it by SURFACE, which
-/// is why the set had to split: `.dynamicType`/`.textClipped` are LAYOUT-bound, the
-/// layouts are owned per-surface, and the S28 ledger (run 29262073722 — the one
-/// full-set execution) named exactly which elements fire:
-///   - the 4 panic redirect-menu rows and the slip forgiveness body line fired
-///     `.dynamicType` ("Text of this SwiftUI.AccessibilityNode may be clipped at
-///     larger Dynamic Type sizes"). Those surfaces are UIR-3's and UIR-2's. Adding
-///     the class to a SHARED set would fire them on two rule-11 SAFETY legs, which
-///     may never be valved — so the safety legs keep `safetyAuditTypes` until their
-///     own sessions close their frames.
-///   - the QUIZ leg fired ZERO `.dynamicType` and ZERO `.textClipped` findings in
-///     that same full-set run. Its debt was always payable; UIR-1 pays it and the
-///     onboarding legs run the FULL set (`onboardingAuditTypes`).
-/// `.contrast` stays live on EVERY leg (restored in UIR-0/R32.3, held by
-/// `ThemeContrastTests`' registry pin, which fails the unit lane before a palette
-/// regression could ever reach a safety leg here).
+/// ── AUDIT SCOPE — ONE FULL SET, ALL LEGS (UIR-3, R35; was a UIR-1 per-leg split) ──
+/// The exclusion list may only SHRINK (R32.3), and UIR-3 shrinks it to ZERO. The
+/// UIR-1 split existed because `.dynamicType`/`.textClipped` are LAYOUT-bound and the
+/// S28 ledger (run 29262073722 — the one full-set execution) named exactly which
+/// elements fired: the 4 panic redirect-menu rows and the slip forgiveness frame fired
+/// `.dynamicType` (a 56pt minHeight floor near the label's accessibility-size height,
+/// in a non-scrollable bounded container). Those were UIR-3's frames — now REBUILT
+/// (padding-for-floor + scrolling stages), so the panic and slip legs join the
+/// onboarding legs on the FULL set and `safetyAuditTypes` is deleted. The QUIZ leg
+/// fired ZERO of either class in that same run; UIR-1 paid that debt. `.contrast`
+/// stays live on EVERY leg (restored in UIR-0/R32.3, held by `ThemeContrastTests`'
+/// registry pin, which fails the unit lane before a palette regression could reach a
+/// safety leg here).
 ///
 /// Drive paths — audit LOW-FUZZ frames ONLY (no TimelineView, no live animation;
 /// the breath pacer's bloom + haptics ticks are `.accessibilityHidden`, but its
@@ -72,21 +68,15 @@ import XCTest
 /// `waitForExistence` (never a sleep) so every audit is reached deterministically.
 @MainActor
 final class A11yAuditUITests: XCTestCase {
-    /// The SAFETY legs' set (panic, slip): the full iOS member set EXCEPT the two
-    /// LAYOUT-BOUND classes whose findings are enumerated in run 29262073722's
-    /// artifact and owned BY NAME (slip → UIR-2, panic → UIR-3). Per-member PLATFORM
-    /// availability is docs-JSON-verified (the run-29264641853 burn lesson:
-    /// `.action`/`.parentChild` EXIST but are macOS-14-only — existence on the type
-    /// is not availability on the platform; every member below is iOS 17.0).
-    private static let safetyAuditTypes: XCUIAccessibilityAuditType = [
-        .contrast, .elementDetection, .hitRegion, .sufficientElementDescription, .trait,
-    ]
-
-    /// The ONBOARDING legs' set (age gate, quiz, summary): the FULL member set —
-    /// `.dynamicType` and `.textClipped` INCLUDED. This is UIR-1's deliverable: the
-    /// onboarding surfaces are rebuilt so their text can always grow (content
-    /// scrolls, actions are pinned, no fixed frame wraps a label, no numeral is
-    /// shrunk to fit), and the audit now holds them to it forever.
+    /// The FULL member set — every leg's set now (UIR-3, R34→R35). `.dynamicType` and
+    /// `.textClipped` INCLUDED. UIR-1 gave this to the onboarding legs; **UIR-3 gives
+    /// it to the panic and slip legs too, closing the R28.13 exclusion list to ZERO** —
+    /// `safetyAuditTypes` (the old EXCEPT-the-two-layout-classes set) is deleted, having
+    /// zero callers after UIR-3 rebuilt those frames (every 56pt panic/slip target now
+    /// rides PADDING, never a minHeight floor, and the non-scrolling stages scroll).
+    /// Per-member PLATFORM availability is docs-JSON-verified (the run-29264641853 burn
+    /// lesson: `.action`/`.parentChild` EXIST but are macOS-14-only — existence on the
+    /// type is not availability on the platform; every member below is iOS 17.0).
     private static let onboardingAuditTypes: XCUIAccessibilityAuditType = [
         .contrast, .dynamicType, .elementDetection, .hitRegion,
         .sufficientElementDescription, .textClipped, .trait,
@@ -135,7 +125,7 @@ final class A11yAuditUITests: XCTestCase {
             app.buttons["panic.flow.redirect.option.water"].waitForExistence(timeout: 10),
             "the redirect menu renders its shipping options before the audit runs"
         )
-        try app.performAccessibilityAudit(for: Self.safetyAuditTypes)
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
 
         skip.tap() // redirect → exits
 
@@ -147,7 +137,7 @@ final class A11yAuditUITests: XCTestCase {
             averted.waitForExistence(timeout: 10),
             "the exit states must offer 'urge passed' (PRD §6.4 step 5)"
         )
-        try app.performAccessibilityAudit(for: Self.safetyAuditTypes)
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
     /// SAFETY leg (rule 11 — NEVER quarantined/valved/suppressed). Continues the
@@ -199,7 +189,7 @@ final class A11yAuditUITests: XCTestCase {
             confirmLog.waitForExistence(timeout: 15),
             "tapping 'I slipped' must open the slip flow's confirm stage — its 'Log it' button"
         )
-        try app.performAccessibilityAudit(for: Self.safetyAuditTypes)
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
 
         confirmLog.tap()
 
@@ -210,7 +200,7 @@ final class A11yAuditUITests: XCTestCase {
             undo.waitForExistence(timeout: 15),
             "the forgiveness screen must offer the 10-minute undo"
         )
-        try app.performAccessibilityAudit(for: Self.safetyAuditTypes)
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
     /// SAFETY leg (rule 11 — NEW in UIR-1, NEVER quarantined/valved/suppressed).

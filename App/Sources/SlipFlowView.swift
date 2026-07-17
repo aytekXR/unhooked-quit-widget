@@ -93,28 +93,34 @@ struct SlipFlowView: View {
     // MARK: - Stage 1 · confirm ("Log a slip?")
 
     private var confirmStage: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            slipGlyph
-            VStack(spacing: 12) {
-                Text(model.copy.confirm.title)
-                    .font(.title.weight(.semibold))
-                    .multilineTextAlignment(.center)
-                Text(model.copy.confirm.body)
-                    .font(.body)
-                    .foregroundStyle(Theme.color.contentSecondary.color)
-                    .multilineTextAlignment(.center)
+        // R33.5: the prompt SCROLLS, the actions are PINNED below — so the title/body
+        // can grow at accessibility sizes without pushing the buttons off-screen.
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 24) {
+                    slipGlyph
+                    VStack(spacing: 12) {
+                        Text(model.copy.confirm.title)
+                            .font(.title.weight(.semibold))
+                            .multilineTextAlignment(.center)
+                        Text(model.copy.confirm.body)
+                            .font(.body)
+                            .foregroundStyle(Theme.color.contentSecondary.color)
+                            .multilineTextAlignment(.center)
+                    }
+                    // Shown ONLY after a failed durable write — calm, neutral, retryable
+                    // (§9 rule 1: "Logged." is never claimed without durable bytes). Never red.
+                    if model.retryNoteVisible, let retryNote = model.copy.confirm.retryNote {
+                        Text(retryNote)
+                            .font(.footnote)
+                            .foregroundStyle(Theme.color.contentSecondary.color)
+                            .multilineTextAlignment(.center)
+                            .accessibilityIdentifier("slip.flow.confirm.retryNote")
+                    }
+                }
+                .padding(24)
             }
-            // Shown ONLY after a failed durable write — calm, neutral, retryable
-            // (§9 rule 1: "Logged." is never claimed without durable bytes). Never red.
-            if model.retryNoteVisible, let retryNote = model.copy.confirm.retryNote {
-                Text(retryNote)
-                    .font(.footnote)
-                    .foregroundStyle(Theme.color.contentSecondary.color)
-                    .multilineTextAlignment(.center)
-                    .accessibilityIdentifier("slip.flow.confirm.retryNote")
-            }
-            Spacer()
+            .scrollBounceBehavior(.basedOnSize)
             VStack(spacing: 12) {
                 Button {
                     model.confirm()
@@ -124,8 +130,10 @@ struct SlipFlowView: View {
                         // brand/onPrimary is scheme-aware by construction (the old
                         // manual dark-ternary retires; 6.0:1 L / 7.0:1 D, pinned).
                         .foregroundStyle(Theme.color.brandOnPrimary.color)
-                        .frame(maxWidth: .infinity, minHeight: 56) // touch.panic
-                        .background(Theme.color.brandPrimary.color, in: RoundedRectangle(cornerRadius: 16))
+                        // R33.5: 56pt target via padding, filled pill grows with text.
+                        .padding(.vertical, Theme.space.s5)
+                        .frame(maxWidth: .infinity)
+                        .background(Theme.color.brandPrimary.color, in: RoundedRectangle(cornerRadius: Theme.radius.m))
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -137,14 +145,16 @@ struct SlipFlowView: View {
                     Text(model.copy.confirm.cancelLabel)
                         .font(.body)
                         .foregroundStyle(Theme.color.contentSecondary.color)
-                        .frame(maxWidth: .infinity, minHeight: 56)
+                        .padding(.vertical, Theme.space.s5)
+                        .frame(maxWidth: .infinity)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("slip.flow.confirm.cancel")
             }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
         }
-        .padding(24)
     }
 
     // MARK: - Stage 2 · logged (the forgiveness screen)
@@ -243,7 +253,9 @@ struct SlipFlowView: View {
                         Label(model.copy.undo.undoLabel, systemImage: "arrow.uturn.backward.circle")
                             .font(.body.weight(.semibold))
                             .foregroundStyle(Theme.color.brandPrimary.color)
-                            .frame(maxWidth: .infinity, minHeight: 56) // touch.panic
+                            // R33.5: 56pt target via padding, never a minHeight floor.
+                            .padding(.vertical, Theme.space.s5)
+                            .frame(maxWidth: .infinity)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
