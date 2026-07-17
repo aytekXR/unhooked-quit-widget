@@ -246,7 +246,7 @@ tooling, the `.codegraph` precedent). It was driven as the UIR-0 generator:
   form), visible focus affordance, tabular numerals for live counts, 40–60%
   scrim (floor-calibrated at 55%).
 
-## 9. Acceptance — the shipping registry (33 pairs × 2 modes, all PASS)
+## 9. Acceptance — the shipping registry (34 pairs × 2 modes, all PASS)
 
 Gate: normal text ≥4.5, large text & non-text UI ≥3.0. Enforced permanently by
 `Tests/Unit/ThemeContrastTests.swift` (fires-on-violation calibrated with the

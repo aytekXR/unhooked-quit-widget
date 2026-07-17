@@ -5130,3 +5130,92 @@ surface while CLAIMING to close the DT exclusion would have been dishonest.
 - The onboarding + paywall golden batch still waits on the founder's §3 copy pass (post-UIR, ONE
   re-record). Panic/slip/dashboard goldens are stable now (copy audited/data).
 - Next: **Session 36 = UIR-4 (paywall (hard/teaser/winback) + settings + resources).**
+
+## Session 36 — UIR-4a: resources + paywall (2026-07-18)
+
+**Objective (resume-prompt v4.8):** regenerate the paywall + settings + resources on the Theme
+layer, copy byte-identical; resources is a SAFETY surface (PM+Brand+QA pre-code sign-off). Budget:
+2 billed runs + 1 contingency.
+
+**Outcome: the DEFECT surfaces (resources + paywall) DONE in exactly 2 billed runs — contingency
+UNUSED, ZERO burned. SETTINGS DEFERRED (R36.1).** Run 1 (`29618554339`) was red-by-design on the
+snapshot lane (2 resources goldens write-then-fail) PLUS one unexpected red — the resources audit
+leg's mount-gate (see R36.4); both were resolved in the run-2 commit (adopt goldens + gate fix). Run
+2 (`29620086038`) is green. The 3-seat architect sign-off (PM+Brand+QA) passed.
+
+### R36.1 — the scope split (settings deferred)
+
+The workflow spec covered all three surfaces + 3 audit legs + a settings golden suite + the settings
+List→ScrollView rebuild. That rebuild is the biggest structural risk (reimplementing List's cell
+chrome/tint/separators by hand) and the LEAST essential (settings is not a safety surface; "keeps its
+system container until UIR-4" is a canon note, not a defect). Ruled: ship the two DEFECT surfaces this
+session — RESOURCES (two hard safety defects) and PAYWALL (R32.9 + a pre-existing contrast bug) — and
+defer SETTINGS + its golden + the lint-scope-to-Monetization growth to a UIR-4 continuation. This kept
+the session to a clean 2 runs and used the foundation (`PlanCardButtonStyle`, the new contrast pair).
+
+### R36.2 — resources: the last two safety defects, closed
+
+`SafetyResourcesView` was the last un-regenerated safety surface. (1) `.background(.quaternary)` — a
+raw, contrast-UNREGISTERED system material — → `themedCard()` (surface/raised + hairline, all
+content-on-raised pairs pinned). (2) **R33.10:** the helpline DIAL link — the one control the screen
+exists to get tapped — was a ~22pt target with a phone-number-ONLY VoiceOver label; now a 44pt floor
+(frame) + `.accessibilityLabel("Call <name>")` (the S33 blocked-screen precedent). Plus: explicit
+Theme foregroundStyles on the 4 undeclared Text views, `.fixedSize` on every Text, a `@ScaledMetric`
+decorative glyph, spacing tokens, and a test-internal `init(data:)` so the snapshot is
+locale-independent. New audit leg + 2 goldens (light/dark, visually verified: clean themedCard + the
+📞 988 DIAL link).
+
+### R36.3 — paywall: three R32.9 fixes + a pre-existing contrast bug
+
+The paywall was already Theme/text-style clean and scrolling, but carried three R32.9 disabled-`.plain`
+violations (CTA, teaser-escape, winback-dismiss combined `.buttonStyle(.plain)` with `.disabled`, so
+Apple's audit measured the explicit brandPrimary fill on the DISABLED control instead of the ghost
+form). The CTA adopts `PrimaryButtonStyle` (the STYLE not the wrapper — R33.8 keeps `paywall.cta` on
+the exact Button; the loading spinner tints content/secondary, visible on the ghost surface);
+teaser/winback/restore adopt `QuietButtonStyle`; plan cards adopt the NEW pass-through
+`PlanCardButtonStyle` (closes the future-disable R32.9 window without shape change). A PRE-EXISTING
+bug is fixed: the failure banner was caution-text-on-caution-tint (~1:1); caution now rides the
+DECORATIVE glyph only and the text is content/primary on `themedCautionCard` (13.7:1). NO paywall
+goldens (R33.2, copy DRAFT); the existing `QuizFunnelUITests` smoke (paywall.cta + paywall.restore)
+verified the restyle green in run 1.
+
+### R36.4 — the mount-gate lesson: a full-screen `.contain` container id does NOT surface
+
+The resources audit leg failed run 1 at its WAIT — not on an audit finding. Artifact-first diagnosis
+(the S29 zstd/xcresult mine, free on Linux): `SafetyResourcesView` RENDERED fine (its "Call <name>"
+DIAL Buttons were in the captured tree), but the `resources.screen` id — which sits on a **full-screen**
+`.accessibilityElement(children: .contain)` container — never surfaced as a queryable element. The
+dashboard card's `.contain` container surfaces as `.other` (S34) because it is BOUNDED (a card); a
+full-screen `.contain` container is absorbed. **The rule (R36.4): gate an audit leg on a real CHILD
+element that surfaces, not on a full-screen `.contain` container id.** The title Text gained
+`resources.title` and the leg gates on it. Metadata only — the run-1 goldens were pixel-identical and
+adopted; the gate fix rode the adoption commit, so the contingency was NOT spent.
+
+### The rulings
+- **R36.5 (new pass-through primitive):** `PlanCardButtonStyle` — suppresses `.plain`'s ghost-disabled
+  dimming with only a pressed-scale, so plan cards (always enabled today) cannot regress on a future
+  disable. No shape change.
+- **R36.6 (new contrast pair, machine-verified):** `content secondary on selection tint` (the plan
+  card price subhead) — 5.20 L / 6.77 D, verified on the free box before it could gate the build;
+  `neverShrinks` floor 28 → 29. The registry is now 34 pairs.
+- **R36.7 (lint scope NOT grown):** the R35.4 restraint precedent — growing to App/Sources/Monetization
+  would require converting the inline retry `.plain` (a correct idiom for an inline text link); the
+  paywall is otherwise idiom-clean and the QuizFunnelUITests smoke + the (deferred) audit leg are the
+  gate. Rides UIR-4b with settings.
+- **R36.8 (scope fences held):** copy byte-identical (a `HelplineRow` fixture with a phantom `verified`
+  field was caught — the real struct has 4 fields); all a11y ids preserved (R33.8); no privacy surface,
+  no analytics motion, no new SPM dep; every other surface's goldens byte-stable. 2 goldens minted
+  (103 → 105).
+
+### Carried / known limitations
+- **SETTINGS (`DiscreetSettingsView`) restyle + its golden + the Monetization lint scope — UIR-4b
+  (next session).** The full architect spec is preserved in the workflow journal (wf_b91f1762-aff) +
+  `scratchpad/uir4-step0.md`.
+- **The paywall + settings a11y-audit legs** (via UITEST_PAYWALL_DIRECT / UITEST_SETTINGS mounts) ride
+  UIR-4b — the paywall's is deferred to avoid the intricate DEBUG PaywallView fixture on this run.
+- Reasons-frame AX5 title (R35.6), the widget typography (R34.7), the StreakRing/panic-slip motion
+  polish — all UIR-5.
+- The onboarding + paywall golden batch still waits on the founder §3 copy pass.
+- Next: **Session 37 = UIR-4b (settings) + as much of UIR-5 as fits** — the last agent-doable UIR work;
+  after it the project blocks on the operator critical path (G0, §3 copy, §8 keys, device rows, beta,
+  submission).
