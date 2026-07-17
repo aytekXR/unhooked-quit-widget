@@ -47,7 +47,7 @@ struct ThemeContrastTests {
     /// inverted: pairs are protection, and protection never shrinks silently).
     @Test func test_contrastRegistry_neverShrinks() {
         #expect(
-            Theme.contrastPairs.count >= 28,
+            Theme.contrastPairs.count >= 29,
             "the contrast registry lost pairs — removing a pair removes protection; the floor only rises"
         )
     }

@@ -112,6 +112,7 @@ struct AgeGateContainerView: View {
         return environment["UITEST_QUIZ"] == "1"
             || environment["UITEST_SUMMARY"] == "1"
             || environment["UITEST_DASHBOARD"] == "1"
+            || environment["UITEST_RESOURCES"] == "1"
         #else
         return false
         #endif

@@ -150,11 +150,13 @@ struct PaywallView: View {
             model.selectedPlan = plan
         } label: {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Theme.space.s1) {
                     Text(title)
                         .font(.title3.weight(.semibold))
                     Text(priceLine)
                         .font(.subheadline)
+                        // content/secondary on the SELECTED tint (5.20 L / 6.77 D — the
+                        // UIR-4 contrast pair) and on the unselected sunken (5.64 L) — pinned.
                         .foregroundStyle(Theme.color.contentSecondary.color)
                 }
                 Spacer()
@@ -173,13 +175,15 @@ struct PaywallView: View {
                 Image(systemName: selected ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle((selected ? Theme.color.brandPrimary : Theme.color.contentSecondary).color)
             }
-            .padding(16)
+            .padding(Theme.space.s4)
             .background(
                 selected ? Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint) : Theme.color.surfaceSunken.color,
-                in: RoundedRectangle(cornerRadius: 24)
+                in: RoundedRectangle(cornerRadius: Theme.radius.l)
             )
         }
-        .buttonStyle(.plain)
+        // R32.9 structural: PlanCardButtonStyle suppresses .plain's ghost-disabled dimming
+        // (plan cards are always enabled today; closes the future-disable risk window).
+        .buttonStyle(PlanCardButtonStyle())
         .accessibilityIdentifier(a11y)
     }
 
@@ -200,23 +204,35 @@ struct PaywallView: View {
     @ViewBuilder private var statusSurface: some View {
         switch model.phase {
         case .failed:
-            VStack(spacing: 10) {
-                Label(data.failureBanner, systemImage: "arrow.clockwise.circle")
-                    .font(.footnote)
-                    .foregroundStyle(Theme.color.caution.color)
-                    .multilineTextAlignment(.leading)
+            VStack(spacing: Theme.space.s2) {
+                // Fixes a pre-existing contrast bug: the banner text was caution-on-caution-tint
+                // (~1:1). Caution now rides the DECORATIVE glyph only; the text is content/primary
+                // on the caution tint (13.7:1, registry-pinned) via themedCautionCard.
+                HStack(alignment: .top, spacing: Theme.space.s2) {
+                    Image(systemName: "arrow.clockwise.circle")
+                        .foregroundStyle(Theme.color.caution.color)
+                        .accessibilityHidden(true)
+                    Text(data.failureBanner)
+                        .font(.footnote)
+                        .foregroundStyle(Theme.color.contentPrimary.color)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 Button {
                     Task { await model.purchaseSelectedPlan() }
                 } label: {
                     Text(data.retryCta)
                         .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.color.brandPrimary.color)
+                        // R33.5: retry is a 44pt target via a frame floor (never-trap).
+                        .frame(minHeight: Theme.touch.minTarget)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityIdentifier("paywall.retry")
             }
-            .padding(12)
-            .background(Theme.color.caution.color.opacity(Theme.alpha.cautionTint), in: RoundedRectangle(cornerRadius: 12))
+            .padding(Theme.space.s3)
+            .themedCautionCard()
         case .restoredEmpty:
             Text(data.restoreEmpty)
                 .font(.footnote)
@@ -229,25 +245,27 @@ struct PaywallView: View {
     }
 
     private var footerActions: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Theme.space.s3) {
+            // R32.9: the CTA adopts PrimaryButtonStyle (the STYLE, not the wrapper — R33.8
+            // keeps `paywall.cta` on this exact Button). The style's ghost-disabled form
+            // (surfaceSunken + contentSecondary, registry-pinned) replaces the hand-rolled
+            // brandPrimary fill that Apple's .contrast audit measured on the DISABLED
+            // (.working) control. The spinner tints content/secondary — visible on the
+            // ghost surface during .working (the button is disabled then).
             Button {
                 Task { await model.purchaseSelectedPlan() }
             } label: {
                 Group {
                     if model.phase == .working {
-                        ProgressView().tint(Theme.color.brandOnPrimary.color)
+                        ProgressView().tint(Theme.color.contentSecondary.color)
                     } else {
                         Text(model.selectedPlan == .annual ? data.ctaTrial : data.ctaMonthly)
                     }
                 }
                 .font(.body.weight(.semibold))
-                // brand/onPrimary is scheme-aware by construction (the raw .white retires).
-                .foregroundStyle(Theme.color.brandOnPrimary.color)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(Theme.color.brandPrimary.color, in: Capsule())
+                .frame(maxWidth: .infinity, minHeight: Theme.touch.minTarget)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PrimaryButtonStyle())
             .disabled(model.phase == .working)
             .accessibilityIdentifier("paywall.cta")
 
@@ -258,16 +276,16 @@ struct PaywallView: View {
             // arm's first impression (data.teaserEscape nil = the close-free
             // hard variant / the single-use re-present, R24.9/R25.7).
             if let escape = data.teaserEscape {
-                VStack(spacing: 4) {
+                VStack(spacing: Theme.space.s1) {
+                    // R32.9: QuietButtonStyle carries the content/secondary label + 44pt
+                    // target + the correct disabled treatment (no .plain dimming).
                     Button {
                         model.takeTeaser()
                         onTeaserDismiss()
                     } label: {
                         Text(escape.label)
-                            .font(.body)
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Theme.color.contentSecondary.color)
+                    .buttonStyle(QuietButtonStyle())
                     .disabled(model.phase == .working)
                     .accessibilityIdentifier("paywall.teaser.escape")
 
@@ -285,33 +303,32 @@ struct PaywallView: View {
             // dashboard, wordlessly (no event — a dismissal is not funnel
             // vocabulary).
             if let offer = data.winbackOffer {
+                // R32.9: same QuietButtonStyle adoption as the teaser escape.
                 Button {
                     onWinbackDismiss()
                 } label: {
                     Text(offer.dismissLabel)
-                        .font(.body)
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(Theme.color.contentSecondary.color)
+                .buttonStyle(QuietButtonStyle())
                 .disabled(model.phase == .working)
                 .accessibilityIdentifier("paywall.winback.dismiss")
             }
 
-            HStack(spacing: 20) {
-                Button {
-                    Task { await model.restorePurchases() }
-                } label: {
-                    Text(data.restoreLabel)
-                }
-                .accessibilityIdentifier("paywall.restore")
-                // Legal labels render pre-link (the destinations are
-                // operator/legal-owned — paywallCopy.json _meta.legalNote);
-                // they MUST become functional links before submission
-                // (Schedule 2), a recorded rider on the operator's queue.
+            // R33.5: restore is a full-width QuietButton (44pt target). Terms/privacy
+            // render as plain labels (not yet functional links — the pre-submission
+            // rider on the operator's queue).
+            Button {
+                Task { await model.restorePurchases() }
+            } label: {
+                Text(data.restoreLabel)
+            }
+            .buttonStyle(QuietButtonStyle())
+            .accessibilityIdentifier("paywall.restore")
+
+            HStack(spacing: Theme.space.s5) {
                 Text(data.termsLabel)
                 Text(data.privacyLabel)
             }
-            .buttonStyle(.plain)
             .font(.footnote)
             .foregroundStyle(Theme.color.contentSecondary.color)
         }

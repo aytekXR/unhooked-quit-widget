@@ -374,6 +374,30 @@ final class A11yAuditUITests: XCTestCase {
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
+    /// The resources leg — NEW in UIR-4. Rule-11-ADJACENT (a post-gate helpline surface
+    /// for consented adults — NOT the un-bypassable minor-protection age-gate blocked
+    /// screen), so it takes the R28.6 onboarding-leg posture and the FULL set. First audit
+    /// of this surface: NO issue handler is pre-added (the run produces the ledger, S33).
+    /// Pre-conditions landed in the SAME commit: the DIAL link at the 44pt floor with a
+    /// descriptive "Call <name>" label (R33.10), and the `.quaternary` fill → `themedCard`.
+    ///
+    /// Mounted through the DEBUG UITEST_RESOURCES switch (the UITEST_DASHBOARD precedent):
+    /// the real `SafetyResourcesView` (store-free), `.disabled` analytics. Release-inert.
+    func test_a11yAudit_resources_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_RESOURCES"] = "1"
+        app.launch()
+
+        // R33.13: resources.screen is a `.accessibilityElement(children: .contain)` group,
+        // which surfaces to XCUITest as `.other` — query descendants(matching: .any).
+        let screen = app.descendants(matching: .any)["resources.screen"]
+        XCTAssertTrue(
+            screen.waitForExistence(timeout: 15),
+            "the UITEST_RESOURCES direct mount renders SafetyResourcesView"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
     /// A birth year that is unambiguously under 17 on any run date (the gate's
     /// conservative boundary works in whole years; 5 years ago can never pass).
     private static var minorBirthYear: String {

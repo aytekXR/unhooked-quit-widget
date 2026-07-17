@@ -105,6 +105,19 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// UIR-4 (R36) — the a11y-audit RESOURCES leg's mount, on the UITEST_DASHBOARD
+    /// precedent: a DEBUG-only launch-env switch, inert in every release build BY
+    /// CONSTRUCTION. Renders the real `SafetyResourcesView` (store-free by construction)
+    /// with `.disabled` analytics so the audit reaches the helpline surface — including
+    /// the R33.10-corrected DIAL link — deterministically.
+    private static var uiTestResourcesMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_RESOURCES"] == "1"
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ZStack {
             content
@@ -161,6 +174,8 @@ struct PostGateRootView: View {
             debugSummaryMount
         } else if Self.uiTestDashboardMount {
             debugDashboardMount
+        } else if Self.uiTestResourcesMount {
+            debugResourcesMount
         } else if let paywall, let paywallData {
             PaywallView(
                 data: paywallData,
@@ -299,6 +314,17 @@ struct PostGateRootView: View {
             .padding(Theme.space.s5)
         }
         .themedScreenSurface()
+        #else
+        EmptyView()
+        #endif
+    }
+
+    /// R36 — the resources leg's frame, compiled out of release ENTIRELY. Renders the
+    /// real `SafetyResourcesView` (store-free) with `.disabled` analytics; the `.settings`
+    /// source fires nothing on this inert mount.
+    @ViewBuilder private var debugResourcesMount: some View {
+        #if DEBUG
+        SafetyResourcesView(source: .settings, analytics: .disabled)
         #else
         EmptyView()
         #endif

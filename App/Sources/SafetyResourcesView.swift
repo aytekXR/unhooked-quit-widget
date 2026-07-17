@@ -89,6 +89,9 @@ final class SafetyResourcesModel {
 struct SafetyResourcesView: View {
     private let data: SafetyResourcesViewData
     @State private var model: SafetyResourcesModel
+    /// Decorative screen glyph, Dynamic-Type-bound like the age gate / blocked screen
+    /// (R33.12: a point size on a DECORATIVE Image is fine — the audit does not scan it).
+    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = Theme.type.screenGlyphBase
 
     @MainActor
     init(source: ResourcesSource?, analytics: AnalyticsService = .disabled) {
@@ -101,31 +104,45 @@ struct SafetyResourcesView: View {
         _model = State(initialValue: SafetyResourcesModel(analytics: analytics))
     }
 
+    /// Test-internal seam (the snapshot lane): renders over a pre-composed, locale-fixed
+    /// `SafetyResourcesViewData` so a CI simulator locale change can never move the golden.
+    /// Production never calls this (the `source:` init composes from the live directory).
+    @MainActor
+    init(data: SafetyResourcesViewData, analytics: AnalyticsService = .disabled) {
+        self.data = data
+        _model = State(initialValue: SafetyResourcesModel(analytics: analytics))
+    }
+
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: Theme.space.s5) {
                 Image(systemName: "lifepreserver")
-                    .font(.system(size: 44, weight: .light))
+                    .font(.system(size: min(glyphSize, Theme.type.screenGlyphCap), weight: .light))
                     .foregroundStyle(Theme.color.brandPrimary.color)
                     .accessibilityHidden(true)
 
                 Text(data.title)
                     .font(.title.weight(.semibold))
+                    .foregroundStyle(Theme.color.contentPrimary.color)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(data.intro)
                     .font(.body)
                     .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 if !data.emergencyNote.isEmpty {
                     // Calm text by binding brand rule — never red, never a button.
                     Text(data.emergencyNote)
                         .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Theme.color.contentPrimary.color)
                         .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
-                VStack(spacing: 12) {
+                VStack(spacing: Theme.space.s3) {
                     ForEach(data.rows, id: \.dialString) { row in
                         helplineRow(row)
                     }
@@ -136,9 +153,10 @@ struct SafetyResourcesView: View {
                         .font(.footnote)
                         .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(20)
+            .padding(Theme.space.s5)
         }
         .themedScreenSurface() // UIR-0: surface/base behind the resources screen
         .onAppear { model.viewed(data.source) }
@@ -149,31 +167,46 @@ struct SafetyResourcesView: View {
     /// One verbatim helpline row: name + description + a tappable tel: link
     /// (the AgeGateBlockedView row, unchanged — same brand sign-off).
     private func helplineRow(_ row: HelplineRow) -> some View {
-        VStack(spacing: 4) {
+        VStack(spacing: Theme.space.s1) {
             Text(row.name)
                 .font(.body.weight(.semibold))
+                .foregroundStyle(Theme.color.contentPrimary.color)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             Text(row.descr)
                 .font(.footnote)
                 .foregroundStyle(Theme.color.contentSecondary.color)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             if let url = URL(string: "tel:\(row.dialString)") {
+                // R33.10: the DIAL link is the one thing this safety surface exists to get
+                // tapped — a 44pt-floor target (via a frame floor, R33.5) and a DESCRIPTIVE
+                // VoiceOver label ("Call <name>"), not the bare number (the S33 blocked-screen
+                // precedent).
                 Link(destination: url) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: Theme.space.s2) {
                         Image(systemName: "phone.fill")
                             .accessibilityHidden(true)
                         Text(verbatim: row.phoneDisplay)
                             .font(.body.weight(.semibold))
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .foregroundStyle(Theme.color.brandPrimary.color)
+                    .frame(maxWidth: .infinity, minHeight: Theme.touch.minTarget)
+                    .contentShape(Rectangle())
+                    .padding(.top, Theme.space.s1)
                 }
+                .accessibilityLabel("Call \(row.name)")
             } else {
                 Text(verbatim: row.phoneDisplay)
                     .font(.body.weight(.semibold))
+                    .foregroundStyle(Theme.color.contentPrimary.color)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, Theme.space.s1)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(16)
-        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 16))
+        .padding(Theme.space.s4)
+        .themedCard() // was .quaternary (unregistered system material) — now surface/raised + hairline
     }
 }

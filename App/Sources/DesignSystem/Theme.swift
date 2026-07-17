@@ -181,6 +181,13 @@ enum Theme {
             fg: color.brandPrimary, bg: color.brandPrimary,
             bgAlpha: alpha.selectionTint, bgBase: color.surfaceBase, threshold: 4.5
         ),
+        // UIR-4: the paywall plan card's price subhead (content/secondary) on the SELECTED
+        // card (primary@12% over base). 5.07 L / 6.41 D — machine-verified before pinning.
+        ContrastPair(
+            "content secondary on selection tint (primary@12% over base) — paywall plan card price",
+            fg: color.contentSecondary, bg: color.brandPrimary,
+            bgAlpha: alpha.selectionTint, bgBase: color.surfaceBase, threshold: 4.5
+        ),
         // Component boundaries that convey state (1.4.11)
         ContrastPair("strong border vs base (UI)", fg: color.borderStrong, bg: color.surfaceBase, threshold: 3.0),
         ContrastPair("primary ring / glyph vs base (UI)", fg: color.brandPrimary, bg: color.surfaceBase, threshold: 3.0),
