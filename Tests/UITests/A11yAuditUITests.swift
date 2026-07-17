@@ -388,11 +388,14 @@ final class A11yAuditUITests: XCTestCase {
         app.launchEnvironment["UITEST_RESOURCES"] = "1"
         app.launch()
 
-        // R33.13: resources.screen is a `.accessibilityElement(children: .contain)` group,
-        // which surfaces to XCUITest as `.other` — query descendants(matching: .any).
-        let screen = app.descendants(matching: .any)["resources.screen"]
+        // Gate on the title Text (a real `.contain` CHILD that surfaces), NOT the
+        // full-screen `resources.screen` container id — a full-screen `.contain`
+        // container does not surface as a queryable element (run 29618554339 proved it:
+        // the view rendered — its "Call <name>" links were in the tree — but the
+        // container id never surfaced). Queried across all types for robustness.
+        let title = app.descendants(matching: .any)["resources.title"]
         XCTAssertTrue(
-            screen.waitForExistence(timeout: 15),
+            title.waitForExistence(timeout: 15),
             "the UITEST_RESOURCES direct mount renders SafetyResourcesView"
         )
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)

@@ -126,6 +126,11 @@ struct SafetyResourcesView: View {
                     .foregroundStyle(Theme.color.contentPrimary.color)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+                    // A real, surfacing anchor for the audit leg: the screen's own
+                    // `resources.screen` id sits on the full-screen `.contain` container,
+                    // which does NOT surface as a queryable element (unlike a bounded card);
+                    // the title Text (a .contain CHILD) surfaces reliably.
+                    .accessibilityIdentifier("resources.title")
 
                 Text(data.intro)
                     .font(.body)
