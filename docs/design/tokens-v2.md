@@ -170,8 +170,10 @@ so the funnel smoke's drive and the audit's anchors are untouched by a restyle
 the summary CTA), `QuietButtonStyle` (quiz Back, blocked "Go back"),
 `AnswerChipStyle` (quiz chips AND the consent pair — closing the known 14pt-vs-pill
 drift), `ThemedProgressBar` (quiz progress), `themedCard` (summary card, helpline
-rows), `themedScreenSurface` (via the scaffold). Remaining consumers — dashboard
-(UIR-2), panic/slip (UIR-3), paywall/settings/resources (UIR-4).
+rows), `themedScreenSurface` (via the scaffold). **UIR-2 adopted them on the
+dashboard** (`themedCard` per-card, `ThemedProgressBar` for the milestone bar,
+`themedScreenSurface` for the screen, and the NEW `StreakRing` — §6.StreakRing).
+Remaining consumers — panic/slip (UIR-3), paywall/settings/resources (UIR-4).
 
 ### OnboardingScaffold (NEW in UIR-1 — `Primitives/OnboardingScaffold.swift`)
 
@@ -191,17 +193,26 @@ scroll gesture never competes with an ancestor ScrollView's.
 | themedCard / themedCautionCard / themedSelectionTint | `Primitives/ThemedContainers.swift` | raised+hairline card; the amber notice fill; the tinted-row fill |
 | themedScreenSurface | `ColorToken+Color.swift` | surface/base behind a screen (adopted by the swapped screens NOW — it IS the swap's surface half) |
 
-### StreakRing — SPEC (implementation rides UIR-2 with the dashboard)
+### StreakRing — IMPLEMENTED (UIR-2, `Dashboard/StreakRing.swift`)
 
-The momentum ring (brandkit §4.1 custom-glyph budget #3): a circular arc,
-`brand/secondary` stroke on a `surface/sunken` track ring (4.64/7.82 —
-1.4.11-clean), stroke width 6pt at the dashboard-card size, round caps,
-fill fraction = momentum %, animated with `motion/calm` on appear only
-(never ticking); NEVER teal (momentum is indigo so streak and momentum are
-never confused — brandkit §2.1); the ring is `.accessibilityHidden` with the
-card's single a11y element speaking "momentum N percent" (brandkit §8); AX5:
-the ring yields its slot per brandkit §11-Q3 (open question, decided in
-UIR-2). Discreet mode renders the ring in `semantic/paused` neutrals.
+The momentum ring (brandkit §4.1 custom-glyph budget #3): a `Circle().trim(from:0,
+to: fraction).stroke(StrokeStyle(lineWidth: 6, lineCap: .round))` over a full-circle
+`surface/sunken` track, `brand/secondary` fill (4.64/7.82 — 1.4.11-clean, reusing the
+`secondary fill vs sunken track` pair), 12-o'clock origin (`.rotationEffect(-90°)`);
+NEVER teal (momentum is indigo so streak and momentum are never confused — brandkit
+§2.1); the ring is `.accessibilityHidden` (the card carries the semantics). Discreet
+OR frozen renders BOTH arcs in `semantic/paused` (the fill vanishes into the track —
+a shoulder-surfer defense in discreet mode, a calm non-alarm treatment for a frozen
+streak). **AX5 (brandkit §11-Q3, DECIDED in UIR-2): the ring OMITS entirely at
+accessibility sizes** — it is pure decoration and the momentum figure is still shown
+as text, so zero information is lost, and the data column goes full-width (read off
+`@Environment(\.dynamicTypeSize).isAccessibilitySize`, never `ViewThatFits` — R33.12).
+**The R33.12 exemption is structural: a 6pt `lineWidth` on a `Circle` (Shape) is not a
+`.font(.system(size:))` on `Text`, so the audit does not scan it — the dashboard leg
+passed the full 7-type set clean.** Motion is deferred: the ring renders SETTLED
+(drawn straight to `fraction`); the `motion/calm` appear animation is UIR-5's scope
+(R34.4 — golden-safe, since a settled ring is byte-identical to an animated one at
+rest, and it keeps the snapshot lane deterministic).
 
 ## 7. Brandkit §2 claim corrections (machine-verified drift — R32.7)
 
@@ -235,12 +246,14 @@ tooling, the `.codegraph` precedent). It was driven as the UIR-0 generator:
   form), visible focus affordance, tabular numerals for live counts, 40–60%
   scrim (floor-calibrated at 55%).
 
-## 9. Acceptance — the shipping registry (32 pairs × 2 modes, all PASS)
+## 9. Acceptance — the shipping registry (33 pairs × 2 modes, all PASS)
 
 Gate: normal text ≥4.5, large text & non-text UI ≥3.0. Enforced permanently by
 `Tests/Unit/ThemeContrastTests.swift` (fires-on-violation calibrated with the
 S28 white-on-system-teal defect fixture, which computes 2.57 — the gate
-gates itself). Tightest pairs, watch-listed: `content/tertiary` on sunken
+gates itself). **UIR-2 added `secondary text on raised` (the dashboard card's active
+momentum figure — brand/secondary on the raised card surface, 5.48 L / 6.64 D) —
+33 pairs.** Tightest pairs, watch-listed: `content/tertiary` on sunken
 3.11 L (large-only tier) and `brand/primary`-as-text on selection tint 4.72 L.
 Full per-pair output: run the unit suite, or `Theme.contrastPairs` ×
 `ContrastMath.ratio(for:dark:)`.

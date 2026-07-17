@@ -4939,3 +4939,106 @@ EXECUTED evidence behind it rather than a docs gap.
 - The onboarding + paywall golden batch still waits on the founder's §3 copy pass
   (post-UIR, ONE re-record).
 - Next: **Session 34 = UIR-2 (dashboard + widget families × discreet)**.
+
+## Session 34 — UIR-2: dashboard + widget families (2026-07-17)
+
+**Objective (resume-prompt v4.6):** regenerate the dashboard on the UIR-0 system + the
+widget families (× discreet), copy byte-identical, R33.12 Dynamic-Type contract carried in.
+Budget: 2 billed runs + 1 contingency (the widget-golden decision at STEP-0 may raise it).
+
+**Outcome: DONE in exactly the 2 planned runs — contingency UNUSED, ZERO burned.** Run 1
+(`29608118698`) was the designed golden-mint + first-audit run (build SUCCESS, unit + UI-smoke
+GREEN, snapshot RED writing 8 record-missing goldens). Run 2 (`29609447463`) is green with the
+8 goldens adopted from run 1's artifact. **No contingency was needed — the dashboard's FIRST
+a11y audit passed CLEAN** (see R34.3).
+
+### The scoping discovery only a session could make (R34.1)
+
+The "dashboard" the roadmap named for regeneration did not exist as a designed surface: it was
+`RootPlaceholderView`'s literal **walking skeleton** ("Nothing here yet — features arrive epic
+by epic."). The real `StreakDashboardCard` (brandkit §6#9) had been deferred since Session 18
+and never built. So UIR-2 is a **BUILD, not a restyle** — it constructs the card the app never
+had, on the Theme layer, and the placeholder is finally retired. The investigation established
+this before a line was written (a 10-agent understand+design workflow), so the session was
+scoped correctly from STEP-0.
+
+### Copy stayed byte-identical anyway (R34.2 — copyBlockerFound = FALSE)
+
+A new designed surface would normally need the operator's §3 copy pass. It did not, because the
+dashboard's entire vocabulary already lived in audited tables or is pure ADR-11 data: `"saved"`
+and `"next milestone"` are byte-identical to `StreakWidgetStyle.shipping` (a `DashboardCopyTests`
+pin holds them in lockstep — a §3 edit to one can never silently diverge the other); `"Day N"`,
+the currency figure, and `"N%"` are data, not copy. The strings brandkit specifies but no table
+holds — the frozen tooltip, the reduce-mode adherence framing, the empty-state heading/CTA, and
+the card's composed VoiceOver sentence — ship as **empty, empty-guarded slots** (`DashboardCopy`
+holds `""` and the view guards every one, so no empty `Text` ever renders). They ride the founder
+§3 pass; the unit lane fails the instant one gains a value without it. **No operator gate.**
+
+### The first-audit that DIDN'T fire (R34.3)
+
+Every prior first-audited surface produced a finding (R32.9 disabled-`.plain` dimming, R33.12
+`@ScaledMetric` point sizes, R33.10 the helpline target). The dashboard leg
+(`test_a11yAudit_dashboard_noViolations`, full 7-type `onboardingAuditTypes`, NO pre-suppression
+per the S33 rule) **passed clean on its first run** — the first UIR surface to do so. Why: R33.12
+was ALREADY KNOWN this session (S33 paid the run to learn it), so the card was built to it from
+the first byte and the free layout lint pre-empted every `.dynamicType` idiom before the push;
+`.accessibilityElement(children: .contain)` let each `Text` carry its own description (dodging
+`.sufficientElementDescription` on the container without a §3-blocked composed label); and only
+4.5-clean text tokens were used (`content/tertiary` never on text), pre-empting `.contrast`. The
+lesson compounds: **a known audit contract makes a clean first audit reachable — the ledger a
+prior run wrote is the current run's free coverage.**
+
+### The rulings
+
+- **R34.4 (the ring renders SETTLED; motion is UIR-5's).** `StreakRing` draws the momentum arc
+  directly at its fraction — no `@State`/`.onAppear` animation. tokens-v2 §6's motion/calm appear
+  animation is deferred to UIR-5 (the motion session). This is golden-safe (a settled ring is
+  byte-identical to an animated one at rest, so UIR-5 adding the animation moves no dashboard
+  golden) AND makes the snapshot lane deterministic (no mid-animation frame capture). The ring is
+  a `Circle().trim().stroke(StrokeStyle(lineWidth:6))` — a Shape, so R33.12-exempt.
+- **R34.5 (Day N is the noon-anchored calendar day, drift-guarded).** `DashboardCardComposer`
+  `calendarDayNumber` inlines the EXACT algorithm `StreakTimelinePlanner.daysBetween` uses (private
+  in WidgetToolkit) — noon-anchored, quit-fixed-zone, `max(1, days+1)`. A unit test constructs a
+  `StreakWidgetState` + drives the real planner and asserts the two agree across a same-day, a
+  before-local-midnight morning, the DST spring-forward day, and the widget fixture — so the in-app
+  "Day N" and the lock-screen "Day N" can never disagree. NEVER `StreakValue.days + 1` (24h blocks;
+  wrong for any streak started before local midnight — pinned by name).
+- **R34.6 (milestone omits, never fabricates).** `milestoneProgress` returns `nil` (no bar) when
+  there is no ladder or every rung is climbed — the dashboard omits rather than showing a full bar
+  for an earned ladder (a "next milestone" label with no next milestone would be a lie). Diverges
+  deliberately from the widget, which shows a full bar.
+- **R34.7 (widgets DEFERRED — STEP-0 golden ruling).** The widget-review found the 5 families
+  structurally on-spec (luminance-only, no Theme, discreet variants, ring/bar, animation ban) with
+  two MINOR brandkit-§3 typography defects: the rectangular numeral (`.headline` vs ~20pt monospaced)
+  and the micro-labels (`.caption2` vs ~12pt Medium + tracking). Fixing re-records ~13 of 29 goldens.
+  **Ruled DEFER:** `StreakWidgetViews.swift` is UNTOUCHED, so all 29 widget goldens stay byte-stable
+  and zero widget golden risk enters UIR-2's runs. The widgets are luminance-only (not the Theme
+  layer) — there is no palette regeneration to apply — so the "widget families" half is discharged
+  as a documented brandkit-§3 REVIEW; the typography fix rides UIR-5's golden batch. This is what
+  held the budget at 2 runs.
+- **R34.8 (scope fences held).** One new contrast pair (`secondary text on raised`, 5.48 L / 6.64 D)
+  into `Theme.contrastPairs` — no new color token, key-set pin untouched. The layout-lint scope grew
+  to `App/Sources/Dashboard` (born-green — rehearsed over the shipping bytes + fires-on-injection on
+  the free box). Zero copy bytes; no privacy surface, no analytics motion, no new SPM dep; panic /
+  slip / widgets / Shared / the packages all untouched → the 95 prior goldens byte-stable
+  (CI-proven both runs), 8 new dashboard goldens minted (95 → 103). The card takes a plain
+  `StreakCardModel` value (no SwiftData `Quit`), so snapshots + the audit mount are fixture-only and
+  store-free — a design that also made the composer logic Linux-rehearsable (×3 TZ + fire-on-mutation
+  before either billed run).
+
+### Carried / known limitations
+- **Widget typography (R34.7):** two minor brandkit-§3 defects deferred to UIR-5's golden batch —
+  named, not fixed.
+- **Frozen / reduce / composed-a11y polish:** the frozen state renders correct numbers with a
+  neutral ring but NO tooltip; reduce renders identically to a quit goal (byte-identical golden); the
+  card is a `.contain` group, not the single `.ignore` element brandkit §8 specifies. All three wait
+  on the founder §3 pass (the frozen tooltip, the reduce framing, the composed sentence) and are then
+  a mount-and-upgrade, not a redesign — the card is built audit-ready.
+- **The dashboard audit mounts the CARD in isolation** (`UITEST_DASHBOARD` → `debugDashboardMount`),
+  not the full `RootPlaceholderView`; its panic/slip/settings rows keep their pre-UIR `.buttonStyle(.plain)`
+  / 56pt-floor idioms (out of the lint scope, UIR-3/UIR-4 surfaces).
+- **`.dynamicType`/`.textClipped`** remain excluded on the panic + slip legs only — owned by UIR-3,
+  the exact 5 elements known from the S28 artifact.
+- The onboarding + paywall golden batch still waits on the founder's §3 copy pass (post-UIR, ONE
+  re-record). The dashboard's goldens do NOT (its copy is audited/data), so they were minted now.
+- Next: **Session 35 = UIR-3 (panic + slip flows)** — safety pre-sign-off, copy untouched.

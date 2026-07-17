@@ -153,8 +153,20 @@ own STEP-0):**
   audit no matter what drives it (a `@ScaledMetric` does not rescue it), and
   `ViewThatFits` makes every `Text` inside it un-scalable too. Only panic and slip
   remain excluded, owned by UIR-3.
-- **UIR-2 — Dashboard + widget families** (× discreet).
-- **UIR-3 — Panic + slip flows** (safety pre-sign-off; copy untouched).
+- **UIR-2 — Dashboard + widget families: ✅ DONE (Session 34, 2 billed runs).** The real
+  `StreakDashboardCard` + `StreakRing` are built on the Theme layer — the `RootPlaceholderView`
+  "walking skeleton" that had stood in for the dashboard since Session 18 is RETIRED, replaced by
+  one card per active quit (streak-day hero, flame + momentum figure, the momentum ring, money
+  saved, next-milestone bar). Copy is byte-identical (audited labels + ADR-11 data; the §3-blocked
+  polish strings ship empty-guarded). **The dashboard is audited for the first time and its first
+  a11y audit passed CLEAN** — the first UIR surface to fire nothing, because R33.12 was already
+  known and the free layout lint enforced it before the push. **Widgets were DEFERRED at STEP-0**:
+  the 5 families are on-spec bar two minor brandkit-§3 typography defects, so `StreakWidgetViews.swift`
+  stayed untouched and the 29 widget goldens byte-stable — the typography fix rides UIR-5. 8 dashboard
+  goldens minted (95 → 103); the `.dynamicType`/`.textClipped` exclusion list still holds panic + slip
+  (UIR-3's job).
+- **UIR-3 — Panic + slip flows** (safety pre-sign-off; copy untouched; closes the
+  `.dynamicType`/`.textClipped` exclusion list to zero).
 - **UIR-4 — Paywall (hard/teaser/winback) + settings + resources.**
 - **UIR-5 — Motion/polish + AX5 axes** + consolidated golden-batch prep for the
   operator's §3 sitting.
