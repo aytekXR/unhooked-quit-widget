@@ -1,7 +1,10 @@
+import StreakEngine
 import SwiftUI
 
-/// Normal-launch root for the walking skeleton. Real tabs (dashboard/settings) arrive
-/// with their epics; this view exists so E0.1's UI smoke has a stable anchor.
+/// Normal-launch root. UIR-2 (Session 34) replaced the walking-skeleton placeholder with
+/// the real `StreakDashboardCard` (one per active quit); the route-level `root.placeholder`
+/// smoke anchor lives on `AgeGateContainerView` above this view, so the E0.1 smoke is
+/// unaffected. Real tabs still arrive with their epics.
 ///
 /// E4.1 grafts a DELIBERATELY placeholder-grade store-backed slip entry onto it (no
 /// quit-creation UI exists yet, so no XCUITest pins this surface — the store slip route
@@ -59,20 +62,34 @@ struct RootPlaceholderView: View {
         ?? SafetyCopy.AlcoholNotice.degraded
 
     var body: some View {
-        VStack(spacing: 24) {
-            skeleton
-            panicEntry
-            if let repository = provider?.repository {
-                if showsAlcoholNotice {
-                    alcoholNoticeCard(noticeCopy)
+        VStack(spacing: 0) {
+            ScrollView(.vertical) {
+                VStack(spacing: Theme.space.s4) {
+                    dashboardSection
+                    if let repository = provider?.repository {
+                        if showsAlcoholNotice {
+                            alcoholNoticeCard(noticeCopy)
+                        }
+                        storeSlipSurface(repository)
+                            .onAppear { considerAlcoholNotice(repository) }
+                        settingsEntry
+                    }
                 }
-                storeSlipSurface(repository)
-                    .onAppear { considerAlcoholNotice(repository) }
-                settingsEntry
+                .frame(maxWidth: Theme.layout.contentMaxWidth) // brandkit §5 one-column measure
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Theme.space.s5)
+                .padding(.top, Theme.space.s4)
+                .padding(.bottom, Theme.space.s2)
             }
+            .scrollBounceBehavior(.basedOnSize)
+            // R33.5 / brandkit §5 one-hand rule: the panic action is PINNED (never scrolls
+            // away) in the lower reach; the dashboard content scrolls above it, so a card's
+            // text can always grow at accessibility sizes without pushing help off-screen.
+            panicEntry
+                .padding(.horizontal, Theme.space.s5)
+                .padding(.bottom, Theme.space.s4)
         }
-        .padding(20)
-        .themedScreenSurface() // UIR-0: surface/base behind the root skeleton
+        .themedScreenSurface() // UIR-0: surface/base behind the dashboard
         .sheet(item: $resources) { presented in
             SafetyResourcesView(
                 source: presented.source,
@@ -116,24 +133,49 @@ struct RootPlaceholderView: View {
         }
     }
 
-    /// The E0.1 anchor + walking-skeleton copy — pinned by WalkingSkeletonUITests /
-    /// WalkingSkeletonTests, kept byte-for-byte.
-    private var skeleton: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "circle.dashed")
-                .font(.largeTitle)
-                .foregroundStyle(Theme.color.brandPrimary.color)
-                .accessibilityHidden(true)
-            Text("Walking skeleton")
-                .font(.title2.weight(.semibold))
-            Text("Nothing here yet — features arrive epic by epic.")
-                .font(.body)
-                .foregroundStyle(Theme.color.contentSecondary.color)
-                .multilineTextAlignment(.center)
+    /// UIR-2 — the real dashboard: one `StreakDashboardCard` per active quit (≤ 3),
+    /// read placeholder-grade like `storeSlipSurface` (`refreshToken` forces a re-read on
+    /// scene-phase transitions until this surface earns observation plumbing). Empty in
+    /// production is unreachable — a zero-quit install routes to the quiz, never here —
+    /// so no §3-blocked empty-state copy renders; a store still opening simply shows
+    /// nothing above the pinned panic action.
+    @ViewBuilder private var dashboardSection: some View {
+        let quits = (try? provider?.repository?.activeQuits()) ?? []
+        VStack(spacing: Theme.space.s4) {
+            ForEach(quits, id: \.id) { quit in
+                let value = (try? provider?.repository?.streakValue(for: quit.id))
+                    ?? StreakValue(elapsedSeconds: 0, moneySaved: 0, momentum: 1.0)
+                StreakDashboardCard(
+                    model: cardModel(quit: quit, value: value),
+                    accessibilityID: "dashboard.card.\(quit.id.uuidString)"
+                )
+            }
         }
-        .padding(20)
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("root.placeholder")
+        .id(refreshToken)
+    }
+
+    /// Maps persisted truth (`Quit`) + the live streak readout (`StreakValue`) onto the
+    /// card's plain-value model. "Day N" is the ADR-11 calendar day in the quit's FIXED
+    /// zone via `DashboardCardComposer` — never `StreakValue.days`; the milestone bar
+    /// reads the quit's ladder from `MilestoneCatalog`; frozen rides `clockSanity`.
+    private func cardModel(quit: Quit, value: StreakValue) -> StreakCardModel {
+        StreakCardModel(
+            dayNumber: DashboardCardComposer.calendarDayNumber(
+                startAt: quit.startAt,
+                timeZoneIdentifier: quit.startTimeZoneIdentifier,
+                now: LiveClock().now
+            ),
+            moneySaved: value.moneySaved,
+            currencyCode: quit.currencyCode,
+            momentumFraction: value.momentum,
+            milestoneProgress: DashboardCardComposer.milestoneProgress(
+                elapsedSeconds: value.elapsedSeconds,
+                milestoneHours: MilestoneCatalog.shipping.hours(for: quit.habitCategory)
+            ),
+            isDiscreet: quit.discreetMode,
+            isReduceMode: quit.goalMode == .reduce,
+            isFrozen: value.clockSanity == .clockRolledBack
+        )
     }
 
     /// In-app panic entry (E3.3 — the fourth `PanicSource`). Placeholder-grade like the

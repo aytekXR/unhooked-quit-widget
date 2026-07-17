@@ -151,6 +151,9 @@ enum Theme {
         ContrastPair("paused (large) on raised", fg: color.paused, bg: color.surfaceRaised, threshold: 3.0),
         // Momentum / progress (brand secondary as text and as a 1.4.11 fill)
         ContrastPair("secondary text on base", fg: color.brandSecondary, bg: color.surfaceBase, threshold: 4.5),
+        // UIR-2: the dashboard card's active momentum figure (brand/secondary text on the
+        // raised card surface). 5.48 L / 6.64 D — comfortable normal-text pass.
+        ContrastPair("secondary text on raised", fg: color.brandSecondary, bg: color.surfaceRaised, threshold: 4.5),
         ContrastPair("secondary fill vs sunken track (UI)", fg: color.brandSecondary, bg: color.surfaceSunken, threshold: 3.0),
         // Tinted fills, composited to their EFFECTIVE color first
         ContrastPair(

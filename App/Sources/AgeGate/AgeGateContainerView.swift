@@ -102,13 +102,16 @@ struct AgeGateContainerView: View {
     /// or a gate model — the scenario-29 wall's two known mechanisms. Inert in
     /// release BY CONSTRUCTION.
     ///
-    /// UIR-1 (R33.4) widens it to the summary leg. The AGE-GATE legs need no hook at
-    /// all: the gate is the app's first screen, so a fresh install (UITEST_RESET) IS
-    /// its mount — the audit drives the real wheel, exactly as a user does.
+    /// UIR-1 (R33.4) widens it to the summary leg; UIR-2 (R34) to the dashboard leg. The
+    /// AGE-GATE legs need no hook at all: the gate is the app's first screen, so a fresh
+    /// install (UITEST_RESET) IS its mount — the audit drives the real wheel, exactly as
+    /// a user does.
     private static var uiTestOnboardingMount: Bool {
         #if DEBUG
         let environment = ProcessInfo.processInfo.environment
-        return environment["UITEST_QUIZ"] == "1" || environment["UITEST_SUMMARY"] == "1"
+        return environment["UITEST_QUIZ"] == "1"
+            || environment["UITEST_SUMMARY"] == "1"
+            || environment["UITEST_DASHBOARD"] == "1"
         #else
         return false
         #endif

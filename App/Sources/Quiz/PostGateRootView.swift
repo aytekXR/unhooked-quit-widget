@@ -90,6 +90,21 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// UIR-2 (R34) — the a11y-audit DASHBOARD leg's mount, on the UITEST_SUMMARY
+    /// precedent above: a DEBUG-only launch-env switch, inert in every release build BY
+    /// CONSTRUCTION. The dashboard is the surface UIR-2 built, and it is reachable in
+    /// production only after gate → quiz → quit creation, so the audit needs a direct
+    /// mount exactly as the summary leg did. It renders a single fixture
+    /// `StreakDashboardCard` (a value model — no repository, no store, no `Quit`), so it
+    /// opens NO path to habit content and fires nothing.
+    private static var uiTestDashboardMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_DASHBOARD"] == "1"
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ZStack {
             content
@@ -144,6 +159,8 @@ struct PostGateRootView: View {
             ))
         } else if Self.uiTestSummaryMount {
             debugSummaryMount
+        } else if Self.uiTestDashboardMount {
+            debugDashboardMount
         } else if let paywall, let paywallData {
             PaywallView(
                 data: paywallData,
@@ -253,6 +270,35 @@ struct PostGateRootView: View {
             ),
             onContinue: {}
         )
+        #else
+        EmptyView()
+        #endif
+    }
+
+    /// R34 — the dashboard leg's frame, compiled out of release ENTIRELY. Renders one
+    /// `StreakDashboardCard` over a deterministic fixture value model (active,
+    /// non-discreet, non-frozen) inside a `ScrollView`, so the audit exercises the same
+    /// scroll-plus-grow contract a real card sits in (R33.5). The fixture carries no copy
+    /// — every number is ADR-11 data — and touches no store; the mount fires nothing.
+    @ViewBuilder private var debugDashboardMount: some View {
+        #if DEBUG
+        ScrollView(.vertical) {
+            StreakDashboardCard(
+                model: StreakCardModel(
+                    dayNumber: 34,
+                    moneySaved: 412,
+                    currencyCode: "USD",
+                    momentumFraction: 0.82,
+                    milestoneProgress: 0.45,
+                    isDiscreet: false,
+                    isReduceMode: false,
+                    isFrozen: false
+                ),
+                accessibilityID: "dashboard.card.fixture"
+            )
+            .padding(Theme.space.s5)
+        }
+        .themedScreenSurface()
         #else
         EmptyView()
         #endif

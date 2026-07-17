@@ -46,9 +46,11 @@ import Testing
 // closes its surfaces; it never shrinks.
 @Suite("UIR-1 · onboarding layout lint")
 struct OnboardingLayoutLintTests {
-    /// The directories UIR-1 rebuilt. Grow-only: UIR-2 adds the dashboard, UIR-3 the
+    /// The directories UIR rebuilt. Grow-only: UIR-2 adds the dashboard, UIR-3 the
     /// panic/slip flows, and so on until the whole of App/Sources is covered.
-    private static let scopedDirectories = ["App/Sources/AgeGate", "App/Sources/Quiz"]
+    private static let scopedDirectories = [
+        "App/Sources/AgeGate", "App/Sources/Quiz", "App/Sources/Dashboard",
+    ]
 
     /// Idioms that defeat Dynamic Type, plus the disabled-label dimming trap.
     /// Substring matches against comment-stripped code lines.

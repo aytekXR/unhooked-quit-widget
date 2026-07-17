@@ -357,6 +357,33 @@ final class A11yAuditUITests: XCTestCase {
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
+    /// The dashboard leg — NEW in UIR-2. NOT a rule-11 safety path (it carries no minor
+    /// protection and no live helpline numbers), so it takes the R28.6 onboarding-leg
+    /// posture and the FULL `onboardingAuditTypes` set (the exclusion list only shrinks,
+    /// R32.3). This is the surface's FIRST audit, and per the S33 rule its ledger is
+    /// produced by RUNNING it — NO issue handler is pre-added on a prediction (two
+    /// reviewers were refuted by the run last session).
+    ///
+    /// Mounted through the DEBUG UITEST_DASHBOARD switch: the real `StreakDashboardCard`
+    /// over a fixture value model, inside a ScrollView (the real card's scroll-plus-grow
+    /// contract), `.disabled`/no analytics, no repository, no store. Release-inert BY
+    /// CONSTRUCTION.
+    func test_a11yAudit_dashboard_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_DASHBOARD"] = "1"
+        app.launch()
+
+        // R33.13: the card collapses to a `.accessibilityElement(children: .contain)`
+        // group, which surfaces to XCUITest as `.other`, never `.staticText`/`.button` —
+        // query descendants(matching: .any).
+        let card = app.descendants(matching: .any)["dashboard.card.fixture"]
+        XCTAssertTrue(
+            card.waitForExistence(timeout: 15),
+            "the UITEST_DASHBOARD direct mount renders the StreakDashboardCard fixture"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
     /// A birth year that is unambiguously under 17 on any run date (the gate's
     /// conservative boundary works in whole years; 5 years ago can never pass).
     private static var minorBirthYear: String {
