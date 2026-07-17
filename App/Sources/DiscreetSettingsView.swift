@@ -42,6 +42,14 @@ struct DiscreetSettingsView: View {
                 }
                 resourcesRow()
             }
+            // UIR-4b: the List's system-grouped chrome moves onto the Theme layer WITHOUT
+            // abandoning List (its native cell accessibility is kept). The scroll's system
+            // background is hidden and surface/base shows behind; each Section's cells ride
+            // surface/raised (`.listRowBackground` per Section); Toggles tint `brand/primary`;
+            // header/footer/label text carries explicit Theme tokens.
+            .scrollContentBackground(.hidden)
+            .background(Theme.color.surfaceBase.color.ignoresSafeArea())
+            .tint(Theme.color.brandPrimary.color)
             .id(refreshToken)
             .navigationTitle(copy.screenTitle)
         }
@@ -68,6 +76,7 @@ struct DiscreetSettingsView: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings.winback.row")
             }
+            .listRowBackground(Theme.color.surfaceRaised.color)
         }
     }
 
@@ -89,6 +98,7 @@ struct DiscreetSettingsView: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings.resources.row")
             }
+            .listRowBackground(Theme.color.surfaceRaised.color)
         }
     }
 
@@ -108,13 +118,18 @@ struct DiscreetSettingsView: View {
                     }
                 )) {
                     Label(rowLabel(quit), systemImage: "eye.slash")
+                        .foregroundStyle(Theme.color.contentPrimary.color)
                 }
             }
         } header: {
             Text(copy.widgetsHeader)
+                .foregroundStyle(Theme.color.contentSecondary.color)
+                .textCase(nil)
         } footer: {
             Text(copy.widgetsFooter)
+                .foregroundStyle(Theme.color.contentSecondary.color)
         }
+        .listRowBackground(Theme.color.surfaceRaised.color)
     }
 
     @ViewBuilder
@@ -126,7 +141,10 @@ struct DiscreetSettingsView: View {
             iconRow(title: copy.iconRowTimer, iconID: "AppIconTimer", current: current)
         } header: {
             Text(copy.iconHeader)
+                .foregroundStyle(Theme.color.contentSecondary.color)
+                .textCase(nil)
         }
+        .listRowBackground(Theme.color.surfaceRaised.color)
     }
 
     /// E9.3 (R28.3 — the THIRD R22.7 amendment): the haptics-only breath-pacer
@@ -150,10 +168,13 @@ struct DiscreetSettingsView: View {
                 }
             )) {
                 Text(copy.hapticPacerRowLabel)
+                    .foregroundStyle(Theme.color.contentPrimary.color)
             }
         } footer: {
             Text(copy.hapticPacerFooter)
+                .foregroundStyle(Theme.color.contentSecondary.color)
         }
+        .listRowBackground(Theme.color.surfaceRaised.color)
     }
 
     private func iconRow(title: String, iconID: String?, current: String?) -> some View {
