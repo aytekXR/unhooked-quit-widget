@@ -162,11 +162,30 @@ struct StreakWidgetView: View {
     private var rectangular: some View {
         HStack {
             VStack(alignment: .leading) {
-                primaryDayLine(font: .headline)
+                // R34.7 (brandkit §3 `type/widgetNumeral`): the lock-screen streak numeral at
+                // ~20pt, Semibold, monospaced digits — SF Compact, NOT rounded (rounded is the
+                // dashboard hero `type/streakHero` only, §3 line 116). The explicit point size
+                // IS the intended widget form (§3 gives pt values; the accessory family clamps
+                // Dynamic Type anyway, and widgets are neither a11y-audited nor lint-scoped).
+                // Weight is `.semibold`, the lighter end of §3's Semibold–Bold range — the §3
+                // note leans "heaviest that fits" for lock-screen vibrancy, but `.bold` widens
+                // the rare unavailable-state sentence ("Ready when you are.") toward a 3-line
+                // wrap; `.bold` is a flagged operator/brand upgrade pending a render check.
+                primaryDayLine(font: .system(size: 20, weight: .semibold).monospacedDigit())
                 if StreakWidgetDisplay.showsMoney(for: quit), let quit,
                    let money = StreakWidgetDisplay.moneyText(for: quit, at: entry.date) {
-                    Text("\(money) \(style.savedLabel)")
-                        .font(.caption2)
+                    // R34.7 (`type/widgetLabel`): the "saved" micro-label at 12pt Medium,
+                    // tracking +0.3 — SPLIT from the money value (previously one `.caption2`
+                    // interpolated string) so the label carries its own treatment while the
+                    // money keeps monospaced digits and no tracking. Label TEXT is unchanged
+                    // (copy). Both stay 12pt so the lock-screen line reads as one unit.
+                    HStack(spacing: 3) {
+                        Text(money)
+                            .font(.system(size: 12, weight: .medium).monospacedDigit())
+                        Text(style.savedLabel)
+                            .font(.system(size: 12, weight: .medium))
+                            .tracking(0.3)
+                    }
                 }
             }
             Spacer()
@@ -235,14 +254,24 @@ struct StreakWidgetView: View {
                        let money = StreakWidgetDisplay.moneyText(for: quit, at: entry.date) {
                         Text(money)
                             .font(.title3.weight(.semibold).monospacedDigit())
+                        // R34.7 (`type/widgetLabel`): 12pt Medium, tracking +0.3 — an explicit
+                        // FIXED point size per brandkit §3, not the scaling `.caption2` text
+                        // style. On systemMedium (home-screen, not DT-clamped) this label no
+                        // longer scales at accessibility sizes — an intentional micro-label size
+                        // per §3; flagged for the operator if home-screen label scaling is wanted.
+                        // Do NOT revert to `.caption2` to "restore Dynamic Type" — that is the
+                        // retired defect.
                         Text(style.savedLabel)
-                            .font(.caption2)
+                            .font(.system(size: 12, weight: .medium))
+                            .tracking(0.3)
                     }
                     if let progress = StreakWidgetDisplay.milestoneProgress(for: quit, at: entry.date) {
                         ProgressView(value: progress)
                         if StreakWidgetDisplay.showsMilestoneLabel(for: quit) {
+                            // R34.7 (`type/widgetLabel`): 12pt Medium, tracking +0.3 (see savedLabel above).
                             Text(style.milestoneLabel)
-                                .font(.caption2)
+                                .font(.system(size: 12, weight: .medium))
+                                .tracking(0.3)
                         }
                     }
                 }
