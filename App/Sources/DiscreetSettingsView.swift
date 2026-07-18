@@ -33,55 +33,26 @@ struct DiscreetSettingsView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 0) {
-                titleHeader
-                List {
-                    if let repository = provider?.repository {
-                        widgetToggles(repository)
-                        iconPicker(repository)
-                        hapticPacerRow(repository)
-                        winbackRow(repository)
-                    }
-                    resourcesRow()
+            List {
+                if let repository = provider?.repository {
+                    widgetToggles(repository)
+                    iconPicker(repository)
+                    hapticPacerRow(repository)
+                    winbackRow(repository)
                 }
-                // UIR-4b: the List's system-grouped chrome moves onto the Theme layer WITHOUT
-                // abandoning List (its native cell accessibility is kept). The scroll's system
-                // background is hidden and surface/base shows behind (the VStack backdrop);
-                // each Section's cells ride surface/raised (`.listRowBackground` per Section);
-                // Toggles tint `brand/primary`; header/footer/label text carries Theme tokens.
-                .scrollContentBackground(.hidden)
-                .tint(Theme.color.brandPrimary.color)
-                .id(refreshToken)
+                resourcesRow()
             }
+            // UIR-4b: the List's system-grouped chrome moves onto the Theme layer WITHOUT
+            // abandoning List (its native cell accessibility is kept). The scroll's system
+            // background is hidden and surface/base shows behind; each Section's cells ride
+            // surface/raised (`.listRowBackground` per Section); Toggles tint `brand/primary`;
+            // header/footer/label text carries explicit Theme tokens.
+            .scrollContentBackground(.hidden)
             .background(Theme.color.surfaceBase.color.ignoresSafeArea())
-            // R38.2 (UIR-5b): the bar carries no title (inline, empty) — the screen title is
-            // the free-standing `titleHeader` below, NOT a navigation-bar LARGE title, which
-            // the accessibility audit reported `.dynamicType` "partially unsupported" +
-            // `.textClipped` on (a large title caps its growth and clips in the fixed-height
-            // bar). Run 29625700044 proved the SAME finding fires on a title placed in a LIST
-            // ROW — a row is height-constrained too — so the title must live in a container
-            // that lets it grow: a free-standing text above the List (R33.12 pt.4).
-            .navigationBarTitleDisplayMode(.inline)
+            .tint(Theme.color.brandPrimary.color)
+            .id(refreshToken)
+            .navigationTitle(copy.screenTitle)
         }
-    }
-
-    /// R38.2 — the screen title as a FREE-STANDING, scalable text ABOVE the List (never a
-    /// nav-bar large title nor a List row — both are height-constrained and clip a
-    /// `.largeTitle` at accessibility sizes; run 29625700044 proved the row form fails
-    /// identically). `.fixedSize(vertical:)` grants it its full wrapped height and the List
-    /// (the flexible sibling) yields the rest, so it scales fully and never clips — the
-    /// SafetyResourcesView / PanicFlowView `.largeTitle` idiom. `.isHeader` for VoiceOver.
-    private var titleHeader: some View {
-        Text(copy.screenTitle)
-            .font(.largeTitle.weight(.bold))
-            .foregroundStyle(Theme.color.contentPrimary.color)
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Theme.space.s4)
-            .padding(.top, Theme.space.s3)
-            .padding(.bottom, Theme.space.s2)
-            .accessibilityAddTraits(.isHeader)
-            .accessibilityIdentifier("settings.title")
     }
 
     /// E7.3 (R26.6) — the settings surface of the win-back offer (the plan's
