@@ -225,8 +225,13 @@ own STEP-0):**
   - **Golden-batch prep: ✅ DONE (Session 40).** `docs/golden-batch.md` — the plan for the ONE final
     re-record at the operator's §3 sitting (the onboarding + paywall goldens get MINTED then; everything
     else is stable).
-  - **DEFERRED: the settings-content audit** (S39 iceberg — the fix is characterized; needs
-    enumerate-all-findings-from-one-run). **After UIR-5c the agent-doable UIR work is COMPLETE.**
+  - **DEFERRED (MAC-GATED): the settings-content audit.** Attempted on CI in S40 (5 runs,
+    enumerate-all-from-one-run): title (free-standing `.largeTitle`) + long footer (self-sizing
+    `captionRow`) FIXED and known-good, but the resources row is an unsolved Button+wrapping-title
+    Dynamic-Type conflict (`Label` truncates; `HStack` clears the clip but "partially unsupported"
+    persists) that needs Xcode's Accessibility Inspector. Reverted to green. **After UIR-5c the
+    CI-doable UIR work is COMPLETE — only the Mac-gated settings-content audit + the operator critical
+    path remain.**
 
 **Exit criteria:** all snapshot goldens re-recorded on the new system; the a11y
 audit green with the R28.13 exclusion list shrunk to zero or a documented

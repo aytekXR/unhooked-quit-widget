@@ -5461,3 +5461,36 @@ the settings-content audit (S39 iceberg — the fix is characterized; needs enum
 one-run, ideally a local macOS run). **After UIR-5c the agent-doable UIR work is COMPLETE** — the
 project is fully operator-gated (G0 rename, §3 copy pass + the golden batch, §8 keys + sandbox, device
 rows + E0.3 latency + the UIR-5c device eyeballs, external beta, submission).
+
+## Session 40 (addendum) — the settings-content audit: attempted on CI, DEFERRED with a complete diagnosis (2026-07-18)
+
+At the operator's request ("go ahead with the settings-content audit on CI"), re-opened the S39
+iceberg with the **enumerate-ALL-findings-from-ONE-run** discipline. FIVE CI runs converged on a
+complete diagnosis — a decisive improvement over S39's blind whack-a-mole (each run named its exact
+survivor; findings went 2 → 1 → 1 → 1 → 1) — but the tail finding is not resolvable via CI iteration,
+so it reverted to green (52eafa6, byte-identical to f43db52; 2 goldens restored, leg/mount/env removed).
+
+**Two of three defects FIXED (known-good for a Mac session):**
+- Title (`settings.title`): a FREE-STANDING `.largeTitle` `Text` ABOVE the List (R39.2). The nav bar
+  AND a List row both clip it; only free-standing grows. Verified not-flagged from run 1.
+- Long section footer (`hapticPacerFooter`): moved OUT of the `footer:` slot (whose height the system
+  CAPS — `.fixedSize` cannot override it) into a self-sizing `captionRow`. Verified cleared in run 2.
+
+**The unsolved blocker — the resources row ("Support & resources"):**
+- A native `Label` TRUNCATES (→ `.textClipped`), even with `.lineLimit(nil)` + `.fixedSize` (runs 1, 5).
+- An explicit `HStack{Image;Text}` clears the clip but BREAKS the native icon+title co-scaling the audit
+  wants → `.dynamicType` "partially unsupported" persists even at full width with a scaling icon (runs
+  3, 4).
+- A plain-`Text` row (the captionRow) passes BOTH — but it is not a Button.
+- ⇒ a genuine **Button + wrapping-title Dynamic-Type conflict**. Pinning the exact failing content-size
+  needs Xcode's **Accessibility Inspector** (interactive), NOT more CI guessing.
+
+**Runs:** 29657891269, 29658654073, 29659267855, 29660062351, 29660822632 (5 red-by-enumeration) + the
+revert (29661516821, green). Honest budget note: 5 runs this session (8 incl. S39) — every run was
+diagnostically productive, but the resources row resisted a CI-only fix.
+
+**Terminal state:** the settings-content audit is a MAC-GATED item now. A future session with a Mac
+applies the two known-good fixes (title, footer), solves the resources-row DT with the Accessibility
+Inspector, re-adds the leg (gate on `settings.resources.row`, R36.4) + its UITEST_SETTINGS mount, and
+re-records the 2 settings goldens — landing all of it together. Until then settings stays exactly as the
+operator last saw it (8 audited surfaces; all 107 goldens stable; all lanes green).
