@@ -200,8 +200,20 @@ own STEP-0):**
   `.dynamicType`+`.textClipped` fired on the navigation-bar LARGE TITLE ("Discreet Mode",
   NavigationBar/LargeTitle — a SYSTEM behavior, not the themed content), so the fix (a custom/`.inline`
   title, which re-records the settings golden) rides UIR-5b.
-- **UIR-5b — The settings large-title fix + motion/polish + AX5 axes + widget typography** + consolidated
-  golden-batch prep for the operator's §3 sitting. The LAST agent-doable UIR work.
+- **UIR-5b attempt 1 — The settings audit leg: ⏸️ DEFERRED to its true depth (Session 39, 2 billed
+  runs, reverted to green).** The runs bought the DIAGNOSIS, no net feature. **R39.1:** a `.largeTitle`
+  title in a List ROW clips at AX5 exactly like the nav bar (a row is height-constrained). **R39.2:** a
+  FREE-STANDING title above the List FIXES the title (proven), but the audit then flags the settings
+  **List CONTENT** — the long haptic-pacer SECTION FOOTER clips at AX5 with NO font to fix (List section
+  footers clip at accessibility sizes — STRUCTURAL). Deferred: completing it (move every long footer out
+  of the `footer:` slot + re-record goldens) is unknown-depth whack-a-mole per billed run. Reverted
+  byte-identical to the UIR-5a green state; the 8 audited surfaces + 107 goldens stay green. Fix now
+  KNOWN on both axes (title = free-standing text above the List; content = footers out of List slots).
+- **UIR-5c — The remaining UIR polish** (INDEPENDENT items; sequence lowest-risk first): the
+  settings-content audit [characterized above; enumerate ALL findings from one run before fixing], the
+  `StreakRing` motion (golden-safe), the widget typography (R34.7, ~13 goldens), the reasons-frame AX5
+  title (R35.6), and the consolidated golden-batch prep for the operator's §3 sitting. The LAST
+  agent-doable UIR work.
 
 **Exit criteria:** all snapshot goldens re-recorded on the new system; the a11y
 audit green with the R28.13 exclusion list shrunk to zero or a documented

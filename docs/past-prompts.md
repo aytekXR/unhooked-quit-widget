@@ -5314,3 +5314,52 @@ green). The two billed runs = run 1 (finding + flake evidence) + run 2 (the sett
 - **The consolidated golden-batch PREP** for the operator §3 sitting.
 - Next: **Session 39 = UIR-5b** — the last agent-doable UIR work; then the project is fully
   operator-gated (G0 rename, §3 copy, §8 keys + sandbox, device rows, external beta, submission).
+
+## Session 39 — UIR-5b attempt 1: the settings audit leg, DEFERRED to its true depth (2026-07-18)
+
+**Objective (resume-prompt v5.1):** the settings large-title fix + re-add the settings audit leg
+(the UIR-5a R38.2 deferral), then motion/widget-typography/reasons-AX5. Budget: this item planned 2
+billed runs.
+
+**Outcome: the settings audit leg is DEFERRED — the settings LIST CONTENT (not just the title) has
+STRUCTURAL Dynamic-Type/clip findings.** Two billed runs bought the DIAGNOSIS; the attempt then
+reverted to the UIR-5a green state (byte-identical to c7dcead — goldens restored, leg/mount/env
+removed, nav-bar title restored). No net feature; the value is a precise characterization.
+
+### R39.1 — a title in a LIST ROW clips exactly like the nav bar (run 29625700044 REFUTED it)
+The first fix moved the title off the nav-bar large title into the List content as a scalable
+`.largeTitle` text style **in a List row**. Artifact-first (zstd/xcresult): the audit fired BOTH
+`.dynamicType` "partially unsupported" + `.textClipped` on the NEW `settings.title` — a List row is
+height-constrained like the nav bar, so a `.largeTitle` inside it still caps its growth and clips.
+"Partially unsupported" is the SYMPTOM of the clipped frame, not the font.
+
+### R39.2 — the title fix works free-standing, but the LIST SECTION FOOTERS clip (run 29626434269)
+Moving the title to a FREE-STANDING `Text` ABOVE the List (`.fixedSize(vertical:)`, the List yields
+the space) FIXED the title — `settings.title` stopped being flagged. But the audit then flagged the
+settings LIST CONTENT: the long haptic-pacer SECTION FOOTER ("The breathing exercise guides you...")
+fires `.dynamicType`+`.textClipped` at AX5. That footer uses NO explicit font (List's default
+scalable footnote) — there is nothing to fix in the font. **List SECTION FOOTERS clip at
+accessibility sizes: a STRUCTURAL issue.** The audit mount renders the FULL settings (a
+RepositoryProvider flows from the app root into the debug mount), so every long footer is in scope.
+
+### Why deferred (budget-reality R + the "NO issue handler anywhere" canon)
+The house rule forbids valving (no issue handler), so each finding must be FIXED. Completing the
+settings audit means moving every long List section footer out of the `footer:` slot into scalable
+in-content rows AND re-recording the settings goldens — an unknown-depth whack-a-mole at 1 billed run
+per iteration (~4+ runs) on a polish surface. Deferred with the fix now KNOWN on both axes:
+  - **title:** a free-standing `.largeTitle` `Text` ABOVE the List (proven to pass).
+  - **content:** move long section footers OUT of List `footer:` slots into scalable rows.
+A future dedicated pass should enumerate ALL findings from ONE run (or a local macOS run) and fix
+them wholesale, then re-record — never whack-a-mole.
+
+### Honest accounting + the [skip ci]-in-body trap
+Billed runs this item: 2 red (the two attempts) + this revert-confirm run = 3, with ZERO net feature
+— the cost of an iceberg on an un-pre-audited surface. Also logged: the revert commit's BODY carried
+the literal string "[skip ci]" (in a sentence about the follow-up docs commit) and GitHub SKIPPED its
+CI run — `[skip ci]` is honored ANYWHERE in the message, not just a docs-only subject. NEW STANDING
+NOTE: never write the literal token in a commit body unless you intend the skip.
+
+### The 8 audited surfaces are unaffected; UIR-5b's other items remain
+Age gate, quiz, summary, dashboard, panic, slip, resources, paywall stay audited + green. Carried to
+a future UIR-5c: the settings-content audit (characterized above), the `StreakRing` motion, the widget
+typography (R34.7, ~13 goldens), the reasons-frame AX5 title (R35.6).
