@@ -115,11 +115,17 @@ struct DiscreetSettingsView: View {
                     dismiss()
                     onResourcesRowTap()
                 } label: {
-                    Label(copy.resourcesRowLabel, systemImage: "lifepreserver")
-                        .foregroundStyle(Theme.color.contentPrimary.color)
-                        // R39.2: at AX sizes the Label must WRAP to its full height, not
-                        // truncate to one line (a truncated Label reads as un-scalable + clipped).
-                        .fixedSize(horizontal: false, vertical: true)
+                    // R39.2: an explicit HStack (not `Label`) so the title TEXT wraps at AX sizes —
+                    // `.fixedSize` on a composite `Label` did NOT force its title off one line
+                    // (run 29658654073), but a plain `Text` grows (the captionRow pattern). The icon
+                    // is decorative (hidden), so VoiceOver still reads just "Support & resources".
+                    HStack(alignment: .firstTextBaseline, spacing: Theme.space.s2) {
+                        Image(systemName: "lifepreserver")
+                            .accessibilityHidden(true)
+                        Text(copy.resourcesRowLabel)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .foregroundStyle(Theme.color.contentPrimary.color)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings.resources.row")
