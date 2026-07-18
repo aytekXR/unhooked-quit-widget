@@ -50,6 +50,7 @@ struct OnboardingLayoutLintTests {
     /// panic/slip flows, and so on until the whole of App/Sources is covered.
     private static let scopedDirectories = [
         "App/Sources/AgeGate", "App/Sources/Quiz", "App/Sources/Dashboard",
+        "App/Sources/Monetization",
     ]
 
     /// Idioms that defeat Dynamic Type, plus the disabled-label dimming trap.
@@ -92,7 +93,7 @@ struct OnboardingLayoutLintTests {
         // Corpus non-vacuity floor (the lexicon-gate discipline): the walk must
         // actually be seeing the onboarding view layer, not an empty directory.
         #expect(
-            scannedFiles >= 12,
+            scannedFiles >= 35,
             "the lint walked only \(scannedFiles) onboarding files — the corpus shrank implausibly"
         )
         #expect(

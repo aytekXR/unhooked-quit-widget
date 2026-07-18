@@ -228,7 +228,10 @@ struct PaywallView: View {
                         .frame(minHeight: Theme.touch.minTarget)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                // Pass-through style (not `.plain`) so App/Sources/Monetization is lint-clean
+                // — an inline text link, never disabled; PlanCardButtonStyle only suppresses
+                // the default highlight (no shape/ghost change).
+                .buttonStyle(PlanCardButtonStyle())
                 .accessibilityIdentifier("paywall.retry")
             }
             .padding(Theme.space.s3)

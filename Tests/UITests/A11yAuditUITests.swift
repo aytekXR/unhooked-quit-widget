@@ -401,6 +401,41 @@ final class A11yAuditUITests: XCTestCase {
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
+    /// The settings leg — NEW in UIR-5. R28.6 valve-eligible (not a safety path). Gates on
+    /// `settings.resources.row` — a real Button that surfaces (R36.4: never a full-screen
+    /// `.contain` container id). Mounted via UITEST_SETTINGS → the themed `DiscreetSettingsView`
+    /// with no repository (the resources row renders unconditionally). First audit of this
+    /// surface: NO issue handler pre-added (S33).
+    func test_a11yAudit_settings_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_SETTINGS"] = "1"
+        app.launch()
+
+        let row = app.buttons["settings.resources.row"]
+        XCTAssertTrue(
+            row.waitForExistence(timeout: 15),
+            "the UITEST_SETTINGS direct mount renders DiscreetSettingsView"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
+    /// The paywall leg — NEW in UIR-5. R28.6 valve-eligible. Gates on `paywall.cta` (a real
+    /// Button). Mounted via UITEST_PAYWALL_DIRECT → the hard-variant `PaywallView` over a
+    /// fixture with inert `.failed` closures (no store path). The DRAFT copy is irrelevant —
+    /// the audit checks the accessibility tree, not pixels, and mints no golden.
+    func test_a11yAudit_paywall_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_PAYWALL_DIRECT"] = "1"
+        app.launch()
+
+        let cta = app.buttons["paywall.cta"]
+        XCTAssertTrue(
+            cta.waitForExistence(timeout: 15),
+            "the UITEST_PAYWALL_DIRECT direct mount renders the hard-variant paywall"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
     /// A birth year that is unambiguously under 17 on any run date (the gate's
     /// conservative boundary works in whole years; 5 years ago can never pass).
     private static var minorBirthYear: String {

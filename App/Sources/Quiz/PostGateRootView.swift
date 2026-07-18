@@ -118,6 +118,28 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// UIR-5 (R38) — the a11y-audit SETTINGS leg's mount. DEBUG-only, release-inert.
+    /// Renders `DiscreetSettingsView` with no repository (only the resources row shows).
+    private static var uiTestSettingsMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_SETTINGS"] == "1"
+        #else
+        false
+        #endif
+    }
+
+    /// UIR-5 (R38) — the a11y-audit PAYWALL leg's direct mount (the UITEST_PAYWALL=1 gate
+    /// needs the whole quiz→summary→CTA drive; this switch mounts the hard-variant paywall
+    /// straight over a fixture with INERT `.failed` purchase/restore closures — no store
+    /// path, no echo). DEBUG-only, release-inert BY CONSTRUCTION.
+    private static var uiTestPaywallDirectMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_PAYWALL_DIRECT"] == "1"
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ZStack {
             content
@@ -176,6 +198,10 @@ struct PostGateRootView: View {
             debugDashboardMount
         } else if Self.uiTestResourcesMount {
             debugResourcesMount
+        } else if Self.uiTestSettingsMount {
+            debugSettingsMount
+        } else if Self.uiTestPaywallDirectMount {
+            debugPaywallDirectMount
         } else if let paywall, let paywallData {
             PaywallView(
                 data: paywallData,
@@ -325,6 +351,37 @@ struct PostGateRootView: View {
     @ViewBuilder private var debugResourcesMount: some View {
         #if DEBUG
         SafetyResourcesView(source: .settings, analytics: .disabled)
+        #else
+        EmptyView()
+        #endif
+    }
+
+    /// R38 — the settings leg's frame, compiled out of release. The real themed
+    /// `DiscreetSettingsView` with no repository (only the resources row renders — the
+    /// leg gates on `settings.resources.row`, a real Button, R36.4).
+    @ViewBuilder private var debugSettingsMount: some View {
+        #if DEBUG
+        DiscreetSettingsView(onResourcesRowTap: {})
+        #else
+        EmptyView()
+        #endif
+    }
+
+    /// R38 — the paywall leg's frame, compiled out of release. The real hard-variant
+    /// `PaywallView` over the shipping copy table + a fixture, with INERT `.failed`
+    /// purchase/restore closures (no store path, no echo write, no grant). Draft copy is
+    /// irrelevant to an a11y audit (it checks the tree, mints no golden).
+    @ViewBuilder private var debugPaywallDirectMount: some View {
+        #if DEBUG
+        PaywallView(
+            data: PaywallPresentation.make(
+                copy: PaywallCopy.loadShipping() ?? .degraded,
+                variant: .hard,
+                source: .onboarding
+            ),
+            model: PaywallModel(purchase: { _ in .failed }, restore: { .failed }),
+            onUnlocked: {}
+        )
         #else
         EmptyView()
         #endif
