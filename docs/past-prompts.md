@@ -5219,3 +5219,55 @@ adopted; the gate fix rode the adoption commit, so the contingency was NOT spent
 - Next: **Session 37 = UIR-4b (settings) + as much of UIR-5 as fits** — the last agent-doable UIR work;
   after it the project blocks on the operator critical path (G0, §3 copy, §8 keys, device rows, beta,
   submission).
+
+## Session 37 — UIR-4b: settings (2026-07-18)
+
+**Objective (resume-prompt v4.9):** the deferred settings restyle (`DiscreetSettingsView`, the last
+surface on raw iOS system-grouped List chrome — S32 canon deferred it to UIR-4), copy byte-identical.
+Budget: 2 billed runs.
+
+**Outcome: DONE in exactly 2 billed runs — ZERO burned. UIR-4 is now FULLY complete** (resources +
+paywall in UIR-4a/S36; settings here). Run 1 (`29621524993`) red-by-design (2 settings goldens
+write-then-fail; build/unit/UI-smoke green); run 2 (`29622400558`) green.
+
+### R37.1 — in-place List theming (not the rebuild)
+
+The architect spec was a `List → ScrollView + themedCard`-sections REBUILD. Ruled AGAINST it: reaching
+that far into a screen and hand-reimplementing List's cell chrome/spacing/dividers is the biggest
+structural risk AND throws away List's native cell accessibility (worse for the audit). Instead the
+List is themed IN PLACE — the lower-risk, higher-accessibility path: `.scrollContentBackground(.hidden)`
++ a `surface/base` backdrop, `.listRowBackground(surface/raised)` per Section, `.tint(brand/primary)`
+on the Toggles, and explicit Theme tokens on the header/footer (`content/secondary`, `.textCase(nil)`)
+and the Toggle/Label text (`content/primary`). The 8 raw-system color sites all move onto the Theme
+layer while the List stays a List. Visually verified (the golden): the system-grouped background is
+gone, replaced by `surface/base` with a clean `surface/raised` rounded cell.
+
+### The rulings
+- **R37.2 (scope: theming + golden only).** The settings + paywall a11y-audit legs (via
+  UITEST_SETTINGS / UITEST_PAYWALL_DIRECT) and the Monetization lint-scope growth are DEFERRED to a
+  follow-up / UIR-5. This session scopes to the theming and its visual regression guard — the smaller,
+  lower-risk surface. The themed List keeps native cell accessibility, so an a11y regression from the
+  color-only change is very unlikely; the audit legs are additions, not a regression guard for the
+  theming (the golden is).
+- **R37.3 (a minimal golden, honestly bounded).** `DiscreetSettingsView(onResourcesRowTap: {})` with
+  no `RepositoryProvider` renders the nav title + the resources row only (the per-quit toggles / icon
+  picker / haptic-pacer / winback sections need a repository). Full-section coverage waits for a mock
+  QuitRepository (named). 2 goldens minted (105 → 107).
+- **R37.4 (scope fences held).** Copy byte-identical (`DiscreetSettingsCopy` untouched — its 12
+  Mirror-walked strings intact; no new copy property, which would break `DiscreetSettingsCopyTests`);
+  both a11y ids (`settings.winback.row` / `settings.resources.row`) + the icon picker's `.isSelected`
+  trait stay put (R33.8); the three List-row `.buttonStyle(.plain)` are correct never-disabled idioms
+  and are kept (R35.4); no privacy surface, no analytics motion, no new SPM dep. Every other surface's
+  goldens byte-stable.
+
+### Carried / known limitations (all → UIR-5 or a follow-up)
+- **The settings + paywall a11y-audit legs + the Monetization lint scope** (R37.2).
+- **Full settings golden coverage** (needs a mock QuitRepository, R37.3).
+- **UIR-5 proper:** motion/polish (the `StreakRing` motion/calm appear animation; panic/slip motion),
+  the AX5-axis items (the reasons-frame AX5 title R35.6; the widget typography defects R34.7 — these
+  re-record ~13 widget goldens, budget explicitly), and the consolidated golden-batch prep for the
+  operator's §3 sitting.
+- The onboarding + paywall golden batch still waits on the founder §3 copy pass.
+- Next: **Session 38 = UIR-5** — the LAST agent-doable UIR session. After it, the agent-doable UIR
+  work is COMPLETE and the project is BLOCKED on the operator critical path (G0 rename, §3 copy pass,
+  §8 keys + sandbox matrix, device rows + E0.3 latency, external beta, submission).

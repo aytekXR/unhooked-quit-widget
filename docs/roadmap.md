@@ -175,7 +175,7 @@ own STEP-0):**
   passed CLEAN on run 1** (the second consecutive clean first-audit; contingency unused). 64
   class-A goldens re-recorded, each visually verified. Carried: the reasons-frame AX5 title
   truncation and the `.buttonStyle(.plain)` → ButtonStyle refactor ride UIR-5.
-- **UIR-4 — Paywall + settings + resources: 🟡 PARTIAL (Session 36 / UIR-4a, 2 billed runs).**
+- **UIR-4 — Paywall + settings + resources: ✅ DONE (Session 36 / UIR-4a, 2 billed runs).**
   The two DEFECT surfaces are DONE: **RESOURCES** (safety) — `.background(.quaternary)` → `themedCard`,
   and the R33.10 fix (the helpline DIAL link at a 44pt floor + a "Call <name>" VoiceOver label);
   minted 2 goldens + a new audit leg that passed the full 7-type set CLEAN on its first run (the third
@@ -186,8 +186,11 @@ own STEP-0):**
   canon-only change, the biggest structural risk, cleanly separable; its full spec is preserved). New
   contrast pair (34 total). R36.4 = the mount-gate lesson: a full-screen `.contain` container id does
   NOT surface — gate an audit leg on a real child element.
-- **UIR-4b — Settings restyle** (+ its golden + the Monetization lint scope + the paywall/settings
-  audit legs), folded with UIR-5.
+- **UIR-4b — Settings restyle: ✅ DONE (Session 37, 2 billed runs).** `DiscreetSettingsView` moved onto
+  the Theme layer via in-place List theming (`.scrollContentBackground(.hidden)` + surface/base backdrop +
+  `.listRowBackground(surface/raised)` per Section + `.tint(brand/primary)` + Theme text tokens), keeping
+  List's native cell accessibility. 2 goldens minted. **UIR-4 is now fully complete.** Deferred to UIR-5:
+  the settings/paywall audit legs + the Monetization lint scope + full settings golden coverage.
 - **UIR-5 — Motion/polish + AX5 axes** + consolidated golden-batch prep for the
   operator's §3 sitting.
 

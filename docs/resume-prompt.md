@@ -2,14 +2,15 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v4.9 |
-| Last updated | 2026-07-18 (Session 36 close: **UIR-4a DONE in exactly 2 billed runs** — the two DEFECT surfaces regenerated: **RESOURCES** (safety) — `.background(.quaternary)` → `themedCard`, the R33.10 DIAL link (44pt floor + "Call <name>" label), 2 goldens + a new audit leg that passed the full 7-type set CLEAN on run 1 (the THIRD consecutive clean first-audit); **PAYWALL** — 3 R32.9 disabled-`.plain` fixes (`PrimaryButtonStyle`/`QuietButtonStyle` + the new pass-through `PlanCardButtonStyle`) + a pre-existing caution-on-caution contrast bug, no goldens (draft copy, verified by the QuizFunnelUITests smoke). **SETTINGS DEFERRED to UIR-4b** (the List→ScrollView restyle — the biggest structural risk, cleanly separable; full spec preserved in `scratchpad/uir4-step0.md` + workflow journal wf_b91f1762-aff). New contrast pair (34 total, Linux-verified). **R36.4 = the mount-gate lesson: a full-screen `.accessibilityElement(children: .contain)` container id does NOT surface as a queryable element (unlike a bounded card) — gate an audit leg on a real CHILD element.** Superseded S35 header below.) |
+| Document | Resume Prompt v5.0 |
+| Last updated | 2026-07-18 (Session 37 close: **UIR-4b DONE in exactly 2 billed runs — UIR-4 FULLY COMPLETE.** `DiscreetSettingsView` moved onto the Theme layer via in-place List theming (`.scrollContentBackground(.hidden)` + surface/base backdrop + `.listRowBackground(surface/raised)` per Section + `.tint(brand/primary)` + Theme text tokens), keeping List's native cell accessibility; 2 goldens minted (105 → 107), golden visually verified. Deferred to UIR-5: the settings/paywall audit legs + the Monetization lint scope + full settings golden coverage. **Every screen in the build is now regenerated onto the design system — only UIR-5 (motion/polish + AX5 + widget typography + golden-batch prep) remains.** Superseded S36 header below.) |
+| _superseded_ | (Session 36 close: **UIR-4a DONE in exactly 2 billed runs** — the two DEFECT surfaces regenerated: **RESOURCES** (safety) — `.background(.quaternary)` → `themedCard`, the R33.10 DIAL link (44pt floor + "Call <name>" label), 2 goldens + a new audit leg that passed the full 7-type set CLEAN on run 1 (the THIRD consecutive clean first-audit); **PAYWALL** — 3 R32.9 disabled-`.plain` fixes (`PrimaryButtonStyle`/`QuietButtonStyle` + the new pass-through `PlanCardButtonStyle`) + a pre-existing caution-on-caution contrast bug, no goldens (draft copy, verified by the QuizFunnelUITests smoke). **SETTINGS DEFERRED to UIR-4b** (the List→ScrollView restyle — the biggest structural risk, cleanly separable; full spec preserved in `scratchpad/uir4-step0.md` + workflow journal wf_b91f1762-aff). New contrast pair (34 total, Linux-verified). **R36.4 = the mount-gate lesson: a full-screen `.accessibilityElement(children: .contain)` container id does NOT surface as a queryable element (unlike a bounded card) — gate an audit leg on a real CHILD element.** Superseded S35 header below.) |
 | _superseded_ | (Session 35 close: **UIR-3 DONE in exactly 2 billed runs** — the panic + slip flows (rule-11 SAFETY surfaces) are regenerated on the Theme layer with a PM+Brand+QA pre-code sign-off, copy byte-identical. **The `.dynamicType`/`.textClipped` exclusion list is CLOSED to ZERO** — all 8 `minHeight: 56` floors became growing PADDING (the exact S28 mechanism), `StepScaffold`/`confirmStage` scroll with pinned actions (R33.5), the reasons text moved off a `@ScaledMetric` point size onto `.largeTitle` (R33.12), both audit legs joined the full 7-type set and `safetyAuditTypes` is deleted. **The rule-11 panic/slip legs passed CLEAN on run 1** (the SECOND consecutive clean first-audit — the ledger a prior run wrote is the current run's free coverage). 64 class-A goldens re-recorded + visually verified; total unchanged at 103. STEP-0: did NOT grow the lint scope to panic/slip (would force a shape-changing `.buttonStyle(.plain)` refactor on safety surfaces — the full-set audit legs are the gate instead; deferred to UIR-5). Carried: the reasons-frame AX5 title truncation (R35.6, a UIR-5 AX-axis item) and the `.plain`→ButtonStyle refactor. Superseded S34 header below.) |
 | _superseded_ | (Session 34 close: **UIR-2 DONE in exactly 2 billed runs** — the 2 planned, contingency UNUSED, ZERO burned. The **real `StreakDashboardCard` + `StreakRing`** are built on the Theme layer — the `RootPlaceholderView` "walking skeleton" that had stood in for the dashboard since Session 18 is RETIRED, replaced by one card per active quit (streak-day hero, flame + momentum figure, the momentum ring, money saved, next-milestone bar). **Copy is byte-identical** (R34.2, copyBlockerFound=FALSE): every string is audited (`"saved"`/`"next milestone"`, pinned byte-identical to `StreakWidgetStyle`) or pure ADR-11 data; the §3-blocked polish strings ship empty-guarded. **The dashboard is AUDITED FOR THE FIRST TIME and its first audit passed CLEAN** (R34.3) — the first UIR surface to fire nothing, because R33.12 was already known and the card was built to it from the first byte (the free layout lint pre-empted every `.dynamicType` idiom; `children:.contain` + 4.5-clean tokens pre-empted the rest). **Widgets were DEFERRED at STEP-0** (R34.7): the 5 families are on-spec bar two minor brandkit-§3 typography defects; `StreakWidgetViews.swift` was UNTOUCHED so the 29 widget goldens stay byte-stable and no golden churn entered the budget. 8 dashboard goldens minted (95 → 103); the a11y exclusion list did not shrink this session (panic + slip remain, UIR-3's job).) |
-| Phase | Phase 2.5 (UI Reactor): pre-UIR build 100% DONE; **UIR-0…3 DONE + UIR-4a DONE (resources + paywall)**; **UIR-4b (settings) + UIR-5 remain** — the LAST agent-doable UIR work; then the project is operator-gated |
-| Next session objective | **Session 37: UIR-4b (settings restyle + its golden + the Monetization lint scope + the paywall/settings audit legs) + UIR-5 (motion/polish + AX5 + consolidated golden-batch prep) — the FINAL UIR session(s); copy untouched** |
+| Phase | Phase 2.5 (UI Reactor): pre-UIR build 100% DONE; **UIR-0…4 DONE (every screen regenerated)**; **only UIR-5 remains** (motion/polish + AX5 + widget typography + golden-batch prep) — the LAST agent-doable UIR work; then the project is fully operator-gated |
+| Next session objective | **Session 38: UIR-5 — the FINAL UIR session: motion/polish (the `StreakRing` motion/calm appear animation; panic/slip motion), AX5-axis items (reasons-frame AX5 title R35.6; widget typography R34.7 — re-records ~13 widget goldens), the DEFERRED settings/paywall audit legs + Monetization lint scope, and the consolidated golden-batch PREP for the operator §3 sitting; copy untouched** |
 
-> **What changed in Session 36:** the resources (safety) + paywall surfaces are on the design
+> **What changed in Session 37:** the settings screen is on the Theme layer (in-place List theming, native cell accessibility kept) — **every screen in the build is now regenerated**. UIR-4 is fully done. Only the UIR-5 polish pass remains. Full ledger: Session 37 in `docs/past-prompts.md` (R37.1–R37.4). [Prior:] the resources (safety) + paywall surfaces are on the design
 > system, closing two safety defects (the 44pt DIAL link + the `.quaternary` fill) and three R32.9
 > disabled-`.plain` violations + a contrast bug. THREE consecutive clean first-audits now (dashboard,
 > panic+slip, resources). The mount-gate lesson (R36.4) is the one to carry: **gate an audit leg on a
@@ -191,43 +192,39 @@
 
 ## Next session objective (one session, definition of done below)
 
-**Session 37 — UIR-4b (settings) + UIR-5 (motion/polish + AX5), the FINAL UIR work.**
-UIR-4a (S36) already shipped resources + paywall. Full UIR-4b spec is preserved in
-`scratchpad/uir4-step0.md` + workflow journal `wf_b91f1762-aff` (re-read, don't re-investigate).
+**Session 38 — UIR-5, the FINAL UIR session (motion/polish + AX5 + the deferred audit legs +
+golden-batch prep).** UIR-0…4 are all DONE — every screen is regenerated. This is the last
+agent-doable UIR work; after it the project is fully operator-gated.
 
 1. **Session-open checks:** the standing three-way operator check + `which uipro`.
-2. **SETTINGS (`DiscreetSettingsView`) — the deferred UIR-4b restyle.** It still uses
-   `NavigationStack + List` with system-grouped background (8 raw-system color sites:
-   List backdrop, cell fills, header/footer text, Toggle tint, label colors). The
-   architect spec is a `List → ScrollView + themedCard`-sections rebuild
-   (`themedScreenSurface` backdrop, `themedCard` per section, `contentSecondary`
-   headers/footers, `.tint(brandPrimary)` per Toggle, keep `.navigationTitle`). The 3
-   List-row `.buttonStyle(.plain)` are CORRECT idioms (never disabled) — keep them.
-   `settings.winback.row` / `settings.resources.row` must stay put (R33.8). Copy is
-   AUDITED (S22, 12 Mirror-walked strings — add NO new copy properties). MINT goldens
-   (a minimal `DiscreetSettingsView(onResourcesRowTap:{})` fixture with no repository
-   renders navigationTitle + the resources row only). Add a settings audit leg
-   (UITEST_SETTINGS) + optionally the paywall audit leg (UITEST_PAYWALL_DIRECT — the
-   intricate #if DEBUG PaywallView fixture; `PaywallModel(purchase:{ _ in .failed},
-   restore:{ .failed}, firePaywallViewed:{})` — NOTE `firePaywallViewed` is `() -> Void`).
-   Add `App/Sources/Monetization` to the layout-lint scope (the paywall is idiom-clean
-   after S36 except the inline retry `.plain` — convert it to a pass-through or leave the
-   scope; rule at STEP-0). New contrast pair if the settings introduces one.
-3. **UIR-5 (fold in if the budget allows, else its own session):** motion/polish (the
-   `StreakRing` motion/calm appear animation — golden-safe; any panic/slip motion), the
-   AX5-axis refinements (the reasons-frame AX5 title truncation R35.6; the widget
-   typography defects R34.7 — these re-record widget goldens, budget explicitly), and
-   the consolidated golden-batch PREP for the operator's §3 sitting. Motion is UIR-5's
-   scope; keep it golden-safe (settled == animated at rest).
-4. **Goldens:** settings mints (audited copy); widget typography (if done) re-records ~13.
-   Plan red→adopt-from-artifact, VISUALLY VERIFY each. **R36.4: gate any new audit leg on
-   a real CHILD element, never a full-screen `.contain` container id.**
-5. **Constraints:** copy BYTE-IDENTICAL; DORMANT monetization canon; settings is
-   store-gated but store-free where wired; no privacy surface.
-0. STEP-0 candidates: (a) the settings golden fixture (minimal vs a mock QuitRepository
-   for full coverage); (b) whether to fold UIR-5 in or run it separately (the widget
-   golden re-record is the cost); (c) the paywall/settings audit legs; (d) the lint scope;
-   (e) the run budget.
+2. **The DEFERRED audit legs + lint scope (from UIR-4a/b).** Add a settings audit leg
+   (UITEST_SETTINGS mount → `DiscreetSettingsView`, gate on `settings.resources.row` — a
+   real Button, R36.4) + the paywall audit leg (UITEST_PAYWALL_DIRECT — the intricate #if
+   DEBUG PaywallView fixture; `PaywallModel(purchase:{ _ in .failed}, restore:{ .failed},
+   firePaywallViewed:{})` — NOTE `firePaywallViewed` is `() -> Void`, gate on `paywall.cta`).
+   Both R28.6 valve-eligible. Add `App/Sources/Monetization` to the layout-lint scope (the
+   paywall is idiom-clean after S36 except the inline retry `.plain` — convert it to a
+   pass-through style or leave the scope; rule at STEP-0). Bump the `scannedFiles` floor.
+3. **UIR-5 motion/polish:** the `StreakRing` motion/calm appear animation
+   (`Dashboard/StreakRing.swift` — currently renders SETTLED; add the appear animation,
+   golden-safe since settled == animated at rest); any panic/slip motion polish. Keep
+   golden-safe.
+4. **AX5-axis items:** the reasons-frame AX5 title truncation (R35.6 — a paging→scroll
+   treatment at accessibility sizes on the non-audited reasons frame); the widget typography
+   defects (R34.7 — rectangular numeral `.headline`→~20pt monospaced; micro-labels
+   `.caption2`→~12pt Medium+tracking in `Shared/Sources/StreakWidgetViews.swift` — this
+   re-records ~13 of the 29 widget goldens; DELETE the affected rectangular+medium references
+   so they write-then-fail, budget it explicitly).
+5. **Golden-batch PREP** for the operator §3 sitting (the final onboarding+paywall re-record
+   waits on the founder copy pass — do NOT mint them; prepare the list).
+6. **Goldens:** widget typography re-records ~13; any new surface mints. Plan
+   red→adopt-from-artifact, VISUALLY VERIFY each. **R36.4: gate any new audit leg on a real
+   CHILD element, never a full-screen `.contain` container id.**
+7. **Constraints:** copy BYTE-IDENTICAL; DORMANT monetization canon; widgets luminance-only
+   (never Theme); no privacy surface.
+0. STEP-0 candidates: (a) the widget-golden re-record budget (the dominant cost — delete →
+   red → adopt); (b) the audit legs + lint scope; (c) whether to split motion from the widget
+   typography across two sessions; (d) the run budget.
 
 **After this session the agent-doable UIR work is COMPLETE and the project is BLOCKED on
 the operator critical path** (G0 rename, §3 copy pass, §8 keys + sandbox matrix, device
@@ -252,7 +249,7 @@ E0.3 latency, external beta, submission) — see the operator-owned blockers bel
    ratifications + the 3.1.1 riders. The §3 pass gates the FINAL golden batch
    (post-UIR: final copy + final palette, ONE re-record). **The dashboard's own copy
    is audited/data, so its 8 goldens are NOT in that batch — they are stable now.**
-4. GitHub Actions billing headroom (§4 — Session 36 used exactly 2). Spend limit
+4. GitHub Actions billing headroom (§4 — Session 37 used exactly 2). Spend limit
    LIFTED; fan-outs available.
 5. TestFlight testers (§5) — carried; the funnel E2E is machine-proven.
 6. TelemetryDeck app ID (§8) — carried; gates the label/manifest wire-verify.
@@ -263,16 +260,17 @@ E0.3 latency, external beta, submission) — see the operator-owned blockers bel
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app **Ballast**, org
-> `com.beyondkaira`). Session 36 is CLOSED (exactly 2 billed runs = the 2 planned,
-> contingency UNUSED, ZERO burned; UIR-4a DONE — resources + paywall regenerated, copy
-> byte-identical; the resources DIAL link at the 44pt floor + "Call <name>" label, its
-> `.quaternary` fill → `themedCard`, a new resources audit leg CLEAN on run 1 (3rd clean
-> first-audit); 3 paywall R32.9 disabled-`.plain` fixes + a contrast bug; SETTINGS
-> DEFERRED to UIR-4b).
-> **Session 37 = UIR-4b (the settings restyle + its golden + the Monetization lint scope +
-> the paywall/settings audit legs) + UIR-5 (motion/polish + AX5 + golden-batch prep) — the
-> FINAL agent-doable UIR work; copy untouched. Re-read `scratchpad/uir4-step0.md` for the
-> preserved settings spec.**
+> `com.beyondkaira`). Session 37 is CLOSED (exactly 2 billed runs = the 2 planned, ZERO
+> burned; UIR-4b DONE — settings themed in-place on the Theme layer, copy byte-identical,
+> golden visually verified; UIR-4 fully complete). **Every screen in the build is now
+> regenerated onto the design system.**
+> **Session 38 = UIR-5, the FINAL UIR session: motion/polish (the `StreakRing` motion/calm
+> appear animation — golden-safe; panic/slip motion), the AX5-axis items (reasons-frame AX5
+> title R35.6; widget typography R34.7 — re-records ~13 widget goldens, budget it), the
+> DEFERRED settings/paywall a11y-audit legs (UITEST_SETTINGS / UITEST_PAYWALL_DIRECT — R36.4:
+> gate on a CHILD element, not a full-screen `.contain` container id) + the Monetization lint
+> scope, and the consolidated golden-batch PREP. Copy untouched. AFTER UIR-5 the agent-doable
+> UIR work is COMPLETE — the project blocks on the operator critical path.**
 > Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`.
 > **Session-open:** the three-way operator check + `which uipro`.
 > **Standing gates:** CodeGraph query-first + `codegraph sync` at close; `swiftc
@@ -295,7 +293,7 @@ E0.3 latency, external beta, submission) — see the operator-owned blockers bel
 > TEXT STYLES only; no `ViewThatFits`; point sizes only on decorative `Image`s; content
 > scrolls, actions pin; the AX-size pivot reads `isAccessibilitySize`). In-app motion is
 > UIR-5's scope.
-> READ FIRST: the Session 36 ledger (R36.1–R36.8) + Session 35 (R35.1–R35.7) in
+> READ FIRST: the Session 37 ledger (R37.1–R37.4) + Session 36 (R36.1–R36.8) in
 > `docs/past-prompts.md`, `docs/design/tokens-v2.md` (§5.1 R33.12 + §6 the primitives),
 > `docs/roadmap.md` §2.5, `docs/frontend-brandkit.md` §6 (items 7/8/14/15 = paywall,
 > settings, resources) + §8, `docs/operator-expected.md` §3 (the paywall/settings/
@@ -307,7 +305,7 @@ E0.3 latency, external beta, submission) — see the operator-owned blockers bel
 > + resources regeneration + the resources safety pre-sign-off → verify → flag operator
 > items.
 > Budget: plan 2 billed runs + 1 contingency (rule the golden budget at STEP-0).
-> **At session end:** append the Session 37 ledger, overwrite this resume prompt
+> **At session end (UIR-5 is the LAST UIR session):** append the Session 38 ledger, then this resume prompt should hand off to the OPERATOR CRITICAL PATH (the UI regeneration is complete); overwrite it
 > (UIR-5, the FINAL UIR session), update `docs/operator-expected.md`, `codegraph sync`,
 > commit `[skip ci]`, push, `gh run watch` green (verify the conclusion via `gh run
 > view --json` — the watcher's exit code lies).
