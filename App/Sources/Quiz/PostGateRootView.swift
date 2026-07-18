@@ -118,6 +118,20 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// UIR-5b (R38.2) — the a11y-audit SETTINGS leg's mount, on the UITEST_RESOURCES
+    /// precedent: a DEBUG-only launch-env switch, inert in every release build BY
+    /// CONSTRUCTION. Renders the real `DiscreetSettingsView` with no repository (only the
+    /// resources row renders — the leg gates on `settings.resources.row`, a real Button,
+    /// R36.4). Re-added after the S38 large-title deferral: the title now rides the
+    /// scrolling content as a scalable text style (R38.2), so the leg passes.
+    private static var uiTestSettingsMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_SETTINGS"] == "1"
+        #else
+        false
+        #endif
+    }
+
     /// UIR-5 (R38) — the a11y-audit PAYWALL leg's direct mount (the UITEST_PAYWALL=1 gate
     /// needs the whole quiz→summary→CTA drive; this switch mounts the hard-variant paywall
     /// straight over a fixture with INERT `.failed` purchase/restore closures — no store
@@ -188,6 +202,8 @@ struct PostGateRootView: View {
             debugDashboardMount
         } else if Self.uiTestResourcesMount {
             debugResourcesMount
+        } else if Self.uiTestSettingsMount {
+            debugSettingsMount
         } else if Self.uiTestPaywallDirectMount {
             debugPaywallDirectMount
         } else if let paywall, let paywallData {
@@ -339,6 +355,19 @@ struct PostGateRootView: View {
     @ViewBuilder private var debugResourcesMount: some View {
         #if DEBUG
         SafetyResourcesView(source: .settings, analytics: .disabled)
+        #else
+        EmptyView()
+        #endif
+    }
+
+    /// R38.2 — the settings leg's frame, compiled out of release. The real themed
+    /// `DiscreetSettingsView` with no repository (only the resources row renders — the
+    /// leg gates on `settings.resources.row`, a real Button, R36.4). The screen title now
+    /// scrolls as a scalable text style (R38.2), so the audit no longer flags the retired
+    /// nav-bar large title.
+    @ViewBuilder private var debugSettingsMount: some View {
+        #if DEBUG
+        DiscreetSettingsView(onResourcesRowTap: {})
         #else
         EmptyView()
         #endif

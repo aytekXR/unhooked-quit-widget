@@ -113,6 +113,7 @@ struct AgeGateContainerView: View {
             || environment["UITEST_SUMMARY"] == "1"
             || environment["UITEST_DASHBOARD"] == "1"
             || environment["UITEST_RESOURCES"] == "1"
+            || environment["UITEST_SETTINGS"] == "1"
             || environment["UITEST_PAYWALL_DIRECT"] == "1"
         #else
         return false

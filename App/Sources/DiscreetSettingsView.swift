@@ -34,6 +34,7 @@ struct DiscreetSettingsView: View {
     var body: some View {
         NavigationStack {
             List {
+                titleHeader
                 if let repository = provider?.repository {
                     widgetToggles(repository)
                     iconPicker(repository)
@@ -51,7 +52,36 @@ struct DiscreetSettingsView: View {
             .background(Theme.color.surfaceBase.color.ignoresSafeArea())
             .tint(Theme.color.brandPrimary.color)
             .id(refreshToken)
-            .navigationTitle(copy.screenTitle)
+            // R38.2 (UIR-5b): the screen title rides the List's SCROLLING content as a
+            // scalable TEXT STYLE (`titleHeader`) — NOT a navigation-bar LARGE title, which
+            // the accessibility audit reported `.dynamicType` "partially unsupported" +
+            // `.textClipped` on (a system large title caps its growth and clips inside the
+            // fixed-height bar; R33.12 pt.4: content scrolls, and a text style carries the
+            // type metrics the audit demands). The bar itself now carries no title (inline,
+            // empty) so no un-scalable text remains on it.
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    /// R38.2 — the screen title as scrollable, scalable content (the SafetyResourcesView
+    /// title idiom, on a borderless List row): a `.largeTitle` text style that grows with
+    /// Dynamic Type and scrolls, so it neither caps nor clips the way the retired nav-bar
+    /// large title did. Carries the header trait for VoiceOver.
+    private var titleHeader: some View {
+        Section {
+            Text(copy.screenTitle)
+                .font(.largeTitle.weight(.bold))
+                .foregroundStyle(Theme.color.contentPrimary.color)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier("settings.title")
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(
+                    top: Theme.space.s4, leading: Theme.space.s4,
+                    bottom: Theme.space.s2, trailing: Theme.space.s4
+                ))
         }
     }
 

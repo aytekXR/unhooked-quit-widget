@@ -401,13 +401,27 @@ final class A11yAuditUITests: XCTestCase {
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
-    // The SETTINGS audit leg is DEFERRED (UIR-5a run 29623574788): its first audit fired
-    // `.dynamicType` ("partially unsupported") + `.textClipped` on the navigation-bar LARGE
-    // TITLE ("Discreet Mode") — a SYSTEM large-title behavior (the large title does not fully
-    // scale with Dynamic Type and clips), not the themed content. The themed List cells + the
-    // resources row are clean. Fixing it means a custom title / `.inline` display mode (which
-    // re-records the settings golden), owned by name for a follow-up. The mount + env-var are
-    // removed with the leg (no dead code).
+    /// The settings leg — DEFERRED in UIR-5a (run 29623574788 fired `.dynamicType`
+    /// "partially unsupported" + `.textClipped` on the navigation-bar LARGE TITLE "Discreet
+    /// Mode" — a SYSTEM large-title behavior, not the themed content), RE-ADDED in UIR-5b
+    /// (R38.2): the screen title now rides the List's scrolling content as a scalable
+    /// `.largeTitle` TEXT STYLE (`DiscreetSettingsView.titleHeader`), and the bar carries no
+    /// title (inline, empty), so no un-scalable nav-bar text remains. R28.6 valve-eligible.
+    /// Gates on `settings.resources.row` (a real Button, R36.4 — a full-screen `.contain`
+    /// container id would not surface). Mounted via UITEST_SETTINGS → `DiscreetSettingsView`
+    /// with no repository, so only the resources row renders.
+    func test_a11yAudit_settings_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_SETTINGS"] = "1"
+        app.launch()
+
+        let row = app.descendants(matching: .any)["settings.resources.row"]
+        XCTAssertTrue(
+            row.waitForExistence(timeout: 15),
+            "the UITEST_SETTINGS direct mount renders DiscreetSettingsView"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
 
     /// The paywall leg — NEW in UIR-5. R28.6 valve-eligible. Gates on `paywall.cta` (a real
     /// Button). Mounted via UITEST_PAYWALL_DIRECT → the hard-variant `PaywallView` over a
