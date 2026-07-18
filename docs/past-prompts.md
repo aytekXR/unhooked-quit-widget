@@ -5271,3 +5271,46 @@ gone, replaced by `surface/base` with a clean `surface/raised` rounded cell.
 - Next: **Session 38 = UIR-5** — the LAST agent-doable UIR session. After it, the agent-doable UIR
   work is COMPLETE and the project is BLOCKED on the operator critical path (G0 rename, §3 copy pass,
   §8 keys + sandbox matrix, device rows + E0.3 latency, external beta, submission).
+
+## Session 38 — UIR-5a: the deferred audit legs + the Monetization lint scope (2026-07-18)
+
+**Objective (resume-prompt v5.0):** close the UIR-4a/b deferred items — the settings + paywall
+a11y-audit legs + the Monetization layout-lint scope. Budget: 2 billed runs.
+
+**Outcome: DONE in 2 billed runs — the PAYWALL is now audited + the Monetization directory is
+lint-enforced; the SETTINGS audit leg is DEFERRED (a system finding — R38.2).** No goldens (audits
+mint no PNGs; the lint growth is born-green). No golden churn — all 107 goldens byte-stable.
+
+### R38.1 — the paywall joins the audited surfaces
+`test_a11yAudit_paywall` (UITEST_PAYWALL_DIRECT → the hard-variant `PaywallView` over a fixture with
+inert `.failed` closures) passed the full 7-type set CLEAN on its first run — the paywall's S36 fixes
+(PrimaryButtonStyle CTA, the failure-banner contrast fix, PlanCardButtonStyle) hold under the audit.
+The a11y audit now covers 8 surfaces: age gate, quiz, summary, dashboard, panic, slip, resources,
+paywall. `App/Sources/Monetization` joined the layout-lint scope (the inline retry `.plain` → the
+pass-through `PlanCardButtonStyle`; rehearsed free — 48 files, zero violations; floor 12 → 35).
+
+### R38.2 — the settings audit leg, DEFERRED (a system large-title finding)
+The settings audit fired `.dynamicType` + `.textClipped` on run 1. Artifact-first diagnosis: the
+audit's own element context names the navigation-bar LARGE TITLE ("Discreet Mode", NavigationBar /
+LargeTitle) — a SYSTEM large-title behavior (it does not fully scale with Dynamic Type and clips), NOT
+the themed content (the List cells + the resources row are clean). Not an OS-flake, so not
+valve-material; the leg + its mount + env-var were REMOVED (no dead code). The fix — a custom /
+`.inline` title, which re-records the settings golden — and the leg's re-addition ride UIR-5b.
+
+### Also (run 1, honest accounting)
+Run 1 (`29623574788`) was red on the settings finding above AND an UNRELATED unit FLAKE
+(`EraseEverythingTests.test_erase_triggersDebouncedWidgetReload` — a timing-sensitive debounce test
+that passed in S37 and that UIR-5a touches nothing near); it resolved on run 2 (`29624490777`, all
+green). The two billed runs = run 1 (finding + flake evidence) + run 2 (the settings-leg deferral).
+
+### Carried → UIR-5b (the FINAL UIR polish session)
+- **The settings large-title DT/clip fix** (custom/inline title) + re-adding the settings audit leg.
+- **Motion/polish:** the `StreakRing` motion/calm appear animation (mind snapshot determinism — the
+  ring renders SETTLED today for exactly that reason; disable the animation in snapshots or accept a
+  golden re-record).
+- **Widget typography (R34.7):** rectangular numeral + micro-labels — re-records ~13 widget goldens
+  (delete → red → adopt; luminance-only, never Theme).
+- **Reasons-frame AX5 title** (R35.6, paging→scroll at accessibility sizes).
+- **The consolidated golden-batch PREP** for the operator §3 sitting.
+- Next: **Session 39 = UIR-5b** — the last agent-doable UIR work; then the project is fully
+  operator-gated (G0 rename, §3 copy, §8 keys + sandbox, device rows, external beta, submission).

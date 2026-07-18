@@ -191,8 +191,17 @@ own STEP-0):**
   `.listRowBackground(surface/raised)` per Section + `.tint(brand/primary)` + Theme text tokens), keeping
   List's native cell accessibility. 2 goldens minted. **UIR-4 is now fully complete.** Deferred to UIR-5:
   the settings/paywall audit legs + the Monetization lint scope + full settings golden coverage.
-- **UIR-5 — Motion/polish + AX5 axes** + consolidated golden-batch prep for the
-  operator's §3 sitting.
+- **UIR-5a — The deferred audit legs + Monetization lint scope: ✅ DONE (Session 38, 2 billed runs).**
+  The **paywall** joins the audited surfaces — `test_a11yAudit_paywall` (UITEST_PAYWALL_DIRECT → the
+  hard-variant fixture) passed the FULL 7-type set CLEAN on its first run; the a11y audit now covers **8
+  surfaces** (age gate, quiz, summary, dashboard, panic, slip, resources, paywall). `App/Sources/Monetization`
+  joined the layout-lint scope (48 files, floor 12 → 35, born-green; the inline retry `.plain` → the
+  pass-through `PlanCardButtonStyle`). No goldens. **R38.2:** the **settings** audit leg is DEFERRED — its
+  `.dynamicType`+`.textClipped` fired on the navigation-bar LARGE TITLE ("Discreet Mode",
+  NavigationBar/LargeTitle — a SYSTEM behavior, not the themed content), so the fix (a custom/`.inline`
+  title, which re-records the settings golden) rides UIR-5b.
+- **UIR-5b — The settings large-title fix + motion/polish + AX5 axes + widget typography** + consolidated
+  golden-batch prep for the operator's §3 sitting. The LAST agent-doable UIR work.
 
 **Exit criteria:** all snapshot goldens re-recorded on the new system; the a11y
 audit green with the R28.13 exclusion list shrunk to zero or a documented
