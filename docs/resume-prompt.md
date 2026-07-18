@@ -205,54 +205,64 @@
   frozen-tooltip / reduce-framing / composed-a11y polish (all §3-blocked) — named,
   ride the founder pass / UIR-5.**
 
-## Next session objective (one session, definition of done below)
+## Next session objective (UIR-5c — the remaining polish; INDEPENDENT items)
 
-**Session 39 — UIR-5b, the FINAL UIR session (the settings large-title fix + motion/polish + widget
-typography + reasons AX5 + golden-batch prep).** UIR-0…4 + UIR-5a are all DONE — every screen is
-regenerated and 8 surfaces are audited. This is the last agent-doable UIR work; after it the project
-is fully operator-gated.
+**Session 40 — UIR-5c: the remaining UIR polish.** UIR-0…4 + UIR-5a are DONE; UIR-5b (S39) deferred
+the settings audit leg. The items below are INDEPENDENT — a red on one must NOT block the others;
+sequence lowest-risk first; each is its own red→adopt→green golden batch. S39 banked the exact specs
+below so execution is near-mechanical — do NOT re-derive them.
 
 1. **Session-open checks:** the standing three-way operator check + `which uipro`.
-2. **The settings large-title fix (R38.2 — re-adds the deferred audit leg).** The settings audit
-   fired `.dynamicType`+`.textClipped` on the navigation-bar LARGE TITLE ("Discreet Mode",
-   NavigationBar/LargeTitle — a SYSTEM behavior, NOT the themed content). Fix:
-   `.navigationBarTitleDisplayMode(.inline)` OR a custom `.principal` toolbar title with a Theme text
-   style (verify the chosen form does not itself clip). This re-records the 2 settings goldens
-   (red→adopt-from-artifact→green, VISUALLY VERIFY) and RE-ADDS the settings audit leg (UITEST_SETTINGS
-   mount → `DiscreetSettingsView`, gate on `settings.resources.row` — a real Button, R36.4; R28.6
-   valve-eligible). The mount + env-var were removed in S38 — re-add them. Re-confirm the leg passes.
-3. **UIR-5 motion/polish:** the `StreakRing` motion/calm appear animation
-   (`Dashboard/StreakRing.swift` — currently renders SETTLED; add the appear animation,
-   golden-safe since settled == animated at rest); any panic/slip motion polish. Keep
-   golden-safe.
-4. **AX5-axis + widget typography:** the reasons-frame AX5 title truncation (R35.6 — a paging→scroll
-   treatment at accessibility sizes on the non-audited reasons frame); the widget typography
-   defects (R34.7 — rectangular numeral `.headline`→~20pt monospaced; micro-labels
-   `.caption2`→~12pt Medium+tracking in `Shared/Sources/StreakWidgetViews.swift` — this
-   re-records ~13 of the 29 widget goldens; DELETE the affected rectangular+medium references
-   so they write-then-fail, budget it explicitly).
-5. **Golden-batch PREP** for the operator §3 sitting (the final onboarding+paywall re-record
-   waits on the founder copy pass — do NOT mint them; prepare the list).
-6. **Goldens:** settings re-records 2; widget typography re-records ~13; any new surface mints. Plan
-   red→adopt-from-artifact, VISUALLY VERIFY each. **R36.4: gate any new audit leg on a real
-   CHILD element, never a full-screen `.contain` container id.**
-7. **Constraints:** copy BYTE-IDENTICAL; DORMANT monetization canon; widgets luminance-only
-   (never Theme); no privacy surface.
-0. STEP-0 candidates: (a) the widget-golden re-record budget (the dominant cost — delete →
-   red → adopt) vs the settings re-record — likely TWO separate red-then-green golden batches; (b)
-   whether to split the widget typography from the settings fix + motion across two sessions (the
-   settings fix + motion are one coherent golden batch); (c) the run budget.
 
-**After this session the agent-doable UIR work is COMPLETE and the project is BLOCKED on
-the operator critical path** (G0 rename, §3 copy pass, §8 keys + sandbox matrix, device
-rows + E0.3 latency, external beta, submission).
+2. **Widget typography (R34.7) — the most self-contained item. EXACT spec + call-site map banked from
+   S39** (`docs/frontend-brandkit.md` §3 lines 124–125: `type/widgetNumeral` rectangular ~20pt /
+   circular ring-center ~17pt / **Semibold–Bold** / monospaced digits — SF Compact, NOT rounded (§3
+   line 110: rounded is dashboard-numeral-only); `type/widgetLabel` ~12pt / **Medium** / **tracking
+   +0.3**). File `Shared/Sources/StreakWidgetViews.swift` (luminance-only, NEVER Theme; point sizes are
+   the INTENDED widget form — Shared/Sources is outside the lint scope + widgets aren't audited). The
+   THREE call sites (small/medium numerals already exceed 20pt via `.title2.bold` — do NOT touch them):
+     - **line 165** `rectangular`: `primaryDayLine(font: .headline)` → `.system(size: 20, weight:
+       .semibold).monospacedDigit()`. Affects `rectangularFamily{,_discreet}.{light,dark}` = **4
+       goldens** (rectangular has NO ax5).
+     - **line 238** medium `savedLabel`: `.caption2` → `.system(size: 12, weight: .medium).tracking(0.3)`.
+     - **line 244** medium `milestoneLabel`: same as line 238.
+       Medium labels affect `mediumFamily{,_discreet}.{light,dark,light-ax5,dark-ax5}` = up to **8
+       goldens** (discreet-medium hides money→savedLabel; confirm from `StreakWidgetSnapshotTests`
+       whether discreet renders `milestoneLabel` before deleting its goldens — delete ONLY the ones
+       that actually change, ~8–12 total). Do NOT change label TEXT/case (copy, operator-owned).
+       Weight `.semibold` vs `.bold` on the lock-screen numeral is a §3-range judgment (both comply;
+       §3 says "heaviest that fits") — FLAG the choice to the operator. Maneuver: edit → `git rm` the
+       changed goldens → run 1 record→red → `gh run download <id> -n test-outputs` → VISUALLY VERIFY
+       each (bigger rectangular numeral; tracked medium labels; nothing else moved) → adopt → run 2 green.
 
-At close: hand this prompt off to the OPERATOR CRITICAL PATH (the UI regeneration is complete);
-the UIR ledger grows R39.x.
+3. **`StreakRing` motion (`Dashboard/StreakRing.swift`)** — golden-safe ONLY if the snapshot captures
+   the SETTLED frame. RISK: an `.onAppear`-triggered animation renders the FIRST frame unsettled →
+   breaks dashboard goldens. Structure it so the DEFAULT render is settled (e.g., gate the animation
+   off under snapshot/reduce-motion, or animate a property identical at rest). Verify the 8 dashboard
+   goldens do NOT move (they must stay byte-stable). Defer if it can't be made deterministic.
 
-**After UIR-5b, the agent-doable UIR work is COMPLETE and the project is BLOCKED on the
-operator critical path** (G0 rename, §3 copy pass, §8 keys + sandbox matrix, device rows +
-E0.3 latency, external beta, submission) — see the operator-owned blockers below.
+4. **Reasons-frame AX5 title (R35.6)** — the panic reasons title truncates at AX5 (a paging→scroll
+   treatment). NOTE: panic is a rule-11 AUDITED leg (passed clean S35), so this is the NON-audited
+   title truncation; fixing it likely re-records the panic `*ax5*` goldens — budget + visually verify.
+
+5. **The SETTINGS-CONTENT audit [OPTIONAL/deferrable — the S39 iceberg].** If attempted: title =
+   free-standing `.largeTitle` `Text` ABOVE the List (R39.2, PROVEN — never a List row); content = move
+   the long List SECTION FOOTERS (e.g. the haptic-pacer footer) OUT of the `footer:` slot into scalable
+   in-content rows. **ENUMERATE ALL findings from ONE audit run (or a local macOS run) BEFORE fixing** —
+   do NOT whack-a-mole (S39 spent 3 runs discovering the depth). Re-adds the audit leg + re-records the
+   2 settings goldens. A breadcrumb with this exact plan sits at the site in `DiscreetSettingsView`.
+
+6. **Golden-batch PREP** for the operator §3 sitting (the final onboarding+paywall re-record waits on
+   the founder copy pass — do NOT mint them; prepare the list). Zero-run documentation.
+
+7. **Constraints:** copy BYTE-IDENTICAL; DORMANT monetization canon; widgets luminance-only (never
+   Theme); no privacy surface. NEW STANDING NOTE (S39): never write `[skip ci]`/`[ci skip]` ANYWHERE in
+   a commit message (body included) unless you intend the skip — GitHub honors it anywhere; docs/**` +
+   `**.md` are already `paths-ignore`d so docs commits never run CI regardless.
+
+**After UIR-5c the agent-doable UIR work is COMPLETE and the project is BLOCKED on the operator
+critical path** (G0 rename, §3 copy pass, §8 keys + sandbox matrix, device rows + E0.3 latency,
+external beta, submission) — see the operator-owned blockers below.
 
 ## Operator-owned blockers (not agent work; carry until closed)
 
