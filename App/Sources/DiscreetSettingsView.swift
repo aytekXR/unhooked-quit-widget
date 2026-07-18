@@ -51,6 +51,14 @@ struct DiscreetSettingsView: View {
             .background(Theme.color.surfaceBase.color.ignoresSafeArea())
             .tint(Theme.color.brandPrimary.color)
             .id(refreshToken)
+            // UIR-5c TODO (R39.1/R39.2 — the deferred settings a11y-audit fix, Session 39): this
+            // nav-bar LARGE title fires `.dynamicType` "partially unsupported" + `.textClipped` at
+            // AX5. The PROVEN fix (run 29626434269): make this a FREE-STANDING `.largeTitle` `Text`
+            // ABOVE the List (a List ROW is height-constrained and clips identically — do NOT put it
+            // in a row). BUT the audit then flags the settings LIST CONTENT — the long section
+            // FOOTERS (e.g. the haptic-pacer footer) clip at AX5 too, a STRUCTURAL List-footer issue
+            // (move long footers out of the `footer:` slot into scalable in-content rows). Enumerate
+            // ALL findings from ONE audit run before fixing; then re-record the 2 settings goldens.
             .navigationTitle(copy.screenTitle)
         }
     }
