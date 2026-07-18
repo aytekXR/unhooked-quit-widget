@@ -401,13 +401,25 @@ final class A11yAuditUITests: XCTestCase {
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
-    // The SETTINGS audit leg is DEFERRED (UIR-5a run 29623574788): its first audit fired
-    // `.dynamicType` ("partially unsupported") + `.textClipped` on the navigation-bar LARGE
-    // TITLE ("Discreet Mode") — a SYSTEM large-title behavior (the large title does not fully
-    // scale with Dynamic Type and clips), not the themed content. The themed List cells + the
-    // resources row are clean. Fixing it means a custom title / `.inline` display mode (which
-    // re-records the settings golden), owned by name for a follow-up. The mount + env-var are
-    // removed with the leg (no dead code).
+    /// The settings leg — DEFERRED across UIR-5a/5b (the nav-bar LARGE title fired
+    /// `.dynamicType`/`.textClipped`, then a title in a List ROW clipped identically, then the
+    /// settings LIST FOOTERS clipped at AX5), RE-ADDED in UIR-5c: the title is a free-standing
+    /// `.largeTitle` `Text` ABOVE the List (R39.2) and the section footers carry `.fixedSize` so
+    /// they grow at accessibility sizes instead of clipping. R28.6 valve-eligible. Gates on
+    /// `settings.resources.row` (a real Button, R36.4). Mounted via UITEST_SETTINGS →
+    /// `DiscreetSettingsView` with no repository (only the resources row renders).
+    func test_a11yAudit_settings_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_SETTINGS"] = "1"
+        app.launch()
+
+        let row = app.descendants(matching: .any)["settings.resources.row"]
+        XCTAssertTrue(
+            row.waitForExistence(timeout: 15),
+            "the UITEST_SETTINGS direct mount renders DiscreetSettingsView"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
 
     /// The paywall leg — NEW in UIR-5. R28.6 valve-eligible. Gates on `paywall.cta` (a real
     /// Button). Mounted via UITEST_PAYWALL_DIRECT → the hard-variant `PaywallView` over a

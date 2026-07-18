@@ -33,34 +33,49 @@ struct DiscreetSettingsView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if let repository = provider?.repository {
-                    widgetToggles(repository)
-                    iconPicker(repository)
-                    hapticPacerRow(repository)
-                    winbackRow(repository)
+            VStack(alignment: .leading, spacing: 0) {
+                titleHeader
+                List {
+                    if let repository = provider?.repository {
+                        widgetToggles(repository)
+                        iconPicker(repository)
+                        hapticPacerRow(repository)
+                        winbackRow(repository)
+                    }
+                    resourcesRow()
                 }
-                resourcesRow()
+                // UIR-4b: the List's system-grouped chrome moves onto the Theme layer WITHOUT
+                // abandoning List (its native cell accessibility is kept). The scroll's system
+                // background is hidden and surface/base shows behind (the VStack backdrop); each
+                // Section's cells ride surface/raised; Toggles tint `brand/primary`; header/footer/
+                // label text carries explicit Theme tokens (+ `.fixedSize` so long footers grow at AX).
+                .scrollContentBackground(.hidden)
+                .tint(Theme.color.brandPrimary.color)
+                .id(refreshToken)
             }
-            // UIR-4b: the List's system-grouped chrome moves onto the Theme layer WITHOUT
-            // abandoning List (its native cell accessibility is kept). The scroll's system
-            // background is hidden and surface/base shows behind; each Section's cells ride
-            // surface/raised (`.listRowBackground` per Section); Toggles tint `brand/primary`;
-            // header/footer/label text carries explicit Theme tokens.
-            .scrollContentBackground(.hidden)
             .background(Theme.color.surfaceBase.color.ignoresSafeArea())
-            .tint(Theme.color.brandPrimary.color)
-            .id(refreshToken)
-            // UIR-5c TODO (R39.1/R39.2 — the deferred settings a11y-audit fix, Session 39): this
-            // nav-bar LARGE title fires `.dynamicType` "partially unsupported" + `.textClipped` at
-            // AX5. The PROVEN fix (run 29626434269): make this a FREE-STANDING `.largeTitle` `Text`
-            // ABOVE the List (a List ROW is height-constrained and clips identically — do NOT put it
-            // in a row). BUT the audit then flags the settings LIST CONTENT — the long section
-            // FOOTERS (e.g. the haptic-pacer footer) clip at AX5 too, a STRUCTURAL List-footer issue
-            // (move long footers out of the `footer:` slot into scalable in-content rows). Enumerate
-            // ALL findings from ONE audit run before fixing; then re-record the 2 settings goldens.
-            .navigationTitle(copy.screenTitle)
+            // R39.2 (UIR-5c) — the screen title is the free-standing `titleHeader` above the List,
+            // NOT a nav-bar LARGE title (which fired `.dynamicType`/`.textClipped` at AX5); the bar
+            // carries no title (inline, empty).
+            .navigationBarTitleDisplayMode(.inline)
         }
+    }
+
+    /// R39.2 — the screen title as a FREE-STANDING, scalable `.largeTitle` `Text` ABOVE the List
+    /// (never a nav-bar large title nor a List row — both are height-constrained and clip at
+    /// accessibility sizes). `.fixedSize(vertical:)` grants it its full wrapped height; the List
+    /// (the flexible sibling) yields the rest.
+    private var titleHeader: some View {
+        Text(copy.screenTitle)
+            .font(.largeTitle.weight(.bold))
+            .foregroundStyle(Theme.color.contentPrimary.color)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Theme.space.s4)
+            .padding(.top, Theme.space.s3)
+            .padding(.bottom, Theme.space.s2)
+            .accessibilityAddTraits(.isHeader)
+            .accessibilityIdentifier("settings.title")
     }
 
     /// E7.3 (R26.6) — the settings surface of the win-back offer (the plan's
@@ -132,10 +147,12 @@ struct DiscreetSettingsView: View {
         } header: {
             Text(copy.widgetsHeader)
                 .foregroundStyle(Theme.color.contentSecondary.color)
+                .fixedSize(horizontal: false, vertical: true) // R39.2: grow at AX, don't clip
                 .textCase(nil)
         } footer: {
             Text(copy.widgetsFooter)
                 .foregroundStyle(Theme.color.contentSecondary.color)
+                .fixedSize(horizontal: false, vertical: true) // R39.2: grow at AX, don't clip
         }
         .listRowBackground(Theme.color.surfaceRaised.color)
     }
@@ -150,6 +167,7 @@ struct DiscreetSettingsView: View {
         } header: {
             Text(copy.iconHeader)
                 .foregroundStyle(Theme.color.contentSecondary.color)
+                .fixedSize(horizontal: false, vertical: true) // R39.2: grow at AX, don't clip
                 .textCase(nil)
         }
         .listRowBackground(Theme.color.surfaceRaised.color)
@@ -181,6 +199,7 @@ struct DiscreetSettingsView: View {
         } footer: {
             Text(copy.hapticPacerFooter)
                 .foregroundStyle(Theme.color.contentSecondary.color)
+                .fixedSize(horizontal: false, vertical: true) // R39.2: grow at AX, don't clip (the longest footer)
         }
         .listRowBackground(Theme.color.surfaceRaised.color)
     }
