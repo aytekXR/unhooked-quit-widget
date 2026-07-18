@@ -216,9 +216,17 @@ own STEP-0):**
     8-agent verify+critique workflow made run 1 correct on the first try (caught the line-168 blocker
     the first plan missed). 9 goldens re-recorded + visually verified; 20 unchanged untouched (total 29).
     Flagged to operator: numeral `.semibold` vs `.bold`; medium labels fixed-12pt (no AX5 scaling).
-  - **Remaining:** the `StreakRing` motion (golden-determinism-sensitive), the reasons-frame AX5 title
-    (R35.6, panic golden churn), the settings-content audit (S39 iceberg, deferrable), and the
-    consolidated golden-batch prep for the operator's §3 sitting. The LAST agent-doable UIR work.
+  - **Reasons-frame AX5 (R35.6): ✅ DONE (Session 40, 2 billed runs).** At accessibility sizes the panic
+    "your reasons" step scrolls (title grows) instead of paging (title truncated). Pure layout; a
+    double no-op for the rule-11 audit. 4 reasons-AX goldens re-recorded + visually verified.
+  - **`StreakRing` motion: ✅ DONE (Session 40, 1 billed run, zero golden churn).** The momentum ring's
+    `motion/calm` (0.6s) appear animation — opt-in + golden-safe (default settled draw is byte-identical;
+    only the live dashboard animates). The animation is flagged for the operator's device eyeball.
+  - **Golden-batch prep: ✅ DONE (Session 40).** `docs/golden-batch.md` — the plan for the ONE final
+    re-record at the operator's §3 sitting (the onboarding + paywall goldens get MINTED then; everything
+    else is stable).
+  - **DEFERRED: the settings-content audit** (S39 iceberg — the fix is characterized; needs
+    enumerate-all-findings-from-one-run). **After UIR-5c the agent-doable UIR work is COMPLETE.**
 
 **Exit criteria:** all snapshot goldens re-recorded on the new system; the a11y
 audit green with the R28.13 exclusion list shrunk to zero or a documented

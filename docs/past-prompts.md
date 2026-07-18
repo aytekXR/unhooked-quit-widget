@@ -5411,3 +5411,53 @@ total stays 29) → ALL GREEN. R34.7 CLOSED.
 ### Carried → UIR-5c remaining (all INDEPENDENT)
 `StreakRing` motion (golden-determinism-sensitive), reasons-frame AX5 title (R35.6, panic golden churn),
 the settings-content audit (S39 iceberg, deferrable), golden-batch PREP.
+
+## Session 40 — UIR-5c items 2–4: reasons AX5, StreakRing motion, golden-batch prep (2026-07-18)
+
+Three more UIR-5c items, all executed with the verify-then-execute pattern (a workflow sized to each
+item's risk). **UIR-5c is now substantively COMPLETE** — every agent-doable UIR item is done except the
+DEFERRED settings-content audit (S39 iceberg). The 4th UIR-5c item (item 1, widget typography R34.7) is
+ledgered above.
+
+### R35.6 — the reasons-frame accessibility-size fix (DONE, 2 billed runs)
+The panic "your reasons" step used full-viewport PAGING (`scrollsContent: false`), so at accessibility
+sizes the non-scrolling scaffold left no room to wrap a grown `.title` → the title truncated (a known
+S35 deferral). Fix (`ReasonsStepView`): gate on `@Environment(\.dynamicTypeSize).isAccessibilitySize` —
+at AX sizes (AX1–AX5) the scaffold scrolls and the reasons flow at natural height in a
+`VStack(spacing: Theme.space.s8)`; at normal sizes the paging is byte-for-byte unchanged. Pure LAYOUT
+(zero copy/register/color). An 8-agent workflow (wf_7f688e69-430) verified it, with the standout
+finding that the change is a **DOUBLE no-op for the rule-11 panic audit** — (1) the audit runs at
+default size (isAX=false → the unchanged path), and (2) the reasons frame isn't even audited (the leg
+uses its title only as a nav waypoint; the audit fires on the redirect + exits frames). Applied the
+workflow's two refinements (`Theme.space.s8` not a magic 32; framed AX1–AX5 not AX5-only). 4 reasons-AX
+goldens re-recorded + all VISUALLY VERIFIED (the title "Why you started" now wraps fully instead of
+truncating; the reasons/fallback scroll; the Skip stays pinned). Runs 22b323d → 7a79a6f, both green.
+FLAGGED (non-blocking): per-reason paging (§6.11) is traded for a scroll at AX sizes (where a single
+`.largeTitle` reason overruns a page anyway); the reasons step has a PRE-EXISTING audit-coverage gap
+(a tracked follow-up).
+
+### StreakRing motion (DONE, 1 billed run, ZERO golden churn)
+The momentum ring gained its `motion/calm` (0.6s ease-out) APPEAR animation (fill sweeps 0→fraction) —
+the S34-deferred dashboard motion. GOLDEN-SAFE by construction: `StreakRing.animateOnAppear` defaults
+to FALSE, and when false `shownFraction` reads `fraction` DIRECTLY (not the `@State`), byte-identical to
+the pre-motion draw — so snapshots + the audit mount capture a SETTLED ring and the 8 dashboard goldens
+do NOT move (the ring is `.accessibilityHidden`, so the audit is untouched too). `StreakDashboardCard.
+animateRing` (default false) threads the opt-in; ONLY the live `RootPlaceholderView` passes true. A live
+momentum update sweeps on the same curve (`.onChange`); the settled path reads `fraction` directly so it
+can never go stale. Run bccc262 = ALL GREEN, no golden churn (CI confirmed the byte-identical settled
+render). The animation renders only at runtime, so a golden cannot verify it — FLAGGED for the
+operator's dashboard DEVICE-EYEBALL (fail-safe: worst case is a cosmetic timing tweak).
+
+### Golden-batch PREP (DONE — `docs/golden-batch.md`)
+A zero-run deliverable enumerating the ONE final snapshot re-record for the operator's §3 copy sitting:
+the 107 current goldens are all STABLE on the finished design system; the FINAL BATCH is the onboarding
+(age gate/quiz/summary) + paywall goldens that DO NOT EXIST YET (draft copy, R33.2) and get MINTED when
+the founder finalizes copy (~12–20 goldens, one red→adopt→green pass). Plus the re-record triggers, the
+device-eyeball items, and the mint mechanics.
+
+### UIR-5c status + what remains
+DONE: widget typography (R34.7), reasons AX5 (R35.6), StreakRing motion, golden-batch prep. DEFERRED:
+the settings-content audit (S39 iceberg — the fix is characterized; needs enumerate-all-findings-from-
+one-run, ideally a local macOS run). **After UIR-5c the agent-doable UIR work is COMPLETE** — the
+project is fully operator-gated (G0 rename, §3 copy pass + the golden batch, §8 keys + sandbox, device
+rows + E0.3 latency + the UIR-5c device eyeballs, external beta, submission).
