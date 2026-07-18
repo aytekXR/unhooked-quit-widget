@@ -115,22 +115,16 @@ struct DiscreetSettingsView: View {
                     dismiss()
                     onResourcesRowTap()
                 } label: {
-                    // R39.2: an explicit HStack (not `Label`) so the title TEXT wraps at AX sizes —
-                    // `.fixedSize` on a composite `Label` did NOT force its title off one line
-                    // (run 29658654073), but a plain `Text` grows (the captionRow pattern). The icon
-                    // is decorative (hidden), so VoiceOver still reads just "Support & resources".
-                    HStack(alignment: .firstTextBaseline, spacing: Theme.space.s2) {
-                        Image(systemName: "lifepreserver")
-                            .font(.body) // scales with Dynamic Type alongside the title
-                            .accessibilityHidden(true)
-                        Text(copy.resourcesRowLabel)
-                            .fixedSize(horizontal: false, vertical: true)
-                            // FULL row width (the captionRow pattern that passed) — without it the
-                            // HStack sizes to the title's intrinsic width (~157pt), so the audit reads
-                            // it as only "partially" scaling (run 29659267855).
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .foregroundStyle(Theme.color.contentPrimary.color)
+                    // R39.2: a native `Label` (icon + title scale TOGETHER — that native scaling is
+                    // what the Dynamic-Type audit wants; an HStack broke it → "partially unsupported",
+                    // run 29660062351). The ONLY reason the original Label failed was an implicit
+                    // one-line cap that TRUNCATED at AX; `.lineLimit(nil)` lifts it so the title wraps
+                    // to full height, and `.fixedSize(vertical:)` grants that height.
+                    Label(copy.resourcesRowLabel, systemImage: "lifepreserver")
+                        .foregroundStyle(Theme.color.contentPrimary.color)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings.resources.row")
