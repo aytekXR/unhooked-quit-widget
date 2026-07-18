@@ -18,29 +18,52 @@ import SwiftUI
 /// (proven on run 29303961082, where the ring passed the full set). No `Theme.type`
 /// glyph token is used here; those are for decorative SF-Symbol `Image`s only.
 ///
-/// **Motion:** the ring renders SETTLED (drawn straight to `fraction`). The
-/// motion/calm appear animation (tokens-v2 §6) is deferred to UIR-5 (the motion
-/// session) — a settled ring is byte-identical to an animated one at rest, so adding
-/// the appear animation later does not move this surface's goldens, and rendering
-/// settled keeps the snapshot lane deterministic (no mid-animation frame capture).
+/// **Motion (UIR-5c):** the ring can play a `motion/calm` (0.6s ease-out) APPEAR
+/// animation — the fill sweeps 0→`fraction`. It is OPT-IN: only the live dashboard
+/// (`RootPlaceholderView`) passes `animateOnAppear: true`. The DEFAULT is `false`, where
+/// the fill draws STRAIGHT to `fraction` (`shownFraction` reads `fraction` directly, NOT
+/// the `@State`), byte-identical to the pre-motion draw — so the snapshot fixtures and the
+/// audit mount capture a SETTLED ring, this surface's goldens do not move, and no
+/// mid-animation frame is ever captured. The animation itself renders only at runtime, so
+/// it carries an operator DEVICE-EYEBALL flag (a golden cannot verify motion).
 struct StreakRing: View {
     /// Momentum fill fraction; clamped to 0...1 at the draw.
     let fraction: Double
     var isDiscreet: Bool = false
     var isFrozen: Bool = false
+    /// Opt-in appear animation (live dashboard only). Off ⇒ settled draw (goldens/audit).
+    var animateOnAppear: Bool = false
+    /// Drives the animated sweep; UNUSED when `animateOnAppear` is false (the draw reads
+    /// `fraction` directly then), so it can never leave the settled fill stale.
+    @State private var drawnFraction: Double = 0
+
+    /// Settled draw reads `fraction` (always current); animated draw reads the `@State`.
+    private var shownFraction: Double {
+        min(max(animateOnAppear ? drawnFraction : fraction, 0), 1)
+    }
 
     var body: some View {
         ZStack {
             // Track — the full circle beneath the fill arc.
             Circle()
                 .stroke(trackColor, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-            // Fill — trimmed to the fraction, rotated so 0 begins at 12 o'clock.
+            // Fill — trimmed to the (settled or animating) fraction, rotated so 0 begins at 12 o'clock.
             Circle()
-                .trim(from: 0, to: min(max(fraction, 0), 1))
+                .trim(from: 0, to: shownFraction)
                 .stroke(strokeColor, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                 .rotationEffect(.degrees(-90))
         }
         .accessibilityHidden(true)
+        .onAppear {
+            guard animateOnAppear else { return }
+            withAnimation(.easeOut(duration: Theme.motion.calm)) { drawnFraction = fraction }
+        }
+        .onChange(of: fraction) { _, newValue in
+            // A live momentum update sweeps to the new value (same calm curve); the
+            // settled path ignores this (it reads `fraction` directly).
+            guard animateOnAppear else { return }
+            withAnimation(.easeOut(duration: Theme.motion.calm)) { drawnFraction = newValue }
+        }
     }
 
     /// Indigo momentum in the active state; neutral gray when discreet or frozen (the

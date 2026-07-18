@@ -147,7 +147,10 @@ struct RootPlaceholderView: View {
                     ?? StreakValue(elapsedSeconds: 0, moneySaved: 0, momentum: 1.0)
                 StreakDashboardCard(
                     model: cardModel(quit: quit, value: value),
-                    accessibilityID: "dashboard.card.\(quit.id.uuidString)"
+                    accessibilityID: "dashboard.card.\(quit.id.uuidString)",
+                    // UIR-5c: the LIVE dashboard opts the ring into its motion/calm appear
+                    // animation (snapshots + the audit mount keep the default settled ring).
+                    animateRing: true
                 )
             }
         }

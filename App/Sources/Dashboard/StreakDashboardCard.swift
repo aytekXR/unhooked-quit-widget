@@ -23,6 +23,10 @@ struct StreakDashboardCard: View {
     /// audit + snapshot fixtures pass a fixed id. Queried via
     /// `descendants(matching: .any)` — a `.contain` group can surface as `.other` (R33.13).
     var accessibilityID: String = "dashboard.card"
+    /// UIR-5c motion: the live dashboard passes `true` to opt the `StreakRing` into its
+    /// `motion/calm` appear animation. Snapshots + the audit mount keep the default `false`
+    /// (settled ring) so the dashboard goldens stay byte-stable and the audit is unaffected.
+    var animateRing: Bool = false
 
     @Environment(\.dynamicTypeSize) private var typeSize
     private var isAX: Bool { typeSize.isAccessibilitySize }
@@ -60,7 +64,8 @@ struct StreakDashboardCard: View {
                 StreakRing(
                     fraction: model.momentumFraction,
                     isDiscreet: model.isDiscreet,
-                    isFrozen: model.isFrozen
+                    isFrozen: model.isFrozen,
+                    animateOnAppear: animateRing
                 )
                 .frame(width: 72, height: 72) // decorative Shape frame — R33.12 safe
             }
