@@ -343,25 +343,44 @@ private struct TimerStepView: View {
 
 private struct ReasonsStepView: View {
     let model: PanicFlowModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         let step = model.script.step(.reasons)
+        // R35.6 — at ANY accessibility size (AX1–AX5) the full-viewport paging layout below
+        // leaves the NON-scrolling scaffold no room to wrap a grown `.title`, so the title
+        // truncates. At those sizes the scaffold scrolls instead (`scrollsContent: isAX`) and
+        // the reasons flow at natural height — the title wraps freely and each large reason
+        // scrolls into view. At normal sizes the per-reason PAGING is unchanged (brandkit
+        // §6.11: each reason gets the whole screen; that per-reason focus is traded for
+        // readability at accessibility sizes, where a single `.largeTitle` reason overruns a
+        // page anyway). The Skip stays PINNED either way (it lives outside the scaffold scroll).
+        // Pure layout — no copy/register change; the panic audit runs at default size (isAX ==
+        // false there) so this is a no-op for the rule-11 leg, and the reasons frame is not
+        // itself audited today (a tracked follow-up, not this change's scope).
+        let isAX = dynamicTypeSize.isAccessibilitySize
         StepScaffold(
             identifier: "panic.flow.step.reasons",
             title: step?.title ?? "",
             instruction: step?.instruction ?? "",
             skipLabel: step?.skipLabel ?? "",
             onSkip: { model.skip() },
-            // The reasons paging scroll owns the vertical gesture — don't nest it in
-            // the scaffold's outer scroll (R33.5 scroll is satisfied by the paging one).
-            scrollsContent: false
+            scrollsContent: isAX
         ) {
             if model.reasons.isEmpty {
                 // Never blank: the script's fallback line stands in.
                 reasonText(step?.emptyFallback ?? "")
+            } else if isAX {
+                // Accessibility sizes: the reasons flow at natural height inside the scaffold's
+                // own scroll (the title above can grow; each huge reason scrolls into view).
+                VStack(spacing: Theme.space.s8) {
+                    ForEach(Array(model.reasons.enumerated()), id: \.offset) { _, reason in
+                        reasonText(reason) // VERBATIM — their words star, ours frame
+                    }
+                }
             } else {
-                // One motivation per page, vertical paging (brandkit §6.11) — each
-                // of the user's reasons gets the whole screen's attention.
+                // Normal sizes: one motivation per page, vertical paging (brandkit §6.11) —
+                // each of the user's reasons gets the whole screen's attention.
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 0) {
                         ForEach(Array(model.reasons.enumerated()), id: \.offset) { _, reason in
