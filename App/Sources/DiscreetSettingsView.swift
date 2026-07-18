@@ -117,12 +117,28 @@ struct DiscreetSettingsView: View {
                 } label: {
                     Label(copy.resourcesRowLabel, systemImage: "lifepreserver")
                         .foregroundStyle(Theme.color.contentPrimary.color)
+                        // R39.2: at AX sizes the Label must WRAP to its full height, not
+                        // truncate to one line (a truncated Label reads as un-scalable + clipped).
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings.resources.row")
             }
             .listRowBackground(Theme.color.surfaceRaised.color)
         }
+    }
+
+    /// R39.2 — a section CAPTION as a self-sizing List ROW (not a `footer:` slot, whose height the
+    /// system CAPS — a long caption clips there at AX sizes even with `.fixedSize`, run 29657891269).
+    /// A borderless, clear-backed row grows to its full wrapped height like any other cell.
+    private func captionRow(_ text: String) -> some View {
+        Text(text)
+            .font(.footnote)
+            .foregroundStyle(Theme.color.contentSecondary.color)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
     }
 
     @ViewBuilder
@@ -196,10 +212,9 @@ struct DiscreetSettingsView: View {
                 Text(copy.hapticPacerRowLabel)
                     .foregroundStyle(Theme.color.contentPrimary.color)
             }
-        } footer: {
-            Text(copy.hapticPacerFooter)
-                .foregroundStyle(Theme.color.contentSecondary.color)
-                .fixedSize(horizontal: false, vertical: true) // R39.2: grow at AX, don't clip (the longest footer)
+            // R39.2: the LONG haptic-pacer caption rides a self-sizing ROW, not the `footer:` slot
+            // (whose capped height clipped it at AX even with `.fixedSize` — run 29657891269).
+            captionRow(copy.hapticPacerFooter)
         }
         .listRowBackground(Theme.color.surfaceRaised.color)
     }
