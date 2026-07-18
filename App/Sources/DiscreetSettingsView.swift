@@ -121,9 +121,14 @@ struct DiscreetSettingsView: View {
                     // is decorative (hidden), so VoiceOver still reads just "Support & resources".
                     HStack(alignment: .firstTextBaseline, spacing: Theme.space.s2) {
                         Image(systemName: "lifepreserver")
+                            .font(.body) // scales with Dynamic Type alongside the title
                             .accessibilityHidden(true)
                         Text(copy.resourcesRowLabel)
                             .fixedSize(horizontal: false, vertical: true)
+                            // FULL row width (the captionRow pattern that passed) — without it the
+                            // HStack sizes to the title's intrinsic width (~157pt), so the audit reads
+                            // it as only "partially" scaling (run 29659267855).
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .foregroundStyle(Theme.color.contentPrimary.color)
                 }
