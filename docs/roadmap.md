@@ -209,11 +209,16 @@ own STEP-0):**
   of the `footer:` slot + re-record goldens) is unknown-depth whack-a-mole per billed run. Reverted
   byte-identical to the UIR-5a green state; the 8 audited surfaces + 107 goldens stay green. Fix now
   KNOWN on both axes (title = free-standing text above the List; content = footers out of List slots).
-- **UIR-5c — The remaining UIR polish** (INDEPENDENT items; sequence lowest-risk first): the
-  settings-content audit [characterized above; enumerate ALL findings from one run before fixing], the
-  `StreakRing` motion (golden-safe), the widget typography (R34.7, ~13 goldens), the reasons-frame AX5
-  title (R35.6), and the consolidated golden-batch prep for the operator's §3 sitting. The LAST
-  agent-doable UIR work.
+- **UIR-5c — The remaining UIR polish** (INDEPENDENT items; sequence lowest-risk first):
+  - **Widget typography (R34.7): ✅ DONE (Session 40, 2 billed runs, zero theory-failures).** brandkit
+    §3 `type/widgetNumeral` (rectangular numeral 17→20pt Semibold monospaced) + `type/widgetLabel`
+    (rectangular "saved" split out + medium savedLabel/milestoneLabel → 12pt Medium tracking +0.3). An
+    8-agent verify+critique workflow made run 1 correct on the first try (caught the line-168 blocker
+    the first plan missed). 9 goldens re-recorded + visually verified; 20 unchanged untouched (total 29).
+    Flagged to operator: numeral `.semibold` vs `.bold`; medium labels fixed-12pt (no AX5 scaling).
+  - **Remaining:** the `StreakRing` motion (golden-determinism-sensitive), the reasons-frame AX5 title
+    (R35.6, panic golden churn), the settings-content audit (S39 iceberg, deferrable), and the
+    consolidated golden-batch prep for the operator's §3 sitting. The LAST agent-doable UIR work.
 
 **Exit criteria:** all snapshot goldens re-recorded on the new system; the a11y
 audit green with the R28.13 exclusion list shrunk to zero or a documented

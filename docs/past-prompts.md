@@ -5363,3 +5363,51 @@ NOTE: never write the literal token in a commit body unless you intend the skip.
 Age gate, quiz, summary, dashboard, panic, slip, resources, paywall stay audited + green. Carried to
 a future UIR-5c: the settings-content audit (characterized above), the `StreakRing` motion, the widget
 typography (R34.7, ~13 goldens), the reasons-frame AX5 title (R35.6).
+
+## Session 40 — UIR-5c item 1: widget typography R34.7 (2026-07-18)
+
+**Objective:** close the S34-deferred widget typography defects (brandkit §3 `type/widgetNumeral` +
+`type/widgetLabel`). Budget: 2 billed runs.
+
+**Outcome: DONE in exactly 2 billed runs, ZERO theory-failures** — the contrast with the S39 settings
+iceberg is the lesson: an up-front verification workflow made run 1 correct on the first try.
+
+### The verification workflow (wf_df8c942c-94b) earned its keep
+Before touching any golden, an 8-agent workflow (3 parallel readers — brandkit spec, code call-sites,
+golden mapping — → 5 adversarial critics) verified the planned change. It caught a **BLOCKER 4/5 critics
+independently flagged that the first plan missed**: line 168's rectangular `Text("\(money) \(savedLabel)")`
+bundles the "saved" micro-label into one `.caption2` string, so fixing only the medium family's
+standalone label would have left the rectangular "saved" off-spec. The fix SPLIT that line. The workflow
+also confirmed: numeralRounded=FALSE (SF Compact in widgets; rounded is the dashboard hero only),
+rectangular is the ONLY numeral defect (circular ~17pt, small/medium ≥20pt already fine), the API is all
+valid (`.system(size:weight:).monospacedDigit()`, `Text.tracking(_:)`), no copy-text change, and the
+delete-list is EXACTLY 9 goldens (discreet-medium excluded — `showsMoney`/`showsMilestoneLabel` are
+`!isDiscreet`).
+
+### The change (`Shared/Sources/StreakWidgetViews.swift` — luminance-only, no Theme)
+1. Rectangular day NUMERAL: `.headline` (~17pt) → `.system(size: 20, weight: .semibold).monospacedDigit()`.
+2. Rectangular money+"saved": SPLIT — money `.system(size:12,weight:.medium).monospacedDigit()`, "saved"
+   `.system(size:12,weight:.medium).tracking(0.3)`.
+3+4. Medium `savedLabel` + `milestoneLabel`: `.caption2` → `.system(size:12,weight:.medium).tracking(0.3)`.
+
+### The golden maneuver (R32.4 red→adopt→green)
+Run 1 (9142a72 / 29650601143): build/unit/uismoke GREEN (widgets not audited), snapshot RED — the suite
+failed on EXACTLY 9 issues (the predicted set), every other widget golden matched its reference (no
+spurious diff). All 9 recorded goldens VISUALLY VERIFIED from the artifact: the 20pt numeral fits the
+172×76 canvas; "$124 saved" reads as one unit; the unavailable "Ready when you are." wraps to 2 lines
+with NO clip (validating the conservative `.semibold` — `.bold` risked a 3-line wrap); medium labels at
+12pt Medium tracking; AX5 labels stay legible at fixed 12pt (the "Day…"/"788:0…" truncation is
+pre-existing, not from this change). Run 2 (01f6b89 / 29651280749) adopted the 9 (20 unchanged untouched;
+total stays 29) → ALL GREEN. R34.7 CLOSED.
+
+### Flagged for the operator/brand (neither blocks)
+- Numeral weight is `.semibold` (lighter end of §3's Semibold–Bold range); `.bold` is the "heaviest
+  that fits" upgrade the §3 note leans toward — held pending a render check (the 2-line unavailable wrap
+  shows semibold is safe; bold's overflow margin is unverified).
+- The medium home-screen labels are now FIXED 12pt (do not scale at AX5) — intentional per §3's fixed
+  micro-label size; a home-screen a11y tradeoff (they render complete + legible; the alternative is
+  `@ScaledMetric` if scaling is later wanted).
+
+### Carried → UIR-5c remaining (all INDEPENDENT)
+`StreakRing` motion (golden-determinism-sensitive), reasons-frame AX5 title (R35.6, panic golden churn),
+the settings-content audit (S39 iceberg, deferrable), golden-batch PREP.
