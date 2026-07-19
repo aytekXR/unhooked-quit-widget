@@ -14,8 +14,8 @@
 
 > Ballast is an on-device habit-tracking utility for people reducing or quitting a
 > habit — vaping, adult content, alcohol, cannabis, doomscrolling, or a custom goal.
-> It stores all data locally (plus the user's own iCloud), requires no account, and
-> puts a lock-screen "panic" button one tap from a short breathing exercise.
+> It stores all data on-device, requires no account, and puts a lock-screen "panic"
+> button one tap from a short breathing exercise.
 >
 > **Age gate + onboarding.** A fresh install opens on a birth-year age check (17+).
 > An under-17 entry routes to a calm resources screen; no habit content is reachable
@@ -47,8 +47,9 @@
 > slip flow; the single mandatory caution (an alcohol-withdrawal notice) points the
 > user to a professional and never instructs how to withdraw.
 >
-> **Privacy.** No accounts and no first-party server. Data stays on-device and in
-> the user's own iCloud. Analytics are opt-in (default off, asked plainly during the
+> **Privacy.** No accounts and no first-party server. Data stays on-device (included
+> in the user's standard iCloud device backup, like any app); this version does not
+> sync across devices. Analytics are opt-in (default off, asked plainly during the
 > quiz) and carry only funnel steps and the habit category — never notes, journal
 > content, custom habit names, or slip timestamps, and nothing linked to the user's
 > identity or used for tracking. A one-tap erase resets the app to a fresh-install
@@ -95,12 +96,14 @@
    screenshots, and preview video are operator-owned behind Gate G0 and are NOT
    drafted here. Screenshot #1 = lock-screen panic button and preview = lock-screen →
    intervention demo remain the plan of record (mvp §7).
-5. **PrivacyInfo.xcprivacy (R30.6 — real submission blocker, named).** The app target
-   ships no required-reason API manifest while using at least UserDefaults via the
-   App Group (CA92.1) in code. Apple rejects required-reason-API apps without the
-   declared manifest. This is a small build task (project.yml + a bundled resource)
-   that was OUT of this docs+lint session's scope — schedule it before any store
-   submission. Tracked in `docs/submission-checklist.md`.
+5. ~~**PrivacyInfo.xcprivacy (R30.6 — real submission blocker, named).**~~ **CLOSED —
+   Session 31.** Both executables now ship their required-reason-API manifests: the app
+   (`App/Resources/PrivacyInfo.xcprivacy`, UserDefaults [CA92.1, 1C8F.1] + the three
+   label-lockstep collected rows + NSPrivacyTracking=false) and the widget .appex
+   (`Widgets/Resources/PrivacyInfo.xcprivacy`, [1C8F.1] only, collected half empty).
+   Verified by `PrivacyManifestTests` (CI green `29290910960`). No longer a submission
+   blocker; tracked closed in `docs/submission-checklist.md`. (Kept here as an audit
+   trail — this item surfaced the blocker in Session 30 and it was resolved in 31.)
 
 ## §4. Register bans (hand-enforced on every edit of this file)
 

@@ -5,7 +5,7 @@
 | Document | Operator guide (requested 2026-07-11, Session 16) |
 | App | Ballast — `com.beyondkaira.ballast`, team `UH7MXG7Z94` |
 | Audience | Operator only — everything here happens in App Store Connect, which agents never touch (agent-workflows §2.3) |
-| Related | `operator-expected.md` §5 (add internal testers — TIMELY since the `8a0c469` build) |
+| Related | `operator-expected.md` §5 (add internal testers) · `docs/critical-path-post-uir.md` (the full launch sequence) |
 
 ## How builds get to TestFlight today (context you already own, for reference)
 
@@ -14,10 +14,13 @@ lane (`fastlane/Fastfile`). Two properties of that lane matter for testers:
 
 - `distribute_external: false` — CI only UPLOADS. It never pushes builds to
   external groups, so nothing reaches outsiders without your explicit action.
-- Build number = the GitHub run number, so newest run = highest build. The
-  build worth distributing right now is the one from `8a0c469`
-  (CI run `29132554144`) — the first with the working Control Center panic
-  button, warm-launch sheet, and the two-tap slip flow.
+- Build number = the GitHub run number, so newest run = highest build. Always
+  distribute the **most recent build listed in App Store Connect → Ballast →
+  TestFlight → iOS Builds** — every green `main` run uploads a newer one, and
+  the current build carries the complete UI-Reactor redesign, the real
+  dashboard, the 8-screen accessibility audit, and the privacy manifests.
+  (Historical note: the first genuinely testable build was `8a0c469` back in
+  Session 15; that reference is long superseded — just take the newest.)
 
 Uploaded builds sit in **App Store Connect → Ballast → TestFlight → iOS Builds**
 until a tester group exists. That is why nobody has received anything yet.

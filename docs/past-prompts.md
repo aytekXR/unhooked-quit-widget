@@ -5494,3 +5494,85 @@ applies the two known-good fixes (title, footer), solves the resources-row DT wi
 Inspector, re-adds the leg (gate on `settings.resources.row`, R36.4) + its UITEST_SETTINGS mount, and
 re-records the 2 settings goldens — landing all of it together. Until then settings stays exactly as the
 operator last saw it (8 audited surfaces; all 107 goldens stable; all lanes green).
+
+## Session 41 — completion audit + operator-handoff hardening (docs-only, ZERO billed runs) (2026-07-19)
+
+**Goal (self-determined at open):** the resume prompt handed off a project claimed COMPLETE for everything
+an agent can do without a Mac or the operator, blocked on the operator critical path. The autonomous-loop
+mandate is to continue until the roadmap is complete OR blocked by a human dependency — so this session's
+job was to (a) INDEPENDENTLY VERIFY that "no agent-doable work remains" is not premature, (b) do whatever
+legitimate agent-doable work the verification surfaces, (c) if the block is genuine, document it cleanly
+and declare the human-dependency boundary. **No new build work was invented; no CI run was spent.**
+
+**Method:** a 5-agent audit workflow (wf_722da0bc-616) assessed each remaining-work dimension independently
+— verify-green (RAN the free lanes), settings-mac-gate (stress-tested the conclusion), enumerate-deferred
+(swept the whole tree + docs for every deferred/carried/candidate item), doc-completeness (audited the
+operator-facing docs), roadmap-forward (Phases 3/4/5). Then an adversarial fact-checker verified the new
+docs against the repo before commit.
+
+**Verdict — the build is GENUINELY green, not a premature claim** (verify-green RAN it, did not trust docs):
+StreakEngine 84/84 + WidgetToolkit 21/21 + PaywallKit 16/16 = **121 free-lane tests pass, 0 failures**; all
+four grep lint gates reproduce zero violations locally; the strict-concurrency probe on StreakEngine builds
+clean; the last code-touching CI run (29661516821, 52eafa6) is SUCCESS on all 9 jobs. Working tree clean,
+local main == origin/main, 107 goldens stable.
+
+**Verdict — the project is on the OPERATOR CRITICAL PATH and there is NO remaining agent BUILD/FEATURE work
+that a Linux agent can do.** Every open item classifies as operator-gated, device-gated, mac-gated, or
+future-phase (post-launch, roadmap §6 forbids scope creep). The one CI-doable UIR remainder (the
+settings-content audit) is confirmed mac-gated. This is the terminal state for the autonomous build loop:
+**further progress is blocked on human/operator dependencies** (see the operator critical path — G0 rename,
+§3 copy pass, §8 keys + sandbox, device sittings + E0.3, external beta, submission).
+
+**R41.1 — the one new technical finding (the settings resources-row `.accessibilityHidden` candidate).** The
+S40 addendum framed the blocker as a generic "Button + wrapping-title Dynamic-Type conflict needing the
+Accessibility Inspector." The mac-gate agent refined it: the `iconRow` in the SAME settings screen
+(`DiscreetSettingsView.swift:188`) PASSES the full audit using `Button{HStack{Text; Spacer;
+Image.accessibilityHidden(true)}}` — its decorative icon is hidden from the accessibility tree, leaving the
+Button's label pure scalable text. **NONE of the 5 S40 runs hid the resources-row icon** (`resourcesRow()`
+at :96–103 uses a plain `Label(...,systemImage:"lifepreserver")`; runs 3/4 used a *visible* HStack icon,
+which is why "partially unsupported" persisted). The untried candidate: apply the iconRow pattern to
+`resourcesRow`. It CANNOT be verified without a Mac/billed run (whether Apple's `.dynamicType` check fires
+at the Button-element or Text-child level is not knowable by reasoning), so it was NOT authored into the
+`.swift` (that would cost a billed run and touch an audited surface unverified); it is RECORDED as the
+"try-first" step in the Mac-session handoff (`critical-path-post-uir.md` settings section). This likely turns
+the Mac session from interactive Inspector debugging into "apply the pattern + confirm."
+
+**R41.2 — the "support the operator, don't invent build work" ruling, made concrete.** With no agent build
+work left, the legitimate agent value is entirely in hardening the operator handoff. Deliverables, all
+docs-only, `[skip ci]`, zero billed runs:
+- **`docs/critical-path-post-uir.md` (NEW)** — the single-page operator playbook: the 11-step launch
+  sequence (owners + time + what-unblocks-what), the consolidated Open-decisions table (OQ-1, OQ-2, R24.9,
+  win-back ratification, ALO-182, Terms/Privacy links, E0.3 verdict, …), the settings Mac-gate handoff (with
+  R41.1), the two "say the word" agent-executable items, and a "what is DONE" floor. This is the operator's
+  new entry point (they just inherited the whole project with the path scattered across 1765 lines).
+- **`docs/copy-pass-checklist.md` (NEW)** — the §3 copy pass as a flat, printable, file-by-file checklist
+  (11 copy files/tables + the rides-along items), each tagged founder-rewrite / clinician-gate / verify /
+  confirm-literal / decision. The §3 copy pass is the longest-lead operator task and gates the golden batch.
+- **`docs/review-notes.md` (FIXED — highest-risk, it pastes to Apple):** removed two "…the user's own
+  iCloud" mentions that implied live cross-device sync (violating the doc's own §4 register ban — CloudKit
+  sync is NOT live, `cloudKitDatabase == .none`); marked §3 item 5 (R30.6) CLOSED with its S31 evidence
+  (`PrivacyManifestTests`, CI 29290910960) instead of "real submission blocker" — it was fixed 10 sessions
+  ago. An operator pasting the pre-fix text would have sent Apple a stale blocker + a false sync claim.
+- **`docs/operator-expected.md` "Runway to launch" (FIXED):** it still listed "the UI Reactor (~6 agent
+  sessions)" as step 1 — rewritten to post-UIR reality (UIR done; the operator critical path is all that
+  remains) with a pointer to the new playbook. (The S41 session header + this session's summary are added in
+  the operator's voice.)
+- **`docs/testflight-tester-guide.md` (FIXED):** the "build worth distributing right now is `8a0c469`"
+  reference was from Session 15 (25 sessions stale) — now "take the newest build in ASC → TestFlight".
+- **Carried-debt staleness cleaned** (in the regenerated resume prompt): the "SafetyResourcesView still
+  carries `.background(.quaternary)` + a phone-number-only Link" debt is FALSE (fixed S36 — line 215 is
+  `.themedCard()`, the Link carries a "Call <name>" label); the widget-typography R34.7 debt is FALSE (done
+  S40). Both removed.
+
+**Two agent-executable items held for operator "say the word"** (each costs ~1 billed macOS run to land+verify,
+so not spent unilaterally per BUDGET REALITY; neither blocks submission): (1) a born-green free-Linux grep
+lint enforcing "no account-creation path" (closes the explicit submission-checklist gap; also bundle the
+monetization-importer lint into the TestFlight job's `needs:`); (2) `ITSAppUsesNonExemptEncryption=false` in
+the Info.plist via project.yml (removes the export-compliance prompt at every TestFlight upload).
+
+**Operator action required THIS session: NONE** — this was an audit/docs pass. But the project as a whole is
+now BLOCKED on the operator critical path; the autonomous build loop has reached its terminal state. See
+`docs/critical-path-post-uir.md` and `docs/operator-expected.md`.
+
+**Budget:** ZERO billed runs (docs-only, `[skip ci]`; docs/** + **.md are `paths-ignore`d regardless). The
+audit workflow + fact-checker ran on the free agent pool.

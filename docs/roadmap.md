@@ -231,7 +231,12 @@ own STEP-0):**
     Dynamic-Type conflict (`Label` truncates; `HStack` clears the clip but "partially unsupported"
     persists) that needs Xcode's Accessibility Inspector. Reverted to green. **After UIR-5c the
     CI-doable UIR work is COMPLETE — only the Mac-gated settings-content audit + the operator critical
-    path remain.**
+    path remain.** **R41.1 (Session 41):** the Mac session should try an UNTRIED candidate FIRST —
+    apply the SAME screen's passing `iconRow` pattern to the resources row: `Button{HStack{
+    Image.accessibilityHidden(true); Text.lineLimit(nil); Spacer}}`. None of the 5 S40 runs hid the
+    resources-row icon; a decorative icon left visible to VoiceOver is why "partially unsupported"
+    persisted (the `iconRow`, which hides its icon, passes the full audit). Recorded (not authored —
+    unverifiable without a Mac/billed run) in `docs/critical-path-post-uir.md`.
 
 **Exit criteria:** all snapshot goldens re-recorded on the new system; the a11y
 audit green with the R28.13 exclusion list shrunk to zero or a documented
