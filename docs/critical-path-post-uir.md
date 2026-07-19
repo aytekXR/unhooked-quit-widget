@@ -73,14 +73,20 @@ The one UIR polish item that could not be finished on CI. **It does not block su
 
 ---
 
-## Two agent-executable items awaiting your "say the word"
+## Two agent-executable items — ✅ BOTH DONE (Session 41, operator-authorized)
 
-Both are safe and low-risk, but each costs ~1 billed macOS CI run to land+verify (any code/config change triggers the full workflow), so they are held for your go-ahead rather than spent unilaterally. Neither blocks submission.
-
-1. **"No account-creation path" grep lint** — a free-Linux CI job that scans `App/Sources` + `Shared/Sources` for `AuthenticationServices`/`ASAuthorizationController`/`SignInWithAppleButton`/`ASWebAuthenticationSession` and fails if any appear. Born-green (no such imports exist). Closes the explicitly-flagged gap in `submission-checklist.md` ("no standing grep gate keeps 'no account creation path' true forever"). Also worth bundling: add the monetization-importer lint to the TestFlight job's `needs:` list so that existing gate is actually blocking.
-2. **`ITSAppUsesNonExemptEncryption = false`** in the generated Info.plist (via `project.yml`) — removes the export-compliance question at every TestFlight upload. Noted as agent-doable in `testflight-tester-guide.md` §3.
-
-Say the word on either and an agent lands it in one run.
+1. **"No account-creation path" grep lint** — ✅ LANDED. A free-Linux CI job
+   (`account-absence-lint` in `.github/workflows/ci.yml`) fails the build if any shipping source
+   (`App/Sources` + `Shared/Sources` + `Widgets/Sources`) imports `AuthenticationServices` or
+   references `ASAuthorizationController`/`ASAuthorizationAppleIDProvider`/`SignInWithAppleButton`/
+   `ASWebAuthenticationSession`. Born-green (proven pass-on-real-bytes + fire-on-mutation locally).
+   Closes the explicitly-flagged `submission-checklist.md` gap. Bundled with it: the pre-existing
+   `monetization-importer-lint` was NOT in the TestFlight gate's `needs:` (so it wasn't blocking the
+   upload) — both lints are now in `needs:`.
+2. **`ITSAppUsesNonExemptEncryption = false`** — ✅ ALREADY PRESENT (not newly added). Verified in the
+   app target's Info.plist (`project.yml` → `Unhooked` → `info.properties`); the export-compliance
+   question is already suppressed. The `testflight-tester-guide.md` §3 "a future session can add it"
+   note was stale and is corrected.
 
 ---
 

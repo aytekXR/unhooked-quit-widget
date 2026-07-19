@@ -14,7 +14,7 @@
 | _superseded_ | (Session 35 close: **UIR-3 DONE in exactly 2 billed runs** — the panic + slip flows (rule-11 SAFETY surfaces) are regenerated on the Theme layer with a PM+Brand+QA pre-code sign-off, copy byte-identical. **The `.dynamicType`/`.textClipped` exclusion list is CLOSED to ZERO** — all 8 `minHeight: 56` floors became growing PADDING (the exact S28 mechanism), `StepScaffold`/`confirmStage` scroll with pinned actions (R33.5), the reasons text moved off a `@ScaledMetric` point size onto `.largeTitle` (R33.12), both audit legs joined the full 7-type set and `safetyAuditTypes` is deleted. **The rule-11 panic/slip legs passed CLEAN on run 1** (the SECOND consecutive clean first-audit — the ledger a prior run wrote is the current run's free coverage). 64 class-A goldens re-recorded + visually verified; total unchanged at 103. STEP-0: did NOT grow the lint scope to panic/slip (would force a shape-changing `.buttonStyle(.plain)` refactor on safety surfaces — the full-set audit legs are the gate instead; deferred to UIR-5). Carried: the reasons-frame AX5 title truncation (R35.6, a UIR-5 AX-axis item) and the `.plain`→ButtonStyle refactor. Superseded S34 header below.) |
 | _superseded_ | (Session 34 close: **UIR-2 DONE in exactly 2 billed runs** — the 2 planned, contingency UNUSED, ZERO burned. The **real `StreakDashboardCard` + `StreakRing`** are built on the Theme layer — the `RootPlaceholderView` "walking skeleton" that had stood in for the dashboard since Session 18 is RETIRED, replaced by one card per active quit (streak-day hero, flame + momentum figure, the momentum ring, money saved, next-milestone bar). **Copy is byte-identical** (R34.2, copyBlockerFound=FALSE): every string is audited (`"saved"`/`"next milestone"`, pinned byte-identical to `StreakWidgetStyle`) or pure ADR-11 data; the §3-blocked polish strings ship empty-guarded. **The dashboard is AUDITED FOR THE FIRST TIME and its first audit passed CLEAN** (R34.3) — the first UIR surface to fire nothing, because R33.12 was already known and the card was built to it from the first byte (the free layout lint pre-empted every `.dynamicType` idiom; `children:.contain` + 4.5-clean tokens pre-empted the rest). **Widgets were DEFERRED at STEP-0** (R34.7): the 5 families are on-spec bar two minor brandkit-§3 typography defects; `StreakWidgetViews.swift` was UNTOUCHED so the 29 widget goldens stay byte-stable and no golden churn entered the budget. 8 dashboard goldens minted (95 → 103); the a11y exclusion list did not shrink this session (panic + slip remain, UIR-3's job).) |
 | Phase | **Phase 2.5 (UI Reactor) COMPLETE for everything an agent can do; the project is on the OPERATOR CRITICAL PATH.** UIR-0…4 DONE; UIR-5a DONE (8 audited surfaces); UIR-5c DONE (widget typography R34.7, reasons AX5 R35.6, StreakRing motion, golden-batch prep). ONE UIR item is MAC-GATED (the settings-content audit — S40 confirmed after 5 CI runs). **Session 41 verified the whole build is genuinely green and did a docs-only operator-handoff-hardening pass — there is no remaining agent build/feature session to run.** What remains is all operator-owned (G0 rename, §3 copy pass + the golden batch, §8 keys + sandbox, device rows + E0.3 latency + the device eyeballs, external beta, submission) — sequenced in `docs/critical-path-post-uir.md`. All lanes green; 107 goldens stable. |
-| Next session objective | **There is NO agent build work to do — the project is OPERATOR-GATED (verified by a 5-agent audit + fact-check in S41).** If a future agent session opens, its job is NOT to invent build work. It is: (1) confirm the build is still green (`git fetch`; `gh run list`; the operator commits mid-session); (2) check whether the operator has UNBLOCKED anything since — e.g. finished the §3 copy pass (→ mint the final golden batch per `docs/golden-batch.md`), pasted a §8 key, said "go" on either "say the word" item (the account-absence lint / the encryption plist key), or made an open decision that needs an agent re-pin (OQ-1, OQ-2); act ONLY on genuinely-unblocked items; (3) otherwise, report that the project remains blocked on the operator critical path and stop. **Do NOT re-attempt the settings-content audit on CI** (proven unproductive on the tail); it is a Mac session that tries the R41.1 `.accessibilityHidden` candidate FIRST. Read `docs/critical-path-post-uir.md` before anything. |
+| Next session objective | **There is NO agent build work to do — the project is OPERATOR-GATED (verified by a 5-agent audit + fact-check in S41).** If a future agent session opens, its job is NOT to invent build work. It is: (1) confirm the build is still green (`git fetch`; `gh run list`; the operator commits mid-session); (2) check whether the operator has UNBLOCKED anything since — e.g. finished the §3 copy pass (→ mint the final golden batch per `docs/golden-batch.md`), pasted a §8 key, or made an open decision that needs an agent re-pin (OQ-1, OQ-2); act ONLY on genuinely-unblocked items; (3) otherwise, report that the project remains blocked on the operator critical path and stop. **Do NOT re-attempt the settings-content audit on CI** (proven unproductive on the tail); it is a Mac session that tries the R41.1 `.accessibilityHidden` candidate FIRST. Read `docs/critical-path-post-uir.md` before anything. |
 
 > **What changed in Session 39 (UIR-5b attempt 1):** the **settings audit leg stays DEFERRED**, now
 > diagnosed to its true depth and reverted to the UIR-5a green state (byte-identical). The finding is
@@ -221,9 +221,9 @@ session opens, do NOT invent build work.** The objective is:
    - §3 copy pass finished → mint the FINAL golden batch (`docs/golden-batch.md`; NEW goldens are
      red→adopt-from-artifact→green, VISUALLY VERIFIED — never born-green).
    - A §8 key pasted → the wake-up is the operator's; an agent only acts if a specific follow-up is asked.
-   - Operator says "go" on a "say the word" item → land the account-absence grep lint (born-green, free
-     Linux) and/or `ITSAppUsesNonExemptEncryption=false` in project.yml.
    - An open decision resolved (OQ-1 / OQ-2) → the one agent re-pin run it names.
+   - _(The two S41 "say the word" enhancements are already DONE: the `account-absence-lint` landed;
+     `ITSAppUsesNonExemptEncryption=false` was already present. Nothing pending there.)_
 3. **Otherwise:** report that the project remains blocked on the operator critical path and stop. Do NOT
    manufacture make-work or re-attempt the settings-content audit on CI (proven unproductive on the tail).
 4. **The settings-content audit is a MAC session** — try the R41.1 `.accessibilityHidden(true)` candidate
@@ -332,7 +332,8 @@ external beta, submission) — see the operator-owned blockers below.
 > operator/device/mac/future-gated. 8 surfaces are a11y-audited; all lanes green; 107 goldens stable;
 > TestFlight live.
 > **READ FIRST: `docs/critical-path-post-uir.md`** — the operator's sequenced launch playbook (the 11
-> steps, the Open-decisions table, the settings Mac-gate handoff, the two "say the word" agent items).
+> steps, the Open-decisions table, the settings Mac-gate handoff). (The two S41 "say the word" agent
+> items are DONE: the `account-absence-lint` landed; `ITSAppUsesNonExemptEncryption` was already present.)
 > **DO NOT invent build work. DO NOT re-attempt the settings-content audit on CI** (S40 proved the tail
 > unproductive; it is a Mac session — try the R41.1 `.accessibilityHidden(true)` candidate on
 > `DiscreetSettingsView.resourcesRow` FIRST, modeled on the passing `iconRow` at `:203`).
@@ -341,11 +342,9 @@ external beta, submission) — see the operator-owned blockers below.
 > operator has unblocked. `which uipro` if any (now-unlikely) UI work is requested.
 > **Your objective is conditional:** act ONLY on genuinely-unblocked operator triggers — (a) §3 copy
 > pass finished → mint the FINAL golden batch (`docs/golden-batch.md`; NEW goldens are
-> red→adopt-from-artifact→green, VISUALLY VERIFY each PNG, NEVER born-green); (b) operator says "go" on
-> a "say the word" item → the account-absence grep lint (born-green, free Linux) or
-> `ITSAppUsesNonExemptEncryption=false` in project.yml; (c) an open decision resolved (OQ-1/OQ-2) → the
-> one agent re-pin run it names. **Otherwise: report the project is blocked on the operator critical
-> path and stop — do not manufacture make-work.**
+> red→adopt-from-artifact→green, VISUALLY VERIFY each PNG, NEVER born-green); (b) an open decision
+> resolved (OQ-1/OQ-2) → the one agent re-pin run it names. **Otherwise: report the project is blocked
+> on the operator critical path and stop — do not manufacture make-work.**
 > **Standing gates (still in force for ANY code touched):** CodeGraph query-first + `codegraph sync` at
 > close; `swiftc -parse` every touched file + neighbor import/annotation coverage + the deprecation gate
 > + per-member platform availability; the FIVE burn gates (incl. `try?`-flatten); UIKit app-only APIs

@@ -250,6 +250,38 @@ jobs:
           fi
           echo "monetization importer check passed"
 
+  # ── Submission lint: no account-creation path (Apple-account-free by design) ──
+  # submission-checklist.md (Privacy §, surfaced S30) flagged this as a candidate
+  # future lint: "No account creation path exists anywhere ... no standing grep gate
+  # keeps this true forever." review-notes §1 promises the reviewer the app "requires
+  # no account"; restore is account-free via StoreKit (PaywallModelTests). This gate
+  # keeps it true forever: it fails the build if any shipping source imports
+  # AuthenticationServices or references the Sign-in-with-Apple / web-auth-session APIs.
+  # It matches IMPORT lines and API TYPE identifiers only — never the 3.1.1 "Apple
+  # Account" billing STRINGS (those are copy, proven not to match). The attribute-
+  # prefixed-import shape (standing rule #3d / R25.10, the monetization-lint anchor) is
+  # admitted so `@preconcurrency import AuthenticationServices` cannot dodge the ^import
+  # anchor. Scope = the three shipping source trees; LocalAuthentication (biometric
+  # device unlock) is deliberately NOT banned — it is not account creation. Born-green:
+  # the shipping tree has zero matches today (S30 code-absence; S41 re-verified).
+  account-absence-lint:
+    name: "Submission lint · no account-creation path (Apple-account-free)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: grep gate
+        run: |
+          set -euo pipefail
+          violations=$(grep -rlE \
+            '^(@[A-Za-z_]+(\([A-Za-z_]+\))? )*import AuthenticationServices|ASAuthorizationController|ASAuthorizationAppleIDProvider|SignInWithAppleButton|ASWebAuthenticationSession' \
+            --include='*.swift' App/Sources Shared/Sources Widgets/Sources 2>/dev/null || true)
+          if [ -n "$violations" ]; then
+            echo "::error::account/auth API in shipping source — the app must have NO account-creation path (submission-checklist Privacy §; review-notes §1 'requires no account'):"
+            echo "$violations"
+            exit 1
+          fi
+          echo "account-absence check passed (no auth/account APIs)"
+
   app:
     name: "App lanes · build + unit + snapshot + UI smoke"
     runs-on: macos-26
@@ -398,7 +430,7 @@ jobs:
 
   testflight:
     name: TestFlight upload (fastlane beta)
-    needs: [streakengine-release-gate, package-units, swiftdata-importer-lint, app, testflight-gate]
+    needs: [streakengine-release-gate, package-units, swiftdata-importer-lint, monetization-importer-lint, account-absence-lint, app, testflight-gate]
     if: needs.testflight-gate.outputs.enabled == 'true'
     runs-on: macos-26
     timeout-minutes: 45

@@ -79,15 +79,16 @@ builds of the same version usually clear instantly).
 - **Expire the stray build**: TestFlight → iOS Builds → the bundle-version-"1"
   build → **Expire Build**. Keeps the picker clean and stops anyone installing
   a pre-panic-fix skeleton.
-- **Export compliance**: if App Store Connect asks "Does your app use
-  encryption?" when you distribute a build — Ballast uses only standard
-  HTTPS/OS-provided encryption (and today makes zero network calls; the
-  TelemetryDeck transport is dormant), so the standard **exempt** answer
-  applies: Yes → "only standard encryption algorithms provided by Apple's
-  operating systems" → exempt, no documentation required. Optional: a future
-  agent session can add `ITSAppUsesNonExemptEncryption = false` to the
-  generated Info.plist via `project.yml` so the question never appears again —
-  say the word and it goes into a session's scope.
+- **Export compliance**: ✅ **already handled — the question should not appear.**
+  `ITSAppUsesNonExemptEncryption = false` is declared in the app target's
+  Info.plist (`project.yml` → `Unhooked` → `info.properties`), so App Store
+  Connect treats the app as exempt automatically. (Ballast uses only standard
+  HTTPS/OS-provided encryption and today makes zero network calls — the
+  TelemetryDeck transport is dormant — so the exempt declaration is correct.)
+  If ASC ever does ask, the answer is Yes → "only standard encryption
+  algorithms provided by Apple's operating systems" → exempt, no documentation
+  required. (Session 41: verified the key is present; the earlier "a future
+  session can add it" note is superseded — it was already there.)
 
 ## Quick answers
 

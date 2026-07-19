@@ -5576,3 +5576,33 @@ now BLOCKED on the operator critical path; the autonomous build loop has reached
 
 **Budget:** ZERO billed runs (docs-only, `[skip ci]`; docs/** + **.md are `paths-ignore`d regardless). The
 audit workflow + fact-checker ran on the free agent pool.
+
+### Session 41 addendum — the two "say the word" enhancements (operator-authorized, 1 billed run)
+
+The operator authorized both held enhancements; both are now resolved. **Verify-before-act paid off: one of
+the two was already done.**
+
+- **Enhancement 1 — the account-absence lint: LANDED.** New free-Linux CI job `account-absence-lint` in
+  `.github/workflows/ci.yml` — fails the build if any shipping source (`App/Sources` + `Shared/Sources` +
+  `Widgets/Sources`) imports `AuthenticationServices` or references `ASAuthorizationController`/
+  `ASAuthorizationAppleIDProvider`/`SignInWithAppleButton`/`ASWebAuthenticationSession`. It uses the
+  monetization-lint's attribute-prefixed anchor (`@preconcurrency import …` can't dodge it) and matches
+  IMPORT lines + API TYPE identifiers only — NEVER the 3.1.1 "Apple Account" billing STRINGS (proven: the
+  regex was tested locally to fire on all 5 violation forms AND to skip the "Apple Account" copy lines and
+  benign imports). **Born-green** — the entire evidence value was reproduced free on Linux (pass-on-
+  real-bytes: zero matches on the shipping tree; fire-on-mutation: caught all synthetic violations), so it
+  landed in the green commit, not a designed-red one. Closes the S30-flagged `submission-checklist.md` gap.
+  **Bundled fix:** the pre-existing `monetization-importer-lint` was NOT in the `testflight` job's `needs:`
+  (so a RevenueCat/Superwall import leak would not have blocked the TestFlight upload) — both lints are now
+  in `needs:`. YAML validated; the job/needs graph resolves; the exact job command passes locally.
+- **Enhancement 2 — `ITSAppUsesNonExemptEncryption=false`: ALREADY PRESENT (no change).** Reading
+  `project.yml` before editing found the key already declared in the app target's Info.plist
+  (`Unhooked` → `info.properties`, line 199). The export-compliance prompt is already suppressed. So no
+  code change — instead the stale `testflight-tester-guide.md` §3 note ("a future session can add it") and
+  the `critical-path-post-uir.md` "say the word" item were corrected to "already done."
+
+**Budget:** exactly 1 billed run — the `ci.yml` change triggers the full workflow (the free lints + the
+billed macOS app lane, which re-verifies the unchanged app). NOT `[skip ci]` (the run confirms the new lint
+is green on CI and the app lane still passes with no source change). The account-absence lint's own evidence
+was already complete free; the run is confirmation. **This is the last authorized agent action** — after it,
+the project is again fully blocked on the operator critical path (see `docs/critical-path-post-uir.md`).
