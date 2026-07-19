@@ -20,7 +20,7 @@ Snapshot (`UnhookedSnapshotTests`), UI smoke (`UnhookedUITests`).
 
 | §7 box | Legs |
 |---|---|
-| Quiz 12–14 steps on device; personalization flows to summary/widgets/panic | **[M]** UI smoke `QuizFunnelUITests.test_quizFunnel_freshInstall_gateToSummary_toPaywallMount` (scenario-29) + Unit `QuizSummaryPersistenceTests`/`SummaryDerivationTests`/`QuizCompletionTests` · **[O]** the on-device perceptual walk — operator-expected §2/§7 |
+| Quiz 11–13 steps on device (13 config slots; 2 conditional — customName when habit=custom, allowance when goal=reduce); personalization flows to summary/widgets/panic | **[M]** UI smoke `QuizFunnelUITests.test_quizFunnel_freshInstall_gateToSummary_toPaywallMount` (scenario-29) + Unit `QuizSummaryPersistenceTests`/`SummaryDerivationTests`/`QuizCompletionTests` · **[O]** the on-device perceptual walk — operator-expected §2/§7 |
 | Panic lock-screen tap → intervention **<2.0s cold**, 10/10, oldest device | **[F device — permanently CI-uncovered]** `PanicLatencyDeviceTests` XCTSkips on simulator by design; E0.3 is UNMEASURED (`docs/spike-panic-latency.md` verdict pending) — operator-expected §1. Never machine-green |
 | Streak integrity matrix (clock back/fwd, tz cross, DST, reboot) never inflates | **[M]** `streakengine-release-gate` (the E1.2 edge suite: clock-backward freeze, tz travel, monotonicity property) + Unit reboot-jump/merge pins · **[O]** the physical reboot leg — §7 |
 | Slip flow: 2 taps, archive-to-best, momentum %, 10-min undo, zero-shame copy | **[M]** Unit `SlipFlowModelTests`/`SlipUndoLifecycleTests` + UI smoke slip leg + `SlipLexiconTests`/`SlipCopyTests` · **[O]** the human copy signature — §3 (E4.2 row) |

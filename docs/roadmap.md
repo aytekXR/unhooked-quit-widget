@@ -231,12 +231,15 @@ own STEP-0):**
     Dynamic-Type conflict (`Label` truncates; `HStack` clears the clip but "partially unsupported"
     persists) that needs Xcode's Accessibility Inspector. Reverted to green. **After UIR-5c the
     CI-doable UIR work is COMPLETE — only the Mac-gated settings-content audit + the operator critical
-    path remain.** **R41.1 (Session 41):** the Mac session should try an UNTRIED candidate FIRST —
-    apply the SAME screen's passing `iconRow` pattern to the resources row: `Button{HStack{
-    Image.accessibilityHidden(true); Text.lineLimit(nil); Spacer}}`. None of the 5 S40 runs hid the
-    resources-row icon; a decorative icon left visible to VoiceOver is why "partially unsupported"
-    persisted (the `iconRow`, which hides its icon, passes the full audit). Recorded (not authored —
-    unverifiable without a Mac/billed run) in `docs/critical-path-post-uir.md`.
+    path remain.** **R41.1 CORRECTED (Session 42 audit):** the S41 "untried candidate" note was
+    factually wrong — S40 **runs 3 (`fc2b68a`) and 4 (`bfe36ee`) already hid the resources-row icon**
+    with `.accessibilityHidden(true)`, and run 4 (hidden icon + full-width `.fixedSize` scalable Text)
+    IS the R41.1 shape; it FAILED with "partially unsupported." Hiding the icon is a known-failed shape,
+    NOT the fix — the conflict is structural (Button + wrapping title), which is why it needs the
+    Accessibility Inspector, not another CI guess. The one structurally-untried variant (the EXACT
+    `iconRow` ordering: Text leading with NO `.fixedSize`, `Spacer()`, TRAILING hidden icon) plus two
+    Inspector fallbacks are in `docs/critical-path-post-uir.md`. Do NOT burn a CI run re-trying the
+    hidden-icon shape.
 
 **Exit criteria:** all snapshot goldens re-recorded on the new system; the a11y
 audit green with the R28.13 exclusion list shrunk to zero or a documented

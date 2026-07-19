@@ -16,9 +16,12 @@ device, 10/10 attempts").
 
 ## Harness (shipped in this repo)
 
-1. **Signpost** — subsystem `dev.placeholder.quitwidget`, category `PanicLaunch`,
-   interval `PanicColdLaunch` (begins in `UnhookedApp.init`, ends on
-   `PanicPlaceholderView.onAppear`). Visible in Instruments' os_signpost lane.
+1. **Signpost** — subsystem `com.beyondkaira.ballast` (`AppIdentifiers.loggingSubsystem`;
+   the former placeholder `dev.placeholder.quitwidget` was retired at Gate G0, 2026-07-08,
+   and was never registered — filtering Instruments by it finds nothing), category
+   `PanicLaunch`, interval `PanicColdLaunch` (begins in `UnhookedApp.init` via
+   `PanicLaunchTrace.begin()`, ends on `PanicPlaceholderView.onAppear`). Visible in
+   Instruments' os_signpost lane.
 2. **Automated proxy** — `PanicLatencyDeviceTests.test_panicColdLaunch_signpost_under2000ms`
    (UI-test target): 10 forced-panic cold launches, prints all samples + p90,
    asserts p90 < 2000ms. Skips on simulator by design (simulators lie about cold
@@ -30,11 +33,12 @@ device, 10/10 attempts").
 ## Operator runbook
 
 1. On a Mac with Xcode 26: `brew install xcodegen && xcodegen generate`.
-2. Signing: select your personal/dev team on the app + widget targets (Xcode
-   automatic signing). The placeholder bundle/App Group IDs are fine for local
-   device installs and are **never** registered in App Store Connect (Gate G0).
-   If the portal rejects the placeholder App Group, suffix it with your team's
-   initials — it is throwaway either way.
+2. Signing: select your Apple Developer team on the app + widget targets (Xcode
+   automatic signing). The bundle/App Group IDs are now the registered
+   `com.beyondkaira` identifiers (Gate G0 cleared 2026-07-08) — no longer the
+   retired `dev.placeholder.quitwidget` throwaways. For a quick install on a
+   *personal* team you may instead let Xcode auto-manage a bundle ID; the latency
+   numbers are identity-independent either way.
 3. Run to a physical iPhone 15-class device once so the app + widget install.
 4. Add the panic control (Control Center / lock screen) and the accessoryRectangular
    "Streak" widget to the lock screen. Verify both render and the button exists

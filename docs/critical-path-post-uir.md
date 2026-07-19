@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Document | Post-UIR critical path (created Session 41, 2026-07-19) |
+| Document | Post-UIR critical path (created Session 41, 2026-07-19; **synced Session 42** — corrected the settings-audit R41.1 note after an audit found its premise was factually wrong; the 11-step path + open-decisions table below are unchanged) |
 | Status | LIVE — the single-page "what do I do next, in what order" for the operator. Everything here is human/operator/device/legal work; there is no remaining agent build work (see the bottom section). |
 | Companion docs | `operator-expected.md` (the detailed live checklist — this doc sequences it), `copy-pass-checklist.md` (the file-by-file §3 copy pass), `golden-batch.md` (the final screenshot re-record), `submission-checklist.md` (MVP §7 wired to evidence), `review-notes.md` (paste-ready App Review notes) |
 | Rule for agents | This doc is a synthesis of existing docs — keep it in sync when the underlying items change; never let a step here contradict `operator-expected.md`. |
@@ -66,10 +66,11 @@ The one UIR polish item that could not be finished on CI. **It does not block su
 
 1. **Title** — fixed: a free-standing `.largeTitle` `Text` ABOVE the List (never a nav-bar title or List row, both of which clip at the largest text sizes). *Proven.*
 2. **Long section footer** (haptic-pacer caption) — fixed: moved OUT of the List `footer:` slot (whose height iOS caps) into a self-sizing content row. *Proven.*
-3. **The "Support & resources" row** — a Button whose icon+title must co-scale at accessibility sizes. `Label(...)` truncates; an `HStack` with a *visible* icon reads "Dynamic Type partially unsupported"; a plain `Text` passes but isn't a Button.
-   - **Untried candidate to try FIRST (Session 41 audit finding):** apply the icon-picker's *passing* pattern — `Button { … } label: { HStack { Image(systemName: "lifepreserver").accessibilityHidden(true); Text(copy.resourcesRowLabel).lineLimit(nil); Spacer() }.contentShape(Rectangle()) }`. The `iconRow` in this same screen (`DiscreetSettingsView.swift:188`, the `.accessibilityHidden(true)` at :203) passes the full audit precisely because its decorative image is hidden from the accessibility tree, leaving the Button's label pure scalable text. **None of the 5 S40 runs hid the resources-row icon.** Verify with the Accessibility Inspector (or one confirm CI run) before landing.
-   - **Land the whole bundle together:** the two proven fixes + the resources-row fix + re-add the `UITEST_SETTINGS` mount (follow the `UITEST_RESOURCES`/`UITEST_DASHBOARD` precedent in `PostGateRootView`) + re-add the settings audit leg in `A11yAuditUITests.swift` (gate on `settings.resources.row`, R36.4) + record/adopt the 2 settings goldens. Budget: ~2 CI runs.
-   - **Do not** re-attempt this on CI blindly — the S40 tail proved CI guessing unproductive; a Mac with the Accessibility Inspector answers it in minutes.
+3. **The "Support & resources" row** — a Button whose icon+title must co-scale at accessibility sizes. Across the 5 S40 runs the failure ping-ponged: `Label(...)` **truncates** (`.textClipped`, even with `.lineLimit(nil)` + `.fixedSize` — runs 1, 5); an `HStack{Image;Text}` clears the clip but reads **"Dynamic Type partially unsupported"** (runs 3, 4); a plain `Text` passes both but isn't a Button. This is a genuine Button + wrapping-title Dynamic-Type conflict that CI can only report pass/fail on — it needs Xcode's Accessibility Inspector to pin the exact failing content-size interactively.
+   - **CORRECTION (Session 42 audit — supersedes the S41 "R41.1" note):** the S41 claim that a hidden-icon candidate was *untried* is **factually wrong.** S40 **run 3 (`fc2b68a`) and run 4 (`bfe36ee`) both hid the resources-row icon** with `.accessibilityHidden(true)`, and run 4 was essentially the exact R41.1 shape (hidden icon + full-width `.fixedSize` scalable `Text`) — it **failed** with "Dynamic Type partially unsupported." So "hide the icon like `iconRow`" is a **known-failed** shape, not the fix. Do NOT burn a CI run re-trying it.
+   - **The ONE structurally-untried variant (try in the Inspector, not on CI):** the *exact* `iconRow` ordering — `Button { … } label: { HStack { Text(copy.resourcesRowLabel); Spacer(); Image(systemName: "lifepreserver").accessibilityHidden(true) }.contentShape(Rectangle()) }` — i.e. **Text leading with NO `.fixedSize`**, `Spacer()`, icon **trailing** and hidden. The difference from run 4 is icon-position + dropping `.fixedSize`. It may still reintroduce `.textClipped` (the resources label is longer than the short "Default/Calendar/Timer" iconRow labels), which is exactly why it needs the Inspector, not a blind CI run. Two further Inspector candidates if it fails: (a) `Button` wrapping a **plain `Text`** with an explicit `.accessibilityLabel(copy.resourcesRowLabel)`; (b) `.accessibilityElement(children: .ignore).accessibilityLabel(...)` on the whole Button.
+   - **Land the whole bundle together:** the two proven fixes (title, footer) + whichever resources-row shape the Inspector confirms + re-add the `UITEST_SETTINGS` mount (follow the `UITEST_RESOURCES`/`UITEST_DASHBOARD` precedent in `PostGateRootView`) + re-add the settings audit leg in `A11yAuditUITests.swift` (gate on `settings.resources.row`, R36.4) + record/adopt the 2 settings goldens. Budget: ~2 CI runs (after the Inspector settles the shape). **Note the visual delta needs your eyeball:** the title moves from a nav-bar large title to a free-standing one and the haptic-pacer caption moves out of its footer slot — the screen looks slightly different, so glance at it before adopting the 2 new goldens.
+   - **Do not** re-attempt this on CI blindly — the S40 tail (and the Session 42 confirmation) proved CI guessing unproductive; a Mac with the Accessibility Inspector answers it in minutes.
 
 ---
 
@@ -87,6 +88,14 @@ The one UIR polish item that could not be finished on CI. **It does not block su
    app target's Info.plist (`project.yml` → `Unhooked` → `info.properties`); the export-compliance
    question is already suppressed. The `testflight-tester-guide.md` §3 "a future session can add it"
    note was stale and is corrected.
+
+**Session 42 follow-on (docs + CI hygiene, zero billed runs):** a 6-agent re-audit confirmed no build work
+remains and fixed the agent-doable gaps it found — the stale signpost subsystem in `spike-panic-latency.md`
+(your E0.3 device runbook now names the real `com.beyondkaira.ballast`), stale counts on the submission
+checklist + operator-expected, the R41.1 settings note (corrected above — the "untried" candidate was
+already tried and failed at S40), and two CI-plumbing hardenings (`slack-notify` now depends on the three
+lint jobs so a dormant-TestFlight state can't send a false-green; `account-absence-lint` gained a
+corpus-non-vacuity floor). None of this changes the sequenced path or the open decisions below.
 
 ---
 

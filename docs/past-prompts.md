@@ -5606,3 +5606,85 @@ billed macOS app lane, which re-verifies the unchanged app). NOT `[skip ci]` (th
 is green on CI and the app lane still passes with no source change). The account-absence lint's own evidence
 was already complete free; the run is confirmation. **This is the last authorized agent action** — after it,
 the project is again fully blocked on the operator critical path (see `docs/critical-path-post-uir.md`).
+
+## Session 42 — re-verify the completion claim + operator-handoff hardening (docs + CI hygiene, ZERO billed runs) (2026-07-19)
+
+**Goal (self-determined at open):** the resume prompt handed off a project claimed terminal/operator-gated.
+The autonomous-loop mandate is to continue until the roadmap is complete OR blocked by a human dependency —
+so this session **independently re-verified** (did not parrot S41) that no agent-doable work remains, did
+the agent-doable work the verification surfaced, and re-declared the human-dependency boundary with fresh
+evidence. **No build/feature work was invented; no CI run was spent.**
+
+**Session-open checks:** `git fetch` — local main == origin/main at 9c5c12a (no operator commits since S41);
+`gh run list` — last code run 29679913441 SUCCESS (all 10 jobs). Free lanes RE-RAN locally: StreakEngine
+84 / WidgetToolkit 21 / PaywallKit 16 = **121 pass, 0 fail**. `uipro` present (nvm node v20.20.2).
+
+**Method:** a 6-agent adversarial audit (wf_b6642546-5ff) — 5 independent probes (CI-reality, deferred-items,
+code-health, docs-integrity, settings-audit GO/NO-GO) + 1 completeness critic *tasked to REFUTE* "blocked on
+operator." Every finding was then verified against actual source before any edit (the signpost ID vs
+`AppIdentifiers.swift`, the quiz count vs `quizConfig.json`, the golden count via `ls`, the milestone count
+via JSON parse, the S40 diffs via `git show`).
+
+**Verdict — the "no agent BUILD/FEATURE work remains" claim HOLDS**, but the critic *refuted* the broader
+"nothing agent-doable" claim on **documentation-integrity + CI-hygiene** grounds (S41's completion audit did
+not scan `docs/` for stale technical identifiers introduced by the Gate-G0 rename). Both the deferred-items
+and settings probes independently confirmed all *code* items are correctly operator/device/mac/architect-gated.
+
+**Agent-doable work DONE this session (all verified against source first):**
+- **`spike-panic-latency.md:19` — MAJOR, launch-advancing:** the E0.3 device runbook pointed Instruments at
+  signpost subsystem `dev.placeholder.quitwidget` — a string `AppIdentifiers.swift:11` records as "never
+  registered." The real signpost fires under `com.beyondkaira.ballast` (`OSSignposter(subsystem:
+  AppIdentifiers.loggingSubsystem…)`, `UnhookedApp.swift:158`). An operator filtering by the old string finds
+  ZERO intervals → concludes the harness is broken → the E0.3 latency measurement (which gates the "<2s"
+  marketing copy) fails for a doc reason. Fixed the subsystem + the stale step-2 "placeholder IDs never
+  registered (Gate G0)" text (Gate G0 was *cleared*; the real IDs ARE registered).
+- **`submission-checklist.md:23`** — the §7 device-walk quiz count "12–14 steps" → **"11–13"** (`quizConfig.json`
+  = 13 slots, 2 conditional: customName@habit=custom, allowance@goal=reduce; visible range 11–13, never 14).
+  Left the 6 *spec* docs (prd/roadmap/mvp/architecture/feasibility/implementation-plan) unchanged — they
+  describe the original "~12–14 screens" spec, which 11–13 validly realizes; only the operator's active
+  checklist was wrong.
+- **`operator-expected.md`** — two stale forward-looking counts in the S21 text block: widget goldens
+  "15 recorded" → **29** (S22 added the 14 discreet variants; matters because the line predicts a re-record
+  batch size for the operator's copy pass) and milestones "~40" → **43** (JSON-verified). Left the S21/S22
+  *historical* run-ledger "15 goldens" refs (accurate as of that run).
+- **R41.1 false-premise CORRECTED (`critical-path-post-uir.md` + `roadmap.md`):** S41's "untried candidate to
+  try FIRST" note claimed "None of the 5 S40 runs hid the resources-row icon." That is **factually wrong** —
+  S40 runs 3 (`fc2b68a`) and 4 (`bfe36ee`) both hid it with `.accessibilityHidden(true)`, and run 4 (hidden
+  icon + full-width `.fixedSize` scalable Text) IS the R41.1 shape; it FAILED with "partially unsupported."
+  Left uncorrected, a Mac session would burn a run re-trying a known-failed shape. Rewrote the guidance: the
+  conflict is structural (Button + wrapping title → needs the Accessibility Inspector); the ONE
+  structurally-untried variant is the *exact* `iconRow` ordering (Text leading, NO `.fixedSize`, `Spacer()`,
+  TRAILING hidden icon) + two Inspector fallbacks. Verdict re-affirmed: **PARK_MAC** (a CI run is not a
+  diagnostic tool for this failure class; and the fix visibly alters an operator-approved screen — needs an
+  eyeball, not just a green run).
+- **CI hygiene (`ci.yml`, both agent-doable, locally validated, `[skip ci]`):** (1) `slack-notify` was missing
+  the three lint jobs from its `needs:` — when TestFlight is dormant (ASC secrets expired → `testflight` is
+  *skipped*, not *failed*), a lint failure would NOT cascade and Slack would report a **false green** while an
+  account/monetization-import violation shipped; added all three. (2) `account-absence-lint` had no corpus
+  non-vacuity floor (`2>/dev/null || true` → a vacuous pass if the 3 source dirs are renamed); added a
+  `find … | wc -l` floor of 100 (currently 119 swift files), mirroring the `scannedFiles` guards the Swift
+  lints already carry.
+
+**Validation of the `ci.yml` edits (no actionlint on box):** `yaml.safe_load` parses; a custom structural
+check confirms every job has `runs-on` + `steps`, every `needs:` target is defined, and the graph is
+acyclic; the account-absence bash guard was RUN against the real tree (exit 0, 119 files) and simulated
+collapses (any dir renamed → exit 1, fail-closed). **A real bug was caught in review:** the first slack-notify
+edit accidentally dropped `runs-on: ubuntu-latest` (YAML still parsed — `safe_load` doesn't know GH-Actions
+requires it); the diff review caught it, and the validator was strengthened to check `runs-on`/`steps` on
+every job. `[skip ci]` chosen deliberately: the changes are ubuntu-lane + additive + strongly locally-tested,
+and a full run would wastefully spin up the macOS lanes to validate two YAML edits — GitHub validates the
+workflow on the next code push.
+
+**Deferred as ready-to-ride (agent-doable but each costs a billed run for NON-launch-advancing value — a
+future session already spending a run in that area should batch them):** (a) `StreakWidgetStyle.swift:42–43`
+comment "15" → "29" (a source-file comment; a standalone push would bill a full run); (b) 2 repository-tier
+integration tests for `winbackEligible`/`paywallReentry` (the pure `WinbackPolicy` is thoroughly pinned; only
+the `FetchDescriptor<AppSettings>` store-read shim is uncovered — seed stamp@epoch +7d ⇒ eligible, +6d ⇒ not,
+via the existing Harness). **Left untouched (intentional carried debt):** brandkit §2 pre-correction hexes
+(tokens-v2 is the authoritative record); R29.4 startIfNeeded no-retry (needs a recovery-flow architecture
+decision — §9-owner-gated, not agent-fixable).
+
+**Budget:** ZERO billed runs (docs + `[skip ci]` ci.yml hygiene). **Operator action required: NONE.** The
+project remains fully blocked on the operator critical path (`docs/critical-path-post-uir.md`) — the genuine
+human-dependency boundary. There is no further standalone agent build/feature/CI session to run; the two
+ready-to-ride items above are for a future run that's already billed in their area.

@@ -272,6 +272,15 @@ jobs:
       - name: grep gate
         run: |
           set -euo pipefail
+          # Corpus non-vacuity floor (mirrors ThemeSourceLintTests/OnboardingLayoutLintTests
+          # scannedFiles guards): the grep below uses `2>/dev/null || true`, so if the three
+          # shipping-source dirs were renamed/removed it would pass VACUOUSLY. Refuse a silent
+          # false-green on this Apple-compliance gate (currently 119 swift files; floor 100).
+          scanned=$(find App/Sources Shared/Sources Widgets/Sources -name '*.swift' 2>/dev/null | wc -l)
+          if [ "$scanned" -lt 100 ]; then
+            echo "::error::account-absence-lint scanned only $scanned swift files (floor 100) — App/Sources, Shared/Sources or Widgets/Sources missing/renamed? Refusing to pass vacuously."
+            exit 1
+          fi
           violations=$(grep -rlE \
             '^(@[A-Za-z_]+(\([A-Za-z_]+\))? )*import AuthenticationServices|ASAuthorizationController|ASAuthorizationAppleIDProvider|SignInWithAppleButton|ASWebAuthenticationSession' \
             --include='*.swift' App/Sources Shared/Sources Widgets/Sources 2>/dev/null || true)
@@ -280,7 +289,7 @@ jobs:
             echo "$violations"
             exit 1
           fi
-          echo "account-absence check passed (no auth/account APIs)"
+          echo "account-absence check passed (no auth/account APIs; $scanned swift files scanned)"
 
   app:
     name: "App lanes · build + unit + snapshot + UI smoke"
@@ -460,7 +469,11 @@ jobs:
   slack-notify:
     name: Slack notification
     runs-on: ubuntu-latest
-    needs: [streakengine-release-gate, package-units, app, testflight-gate, testflight]
+    # ALL gating jobs are in needs so a lint failure is reflected in the notification even
+    # when TestFlight is dormant (no ASC secrets → testflight is `skipped`, not `failure`, so a
+    # lint failure would NOT cascade through it). Without the three lints here, that state could
+    # send a false-green Slack success while an account/monetization-import violation shipped.
+    needs: [streakengine-release-gate, package-units, swiftdata-importer-lint, monetization-importer-lint, account-absence-lint, app, testflight-gate, testflight]
     if: always()
     steps:
       - name: Notify Slack on success
