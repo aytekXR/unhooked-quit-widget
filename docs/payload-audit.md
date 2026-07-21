@@ -94,7 +94,8 @@ covering what an in-process URLProtocol harness cannot: a real device, real TLS
   platform, appVersion, its rotating identifier: those are the SDK's documented
   defaults, not app payload; judge the app-supplied parameters); (3) the HARD-NEVER
   set below is ABSENT everywhere; (4) `cold_start_ms`, when it ever appears (E0.3+),
-  is a bucket string (`<1s`/`1–2s`/`>2s`), never a raw number.
+  is a bucket string — the exact `ColdStartBucket` raw values `under_1s`/`1s_to_2s`/`over_2s`
+  (`AnalyticsService.swift:38-42`), never a raw number.
 
 ## §5. Expected-traffic table (the allow-list — derived from the closed enum)
 

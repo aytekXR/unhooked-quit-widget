@@ -30,7 +30,8 @@ These surfaces ship **draft copy** and therefore have **NO snapshot suite yet** 
 founder finalizes their copy, CREATE the suites and MINT the goldens. This is the "post-UIR, ONE
 re-record" the roadmap and operator-expected refer to.
 
-1. **Onboarding — age gate, quiz, summary.** Draft copy across the age-gate prompt, the 11-step quiz,
+1. **Onboarding — age gate, quiz, summary.** Draft copy across the age-gate prompt, the 11–13-step quiz
+   (11 always-shown + 2 conditional slots — custom-habit name, reduce-goal weekly limit),
    the consent step, and the savings summary. Suites to create (mirror `DashboardSnapshotTests`
    config: `.image(precision:0.99, perceptualPrecision:0.98, layout:.device(config:.iPhone13),
    traits:{ style, contentSize })`; axes light/dark + AX5 where a surface has a size pivot).

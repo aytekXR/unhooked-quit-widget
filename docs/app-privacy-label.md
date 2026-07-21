@@ -104,7 +104,7 @@ events ride the consent gate.
 | Location (Precise/Coarse) | Region via `Locale` only; no geolocation permission | architecture §10 |
 | Contacts | Never accessed | no contacts API anywhere |
 | Browsing / Search History | No such surface transmits | the closed enum has no such event |
-| Diagnostics | Cold-start is a bucket string (`<1s`/`1–2s`/`>2s`), never a raw timing; no crash SDK linked (Apple/TestFlight crash reporting is Apple-collected, not app-collected) | `AnalyticsService.swift` ColdStartBucket; mvp §5; architecture §10 |
+| Diagnostics | Cold-start is a coarse bucket string (the `ColdStartBucket` raw values `under_1s`/`1s_to_2s`/`over_2s` — i.e. <1s / 1–2s / >2s boundaries), never a raw timing; no crash SDK linked (Apple/TestFlight crash reporting is Apple-collected, not app-collected) | `AnalyticsService.swift` ColdStartBucket; mvp §5; architecture §10 |
 | Sensitive Info | The one sensitive element (habit category) is declared via Row 2; do not declare both | §2 Row 2 |
 | **Identifiers (Device ID / User ID)** | **No Identifiers row.** TelemetryDeck uses a default rotating anonymous ID (its recorded design goal: "no device IDs, compatible with honest App Privacy labels"); RevenueCat's manifest declares no Identifiers row and device-ID collection is wired OFF; SuperwallKit's manifest declares none. A daily-rotating salted hash is not a persistent Device ID and is not tracking | mvp §5; architecture §10 table; operator-expected §8; past-prompts R24.2/R25.14 |
 

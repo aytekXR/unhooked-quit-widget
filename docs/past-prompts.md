@@ -5688,3 +5688,81 @@ decision — §9-owner-gated, not agent-fixable).
 project remains fully blocked on the operator critical path (`docs/critical-path-post-uir.md`) — the genuine
 human-dependency boundary. There is no further standalone agent build/feature/CI session to run; the two
 ready-to-ride items above are for a future run that's already billed in their area.
+
+---
+
+## Session 43 — operator-runbook FIDELITY sweep (docs-only, ZERO billed runs) (2026-07-21)
+
+**Goal (self-determined at open):** the resume prompt handed off a terminal/operator-gated project verified
+twice (S41 5-agent, S42 6-agent). The autonomous-loop mandate is continue-until-blocked. Rather than a THIRD
+"is it blocked" audit (redundant make-work — that question is answered), this session did the one genuinely
+net-new high-value agent-doable thing: a **fidelity check of the operator's runbook** — verify every concrete,
+executable instruction (file paths, symbol names, string values, counts, IDs, done-vs-pending status) in the
+docs the operator is about to follow actually matches current source. Precedent: S42's headline catch was a
+runbook error (a stale signpost subsystem) that would have made the operator "measure nothing." **No
+build/feature work invented; no CI run spent.**
+
+**Session-open checks:** `git fetch` — local main == origin/main at `5ba36c3` (**no operator commits since
+S42**); `gh run list` — last code run `29679913441` SUCCESS (all 10 jobs, re-confirmed via `--json jobs`).
+Free lanes RE-RAN locally (not parroted): StreakEngine **84** / WidgetToolkit **21** / PaywallKit **16** =
+**121 pass, 0 fail** (all three use swift-testing). 107 golden PNGs on disk (29 widget / 40 panic / 24 slip /
+8 dashboard / 2 resources / 2 settings / 2 privacy-overlay). 8 a11y-audit methods = the 8 audited surfaces.
+`AppIdentifiers.loggingSubsystem == "com.beyondkaira.ballast"` (S42 signpost fix re-verified correct).
+
+**Method:** a 16-agent fidelity sweep (`wf_3555cfd8-7cd`) — 6 finders (one per operator-facing doc cluster:
+critical-path / operator-expected / submission+review / device-runbooks / copy+golden / privacy-label), each
+verifying concrete claims against source (codegraph → grep/read), then **one adversarial verifier per finding**
+tasked to REFUTE it against source. Result: **10 CONFIRMED operator-harmful defects, 0 refuted.** Every
+finding was independently re-verified against source by hand before editing (per the S42 discipline).
+
+**The 10 defects fixed (docs-only, 12 doc locations):**
+1. **`critical-path-post-uir.md:30` step 7 (wasted-action):** listed "App Store name search + USPTO knockout +
+   domain; then the bundle/ASO identity" as pending — but G0's technical half CLEARED 2026-07-08
+   (`AppIdentifiers.swift:6`): the domain `beyondkaira.com` is owned and `com.beyondkaira.ballast` (+ widget
+   App ID, App Group, iCloud container; Team `UH7MXG7Z94`) is portal-registered. It also contradicted
+   `submission-checklist.md:62`. Rewritten: only the trademark/App-Store-**name** clearance is open.
+2. **`critical-path-post-uir.md:30` reference (misleading):** `roadmap.md §Naming` is a broken anchor — no such
+   section; the naming content is a blockquote at `roadmap.md:11`. Repointed.
+3. **`operator-expected.md:366` (misleading):** "10–12 screens" for the quiz → **11–13** (`quizConfig.json` =
+   13 slots: 11 unconditional + 2 conditional — customName@habit=custom, allowance@goal=reduce).
+4. **`operator-expected.md:606` (misleading):** `DiscreetSettingsCopy.swift` "8 strings" → **12** (S26/S27/S28
+   added winbackRowLabel, resourcesRowLabel, hapticPacerRowLabel, hapticPacerFooter).
+5. **`operator-expected.md` §7 (wasted-action):** the §7 preamble promised "the new streak-ring glance" and
+   `StreakRing.swift:27-28` mandates a DEVICE-EYEBALL flag (a golden can't verify motion), but §7's body had
+   NO such checkbox — the UIR-5c 0.6s appear animation would never get verified. ADDED the checkbox.
+6. **`review-notes.md:22` (misleading — PASTE-TO-APPLE):** the §1 block said "an 11-step onboarding quiz"; a
+   reviewer who picks "cut down" sees 12, custom habit adds a 13th → real answer **11–13**. A count a reviewer
+   can falsify in-app undermines the whole notes. Fixed.
+7. **`review-notes.md:69` (misleading):** the §2 evidence anchor "gate → 11-step quiz → …" → **11–13-step**.
+8. **`payload-audit.md:97` (wasted-action):** the MITM wire-audit runbook said `cold_start_ms` is `<1s`/`1–2s`/
+   `>2s`, but `ColdStartBucket` raw values (`AnalyticsService.swift:38-42`, emitted `.rawValue` at :179) are
+   `under_1s`/`1s_to_2s`/`over_2s` — the operator would have false-FAILED a valid payload. Fixed to the real
+   strings. (Also aligned the same-class line in `app-privacy-label.md:107` for cross-doc consistency; left
+   `mvp.md:109` — operator-owned, not agent-edited — and the frozen S29 superseded header untouched.)
+9. **`copy-pass-checklist.md:17` (misleading):** "the whole 11-step quiz" hid the 2 conditional DRAFT steps
+   (slot 2, slot 12) from the founder's copy review → rewritten to "13 slots" naming both.
+   (Same fix in `golden-batch.md:33`: "11-step quiz" → "11–13-step".)
+10. **`copy-pass-checklist.md:56–57` (wasted-action + misleading):** the §E `StreakWidgetStyle` bullet said "9
+    strings" but enumerated only 8 (omitted `panicAccessibilityLabelDiscreet` = "Reset"), AND the ⚖️ "Reset"
+    decision fork was misfiled in the `DiscreetSettingsCopy.swift` bullet (an operator would open the wrong
+    file — the field is in `StreakWidgetStyle.swift:58/74`). Enumerated the 9th string, moved the fork to the
+    correct bullet, and cross-referenced from the settings bullet.
+
+**Verification the fix is complete:** corpus-wide greps for each stale pattern (`11-step quiz`, `10–12`,
+`<1s/1–2s/>2s`, `§Naming`, `8 strings`) confirm every LIVE operator instruction is now corrected; the only
+remaining matches are the operator-owned `mvp.md` spec and a frozen S29 superseded ledger header, both
+correctly out of scope. `testflight-tester-guide.md` re-checked — clean (S41 already fixed its build ref).
+
+**Why this was NOT make-work:** the sweep was framed distinctly from S41 ("refute blocked") and S42 ("refute
+nothing-agent-doable + doc-integrity") — it targeted runbook↔source FIDELITY specifically, and found 10 real
+defects, two of which (the paste-to-Apple quiz count; the MITM false-FAIL wire strings) would have cost the
+operator real time or credibility during the launch path. This is QA of the handoff, not invented build work.
+
+**Budget:** ZERO billed runs (docs only, `[skip ci]`). **Operator action required: NONE.** The project remains
+fully blocked on the operator critical path (`docs/critical-path-post-uir.md`) — the genuine human-dependency
+boundary is UNCHANGED (this session did not unblock, add, or remove any operator dependency; it made the
+runbook the operator will follow materially more accurate). There is no further standalone agent build/feature
+session to run; the two S42 ready-to-ride items (StreakWidgetStyle comment; winback repo-tier tests) remain
+banked for a future run already billing in their area. The next agent session, if one opens, should: confirm
+still-green, pick up any operator commits, act ONLY on genuinely-unblocked operator triggers, else report
+blocked and stop.

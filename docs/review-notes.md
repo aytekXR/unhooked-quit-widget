@@ -19,8 +19,9 @@
 >
 > **Age gate + onboarding.** A fresh install opens on a birth-year age check (17+).
 > An under-17 entry routes to a calm resources screen; no habit content is reachable
-> before the gate. A passing entry leads to an 11-step onboarding quiz (spend,
-> triggers, motivations) that builds a personalized summary. No account is created at
+> before the gate. A passing entry leads to an onboarding quiz of 11–13 steps (spend,
+> triggers, motivations; two steps appear only for a custom habit or a "cut down" goal)
+> that builds a personalized summary. No account is created at
 > any step.
 >
 > **No demo account.** There is no demo account because the app is account-free by
@@ -66,7 +67,7 @@
 | Claim | Anchor |
 |---|---|
 | Age gate first; under-17 → resources; one boolean persists, never the birth year | `Tests/Unit/AgeGateTests.swift`; the E5.1 ledger (S16) |
-| Full funnel drives green: gate → 11-step quiz → summary → paywall mount | `Tests/UITests/QuizFunnelUITests.test_quizFunnel_freshInstall_gateToSummary_toPaywallMount` (scenario-29, green S29) |
+| Full funnel drives green: gate → 11–13-step quiz → summary → paywall mount | `Tests/UITests/QuizFunnelUITests.test_quizFunnel_freshInstall_gateToSummary_toPaywallMount` (scenario-29, green S29) |
 | No account/auth surface exists | Code-absence verified (S30): the only "account" hits in `App/Sources`, `Shared/Sources`, `Widgets/Sources` are the two 3.1.1 "Apple Account" billing strings in `PaywallCopy.swift`; no `AuthenticationServices`, no credential UI. Account-free restore: `PaywallModelTests.test_paywallModel_restoreRecoversEntitlement_unlocks` |
 | Panic control registration + cold launch | `Shared/Sources/OpenPanicControlIntent.swift` (openAppWhenRun, not Shortcuts-discoverable); `Widgets/Sources/UnhookedWidgetBundle.swift` (the "Panic"/"Reset" control pair); `Tests/Unit/PanicWarmLaunchTests.swift`, `PanicEntryPointTests.swift`; the panic route opens no store and reads no entitlement/teaser/winback state (standing rule, R27.11 class) |
 | Works with Focus on / airplane / notifications off | Epic 3 DoD (zero network dependency); the operator's §7 device matrix rows record the physical halves |
