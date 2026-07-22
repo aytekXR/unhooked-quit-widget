@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Document | Post-UIR critical path (created Session 41, 2026-07-19; synced Session 42; **synced Session 43** — a 16-agent runbook-fidelity sweep corrected step 7's G0 overstatement (the domain + bundle identity are already registered; only trademark/name clearance is open) and its broken `roadmap.md §Naming` anchor; the 11-step path + open-decisions table below are otherwise unchanged) |
+| Document | Post-UIR critical path (created Session 41, 2026-07-19; synced Session 42; synced Session 43 — a 16-agent runbook-fidelity sweep corrected step 7's G0 overstatement (the domain + bundle identity are already registered; only trademark/name clearance is open) and its broken `roadmap.md §Naming` anchor; **re-confirmed accurate Session 44, 2026-07-22** — no operator commits since S43, CI still green, no step here changed) |
 | Status | LIVE — the single-page "what do I do next, in what order" for the operator. Everything here is human/operator/device/legal work; there is no remaining agent build work (see the bottom section). |
 | Companion docs | `operator-expected.md` (the detailed live checklist — this doc sequences it), `copy-pass-checklist.md` (the file-by-file §3 copy pass), `golden-batch.md` (the final screenshot re-record), `submission-checklist.md` (MVP §7 wired to evidence), `review-notes.md` (paste-ready App Review notes) |
 | Rule for agents | This doc is a synthesis of existing docs — keep it in sync when the underlying items change; never let a step here contradict `operator-expected.md`. |

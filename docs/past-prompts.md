@@ -5766,3 +5766,45 @@ session to run; the two S42 ready-to-ride items (StreakWidgetStyle comment; winb
 banked for a future run already billing in their area. The next agent session, if one opens, should: confirm
 still-green, pick up any operator commits, act ONLY on genuinely-unblocked operator triggers, else report
 blocked and stop.
+
+## Session 44 — terminal-state confirmation; NO operator action since S43; project remains operator-gated (docs-only, ZERO billed runs) (2026-07-22)
+
+**Goal (self-determined at open):** the autonomous-loop mandate is continue-until-blocked-by-a-human-dependency.
+The project has been at its terminal/operator-gated state and independently verified THREE times (S41 5-agent
+audit, S42 6-agent adversarial refute-audit, S43 green re-verify + 16-agent runbook-fidelity sweep). The resume
+prompt's own S44 objective is explicit: **do the cheap direct check for whether the operator has unblocked
+anything; act only on genuine triggers; otherwise report blocked and stop. Do NOT run a 4th "is it blocked"
+audit (thrice-answered make-work), do NOT mine doc nits (S43 swept the runbook clean), do NOT burn a CI run,
+do NOT re-attempt the settings-content audit on CI.** This session honored that verbatim.
+
+**Session-open checks (the only signal that matters — has anything been unblocked):**
+- `git fetch` → local `main` == `origin/main` at `b5bb5a0` (the S43 commit). **No operator commits since S43.**
+  Working tree clean.
+- `gh run list` → last **code** CI run `29679913441` = SUCCESS (the S41 follow-up: account-absence lint + the
+  TestFlight upload; 10/10 jobs). Every commit since is a `[skip ci]` docs commit → no run, correctly. The
+  `failure` rows above it are the S40 settings-content attempts, already reverted to green in `29661516821`.
+- **Unblock triggers — none fired.** The four agent-actionable triggers and their evidence: (a) §3 copy pass
+  finished → would appear as operator commits to the copy tables → **none**; (b) §8 key pasted → the wake-up is
+  the operator's; an agent acts only on a specific follow-up ask → **no operator message this session** (the
+  sole message is the standing autonomous-loop instruction, no specific ask); (c) OQ-1 / OQ-2 resolved → an
+  operator decision arrives as a message → **none**; (d) the two S42 ready-to-ride items remain billed +
+  non-launch, correctly NOT spent on a standalone run.
+
+**What this session did NOT do (deliberate restraint, per the resume-prompt guidance):** did NOT re-run the free
+test lanes — the code is byte-identical to S43's 121-pass verification (zero code commits since), so re-running
+identical bytes for an identical result is pure make-work, not verification; did NOT spin a 4th audit workflow;
+did NOT touch source; did NOT edit the operator runbook for fidelity (S43's sweep left it source-accurate — a
+5th read would be nit-mining); did NOT re-attempt the Mac-gated settings audit on CI.
+
+**Conclusion:** **NO operator action has occurred since S43, and there is no genuinely-unblocked agent trigger.**
+The project remains fully blocked on the operator critical path (`docs/critical-path-post-uir.md`) — the genuine
+human-dependency boundary. This is the autonomous loop's correct stopping condition: it is blocked by work only
+the operator/counsel/a-physical-device/an-ASC-account can do (the §3 copy pass, the open decisions, the device
+sittings, the §8 keys + sandbox matrix, the G0 trademark/name clearance, the legal riders, external beta,
+submission). There is no agent build/feature session to run; a future agent session should repeat exactly this
+cheap check (green? new operator commits? a specific ask?) and act only if a trigger has genuinely fired.
+
+**Budget:** ZERO billed runs (docs-only session log + resume-prompt regeneration + operator-checklist header,
+all `[skip ci]`). **Operator action required: the entire operator critical path** — unchanged from S43; this
+session neither unblocked, added, nor removed any operator dependency. See `docs/operator-expected.md` (the live
+checklist) and `docs/critical-path-post-uir.md` (the sequenced 11-step playbook).
