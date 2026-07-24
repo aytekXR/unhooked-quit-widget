@@ -2,29 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Status | LIVE — **only OPEN items are listed here** (decluttered Session 45, 2026-07-24). Completed/superseded session narrative and the full FYI vetoable-rulings record now live in `docs/past-prompts.md` (the append-only ledger); this file is the working checklist of what still needs YOU. |
-| Current state | The whole build side is agent-complete; the project is **OPERATOR-GATED**. All CI lanes green (last code run SUCCESS, 10/10 jobs), 121 free-lane tests pass, 107 snapshot goldens stable, both executables ship their required-reason privacy manifests, 8 screens accessibility-audited, internal TestFlight live. **Everything below is yours.** |
-| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook (11 steps + the consolidated open-decisions table). It sequences every item below into an order of operations. |
-| Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, delete it here and record the closure in the `past-prompts.md` ledger; do NOT re-accrete session history or FYI narrative into this file. It is TRACKED (in `docs/`) so the operator can read it anywhere. The untracked root `OPERATOR-TODO.md` is just a pointer here. |
-
-> **Runway to launch.** A compliance-submittable build already exists — the whole
-> app is on the design system, 8 screens are accessibility-audited, all lanes are
-> green, 107 screenshots are stable, TestFlight is live. **There are no more agent
-> build sessions to run.** What remains is all yours, and the fastest ordering is in
-> `critical-path-post-uir.md`. The two longest-lead items — **(1) the §3 copy pass**
-> (it gates the ONE final golden batch, which gates screenshots, which gate
-> submission — see `docs/golden-batch.md` + the file-by-file `docs/copy-pass-checklist.md`)
-> and **(7) G0 name/trademark clearance** — should start first and can run in parallel.
-> **The one thing worth doing this week: the §3 copy pass.**
-
-The sections below keep their historical numbers (§0–§9) because other docs cross-reference them.
-§0, §4, and §9 are CLOSED/RESOLVED and kept as one-line stubs so those references still resolve.
+| Status | LIVE — **only OPEN items are listed here** (Session 45, 2026-07-24). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
+| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook (11 steps + the consolidated open-decisions table). It sequences every open item below into an order of operations. **The one thing worth doing this week: the §3 copy pass** — it gates the final golden batch → screenshots → submission (`docs/golden-batch.md` + the file-by-file `docs/copy-pass-checklist.md`). |
+| Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
 ---
-
-## 0. ✅ CLOSED — Control Center panic fix (pushed, rebased, device-verified, Session 11)
-
-No action. One optional FYI from that Mac session: `gstack` 1.39 → 1.60 is available (`/gstack-upgrade` on the Mac when convenient).
 
 ## 1. E0.3 panic-latency device measurement — carried since Session 02, load-bearing
 
@@ -164,10 +146,6 @@ No action. One optional FYI from that Mac session: `gstack` 1.39 → 1.60 is ava
       shows the Calendar icon. They're mutually exclusive (one public exposure makes the "innocuous" icon
       reverse-image-linkable to Ballast forever). The panel resolved toward §9.1 (frame 3 should show the discreet
       WIDGET only, primary icon). You own ASO — confirm or veto, and note it in the brandkit.
-
-## 4. ✅ GitHub Actions billing — no action
-
-Spend limit lifted; headroom fine; multi-agent fan-outs available. (Optional, would eliminate the burned-run class: a cheap self-hosted macOS runner or a pre-push `xcodebuild -quiet build` step.)
 
 ## 5. TestFlight housekeeping — carried from Sessions 07–09; NOW TIMELY
 
@@ -309,13 +287,7 @@ Spend limit lifted; headroom fine; multi-agent fan-outs available. (Optional, wo
       Interaction with the sensitive-class disclosure carried in the privacy policy. Declare exactly ONE — ratify
       before ASC entry (it flows lockstep to the privacy manifest + label doc).
 
-## 9. ✅ RESOLVED — the "uipro" discrepancy (Session 32)
-
-No action. `uipro` v2.11.0 is a PATH npm CLI on the build box; UIR sessions drove it as the generator with brand canon overriding its stock output (recorded in `docs/design/tokens-v2.md` §8).
-
----
-
-## The one open decision not tied to a section above
+## Open decision not tied to a section above
 
 - [ ] **OQ-1 — displayLabel (VETO-CLASS, ~2 min):** the panic multi-quit picker and the widget setup screen render
       the category words **"Porn"** and **"Weed"** (from `QuitRepository.displayLabel`). Brand flags this against the
@@ -323,7 +295,3 @@ No action. `uipro` v2.11.0 is a PATH npm CLI on the build box; UIR sessions drov
       deliberately PINS the current words as "brand-reviewed, clinical" — a genuine documented deadlock. Keep the
       short nouns (silence = they stand) or say the word and a session repins both strings + the sanctioning test to
       "Adult content"/"Cannabis" (one billed run; not an App-Review blocker either way).
-
-> **FYI — the full record of agent decisions you can veto** (palette corrections, the hard-wall-no-close ruling, the
-> offline-grace call, the app-switcher-shield scope, the born-green rulings, etc.) lives in the per-session ledgers
-> in `docs/past-prompts.md`. None of it needs action; it's there so nothing was decided behind your back.
