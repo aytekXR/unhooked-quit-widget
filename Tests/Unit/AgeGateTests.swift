@@ -176,4 +176,55 @@ struct AgeGateTests {
         #expect(years.upperBound == 2026, "future years are unselectable")
         #expect(years.lowerBound == 1906)
     }
+
+    // MARK: - S46: the boundary means the same thing on every device
+
+    /// The gate's year derivation must be CALENDAR-INDEPENDENT. `Calendar.current`
+    /// follows Settings › General › Language & Region › Calendar, and it reads as
+    /// Gregorian on every simulator — so this is the only tier that can catch a
+    /// regression. Measured consequence of the ambient read (the S46 probe): under
+    /// the Islamic calendar the 18-year boundary spans ~354-day years, making the
+    /// youngest passer 16.60 SOLAR years old — a 17+ gate admitting 16-year-olds.
+    @Test func test_ageGate_currentYear_isGregorian_regardlessOfDeviceCalendar() {
+        // A fixed instant: 2026-07-25 in the Gregorian calendar.
+        let instant = Date(timeIntervalSince1970: 1_785_000_000)
+
+        #expect(
+            AgeGate.currentYear(at: instant) == 2026,
+            "the gate reads the Gregorian year for a known instant"
+        )
+        #expect(
+            AgeGate.calendar.identifier == .gregorian,
+            "the gate's calendar is pinned, never the device's"
+        )
+
+        // What `Calendar.current` WOULD have handed the boundary on a device whose
+        // owner picked a non-Gregorian calendar. Asserted RELATIONALLY, not by exact
+        // value: the invariant is that the gate does not track these, whatever ICU
+        // happens to number them (the measured 2026-07-25 values are 1448 and Reiwa 8
+        // — recorded in the S46 log, deliberately not pinned here so an ICU revision
+        // can never turn this suite red for a reason that is not the defect).
+        let islamicYear = Calendar(identifier: .islamicCivil).component(.year, from: instant)
+        let japaneseYear = Calendar(identifier: .japanese).component(.year, from: instant)
+        #expect(
+            AgeGate.currentYear(at: instant) != islamicYear,
+            "18 Islamic years is only ~17.5 SOLAR years — that count must never reach the boundary"
+        )
+        #expect(
+            AgeGate.currentYear(at: instant) != japaneseYear,
+            "the Japanese calendar reports an ERA year, not a Gregorian one"
+        )
+        #expect(
+            japaneseYear < 200,
+            "an ERA year fed to selectableYears(currentYear:) yields a negative, unusable wheel"
+        )
+
+        // End to end: the youngest passer under the pinned calendar is a real 17+.
+        let currentYear = AgeGate.currentYear(at: instant)
+        #expect(AgeGate.evaluate(birthYear: currentYear - 18, currentYear: currentYear) == .pass)
+        #expect(AgeGate.evaluate(birthYear: currentYear - 17, currentYear: currentYear) == .blocked)
+        // …and the wheel it feeds stays a plausible human range on every device.
+        let years = AgeGateModel.selectableYears(currentYear: currentYear)
+        #expect(years.lowerBound > 1800 && years.upperBound == 2026, "no era-year or negative wheel")
+    }
 }

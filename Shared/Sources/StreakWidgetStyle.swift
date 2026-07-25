@@ -39,7 +39,7 @@ struct StreakWidgetStyle: Sendable {
     /// SkeletonWidget precedent, carried forward verbatim).
     let panicAccessibilityLabel: String
     /// The panic button's NORMAL glyph — lifted from the view literal in E6.3 so both
-    /// variants live in this scanned table. MUST stay byte-exactly "wind": the 15
+    /// variants live in this scanned table. MUST stay byte-exactly "wind": the 29
     /// committed E6.2 goldens compare (never re-record) under `.missing`, so any
     /// drift here fails the snapshot lane (Session 22 burn-critic, rank 2).
     let panicGlyph: String
