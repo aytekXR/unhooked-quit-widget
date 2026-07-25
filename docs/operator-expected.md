@@ -237,6 +237,19 @@
 > offer + IAP Key → TelemetryDeck app ID.** Until each key lands its SDK is never initialized (zero network).
 > The sandbox purchase matrix + the payload audit are the SECOND physical sitting, sequenced after the keys.
 
+- [ ] **⚠️ AGENT RIDER — R46.2, do this WITH the RevenueCat key, before the sandbox matrix (~1 agent run):** the
+      S46 defect hunt proved (source-verified, not speculative) that **`EntitlementModel` is never refreshed after a
+      purchase/restore or on foreground**, though its own contract promises all three — there is exactly ONE
+      `refresh()` call site in the app (`RepositoryProvider.swift:130`, at launch), and
+      `PaywallPresenter.makeOnPurchaseCompleted` receives the fresh `EntitlementState`, fires analytics with it,
+      then discards it. **Nothing is wrong on today's dormant build** (no key ⇒ no entitlement model at all), but
+      the moment your key lands two things break: (a) the win-back settings row stays visible to someone who JUST
+      bought, re-offering the half-price deal (**not a double-charge risk — StoreKit refuses a second purchase of
+      an active subscription; the harm is a paying subscriber repeatedly walked into a purchase sheet, a support
+      burden and a guideline-3.1.2 smell**); (b) `checkPaywallReentry()` re-runs on every foreground against a
+      launch-time snapshot, so a trial that expires mid-session keeps access until a cold launch. It was NOT fixed
+      blind because the live monetization path cannot be verified without your key. **Say the word when the key is
+      in and an agent lands it in one run — your sandbox matrix below is exactly the test that proves it.**
 - [ ] **RevenueCat key (~10 min)** — create the app in the RevenueCat dashboard and paste the PUBLIC SDK key into
       `App/Sources/Monetization/RevenueCatConfiguration.swift` (`revenueCatAPIKey`). The moment a build carries it,
       non-subscribers hit the paywall after the quiz summary and RC starts caching entitlements (Purchase History
