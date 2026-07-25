@@ -75,6 +75,26 @@ struct SummaryDerivationTests {
         )
     }
 
+    /// S47/R47.2 — AC4 held only for EXACTLY zero. Floor-to-ten means any projection
+    /// below the first ten units floors ONTO zero, and the pre-floor guard let it
+    /// through: a weekly spend of 0.10 (savings 5.20) rendered the fabricated
+    /// "~$0/year" the contract forbids, instead of the savings-absent reframe. The
+    /// guard has to hold on the figure actually shown.
+    @Test func test_summary_savingsDisplay_flooringOntoZero_showsNoFigure() {
+        for savings in [Decimal(string: "0.01")!, Decimal(1), Decimal(5), Decimal(string: "9.99")!] {
+            #expect(
+                SummaryFormatter.savingsDisplay(savings, currencyCode: "USD", locale: usEnglish) == nil,
+                "\(savings) floors to 0 — the absent variant renders, never a fabricated ~$0/year (AC4)"
+            )
+        }
+        // The boundary still renders: ten is the first figure the floor can honestly show.
+        #expect(
+            SummaryFormatter.savingsDisplay(Decimal(10), currencyCode: "USD", locale: usEnglish)
+                == "~$10/year",
+            "ten is the smallest honest floored figure and must still render"
+        )
+    }
+
     // MARK: - Named test 2 (doc-canonical): risk window from trigger answers
 
     /// Multi-trigger picks the single highest-precedence token (PM §3.2 total

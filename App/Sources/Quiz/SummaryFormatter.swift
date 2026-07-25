@@ -10,7 +10,9 @@ import Foundation
 /// or better" — then "~" prefix (the spend was user-estimated), the quit's STORED
 /// `currencyCode` (Architect S4 — never an ambient Locale read for the currency),
 /// 0 fraction digits, "/year" suffix. Zero spend → nil: the savings-absent
-/// variant renders instead of a fabricated "~$0/year" (AC4; MVP §7).
+/// variant renders instead of a fabricated "~$0/year" (AC4; MVP §7) — and S47
+/// extended that guard PAST the floor, since a projection under ten units floors
+/// to zero and produced exactly the forbidden string.
 /// `locale` is injectable so tests pin an explicit locale for determinism;
 /// production passes the device locale for digit grouping only.
 enum SummaryFormatter {
@@ -25,6 +27,11 @@ enum SummaryFormatter {
         var floored = Decimal()
         // Scale -1 = the tens place; .down = floor (never overstate a projection).
         NSDecimalRound(&floored, &value, -1, .down)
+        // S47/R47.2 — the floor itself can LAND on zero: any projection under the
+        // first ten units (a weekly spend up to ~0.19) floors to 0 and rendered the
+        // fabricated "~$0/year" this function's own contract forbids. The AC4 guard
+        // has to hold on the figure actually shown, not on the pre-floor input.
+        guard floored > 0 else { return nil }
 
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency

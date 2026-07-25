@@ -3,11 +3,20 @@ import SwiftData
 
 /// E2.1 — the single SwiftData store in the App Group container (architecture §4).
 /// One store for all product data; the widget extension shares the container path.
-/// CloudKit mirroring is configured EXPLICITLY off until Gate G0 clears: a placeholder
-/// container ID must never be registered, and `.automatic` would silently start
-/// mirroring the moment an iCloud entitlement appears. When the rename lands, this is
-/// the one line that flips to `.private("iCloud.<newname>")` — red test first
-/// (the schema-validation instantiation test from test-suite §4.3).
+/// CloudKit mirroring is configured EXPLICITLY off, and **v1 ships local-only BY
+/// DESIGN** — this is a settled decision, NOT a pending to-do. The entitlements
+/// declare App Groups only (no iCloud container), the sync seam is
+/// `LocalOnlyCloudSync`, and the shipped positioning copy promises "No server.
+/// Nothing to leak." / data that never leaves the device. `.automatic` would
+/// silently start mirroring the moment an iCloud entitlement appeared, which is
+/// why the value is pinned rather than defaulted.
+///
+/// Gate G0's technical half cleared 2026-07-08 (`AppIdentifiers.swift`) and this line
+/// deliberately did NOT flip. Enabling CloudKit is a POST-v1 product decision that
+/// re-derives the App Privacy label AND both privacy manifests — never a cleanup
+/// task. (S46/R46.6: the previous wording read as "the one line that flips when the
+/// rename lands", which invited a future session to "finish" it and silently break
+/// the privacy promise.)
 enum PersistentStore {
     /// Every model the mirrored store holds (architecture §4 schema table). Note the
     /// derived schema is the reachability closure over relationships, so the mirrors

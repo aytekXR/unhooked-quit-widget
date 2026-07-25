@@ -45,7 +45,10 @@ enum SummaryDerivation {
         func answer(_ stepID: String) -> QuizAnswer? {
             answers.first { $0.stepID == stepID }
         }
-        let spend = answer("spend")?.freeText.flatMap { Decimal(string: $0) } ?? 0
+        // S47/R47.1 — the same locale-tolerant read `QuizProfileMapping.draft` uses,
+        // so the summary's projection and the stored quit can never disagree about
+        // what the user typed.
+        let spend = answer("spend")?.freeText.flatMap { DecimalInputParser.decimal(from: $0) } ?? 0
         return (
             projectedAnnualSavings(weeklySpend: spend),
             riskWindowToken(

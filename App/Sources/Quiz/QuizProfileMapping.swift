@@ -41,11 +41,15 @@ enum QuizProfileMapping {
         let customLabel: String? = (habit == .custom && trimmedName?.isEmpty == false)
             ? trimmedName : nil
 
-        // Canonical period-decimal capture (Architect MUST-FIX 2): the input field
-        // writes a plain "26" / "26.5" string; parse failures fall to the safe 0.
-        let spend = answer("spend")?.freeText.flatMap { Decimal(string: $0) } ?? 0
+        // S47/R47.1: the field is a `.decimalPad`, whose separator iOS renders from
+        // the device's Language & Region setting — so the raw string may legitimately
+        // read "26,50". The old bare `Decimal(string:)`/`Int(_:)` accepted a period
+        // ONLY and silently truncated ("12,50" → 12, "0,50" → 0, "10,5" → nil), and
+        // the result is persisted with no edit path. `DecimalInputParser` reads both
+        // notations; parse failures still fall to the safe 0 / nil.
+        let spend = answer("spend")?.freeText.flatMap { DecimalInputParser.decimal(from: $0) } ?? 0
         let allowance: Int? = goal == .reduce
-            ? answer("allowance")?.freeText.flatMap { Int($0) } : nil
+            ? answer("allowance")?.freeText.flatMap { DecimalInputParser.int(from: $0) } : nil
 
         return QuizQuitDraft(
             habitCategory: habit,

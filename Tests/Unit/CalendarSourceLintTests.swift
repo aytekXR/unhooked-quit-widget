@@ -22,10 +22,13 @@ import Testing
 // construct `Calendar(identifier: .gregorian)` explicitly. The age gate was the
 // single dissenting site.
 //
-// Scope: App/Sources + Shared/Sources + Widgets/Sources recursively — ALL shipping
-// code (unlike the Theme lint, widgets are IN scope here: the timeline planner's
-// day math is exactly the class this protects). Tests are out of scope: a test may
-// legitimately construct `Calendar.current` to prove a helper is independent of it.
+// Scope: App/Sources + Shared/Sources + Widgets/Sources + the three SwiftPM package
+// source roots, recursively — ALL shipping code. Widgets are IN scope (unlike the
+// Theme lint), and S47/R47.3 added the packages, WITHOUT which the two files whose
+// day math this ban exists to protect — `StreakTimelinePlanner` and
+// `AdherenceCalculator` — were never actually opened by the walk. Tests are out of
+// scope: a test may legitimately construct `Calendar.current` to prove a helper is
+// independent of it.
 //
 // Comment handling: lines are stripped of `//` trailing comments (except `://` in
 // URLs) and full-comment lines skipped, so the prose above and the explanatory
@@ -50,7 +53,23 @@ struct CalendarSourceLintTests {
 
     /// The shipping roots. Widgets are IN scope (their day math is the point);
     /// Tests/ is not (a test may name the idiom to prove independence from it).
-    private static let scopedRoots = ["App/Sources", "Shared/Sources", "Widgets/Sources"]
+    ///
+    /// S47/R47.3 — the two SwiftPM package roots were MISSING while this file's own
+    /// header claimed to cover "ALL shipping code" and named "the timeline planner's
+    /// day math" as the thing it protects. `StreakTimelinePlanner` and
+    /// `AdherenceCalculator` — the two files that actually derive calendar
+    /// components, and the pair cited as precedent for the S46 fix — live in
+    /// `Packages/` and were never opened by the walk. Both are correct today
+    /// (`Calendar(identifier: .gregorian)`), so nothing shipped wrong; the guard was
+    /// simply weaker than the project believed, which for an invisible-to-tests
+    /// defect class is the whole point of having it. PaywallKit carries no date math
+    /// but is scanned anyway — the ban costs nothing and the scope should not need
+    /// revisiting when a package grows one.
+    private static let scopedRoots = [
+        "App/Sources", "Shared/Sources", "Widgets/Sources",
+        "Packages/StreakEngine/Sources", "Packages/WidgetToolkit/Sources",
+        "Packages/PaywallKit/Sources",
+    ]
 
     /// Repo root from this file's compile-time path (Tests/Unit/<file> → up 3) —
     /// the `ThemeSourceLintTests` / `PrivacyManifestTests` idiom.
@@ -86,7 +105,8 @@ struct CalendarSourceLintTests {
 
         // Corpus non-vacuity floor (the account-absence-lint discipline): the walk
         // must actually be seeing the shipping tree, not an empty/moved directory.
-        // 119 shipping .swift files at S46; the floor sits well below that so honest
+        // 143 shipping .swift files at S47 (121 app+shared+widgets, 22 in the three
+        // package roots R47.3 added); the floor sits well below that so honest
         // deletions never trip it, but a broken walk (0) always does.
         #expect(
             scannedFiles >= 100,
