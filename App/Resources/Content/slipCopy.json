@@ -14,7 +14,7 @@
   "logged": {
     "title": "Logged.",
     "body": "Your best — {{bestStreak}} — is safe, and your momentum is still {{momentum}}. When you're ready, the next hour starts now.",
-    "bodyNoBest": "Logged. Your momentum is still {{momentum}}. The next hour starts whenever you're ready."
+    "bodyNoBest": "Your momentum is still {{momentum}}. The next hour starts whenever you're ready."
   },
   "reflection": {
     "prompt": "Want to note what was going on? (optional, stays on your device)",
@@ -30,7 +30,7 @@
   },
   "encouragement": [
     "One slip is one data point, not a verdict.",
-    "Momentum is clean days over total days — a single day barely moves it.",
+    "Momentum is your steady days over total days — a single day barely moves it.",
     "The next hour is the only one that matters right now."
   ],
   "motivationEcho": "You said this matters for your {{motivation}}. It still does.",

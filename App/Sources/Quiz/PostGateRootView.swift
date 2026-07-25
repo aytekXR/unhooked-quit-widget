@@ -32,7 +32,23 @@ struct PostGateRootView: View {
     /// row is the persistent path back to the offer. Teaser-expiry
     /// re-presents keep their E7.2 cadence (unguarded).
     @State private var didAutoPresentWinback = false
+    /// S46 (operator §3) — the alcohol withdrawal notice on the SUMMARY, the
+    /// screen every completer meets BEFORE the paywall. Same once-per-process
+    /// consideration latch as the dashboard mount (`RootPlaceholderView`); the
+    /// durable once-guarantee is the `recordAlcoholNoticeShown()` stamp, so
+    /// whichever mount fires first permanently closes the other.
+    @State private var didConsiderAlcoholNotice = false
+    @State private var showsAlcoholNotice = false
+    /// The notice's "See resources" hand-off. `SafetyResourcesView` is store-free
+    /// by construction, so the summary can present it without the dashboard's
+    /// repository-gated subtree. Nil source = out-of-domain open, fires nothing (R27.4).
+    @State private var showsResources = false
     @Environment(\.scenePhase) private var scenePhase
+
+    /// E9.1 — the notice copy, fail-SAFE (R27.6): a missing table or section still
+    /// renders the plain calm caution, never silently nothing.
+    private let alcoholNoticeCopy = SafetyCopy.loadShipping()?.alcoholWithdrawalNotice
+        ?? SafetyCopy.AlcoholNotice.degraded
 
     /// The UITEST_RESET-hook precedent (S18): a DEBUG-only launch-env switch,
     /// inert in every release build BY CONSTRUCTION. E7.2 (R25.9): `1` keeps
@@ -139,6 +155,39 @@ struct PostGateRootView: View {
         .onChange(of: provider?.repository == nil) { _, _ in
             makeModelIfNeeded()
         }
+        // S46 — the notice's resources hand-off, mounted at this level so the
+        // SUMMARY can reach it (the dashboard keeps its own identical mount).
+        .sheet(isPresented: $showsResources) {
+            SafetyResourcesView(
+                source: nil,
+                analytics: provider?.repository?.analyticsService ?? .disabled
+            )
+        }
+    }
+
+    /// S46 (operator §3) — the summary's once-per-process notice consideration,
+    /// mirroring `RootPlaceholderView.considerAlcoholNotice`: stamps AT DISPLAY
+    /// through the ONE writer and latches so a re-render never re-presents. A
+    /// failed stamp write is the silent-recover class — the card still shows now,
+    /// and a fail-open re-show later errs toward showing a safety notice.
+    private func considerAlcoholNotice() {
+        guard !didConsiderAlcoholNotice else { return }
+        guard let repository = provider?.repository else { return }
+        didConsiderAlcoholNotice = true
+        guard repository.shouldShowAlcoholNotice() else { return }
+        try? repository.recordAlcoholNoticeShown()
+        showsAlcoholNotice = true
+    }
+
+    /// The slot handed to `QuizSummaryView` — nil unless this completer is due
+    /// the notice, so every non-alcohol summary renders exactly as before.
+    private var alcoholNoticeSlot: AlcoholNoticeSlot? {
+        guard showsAlcoholNotice else { return nil }
+        return AlcoholNoticeSlot(
+            copy: alcoholNoticeCopy,
+            onDismiss: { showsAlcoholNotice = false },
+            onSeeResources: { showsResources = true }
+        )
     }
 
     /// S29 (R29.5) — the event spy's a11y READ bridge: a visually-inert 1×1
@@ -239,8 +288,12 @@ struct PostGateRootView: View {
                         } else {
                             self.model = nil
                         }
-                    }
+                    },
+                    alcoholNotice: alcoholNoticeSlot
                 )
+                // S46 — consider the notice as the summary appears, i.e. BEFORE
+                // the CTA can route a non-converter into the hard paywall.
+                .onAppear { considerAlcoholNotice() }
             } else {
                 QuizFlowView(model: model)
             }

@@ -23,6 +23,33 @@ import SwiftData
 /// as a plain encoded value (CloudKit-safe).
 enum HabitCategory: String, Codable, Sendable, CaseIterable {
     case vape, porn, alcohol, weed, doomscroll, custom
+
+    /// The ONE user-facing noun for a category — brandkit §1.2 ("Adult content,
+    /// not slang; App Review + dignity, same rule"). Session 46 (operator §3
+    /// copy pass) resolved OQ-1 here and made this the single source of truth.
+    ///
+    /// Before S46 three code paths produced three different words for the same
+    /// category: the quiz chips (`quizConfig.json`, correct), this switch's
+    /// ancestor in `QuitRepository.displayLabel` ("Porn"/"Weed"), and a bare
+    /// `rawValue.capitalized` in two views ("Vape"/"Doomscroll"/"Custom").
+    /// A user could meet "Adult content" in the quiz and "Porn" in the panic
+    /// picker ninety seconds later — a vocabulary break at the highest-stress
+    /// moment in the app. Every non-discreet surface now reads from here.
+    ///
+    /// This is IN-APP vocabulary only. Discreet surfaces never call it (they
+    /// take the neutral-label branch at their call site), and `rawValue` stays
+    /// the persisted/analytics token — renaming a noun here can never migrate a
+    /// stored row or drift an analytics value.
+    var displayNoun: String {
+        switch self {
+        case .vape: return "Vaping"
+        case .porn: return "Adult content"
+        case .alcohol: return "Alcohol"
+        case .weed: return "Cannabis"
+        case .doomscroll: return "Doomscrolling"
+        case .custom: return "Your goal"
+        }
+    }
 }
 
 /// Quit vs Reduce goal mode (ADR-10: Reduce is a first-class mode, not a variant).

@@ -21,8 +21,8 @@ Steps are ordered by dependency. Owner tags: **[F]** founder · **[C]** counsel/
 
 | # | Step | Owner | ~Time | Unblocks | Reference |
 |---|---|---|---|---|---|
-| 1 | **§3 copy pass** — read and finalize every DRAFT string, file by file; make the open copy decisions | [F] | 3–4 h | the final golden batch; clinician/counsel gates | `copy-pass-checklist.md`, `operator-expected.md` §3 |
-| 2 | **Open decisions** — settle the pre-launch calls (OQ-1, OQ-2, review-build posture, ratifications, ALO-182) | [F]/[C] | with step 1 | ASC entry; a few re-pin runs | "Open decisions" table below |
+| 1 | ~~**§3 copy pass**~~ — ✅ **DONE, Session 46.** Every copy table read and finalized; 18 string edits + 4 code fixes landed; 12 goldens re-recorded; 404 unit / 35 snapshot / 121 free-lane green | [F] | — | **the final golden batch is now unblocked** | `copy-pass-checklist.md` (closed-state record) |
+| 2 | ~~**Open decisions**~~ — ✅ **DONE, Session 46.** OQ-1, OQ-2, review-build posture, keys-at-submission, 17+, both MVP ratifications, R22.10, ALO-182 and the paywall register all settled | [F]/[C] | — | ASC entry | table below (all rows now carry their decision) |
 | 3 | **Device sitting #1** (~1 h, one build) — the carried §7 device rows + **E0.3 panic-latency measurement** + the new **streak-ring animation glance** + eyes-free/VoiceOver + safety-layer eyeball + re-add the "Streak" widget | [D] | the release-criteria device boxes; the marketing-copy latency verdict | `operator-expected.md` §7, `spike-panic-latency.md` |
 | 4 | **§8 keys** — paste in order: **RevenueCat** (wakes monetization) → **Superwall** (A/B) → create **ASC products + the win-back promotional offer + upload the In-App Purchase Key** → **TelemetryDeck app ID** (+ salt decision) | [K] | the sandbox matrix; the payload audit; live funnel data | `operator-expected.md` §8 |
 | 5 | **Device sitting #2** — the **sandbox purchase matrix** (trial start, trial→paid, monthly, restore, cancellation, on-update regression) — needs the RC key live | [D] | Epic 7 DoD | `operator-expected.md` §8, `submission-checklist.md` (Monetization) |
@@ -33,9 +33,14 @@ Steps are ordered by dependency. Owner tags: **[F]** founder · **[C]** counsel/
 | 10 | **External beta** — recruit ≥15 testers across the 3 personas (vape/porn/alcohol); crash-free ≥99.5% over ≥1 week; unblocked from the build side NOW | [F] | the beta-hardening gate | `testflight-tester-guide.md`, `roadmap.md` §3 |
 | 11 | **ASC final entry + submit** — App Privacy label rows, metadata (name/subtitle/keywords/description), 17+ rating, paste the review notes, submit; budget 1–2 review rounds | [F] | LAUNCH | `submission-checklist.md`, `app-privacy-label.md`, `review-notes.md` |
 
-**Parallelism:** steps 1–2 (copy + decisions) and 7 (G0) can run at the same time and are the two longest-lead items — start both first. Step 10 (beta) can start from any clean build in parallel with everything. Steps 3→5→6 are a device/keys chain. The golden batch (part of step 8) waits only on step 1.
+**Parallelism:** step 7 (G0 trademark clearance) is now the longest-lead item and has no dependencies — start it today. Step 10 (beta) can start from any clean build in parallel with everything. Steps 3→4→5→6 are a device/keys chain. The golden batch (part of step 8) was gated on step 1 and is now **unblocked** — an agent can mint it whenever you want it.
 
-**Do this week:** the **§3 copy pass** — it is the longest-lead item and gates the golden batch, which gates screenshots, which gate submission.
+**Do next, in this order:**
+1. **Send the clinician + counsel package** (operator-expected §3) — it is now the only external gate whose clock you do not control, and the copy inside it is final.
+2. **Start G0 trademark clearance** (step 7) — same reason: someone else's clock.
+3. **Device sitting #1** (step 3) — one hour clears E0.3 latency, the E3.3 matrix, and the icon eyeball.
+4. **§8 keys** (step 4) — unlocks the sandbox matrix and the payload audit.
+Steps 1–2 above are letters you send; 3–4 are an afternoon. They do not block each other.
 
 ---
 

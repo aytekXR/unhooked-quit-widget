@@ -12,7 +12,7 @@
       { "afterHours": 72,  "title": "Three days", "body": "Three days in. This is commonly reported as the toughest window — and you're standing in it, not around it." },
       { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: steadier energy through the afternoon and fewer automatic reaches for it." },
       { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: the habit loops that used to feel automatic are getting quieter." },
-      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: easier breathing during everyday effort and better sleep." },
+      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: physical effort feels a bit easier and sleep is more restful." },
       { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: cravings are occasional rather than daily, and easier to let pass." },
       { "afterHours": 8760, "title": "One year", "body": "A full year. Commonly reported at a year: the pull is rare, and this feels like who you are now, not something you're fighting." }
     ]
@@ -36,7 +36,7 @@
       { "afterHours": 72,  "title": "Three days", "body": "Three days. Commonly reported around now: more presence and attention through the day." },
       { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: fewer automatic urges and more time reclaimed." },
       { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: steadier focus and mood." },
-      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: more energy for the relationships and work you care about." },
+      { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: the hours and attention you reclaim tend to go where you actually want them." },
       { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: urges are occasional and easier to let pass." },
       { "afterHours": 8760, "title": "One year", "body": "A year. Commonly reported at a year: this feels like your normal, not a daily effort." }
     ]
@@ -47,7 +47,7 @@
       { "afterHours": 24,  "title": "One day", "body": "One day. Commonly reported early on: sleep and appetite can shift for a bit — a common experience that usually settles." },
       { "afterHours": 72,  "title": "Three days", "body": "Three days. Commonly reported around now: dreams get vivid and mornings feel clearer." },
       { "afterHours": 168, "title": "One week", "body": "A week. Commonly reported by now: steadier focus and more even energy." },
-      { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: memory and motivation feel a little sharper." },
+      { "afterHours": 336, "title": "Two weeks", "body": "Two weeks. Commonly reported around here: thinking feels a little clearer and motivation starts to return." },
       { "afterHours": 720, "title": "One month", "body": "A month. Commonly reported by the one-month mark: clearer thinking and money kept." },
       { "afterHours": 2160, "title": "Three months", "body": "Three months. Commonly reported by now: the routine no longer organizes your day." },
       { "afterHours": 8760, "title": "One year", "body": "A year. Commonly reported at a year: this is just how you live now." }

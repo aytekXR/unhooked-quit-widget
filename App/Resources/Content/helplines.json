@@ -3,7 +3,7 @@
     "version": 1,
     "audit": "Region-aware helpline directory. Numbers verified against official / government / reputable-nonprofit sources (2026) — NONE invented. `dialString` is what a tel: link dials; short codes (TR) are domestic-only and flagged. Reachable in one tap from Settings and from every slip/panic flow (MVP §6.7). No shame or medical-claim copy.",
     "MUST_VERIFY_BEFORE_SHIP": [
-      "TR mentalHealth ALO 182: only third-party-verified this session; confirm on an official Sağlık Bakanlığı page. 112 is the confirmed fallback and is included.",
+      "TR ALO 182 — RESOLVED, Session 46, DO NOT REOPEN: checked against the official Sağlık Bakanlığı page (saglik.gov.tr/TR-11523, titled 'Alo 182 - Merkezi Hastane Randevu Sistemi') and confirmed by the operator (TR national). 182 is the MHRS HOSPITAL APPOINTMENT line, NOT a crisis or mental-health line — the row's former name ('Yaşam Hattı') and its psychological-crisis description were factually WRONG and have been corrected. The row stays `verified: false` PERMANENTLY so it can never render; it is retained only as a record so no future session repeats the error. No official single-number Turkish mental-health crisis line was found on saglik.gov.tr or turkiye.gov.tr. TR's safety net is 112 + YEDAM 115 + ALO 171 + the GLOBAL findahelpline.com pointer.",
       "TR alcohol YEDAM 115: operating hours not stated on official page.",
       "US compulsive-behavior: NO verified dedicated national hotline exists; the circulating 1-800-837-9041 is unverified/likely defunct and was deliberately excluded. NAMI + 988 used as the neutral, non-shaming fallback.",
       "GLOBAL (E9.1/R27.7): deliberately NUMBER-FREE — no legitimate single worldwide crisis number exists, so an unmapped region gets the calm local-emergency line plus the findahelpline.com pointer (ThroughLine's verified 175+-country directory, live-checked 2026-07). Review the emergencyNote wording in the §3 pass; never add a phone row here without an official source."
@@ -15,7 +15,7 @@
       "us_nami": "https://www.nami.org/help",
       "tr_quit": "https://alo171.saglik.gov.tr/",
       "tr_alcohol": "https://www.yedam.org.tr/telefon-ile-danismanlik",
-      "tr_crisis": "https://findahelpline.com/tr-TR"
+      "tr_crisis": "https://www.saglik.gov.tr/TR-11523/alo-182---merkezi-hastane-randevu-sistemi.html"
     }
   },
   "regions": {
@@ -110,15 +110,15 @@
         {
           "id": "tr_crisis",
           "appliesTo": ["all"],
-          "name": "ALO 182 — Yaşam Hattı",
-          "descr": "Ruhsal kriz, yoğun kaygı ve intihar düşünceleri için psikolog/sosyal çalışmacı desteği.",
+          "name": "ALO 182 — Merkezi Hastane Randevu Sistemi",
+          "descr": "MHRS hastane randevu hattı: randevu alma, iptal ve değiştirme. Kriz veya ruh sağlığı desteği hattı DEĞİLDİR.",
           "phoneDisplay": "182",
           "dialString": "182",
           "domesticOnly": true,
           "hours": "7/24",
-          "url": "https://findahelpline.com/tr-TR",
+          "url": "https://www.saglik.gov.tr/TR-11523/alo-182---merkezi-hastane-randevu-sistemi.html",
           "verified": false,
-          "verifyNote": "Resmî Sağlık Bakanlığı sayfasında doğrulayın; doğrulanana kadar 112 birincil güvenli seçenektir."
+          "verifyNote": "ASLA `verified: true` YAPMAYIN. Session 46'da operatör (TR) + resmî kaynak ile doğrulandı: 182 Sağlık Bakanlığı'nın MERKEZİ HASTANE RANDEVU SİSTEMİ (MHRS) hattıdır — kriz hattı değildir. Bu satırın eski adı ('Yaşam Hattı') ve ruhsal-kriz açıklaması YANLIŞTI ve düzeltildi. Krizdeki bir kullanıcı 182'yi ararsa randevu IVR'ına düşer. Satır yalnızca gelecekteki bir oturumun aynı yanlışı tekrar yapmasını önlemek için kayıt olarak duruyor; render edilmemesi KASITLIDIR. TR için doğru güvenlik ağı: 112 (acil) + YEDAM 115 (bağımlılık) + ALO 171 (sigara) + GLOBAL findahelpline.com yönlendirmesi."
         },
         {
           "id": "tr_emergency",

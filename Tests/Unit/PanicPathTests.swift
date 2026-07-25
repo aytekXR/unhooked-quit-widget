@@ -568,18 +568,24 @@ struct PanicPathTests {
 
     @Test(arguments: [
         (HabitCategory.vape, "Vaping"),
-        (HabitCategory.porn, "Porn"),
+        (HabitCategory.porn, "Adult content"),
         (HabitCategory.alcohol, "Alcohol"),
-        (HabitCategory.weed, "Weed"),
+        (HabitCategory.weed, "Cannabis"),
         (HabitCategory.doomscroll, "Doomscrolling"),
         (HabitCategory.custom, "Your goal"),
     ]) func test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(
         category: HabitCategory, expected: String
     ) throws {
-        // Kills the swapped/wrong-arm mutant in displayLabel(for:): these nouns are
-        // what a NON-discreet quit renders in the picker (brand-reviewed, clinical,
-        // no shame lexicon) — the discreet/custom-label arms are pinned elsewhere and
-        // never reach the switch.
+        // Kills the swapped/wrong-arm mutant in HabitCategory.displayNoun: these are
+        // what a NON-discreet quit renders in the picker — the discreet/custom-label
+        // arms are pinned elsewhere and never reach the switch.
+        //
+        // S46 (operator §3, OQ-1 RESOLVED): the porn/weed arms were "Porn"/"Weed" and
+        // this test's comment called them "brand-reviewed, clinical". That annotation
+        // was factually wrong — brandkit §1.2 designates "Adult content" (NOT "Porn")
+        // as the clinical noun, and the quiz chips already shipped the clinical pair.
+        // The operator resolved the deadlock toward the brandkit; do not re-pin the
+        // slang back without a recorded founder veto.
         let h = try Harness()
         let quit = try h.repository.createQuit(habitCategory: category)
         let cached = try #require(h.panicSnapshotStore.read())

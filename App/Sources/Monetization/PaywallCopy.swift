@@ -87,8 +87,8 @@ struct PaywallCopy: Codable, Equatable, Sendable {
     static let degraded = PaywallCopy(
         headline: "Keep your momentum.",
         subhead: "Your full plan — every widget, every panic tool.",
-        positioning: "No account. No sign-up. Apple handles billing — cancel in one tap.",
-        positioningNotes: "Your notes and journal never leave your device.",
+        positioning: "No account. Apple handles billing — cancel in one tap.",
+        positioningNotes: "Your notes and reflections never leave your device.",
         planMonthlyTitle: "Monthly",
         planAnnualTitle: "Yearly",
         trialBadge: "3-day free trial",
@@ -108,7 +108,7 @@ struct PaywallCopy: Codable, Equatable, Sendable {
         teaserEscapeLabel: "Look around for a day",
         teaserEscapeNote: "One day of full access, then this screen returns.",
         teaserExpiryEyebrow: "Your free day is done. Everything you set up is still here.",
-        winbackOfferLine: "Your annual plan, now at half price.",
+        winbackOfferLine: "Annual plan, now at half price.",
         winbackMechanicsLineFmt: "%@ for your first year, then %@ per year. Cancel anytime.",
         winbackReassurance: "Everything you set up is still here.",
         winbackDismissLabel: "Not now"

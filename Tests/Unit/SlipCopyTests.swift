@@ -163,8 +163,13 @@ struct SlipLoggedCompositionTests {
         ])
         #expect(!noBest.contains("still ."), "no dangling clause where the number would be")
         #expect(!noBest.contains("{{momentum}}"), "no raw token leaks either")
+        // S46 (operator §3): `bodyNoBest` lost its leading "Logged. " — the
+        // `logged.title` field already renders exactly "Logged." directly above
+        // it, so the no-prior-best path showed the word TWICE on the forgiveness
+        // screen. The sentence-drop behavior this test exists to pin is unchanged;
+        // only the surrounding template is one clause shorter.
         #expect(
-            noBest == "Logged. The next hour starts whenever you're ready.",
+            noBest == "The next hour starts whenever you're ready.",
             "the momentum sentence drops WHOLE; its neighbors are untouched"
         )
 

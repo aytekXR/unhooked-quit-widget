@@ -49,7 +49,7 @@ rows.
 | Data type | Collected | Linked to identity | Used for tracking | Purposes |
 |---|---|---|---|---|
 | Usage Data › Product Interaction | YES (opt-in) | NO | NO | Analytics |
-| Health & Fitness › Health — the habit CATEGORY (**R30.4/OQ-2, counsel to ratify**) | YES (opt-in) | NO | NO | Analytics |
+| Health & Fitness › Health — the habit CATEGORY (**R30.4/OQ-2 — RATIFIED by the operator, Session 46**) | YES (opt-in) | NO | NO | Analytics |
 | Purchases › Purchase History (once the RevenueCat key is live) | YES | NO | NO | App Functionality + Analytics |
 
 Everything else: **Not collected** (§3). Used-for-Tracking is NO on every row — no
@@ -75,12 +75,16 @@ wire ceiling) — plus `goal_mode` ∈ {quit, reduce}. Carried by `quiz_complete
 comment); `App/Sources/Persistence/PersistenceModels.swift` (the six values); mvp §5
 ("habit category is still sensitive-class data"); architecture §10 (legal posture);
 payload-audit §6.
-**The one genuine judgment call (OQ-2, vetoable):** Apple's taxonomy has no
-"addiction category" type. The recommended, reviewer-safe mapping for a 17+
-addiction app is **Health & Fitness › Health**; the alternatives are Sensitive Info
-(GDPR special-category type) or folding into Row 1's Product Interaction with the
-sensitive-class character carried only in the privacy policy. **Declare exactly one;
-counsel ratifies before ASC entry.**
+**OQ-2 — RESOLVED, Session 46 (operator ratification).** Apple's taxonomy has no
+"addiction category" type. The declared mapping is **Health & Fitness › Health** —
+the reviewer-safe reading for a 17+ addiction app. The alternatives considered and
+NOT taken: Sensitive Info (the GDPR special-category type — heavier, and it invites
+a stricter reviewer read than the data warrants, since only a six-value enum is
+transmitted), and folding into Row 1's Product Interaction with the sensitive-class
+character carried only in the privacy policy (fewest rows, but it makes the truth of
+the declaration depend on a document outside the label). Exactly ONE row is declared,
+as required. Counsel may still veto before ASC entry; if they do, the LOCKSTEP rule
+below applies — the manifest and its key-set pin move in the same session.
 
 ### Row 3 — Purchases › Purchase History
 **Evidence (two independent sources):** (a) app-side analytics — `purchase{product,

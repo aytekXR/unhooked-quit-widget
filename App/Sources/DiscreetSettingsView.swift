@@ -219,7 +219,9 @@ struct DiscreetSettingsView: View {
     private func rowLabel(_ quit: Quit) -> String {
         if quit.discreetMode { return dashboardCopy.discreetRowLabel }
         if let custom = quit.customLabel, !custom.isEmpty { return custom }
-        return quit.habitCategory.rawValue.capitalized
+        // S46 (operator §3): same `rawValue.capitalized` fix as the dashboard —
+        // the two rowLabel helpers must never drift from `displayNoun` again.
+        return quit.habitCategory.displayNoun
     }
 }
 

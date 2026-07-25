@@ -35,11 +35,15 @@ struct StreakWidgetStyle: Sendable {
     /// `placeholder(in:)` redacted-sample day text — a neutral static sample, never a
     /// live read (the gallery preview must not touch the feed).
     let placeholderDayText: String
-    /// Accessibility label for the rectangular family's panic button (the shipped
-    /// SkeletonWidget precedent, carried forward verbatim).
+    /// Accessibility label for the rectangular family's panic button. Session 46
+    /// (operator §3 copy pass): re-aligned to the brandkit §8 canonical spec
+    /// ("Panic — opens a 90-second urge exercise"). The prior "full-screen reset"
+    /// described screen GEOMETRY, which a VoiceOver user mid-urge can read as
+    /// "resets my streak" — the opposite of the intent. The spec names the
+    /// function and the time cost, which is what the user needs at that moment.
     let panicAccessibilityLabel: String
     /// The panic button's NORMAL glyph — lifted from the view literal in E6.3 so both
-    /// variants live in this scanned table. MUST stay byte-exactly "wind": the 15
+    /// variants live in this scanned table. MUST stay byte-exactly "wind": the 29
     /// committed E6.2 goldens compare (never re-record) under `.missing`, so any
     /// drift here fails the snapshot lane (Session 22 burn-critic, rank 2).
     let panicGlyph: String
@@ -50,11 +54,14 @@ struct StreakWidgetStyle: Sendable {
     /// that type is a computed-property enum the Mirror walk cannot scan (R9); the
     /// mirror relationship means the two neutrals must never drift apart.
     let panicGlyphDiscreet: String
-    /// Accessibility label for the panic button when the BOUND QUIT is discreet —
-    /// exactly "Reset" (brandkit §1.2/§6-item-3/§8 literal; mirrors
-    /// `PanicControlStyle.discreet.title`, same no-drift note as the glyph above).
-    /// Session 22 PM+Brand+QA joint-signed; the descriptive-parity alternative is
-    /// flagged in the operator's §3 queue.
+    /// Accessibility label for the panic button when the BOUND QUIT is discreet.
+    /// Session 46 (operator §3 copy pass) resolved the flagged fork toward
+    /// descriptive parity: "Reset — opens a quick exercise". The discreet rule
+    /// bans habit WORDS, not information density — a VoiceOver user who cannot
+    /// see the screen needs to know what the tap starts, and bare "Reset" reads
+    /// as "resets my streak". Still leaks zero habit context, so the neutral
+    /// promise to a bystander is unchanged. The glyph pair (mirroring
+    /// `PanicControlStyle.discreet`) keeps its no-drift rule above.
     let panicAccessibilityLabelDiscreet: String
 
     /// The one shipping table. "Day N" itself renders from the entry's number under
@@ -68,9 +75,9 @@ struct StreakWidgetStyle: Sendable {
         milestoneLabel: "next milestone",
         unavailableText: "Ready when you are.",
         placeholderDayText: "Day 7",
-        panicAccessibilityLabel: "Panic — opens a full-screen reset",
+        panicAccessibilityLabel: "Panic — opens a 90-second urge exercise",
         panicGlyph: "wind",
         panicGlyphDiscreet: "arrow.counterclockwise",
-        panicAccessibilityLabelDiscreet: "Reset"
+        panicAccessibilityLabelDiscreet: "Reset — opens a quick exercise"
     )
 }

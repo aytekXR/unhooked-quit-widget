@@ -79,8 +79,8 @@ struct SummaryCopy: Codable, Equatable, Sendable {
     static let degraded = SummaryCopy(
         meta: Meta(version: 1),
         eyebrow: "Based on your answers",
-        savingsCaption: "saved in a year, if you stay on track.",
-        savingsAbsent: "Every clean day is time and focus back — we'll count the streak that matters to you.",
+        savingsCaption: "saved in a year at this rate.",
+        savingsAbsent: "Every day you hold is time and focus back — we'll count the streak that matters to you.",
         windowEvenings: "Your first hard window is likely evenings.",
         windowAfterWork: "Your first hard window is likely just after work.",
         windowSocial: "Your first hard window is likely around social plans.",

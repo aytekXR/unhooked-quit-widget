@@ -1387,14 +1387,7 @@ final class QuitRepository {
     /// must not, and those take the `nil` branch above.
     private static func displayLabel(for quit: Quit) -> String {
         if let custom = quit.customLabel, !custom.isEmpty { return custom }
-        switch quit.habitCategory {
-        case .vape: return "Vaping"
-        case .porn: return "Porn"
-        case .alcohol: return "Alcohol"
-        case .weed: return "Weed"
-        case .doomscroll: return "Doomscrolling"
-        case .custom: return "Your goal"
-        }
+        return quit.habitCategory.displayNoun
     }
 
     /// Folds one duplicate group into its canonical survivor: every field OVERWRITTEN

@@ -234,13 +234,15 @@ Per MVP release criteria: lock-screen widget, panic flow, and discreet mode must
 |---|---|---|
 | 1 | Lock screen with rectangular widget: streak + Panic button | "Your streak on your lock screen. Help one tap away." |
 | 2 | Panic flow breath pacer mid-bloom | "Urges pass. This 90-second reset helps them pass faster. No account. Everything stays on your device." |
-| 3 | Discreet mode: numbers-only widget + Calendar-style icon on a home screen | "Discreet mode. Your quit is nobody's business. On-device, no sign-up, one-tap erase." |
+| 3 | Discreet mode: numbers-only widget on a home screen — **PRIMARY icon only, never an alternate** (R22.10, see below) | "Discreet mode. Your quit is nobody's business. On-device, no sign-up, one-tap erase." |
 | 4 | Dashboard: 3 quit cards (vape/adult content/alcohol), money saved | "Quit up to three habits at once. One app, one price." |
 | 5 | Slip screen showing archived best + momentum 82% | "A slip isn't day zero. Your best is saved. Your momentum survives." |
 | 6 | Quiz summary card: projected $1,340/year + risk window | "90 seconds of questions. A plan that's actually yours." |
 | 7 | Pricing/trust frame: plans with plain renewal terms | "3-day free trial. No countdown timers. No tricks. Cancel in one tap." |
 
 Frame 5 is the differentiator frame; keep it in the first-page scroll on all device sizes. Adult-content references stay clinical in all frames (frame 4 card reads "Adult content," never explicit terms — ASO metadata rule).
+
+**R22.10 — RESOLVED, Session 46 (operator, ASO-owner).** §9.1 ("never use the discreet alternates in store marketing") and this table's original frame 3 (which showed the Calendar-style icon) were mutually exclusive. **§9.1 wins: frame 3 shows the discreet WIDGET only, on a home screen carrying the PRIMARY icon.** The reasoning is one-way — a single public exposure makes the "innocuous" alternate reverse-image-searchable to this app forever, which destroys the entire value of the feature for every user who relies on it. The screenshot story is the numbers-only widget; the icon swap is a private affordance the user discovers in Settings, and it must stay undiscoverable from outside.
 
 ### 9.3 Subtitle & keyword hints
 

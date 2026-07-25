@@ -33,6 +33,13 @@ struct QuizSummaryView: View {
     /// AC8 — the NAMED forward seam. E7 (the paywall owner) remaps this seam to
     /// PaywallView; this session it dismisses to the placeholder dashboard.
     let onContinue: () -> Void
+    /// S46 (operator §3) — the alcohol withdrawal notice, when this completer
+    /// is due one. Non-nil renders the Brand-signed inline caution card ABOVE
+    /// the CTA, so the notice lands BEFORE the paywall: a hard-wall
+    /// non-converter never reaches the dashboard, which used to be the notice's
+    /// only mount. Defaulted so no existing call site changes, and nil for
+    /// every non-alcohol completer (`AlcoholNoticePolicy` decides upstream).
+    var alcoholNotice: AlcoholNoticeSlot? = nil
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// brandkit §8's stacked-at-accessibility-sizes rule, read from the environment
@@ -44,6 +51,9 @@ struct QuizSummaryView: View {
         OnboardingScaffold {
             VStack(spacing: Theme.space.s6) {
                 summaryCard
+                if let alcoholNotice {
+                    AlcoholNoticeCard(slot: alcoholNotice)
+                }
             }
         } actions: {
             Button(action: onContinue) {

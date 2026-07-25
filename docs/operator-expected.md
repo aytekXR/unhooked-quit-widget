@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status | LIVE — **only OPEN items are listed here** (Session 45, 2026-07-24). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
-| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook (11 steps + the consolidated open-decisions table). It sequences every open item below into an order of operations. **The one thing worth doing this week: the §3 copy pass** — it gates the final golden batch → screenshots → submission (`docs/golden-batch.md` + the file-by-file `docs/copy-pass-checklist.md`). |
+| Status | LIVE — **only OPEN items are listed here** (Session 46, 2026-07-25). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
+| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **Session 46 CLOSED the §3 copy pass** (the operator worked it end-to-end: every copy table read, ~20 decisions made, 18 string edits + 4 code fixes landed, 404 unit / 35 snapshot / 121 free-lane tests green, 12 goldens re-recorded). The critical path's step 1 is DONE; **the next longest-lead items are the clinician + counsel sign-off and the §8 keys.** |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
 ---
@@ -34,118 +34,67 @@
       reduce-goal weekly-limit step). Answering creates a real quit with your motivations verbatim,
       then the **personalized summary** (projected yearly savings / calm non-monetary reframe; likely
       hard window; your motivation words) → Continue → dashboard. Enter e.g. 2012 to see the blocked
-      resources surface (988 on a US device; "Go back" recovers). **All quiz + summary copy is DRAFT
-      pending your §3 pass.**
+      resources surface (988 on a US device; "Go back" recovers). **The quiz + summary copy is FINAL as of
+      Session 46** — this is now a confirm-what-you-signed pass, not a draft review.
 
-## 3. Content tone review (the §3 copy pass) — the longest-lead operator item
+## 3. Content sign-offs — what is LEFT after the Session 46 copy pass
 
-> This is the biggest open item and it gates the final golden batch. `docs/copy-pass-checklist.md`
-> lays it out file-by-file; work down that list. The distinct open pieces and the judgment calls that
-> live nowhere else:
+> **The copy pass itself is CLOSED.** Every DRAFT copy table was read end-to-end with you
+> in Session 46, every open copy decision was made, and the edits are landed and green.
+> The full decision record is in `docs/past-prompts.md`. What remains below is only the
+> work that leaves this repo — external sign-off, published legal pages, and two
+> verifications against outside sources.
 
-**The copy tables to read + finalize (all DRAFT, founder-owned, CI-lexicon-scanned):**
+- [ ] **Clinician + counsel sign-off — the safety-content SHIP GATE.** The words are now
+      FINAL pending their pass; nothing else blocks them. Send these three together:
+      (a) `App/Resources/Content/safetyCopy.json` — its `_meta` still reads "DRAFT — needs
+      clinician + counsel sign-off" and that line is what clears on their approval. Note
+      one S46 change to draw their eye to: the alcohol notice body now says "the safest way
+      **forward**" (was "the safest way to **cut down**"). The old phrasing implied gradual
+      self-tapering is the safe route, which is directional medical advice and is not true
+      for every heavy drinker — both stopping and tapering can require supervision. The same
+      fix landed in the degraded fallback (`SafetyResourcesCopy.swift`).
+      (b) the PANIC-PATH breath instruction in `panicScript.json` — "Breathe with the taps.
+      In for 4, hold for 7, out for 8. Three rounds." (what VoiceOver speaks in haptics-only
+      mode). It names no technique and makes no claim; if the clinician wants the counts
+      de-emphasized, that is a one-line edit with no golden impact.
+      (c) `docs/review-notes.md` — read top to bottom; its factual claims were re-verified
+      against source in S46 and three inaccurate ones were corrected.
+- [ ] **Publish the two legal pages — NOW A HARD DEPENDENCY (~30 min + your counsel's text).**
+      S46 wired the paywall's Terms of Use / Privacy Policy from dead labels into real
+      tappable links pointing at **`https://beyondkaira.com/terms`** and
+      **`https://beyondkaira.com/privacy`** (constants in `Shared/Sources/AppIdentifiers.swift`
+      — change them there if you host elsewhere). Apple Schedule 2 requires the links to
+      WORK; a reviewer tapping through to a 404 is a rejection, so the pages must be live
+      before submission. The privacy policy is also where the sensitive-class habit-category
+      disclosure lives (see `docs/app-privacy-label.md`).
+- [ ] **YEDAM 115 operating hours (~5 min, `helplines.json`).** The row ships with
+      `hoursVerified: false` and the honest placeholder "Bilinmiyor — yayına almadan
+      doğrulayın". Confirm the real hours on yedam.org.tr and replace the string.
+- [ ] **US SAMHSA row — re-verify before submission (~5 min).** The 1-800-662-4357 number is
+      currently answering, but SAMHSA is mid-restructuring (proposed FY2026 cuts, absorption
+      into a new agency). Re-check it close to submission; a dead number on a resources
+      screen is the worst class of defect this app can ship.
+- [ ] **The two generated app icons** — `AppIconCalendar` + `AppIconTimer` (built to brandkit
+      §4.3). Look at them on a device home screen (§7 row). Veto/replace freely; the generator
+      (`brandkit/branding-assets/generate-alt-icons.py`) is deterministic and no golden pins
+      icon pixels.
 
-- [ ] **App Review notes** — `docs/review-notes.md` (~15 min read). The paste-ready notes; every
-      claim is anchored to a shipped test. Read it top-to-bottom with copy-table eyes. Its §3 surfaces
-      three submission decisions that are yours alone: (a) 3.1.2 review-build posture — point the review
-      build at the **teaser** arm (has the escape) or defend the **hard wall** (no close); (b)
-      keys-at-submission — a keyless review build never shows a purchase screen, so submit keyed or
-      explain the gating; (c) the 17+ rating in ASC. **Your clinician + counsel pass is its ship gate.**
-- [ ] **Quiz** — `App/Resources/Content/quizConfig.json` (~20 min). The quiz's one audited copy table;
-      rewrite freely (no snapshot goldens exist yet, so edits are cheap). Two sub-decisions: (a) the
-      effects step (slot 10) needs your medical-claims read — chips are non-diagnostic self-report nouns
-      ("Restless sleep", never "insomnia"), keep it non-causal; (b) whether the motivations step gains an
-      optional free-text "why does {motivation} matter?" elaboration (not built yet — a copy/UX call).
-- [ ] **Consent strings** — `quizConfig.json` slot-3 (~5 min): title "Share app usage data?", the helper,
-      and the two choice labels. Two founder calls: (a) helper opener "You'd share…" (conditional) vs "Turn
-      this on to share…" (imperative); (b) do NOT let any "change this anytime in Settings" promise creep in
-      — no settings analytics surface exists. Note: "anonymous" was deliberately removed everywhere as an
-      unverifiable overclaim; the audit-backed "never tied to you" carries the reassurance.
-- [ ] **Summary** — `App/Resources/Content/summaryCopy.json` (~10 min, 11 strings). Two founder calls: (a)
-      the hero renders "~$1,350/year" + "saved in a year, if you stay on track." (a double-"year" read;
-      optional alt: "saved in a year at this rate."); (b) the risk-window phrases are REFLECTION hedges
-      ("…is likely evenings.") — keep "likely", never "predict"-family words.
-- [ ] **Paywall** — `App/Resources/Content/paywallCopy.json` (~15 min, 20 strings; prices are never in this
-      file — `%@` slots bind `ProductCatalog`). Three decisions: (a) **the register decision** — mvp.md §6
-      fixes the positioning canon as "No account. No server. Nothing to leak. Apple handles billing — cancel
-      or refund in one tap." The panel shipped the audit-safe variant instead ("No account. No sign-up. Apple
-      handles billing — cancel in one tap." + "Your notes and journal never leave your device."), because the
-      paywall is the one RC-brokered screen ("No server" is self-contradictory there) and Apple refunds are
-      requested, not one-tap. Restore the verbatim canon by saying so — mvp.md was not touched, this is your
-      call. (b) **Legal riders (legal-owned):** the Terms of Use + Privacy Policy links render as LABELS today
-      — they MUST become **functional URLs** before submission (Apple Schedule 2); re-check the auto-renewal
-      boilerplate against Apple's current "Apple Account" wording in ASC. (c) the screen has NO "Not now" close
-      (the sanctioned escape is E7.2's teaser).
-- [ ] **Win-back strings (5)** — `paywallCopy.json` gains `winbackOfferLine` / `winbackMechanicsLineFmt`
-      (`%@`-bound $14.99 then $29.99 — never a price literal) / `winbackReassurance` / `winbackDismissLabel`,
-      and the settings `winbackRowLabel`. Register: "half price" is honest (a real discount) but NO countdown,
-      NO "one-time", NO we-miss-you framing, NEVER "Reactivate"/"Come back" (a trial-lapse user may never have
-      paid).
-- [ ] **Teaser strings (3)** — `paywallCopy.json` gains `teaserEscapeLabel` / `teaserEscapeNote` /
-      `teaserExpiryEyebrow`. Register: factual duration (never a countdown), no urgency, no loss framing.
-- [ ] **Settings chrome (8 strings)** — `App/Sources/DiscreetSettingsCopy.swift`. All DRAFT except the two
-      picker literals "Calendar style" / "Timer style" (brandkit §4.3 — confirm rather than rewrite). One
-      flagged fork: the discreet widget button's VoiceOver label is bare "Reset" (brandkit literal); a
-      descriptive "Reset — opens a quick reset" gives VoiceOver action-hint parity and still leaks nothing.
-      (The other 4 settings strings — `winbackRowLabel`, `resourcesRowLabel`, `hapticPacerRowLabel`,
-      `hapticPacerFooter` — are reviewed under their functional items here.)
-- [ ] **Widget gallery strings (9)** — `Shared/Sources/StreakWidgetStyle.swift` (gallery name/description,
-      the micro-labels, the empty-state "Ready when you are.", the panic button a11y label). A rewrite
-      re-records the 29 widget goldens (cheap; batch it).
-- [ ] **Milestones (43 strings)** — `App/Resources/Content/milestones.json` (~10 min). "Commonly reported"
-      framing; review with the medical-claims eye — experiential, never clinical promises.
-- [ ] **Slip flow** — `slipCopy.json` (incl. `dashboard` section) + the one agent-drafted line
-      `confirm.retryNote` ("That didn't save just yet — nothing's lost. Tap Log it to try again whenever
-      you're ready."). Read against the brandkit voice (Steady / Forgiving / Honest) and sign the MVP §7
-      copy-audit checklist for the slip surface.
-- [ ] **Panic + haptic-pacer strings** — the settings toggle "Breathe with taps" + its footer (never frame
-      it as an accessibility accommodation — it is first-class eyes-free-for-anyone, brandkit §8), and the
-      taps-anchored breath instruction "Breathe with the taps. In for 4, hold for 7, out for 8. Three rounds."
-      (renders instead of "Follow the circle…" in haptics-only mode; PANIC-PATH copy → clinician+counsel is its
-      ship gate). Two copy niceties to keep-or-fix: the panic entry title "Let's take this one wave at a time."
-      truncates at max Dynamic Type (a shorter title fixes it), and the degraded slip path shows "Logged."
-      twice.
-- [ ] **Age-gate copy** — review the 8 `ageGateCopy.json` strings (both gate screens; panel-signed,
-      CI-scanned against the shame lexicon).
+**Two small copy calls S46 surfaced but did NOT decide (both one-line agent edits once you say):**
 
-**The safety block + clinician/counsel gate:**
-
-- [ ] **`safetyCopy.json` sign-off** — every string now renders in TestFlight. The panel signed the wording
-      as-is, but the file's `_meta` still says "DRAFT — needs clinician + counsel sign-off" and that stays
-      YOURS before public release. Includes: the alcohol withdrawal notice (title "One thing worth knowing" +
-      body + "See resources"/"Got it"), the resourcesScreen strings, one reword to eyeball
-      (`notMedicalCareDisclaimer` → "…not medical or mental-health **care**"), the "Support & resources" label,
-      and the GLOBAL fallback note ("…call your local emergency number. To find a helpline in your country,
-      visit findahelpline.com.") — **verify-or-veto the findahelpline.com pointer** (removing it is a one-line
-      edit; the GLOBAL bucket stays number-free by ruling — never add a phone row without an official source).
-- [ ] **ALO-182 — the Turkish crisis line** (~5 min): `tr_crisis` (ALO 182) is `verified: false` in
-      `helplines.json`, so TR currently shows only 112. Verify it against an official source (Sağlık Bakanlığı),
-      flip `verified: true`, and it renders automatically (a unit test pins that unverified rows can never render).
-- [ ] **E9.2 milestones audit signature** (~10 min): the mechanical half (medical-claim lexicon, "commonly
-      reported" framing on all 43 bodies) is permanent CI; your half is reading `milestones.json` for nuance and
-      recording the sign-off.
-
-**The two MVP ratifications (your file was not touched — ratify or veto):**
-
-- [ ] **Win-back in-app-only (mvp §6):** v1 ships the win-back offer in-app only (no local notification) — a
-      notification would add a permission prompt this privacy-first app never asks for and break a landed test.
-      Honest cost: a lapsed user who never re-opens never sees the offer (you can measure shown→converted but not
-      eligible→shown). Ratify in-app-only for v1, or veto to schedule a notification session.
-- [ ] **Teaser vocabulary (mvp §5):** ratify the two flagged deviations — `paywall_viewed.source` gains
-      `teaser_expiry`, and `variant` transmits the semantic labels `teaser`/`hard`.
-- [ ] **3.1.1 winback row:** add the winback line (discounted price + standard renewal price in one line, plus
-      the standing auto-renew/restore/Terms/Privacy set) to your guideline-3.1.1 sign-off, alongside the S25
-      remote-B-arm rider.
-
-**The two generated assets + the ASO decision (VETO-CLASS):**
-
-- [ ] **The two generated app icons** — `AppIconCalendar` + `AppIconTimer` (built to brandkit §4.3). Look at them
-      on a device home screen (§7 row). Veto/replace freely; the generator
-      (`brandkit/branding-assets/generate-alt-icons.py`) is deterministic and no golden pins icon pixels.
-- [ ] **Store-screenshot decision (R22.10):** brandkit §9.1 says never market the discreet alternates; §9.2 frame 3
-      shows the Calendar icon. They're mutually exclusive (one public exposure makes the "innocuous" icon
-      reverse-image-linkable to Ballast forever). The panel resolved toward §9.1 (frame 3 should show the discreet
-      WIDGET only, primary icon). You own ASO — confirm or veto, and note it in the brandkit.
+- [ ] **Control Center / Shortcuts intent wording.** You approved changing the widget's
+      VoiceOver label from "Panic — opens a full-screen reset" to "Panic — opens a
+      90-second urge exercise" (geometry → function). The SAME "full-screen reset" wording
+      still ships in three iOS system-UI strings: `OpenPanicIntent.swift:15`,
+      `OpenPanicControlIntent.swift:15`, and `PanicControlStyle.swift:35`. These render in
+      the controls gallery and Shortcuts. Left alone deliberately because your §7 device
+      matrix checks those exact strings and changing system-surface text mid-matrix is your
+      call. Align them or keep them.
+- [ ] **Slip encouragement rotation.** `slipCopy.json` carries three encouragement lines but
+      `SlipFlowView.swift:215` renders only `.first`, so lines 2 and 3 have never been seen by
+      any user (line 2 is the one you reworded away from "clean days" in S46). Either activate
+      rotation — one line, `copy.encouragement[slipCount % copy.encouragement.count]` — so a
+      repeat user gets fresh framing, or delete the two dead strings.
 
 ## 5. TestFlight housekeeping — carried from Sessions 07–09; NOW TIMELY
 
@@ -281,17 +230,7 @@
       base for the App Privacy label. The zero-before-consent half is verifiable on today's dormant build too.
 - [ ] **App Privacy label entry (~15 min at submission time)** — `docs/app-privacy-label.md` is the ready-to-enter
       row set: THREE collected rows (Usage Data › Product Interaction; the habit CATEGORY — see OQ-2; Purchases ›
-      Purchase History once RC is live), all Not-linked / Not-tracking, NO Identifiers row. **OQ-2 (counsel,
-      VETO-CLASS): the habit-category taxonomy** — recommendation is **Health & Fitness › Health** (the
-      reviewer-safe mapping for a 17+ addiction app); alternatives are Sensitive Info, or folding it into Product
-      Interaction with the sensitive-class disclosure carried in the privacy policy. Declare exactly ONE — ratify
-      before ASC entry (it flows lockstep to the privacy manifest + label doc).
-
-## Open decision not tied to a section above
-
-- [ ] **OQ-1 — displayLabel (VETO-CLASS, ~2 min):** the panic multi-quit picker and the widget setup screen render
-      the category words **"Porn"** and **"Weed"** (from `QuitRepository.displayLabel`). Brand flags this against the
-      brandkit §1.2 clinical-noun rule (the quiz chips already say "Adult content"/"Cannabis"), but `PanicPathTests`
-      deliberately PINS the current words as "brand-reviewed, clinical" — a genuine documented deadlock. Keep the
-      short nouns (silence = they stand) or say the word and a session repins both strings + the sanctioning test to
-      "Adult content"/"Cannabis" (one billed run; not an App-Review blocker either way).
+      Purchase History once RC is live), all Not-linked / Not-tracking, NO Identifiers row. **OQ-2 — RATIFIED Session 46:**
+      the habit CATEGORY is declared as **Health & Fitness › Health** (the reviewer-safe mapping for a 17+
+      addiction app). Rationale and the two rejected alternatives are recorded in `docs/app-privacy-label.md`.
+      Counsel may still veto; if they do, the manifest + its key-set pin move in the same session (LOCKSTEP).

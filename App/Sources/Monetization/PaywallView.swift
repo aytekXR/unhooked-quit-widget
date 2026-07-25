@@ -317,9 +317,7 @@ struct PaywallView: View {
                 .accessibilityIdentifier("paywall.winback.dismiss")
             }
 
-            // R33.5: restore is a full-width QuietButton (44pt target). Terms/privacy
-            // render as plain labels (not yet functional links — the pre-submission
-            // rider on the operator's queue).
+            // R33.5: restore is a full-width QuietButton (44pt target).
             Button {
                 Task { await model.restorePurchases() }
             } label: {
@@ -328,9 +326,25 @@ struct PaywallView: View {
             .buttonStyle(QuietButtonStyle())
             .accessibilityIdentifier("paywall.restore")
 
+            // S46 (operator §3, legal rider CLOSED): Terms/Privacy were plain
+            // `Text` labels — Apple Schedule 2 and guideline 3.1.2(c) require
+            // FUNCTIONAL links on every subscription purchase screen, so shipping
+            // labels was a standing rejection risk. Destinations live in
+            // `AppIdentifiers` (one place to sweep), never inline here.
+            // Both links carry a 44pt minimum target + an explicit hit shape:
+            // a `Link` is an INTERACTIVE element, so Apple's on-every-merge
+            // accessibility audit measures it (the plain `Text` labels these
+            // replaced were inert and exempt). Footnote-height text alone
+            // measures ~16pt and fails `Hit area is too small`.
             HStack(spacing: Theme.space.s5) {
-                Text(data.termsLabel)
-                Text(data.privacyLabel)
+                Link(data.termsLabel, destination: AppIdentifiers.termsOfUseURL)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+                    .accessibilityIdentifier("paywall.terms")
+                Link(data.privacyLabel, destination: AppIdentifiers.privacyPolicyURL)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+                    .accessibilityIdentifier("paywall.privacy")
             }
             .font(.footnote)
             .foregroundStyle(Theme.color.contentSecondary.color)

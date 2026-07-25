@@ -35,7 +35,7 @@ struct SafetyCopy: Codable, Equatable, Sendable {
         /// Lexicon-scanned beside the shipping table.
         static let degraded = AlcoholNotice(
             title: "One thing worth knowing",
-            body: "For heavy or daily drinking, stopping suddenly can be physically risky. A doctor or a helpline can help you find the safest way to cut down. This app isn't medical care.",
+            body: "For heavy or daily drinking, stopping suddenly can be physically risky. A doctor or a helpline can help you find the safest way forward. This app isn't medical care.",
             primaryActionLabel: "See resources",
             dismissLabel: "Got it"
         )

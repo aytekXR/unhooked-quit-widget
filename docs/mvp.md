@@ -100,7 +100,7 @@ TelemetryDeck, **opt-in**, no user identifiers beyond TelemetryDeck's default ro
 | `onboarding_started` | First quiz screen rendered | `variant` |
 | `quiz_step_completed` | User advances a quiz step | `step_number` (1–14) |
 | `quiz_completed` | Personalized summary shown | `habit_category` (vape/porn/alcohol/weed/doomscroll/custom), `goal_mode` (quit/reduce) |
-| `paywall_viewed` | Paywall rendered | `variant` (Superwall id), `price_test` (29_99/39_99), `source` (onboarding/settings/winback) |
+| `paywall_viewed` | Paywall rendered | `variant` (the semantic label `teaser`/`hard`, mapped from the opaque Superwall id), `price_test` (29_99/39_99), `source` (onboarding/settings/winback/**`teaser_expiry`**) |
 | `trial_started` | StoreKit trial begins (via RevenueCat) | `product` |
 | `purchase` | Purchase/renewal confirmed | `product`, `period` (monthly/annual) |
 | `teaser_entered` | User takes 1-day teaser instead of paying (if variant active) | `variant` |
@@ -127,7 +127,7 @@ Per PRD §6.5, with two research-justified changes flagged.
 - **Model:** hard-ish paywall after the quiz summary (category-proven; hard paywalls convert ~5x freemium per RevenueCat 2025). Nothing past the summary without trial/purchase, except the A/B'd 1-day teaser variant (PRD's planned week 1–2 test).
 - **Pricing:** $6.99/mo; annual **A/B $29.99 vs $39.99** with a 3-day free trial on annual only. **Change vs PRD:** the PRD fixes $29.99/yr; research shows every comparable charges $45–$100/yr and lower-priced trials convert better — so instead of silently keeping or raising the price, run the test from day one. No lifetime SKU (PRD-aligned).
 - **Trial mechanics:** 3-day trial on annual; 80–90% of trials start Day 0 (RevenueCat), so the quiz summary → paywall moment is the business. Trial-start is the primary conversion event.
-- **Win-back:** 50% off annual, 7 days after trial lapse (PRD-specified), delivered via Superwall placement + local notification (never via the panic path).
+- **Win-back:** 50% off annual, 7 days after trial lapse (PRD-specified), delivered via Superwall placement (never via the panic path). **RATIFIED — Session 46 (operator): v1.0 ships the offer IN-APP ONLY; the local notification is CUT.** A notification would require a permission prompt this privacy-first app otherwise never shows — the single loudest contradiction of the product's own positioning — and it breaks a landed test. Honest cost, accepted: a lapsed user who never re-opens the app never meets the offer, so the funnel can measure shown→converted but not eligible→shown. Revisit only with evidence that the in-app path under-delivers.
 - **Positioning copy on the paywall (research-driven):** "No account. No server. Nothing to leak. Apple handles billing — cancel or refund in one tap." This converts incumbents' top 1-star complaints into conversion copy and is unique to this architecture.
 - **Explicitly not doing:** weekly pricing (Puff Count's ~$10/wk is its #1 resentment driver and reputational poison in this category), hidden pricing until after long surveys, or re-paywalling paid users on update (Quittr's scandal).
 

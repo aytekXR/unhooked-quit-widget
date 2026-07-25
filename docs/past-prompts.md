@@ -5827,3 +5827,86 @@ checklist) and `docs/critical-path-post-uir.md` (the sequenced 11-step playbook)
 **Conclusion:** **NO operator action has occurred since S44, and there is no genuinely-unblocked agent trigger.** The project remains fully blocked on the operator critical path (`docs/critical-path-post-uir.md`) — the genuine human-dependency boundary and the autonomous loop's correct stopping condition. What blocks progress is exclusively work only the operator/counsel/a-physical-device/an-ASC-account can do: the §3 copy pass, the open decisions (OQ-1/OQ-2/review-build posture/ratifications/ALO-182/Terms+Privacy URLs), the device sittings (§7 rows + E0.3 latency + the streak-ring motion glance + eyes-free/VoiceOver), the §8 keys + sandbox purchase matrix + the payload/MITM audit, the G0 trademark/name legal clearance, the legal riders + clinician/counsel sign-off, external beta, and ASC final entry + submission. There is no agent build/feature session to run; a future agent session should repeat exactly this cheap check (green? new operator commits? a specific ask?) and act only if a trigger has genuinely fired.
 
 **Budget:** ZERO billed runs (docs-only session log + resume-prompt regeneration + operator-checklist header + critical-path sync note, all `[skip ci]`; the free-lane run bills no CI). **Operator action required: the entire operator critical path** — unchanged from S44; this session neither unblocked, added, nor removed any operator dependency. See `docs/operator-expected.md` (the live checklist) and `docs/critical-path-post-uir.md` (the sequenced 11-step playbook).
+
+---
+
+## 2026-07-25 · Session 46 · The §3 copy pass — worked WITH the operator, closed end-to-end
+
+**Prompted.** The operator opened the session with "operator expected dosyasında benim üzerime düşen işleri yapmaya geldim" — *I've come to do the work that falls on me.* They then selected all four open tracks (§3 copy pass, device sitting #1, §8 keys, §5/§6 housekeeping). This entry records the track that was actually worked to completion in the sitting: **the §3 copy pass, the critical path's step 1 and its longest-lead item.**
+
+**Method.** A 14-agent workflow (`wf_e323a333-604`, ~928k subagent tokens, 0 errors) read every shipping copy table in parallel — one agent per file, plus an external-verification agent for the helplines and a cross-file consistency critic over the whole digest. Each returned every user-facing string with a verdict, a proposed replacement, and the founder decisions with a recommendation. The operator then made ~20 decisions across four question rounds; every code and copy edit below was applied and verified in-session.
+
+**Verified green before commit:** 121 free-lane package tests (StreakEngine 84 / WidgetToolkit 21 / PaywallKit 16), 404 unit tests in 64 suites, 35 snapshot tests in 8 suites, and the UI-smoke/a11y-audit lane — all run locally on an iPhone 17 Pro simulator with Xcode 26.6, mirroring the CI invocations byte-for-byte. 12 goldens re-recorded (107 total, unchanged from the documented count).
+
+### The finding that mattered most: ALO 182 is not a crisis line
+
+`operator-expected.md` §3 had instructed, since Session 27: *verify ALO 182 against an official Sağlık Bakanlığı source and flip `verified: true` — it renders automatically.* **Following that instruction would have shipped a life-safety defect.**
+
+ALO 182 is Turkey's **Merkezi Hastane Randevu Sistemi** (MHRS) — the hospital appointment booking line. The Ministry of Health's own page is titled "Alo 182 - Merkezi Hastane Randevu Sistemi"; no official source anywhere connects 182 to mental health or crisis support. The `helplines.json` row nonetheless carried the name "ALO 182 — Yaşam Hattı" and the description "Ruhsal kriz, yoğun kaygı ve intihar düşünceleri için psikolog/sosyal çalışmacı desteği" — both fabricated — and its own `sources` entry pointed at findahelpline.com rather than any official page, which should have been the tell. A Turkish user in crisis who dialled 182 would have reached an appointment IVR. The `verified: false` flag was the only thing protecting them.
+
+**Resolution (operator's call: correct in place rather than delete).** The row's name, description and source URL now state what 182 actually is; it stays `verified: false` **permanently** and carries an explicit `ASLA verified: true YAPMAYIN` note with the evidence and the date, so no future session repeats the error. `_meta.MUST_VERIFY_BEFORE_SHIP` records the same as RESOLVED / DO NOT REOPEN. Turkey's shipped safety net is 112 + YEDAM 115 + ALO 171 + the global findahelpline.com pointer. No official single-number Turkish mental-health crisis line was found on saglik.gov.tr or turkiye.gov.tr; if one is ever added it must come from an official source, per the standing rule.
+
+`findahelpline.com` was verified live and KEPT (ThroughLine, 130+ countries, IASP-cited). Two new watch items were opened: YEDAM 115's operating hours are still `hoursVerified: false`, and the US SAMHSA line — currently answering — carries institutional-continuity risk through the agency's FY2026 restructuring and must be re-checked close to submission.
+
+### The safety gap the copy pass exposed in code
+
+The alcohol withdrawal notice mounted **only** on the dashboard, inside the store-gated subtree. A user who selects an alcohol goal, completes the quiz and meets the **hard** paywall variant never dismisses it, never reaches the dashboard, and therefore never met the notice — and "did not convert" is uncorrelated with "does not need to know about withdrawal risk". The gap was previously documented as an *accepted* trade-off; the operator chose to fix it.
+
+The notice now also mounts on the **summary**, which every completer sees before the paywall. The card was extracted verbatim into `AlcoholNoticeCard.swift` (a11y identifiers unchanged, so every landed assertion still points at the same elements) and both screens render the same component. The dashboard mount stays as the fallback for anyone whose summary is already behind them — existing installs and TestFlight testers. Double-presentation is impossible by construction: `recordAlcoholNoticeShown()` stamps durably through the one writer at display, so whichever mount fires first closes the other. *(An earlier framing in-session claimed keeping both mounts would need extra double-show guarding; that was wrong — the durable stamp already provides it, and the correction was stated to the operator before implementing.)*
+
+Separately, the notice body said "the safest way to **cut down**" — directional medical advice implying that tapering is the safe route, which is not true for every heavy drinker; both stopping and tapering can require supervision. Now "the safest way **forward**", in the shipping table and the degraded fallback.
+
+### OQ-1 — resolved, and three surfaces wider than documented
+
+The operator resolved the documented deadlock toward brandkit §1.2: in-app category nouns are **"Adult content"** and **"Cannabis"**.
+
+The investigation found the documented scope was wrong. `operator-expected.md` said the words appeared on 2 surfaces via `QuitRepository.displayLabel`. The real count was **5**: `RootPlaceholderView.swift:398` and `DiscreetSettingsView.swift:222` never called `displayLabel` at all — they called `habitCategory.rawValue.capitalized`, which also shipped **"Vape"** (not Vaping), **"Doomscroll"** (not Doomscrolling) and **"Custom"** (not "Your goal") on the dashboard and the settings sheet. Only "Alcohol" was consistent across all three code paths, and fixing `displayLabel` alone would not have touched the other two. All five surfaces now read one table, `HabitCategory.displayNoun`.
+
+The `PanicPathTests` comment that sanctioned the old words as "brand-reviewed, clinical" was itself factually wrong — brandkit §1.2 designates "Adult content" AS the clinical noun — and was corrected rather than carried forward.
+
+### Decisions the operator made
+
+| Decision | Call |
+|---|---|
+| OQ-1 category nouns | Clinical nouns; unify all 5 surfaces on `displayNoun` |
+| OQ-2 App Privacy taxonomy | **Health & Fitness › Health** (Sensitive Info and fold-into-Product-Interaction both rejected; rationale recorded in `app-privacy-label.md`) |
+| R24.9 review-build posture | **Teaser arm** — the reviewer meets the escape, so no 3.1.2 concern is ever raised. Requires a Superwall dashboard variant assignment (operator action, recorded in review-notes §3) |
+| Keys at submission | **Live**, after the sandbox matrix passes |
+| 17+ rating | Ratified |
+| Paywall register | Audit-safe variant kept and tightened; mvp §6 canon NOT restored ("No server" is false on the one RC-brokered screen; refunds are requested, not one-tap; "No sign-up" was redundant with "No account") |
+| Win-back delivery | **In-app only** ratified; the local notification is cut from v1.0 — a permission prompt would be the loudest contradiction of the app's own positioning |
+| Teaser vocabulary (mvp §5) | Ratified (`teaser_expiry` source; semantic `teaser`/`hard` variant labels) |
+| 3.1.1 winback row | Ratified |
+| R22.10 store screenshots | **§9.1 wins** — frame 3 shows the discreet WIDGET on a primary-icon home screen. One public exposure would make an "innocuous" alternate icon reverse-image-searchable to this app forever |
+| Alcohol notice mount | Move to summary (pre-paywall), keep dashboard fallback |
+| ALO 182 | Correct in place, `verified: false` permanently |
+| Panic entry title | "Just this one wave." |
+| "clean day(s)" | Move to neutral phrasing on both surfaces |
+| Milestones | All three medical-adjacency softenings applied (vape breathing, weed memory, porn energy) |
+| VoiceOver labels | Both panic labels changed; the settings gear stays "Settings" |
+| Motivation free-text elaboration | Deferred to v1.1 — build the signal first |
+
+### The truncation that wasn't (and the worse thing underneath it)
+
+Both operator docs recorded that the panic entry title "Let's take this one wave at a time." *truncates* to "Let's take t…" at max Dynamic Type. **The AX5 goldens show it does not — it wraps.** But they showed something no doc had recorded: at AX5 the four-line title pushed the **breath bloom entirely off-screen**, leaving a user at the largest accessibility sizes with only text and no visual pacer to follow — on the one screen whose entire job is "follow this". The shorter title takes two lines and the bloom is back in frame. Confirmed by reading the before/after `snapshot_breathStep.light-ax5.png` directly.
+
+### Other landed changes
+
+- **Legal rider CLOSED in code.** Terms of Use / Privacy Policy were plain `Text` — an Apple Schedule 2 / 3.1.2(c) rejection waiting to happen. Now real `Link`s to `beyondkaira.com/terms` and `/privacy`, with the URLs as constants in `AppIdentifiers.swift`. **The pages themselves must be published before submission** — the one half that left the repo. *Making the labels interactive immediately failed the a11y audit with `Hit area is too small` ×2 — a `Link` is measured where an inert `Text` is exempt — so both carry a 44pt minimum target and an explicit hit shape. The audit catching this is the system working.*
+- **`positioningNotes` promised a journal.** "Your notes and journal never leave your device." — but `mvp.md:68` puts the urge journal explicitly OUT of MVP scope (PRD P1); only slip reflection notes ship. Now "Your notes and reflections never leave your device." A commercial screen naming a feature the build does not have is both a trust problem and needless 3.1.2 exposure.
+- **`slipCopy.logged.bodyNoBest`** lost its leading "Logged. " — `logged.title` already renders exactly that word directly above it, so the no-prior-best forgiveness screen showed it twice. *(The docs described this as a defect of the "degraded slip path"; it was not — the degraded struct sets both body fields to "". The double-echo was in the normal JSON-loaded path when `bestStreakSeconds == 0`.)*
+- **`review-notes.md` — three inaccurate claims corrected.** The "no notification permission" row cited "the landed test that pins no notification authorization request"; **no such unit test exists** (grep over `Tests/Unit/` finds zero references to `UserNotifications` / `UNUserNotificationCenter` / `requestAuthorization`). The underlying claim is true, so the anchor now says code-absence verification. "Not a medical or **therapeutic** product" → "clinical" (§4's own register ban covers therapeutic vocabulary, even in negation). The subscriptions paragraph now states the Terms/Privacy links are tappable, which is true as of this session.
+- **Quiz** — the weekly-limit helper "You can change this anytime." was an unbuilt-feature promise (source-verified: no post-quiz weekly-limit editor exists anywhere in the settings surface) → "Adjust until it feels right." The commitment slider echo "Ready when you are" was the app addressing the user on a step that asks the user to describe their own readiness → "Almost there".
+
+### Dead copy and dead config found, not yet decided
+
+- `slipCopy.encouragement[1]` and `[2]` are **never rendered** — `SlipFlowView.swift:215` uses `.first` only. Three lines were drafted and reviewed; two have never reached a user. Left for the operator: activate rotation (one line) or delete the strings.
+- `quizConfig.controls.spendPlaceholder` is read by no view — `QuizFlowView` binds `step.placeholder ?? "0"`. Editing that key changes nothing on screen.
+- `safetyCopy.resourcesScreen.regionPickerLabel` decodes but is never forwarded into `SafetyResourcesViewData` — a phantom string with no region-picker UI behind it.
+- Three iOS system-UI strings still say "Opens a full-screen reset, instantly." (`OpenPanicIntent.swift:15`, `OpenPanicControlIntent.swift:15`, `PanicControlStyle.swift:35`) while the widget's VoiceOver label moved to "90-second urge exercise". Deliberately not changed: they render in the controls gallery and the operator's §7 device matrix checks those exact strings.
+
+### Doc hygiene
+
+`copy-pass-checklist.md` flipped to a closed-state record. `operator-expected.md` §3 reduced to the external gates only (clinician + counsel, the two legal pages, two helpline re-verifications, the icon eyeball) per its own OPEN-items-only rule; the resolved OQ-1 section was deleted and the stale "quiz + summary copy is DRAFT" note in §2 corrected. `critical-path-post-uir.md` steps 1–2 marked done with a re-ordered "do next". `mvp.md`, `app-privacy-label.md`, `frontend-brandkit.md` §9.2 and `review-notes.md` §3 carry their ratifications inline.
+
+**Unblocked by this session:** the final golden batch (`golden-batch.md`) was gated on the copy pass and can now be minted by an agent at any time.

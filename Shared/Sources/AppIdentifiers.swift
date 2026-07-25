@@ -22,4 +22,15 @@ enum AppIdentifiers {
     static var appGroupContainerURL: URL? {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
     }
+
+    // MARK: - Legal destinations (Apple Schedule 2 / guideline 3.1.2(c))
+
+    /// Terms of Use (EULA). Every subscription purchase screen MUST link to a
+    /// FUNCTIONAL URL — a plain label is a rejection. Operator-owned destination
+    /// on the registered domain; the page itself is published separately.
+    static let termsOfUseURL = URL(string: "https://beyondkaira.com/terms")!
+
+    /// Privacy Policy. Same Schedule 2 requirement as the Terms link above, and
+    /// the destination the App Privacy label's sensitive-class disclosure points at.
+    static let privacyPolicyURL = URL(string: "https://beyondkaira.com/privacy")!
 }

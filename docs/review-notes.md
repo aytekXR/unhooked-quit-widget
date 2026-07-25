@@ -43,7 +43,7 @@
 > described in clinical terms ("Adult content") throughout, and no explicit
 > terminology or imagery appears anywhere in the app. Benefit milestones are framed
 > as "commonly reported," never as medical outcomes. The app is a self-tracking
-> utility, not a medical or therapeutic product, and makes no such claim. A
+> utility, not a medical or clinical product, and makes no such claim. A
 > region-aware helplines/resources screen is one tap from Settings and from every
 > slip flow; the single mandatory caution (an alcohol-withdrawal notice) points the
 > user to a professional and never instructs how to withdraw.
@@ -51,14 +51,15 @@
 > **Privacy.** No accounts and no first-party server. Data stays on-device (included
 > in the user's standard iCloud device backup, like any app); this version does not
 > sync across devices. Analytics are opt-in (default off, asked plainly during the
-> quiz) and carry only funnel steps and the habit category — never notes, journal
+> quiz) and carry only funnel steps and the habit category — never note
 > content, custom habit names, or slip timestamps, and nothing linked to the user's
 > identity or used for tracking. A one-tap erase resets the app to a fresh-install
 > state.
 >
 > **Subscriptions.** Billing is StoreKit via RevenueCat: $6.99/month, or an annual
 > plan with a 3-day free trial. The paywall screen shows the price, the trial length
-> and what follows it, the auto-renewal statement, Terms/Privacy, and Restore. There
+> and what follows it, the auto-renewal statement, tappable Terms of Use and Privacy
+> Policy links, and Restore. There
 > is no lifetime purchase and no notification-based win-back (the app never requests
 > notification permission).
 
@@ -77,21 +78,35 @@
 | Analytics opt-in, category-ceiling, no timestamps/content | `Tests/Unit/ConsentGateTests.swift`, `ConsentPersistenceTests.swift`, `AnalyticsEventTests` (`test_optOut_sendsNothing`, `test_slipLogged_payload_hasNoTimestampProperty`, `test_everyEventCase_serializesOnlyWhitelistedKeys`); `docs/payload-audit.md` §5/§6; `docs/app-privacy-label.md` |
 | One-tap erase → fresh-install state | `Tests/Unit/EraseEverythingTests.swift`; `EraseUITests` |
 | Paywall carries the 3.1.1/3.1.2(c) disclosure set | `Tests/Unit/PaywallCopyTests.swift` (price + trial + renewal + Terms/Privacy + Restore string-presence); `PaywallView` renders `paywall.renewalTerms` / `paywall.trialMechanics` |
-| No notification permission is ever requested | The S26 in-app-only win-back ruling (mvp §6 ratification pending, operator-expected §3); the landed test that pins no notification authorization request (test-suite §7) |
+| No notification permission is ever requested | The S26 in-app-only win-back ruling (**RATIFIED by the operator, Session 46**); verified by **code absence** — no app-target source imports `UserNotifications` or references `UNUserNotificationCenter`/`requestAuthorization` (grep-verifiable; the S46 copy pass found the previous "landed test" citation here was unbacked — no such unit test exists, only the planned static check in test-suite §3.1 and device test 39) |
 
 ## §3. Operator decisions the notes SURFACE (deliberately not resolved here)
 
-1. **The 3.1.2 review-build posture (R24.9 carried rider).** The live paywall's hard
-   variant has no close button by design. Before submission the operator either
-   points the review build at the teaser variant (which carries the "look around for
-   a day" escape) or keeps the hard wall and defends the posture in these notes with
-   one calm sentence. Not resolved by agents.
-2. **Keys at submission (the dormant-build reality).** With no keys wired, the
-   summary routes to the dashboard and a reviewer never sees a purchase screen — a
-   subscription app under review must show its paywall. Submit with the RevenueCat
-   (and Superwall, if used) keys live, or explain the gating here. (operator-expected
-   §8 sequences the keys.)
+1. ~~**The 3.1.2 review-build posture (R24.9 carried rider).**~~ **DECIDED —
+   Session 46 (operator): point the review build at the TEASER variant.** The
+   reviewer lands on the paywall, meets the "look around for a day" escape, and
+   uses the full product, so no 3.1.2 "no way to evaluate before purchasing"
+   concern is ever raised — rather than defending the close-free hard wall in
+   text, which opens a question the reviewer had not asked and restarts the
+   review clock on any follow-up. The escape is single-use (the re-present is
+   close-free), so the hard wall stays the economic default for real users in
+   both arms. **Operator action:** assign the teaser variant to the review build
+   in the Superwall dashboard (operator-expected §8) — this is a dashboard
+   setting, not a code change, and it is the ONE thing that makes this posture
+   true. The teaser path is already covered by
+   `PaywallCopyTests.test_paywallComposed_teaserVariant_carriesEscapeAndAllDisclosures`.
+2. ~~**Keys at submission (the dormant-build reality).**~~ **DECIDED — Session 46
+   (operator): submit with the RevenueCat and Superwall keys LIVE.** A
+   subscription app under review must show its paywall; a keyless build routes
+   the summary straight to the dashboard and a reviewer who sees no purchase
+   screen may approve conditionally and flag it for re-review once monetization
+   goes live, doubling review time. **Prerequisite, already sequenced on the
+   critical path:** the §8 sandbox purchase matrix must pass before submission.
 3. **The 17+ rating** is set in App Store Connect by the operator (never in code).
+   **RATIFIED — Session 46.** It is the only defensible rating: adult-content use
+   is a trackable category throughout the product and the in-app age gate already
+   enforces 17+, so a lower store rating would contradict the app's own policy and
+   invite a metadata rejection.
 4. **Rename/ASO (Gate G0).** These notes use "Ballast" (the registered, TestFlight-live
    identity). The store name field, subtitle, keywords, promotional text, description,
    screenshots, and preview video are operator-owned behind Gate G0 and are NOT

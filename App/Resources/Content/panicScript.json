@@ -4,7 +4,7 @@
     "audit": "No shame lexicon and no verdict language. No medical or withdrawal advice. Physical, time-boxed, urge-surfing framing. Steps map to PanicStep enum: breath, timer, reasons, redirect. Every step is skippable. The `reasons` step renders the user's own motivations verbatim ({{motivations}}) — our copy frames, theirs stars (brand kit §1.2). Discreet mode overrides: the intent is titled 'Reset' and strings carry zero habit context.",
     "duration_target_seconds": 90
   },
-  "entryTitle": "Let's take this one wave at a time.",
+  "entryTitle": "Just this one wave.",
   "entryTitleDiscreet": "Take a moment.",
   "steps": [
     {

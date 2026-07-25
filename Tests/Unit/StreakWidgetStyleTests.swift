@@ -210,17 +210,17 @@ struct StreakWidgetStyleTests {
 
         #expect(
             StreakWidgetDisplay.panicGlyph(for: discreetCard, style: style) == "arrow.counterclockwise"
-                && StreakWidgetDisplay.panicAccessibilityLabel(for: discreetCard, style: style) == "Reset",
-            "a discreet card selects the neutral reset pair (arrow.counterclockwise / \"Reset\") — no breath glyph, no descriptive panic label (R22.2)"
+                && StreakWidgetDisplay.panicAccessibilityLabel(for: discreetCard, style: style) == "Reset — opens a quick exercise",
+            "a discreet card selects the neutral reset pair (arrow.counterclockwise / the habit-free \"Reset — …\" label) — no breath glyph, and no habit word in the spoken label (R22.2)"
         )
         #expect(
             StreakWidgetDisplay.panicGlyph(for: normalCard, style: style) == "wind"
-                && StreakWidgetDisplay.panicAccessibilityLabel(for: normalCard, style: style) == "Panic — opens a full-screen reset",
-            "a normal card keeps the shipped panic pair (wind / the descriptive label)"
+                && StreakWidgetDisplay.panicAccessibilityLabel(for: normalCard, style: style) == "Panic — opens a 90-second urge exercise",
+            "a normal card keeps the shipped panic pair (wind / the brandkit §8 descriptive label)"
         )
         #expect(
             StreakWidgetDisplay.panicGlyph(for: nil, style: style) == "wind"
-                && StreakWidgetDisplay.panicAccessibilityLabel(for: nil, style: style) == "Panic — opens a full-screen reset",
+                && StreakWidgetDisplay.panicAccessibilityLabel(for: nil, style: style) == "Panic — opens a 90-second urge exercise",
             "a nil quit (the .unavailable state) carries no discreet flag ⇒ the normal pair by construction"
         )
     }

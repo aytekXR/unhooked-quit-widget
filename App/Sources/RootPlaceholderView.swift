@@ -68,7 +68,11 @@ struct RootPlaceholderView: View {
                     dashboardSection
                     if let repository = provider?.repository {
                         if showsAlcoholNotice {
-                            alcoholNoticeCard(noticeCopy)
+                            AlcoholNoticeCard(slot: AlcoholNoticeSlot(
+                                copy: noticeCopy,
+                                onDismiss: { showsAlcoholNotice = false },
+                                onSeeResources: { resources = ResourcesPresentation(source: nil) }
+                            ))
                         }
                         storeSlipSurface(repository)
                             .onAppear { considerAlcoholNotice(repository) }
@@ -306,57 +310,6 @@ struct RootPlaceholderView: View {
         showsAlcoholNotice = true
     }
 
-    /// E9.1 (R27.6, Brand-signed shape) — the ONE calm caution: an inline amber
-    /// `semantic/caution` card (never a blocking modal, never a sheet — zero
-    /// contention with the panic mounts), zero red, no alarm glyph
-    /// (`lifepreserver` — the brand-blessed help glyph; no new symbol, R27.9).
-    /// "Got it" carries EQUAL-OR-GREATER prominence than "See resources" — the
-    /// user leaves freely; the hand-off opens the resources screen with a nil
-    /// source (out-of-domain, fires nothing — R27.4).
-    private func alcoholNoticeCard(_ notice: SafetyCopy.AlcoholNotice) -> some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "lifepreserver")
-                    .foregroundStyle(Theme.color.caution.color)
-                    .accessibilityHidden(true)
-                Text(notice.title)
-                    .font(.body.weight(.semibold))
-            }
-            Text(notice.body)
-                .font(.footnote)
-                .foregroundStyle(Theme.color.contentSecondary.color)
-                .multilineTextAlignment(.center)
-            Button {
-                showsAlcoholNotice = false
-            } label: {
-                Text(notice.dismissLabel)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Theme.color.brandPrimary.color)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("alcoholNotice.dismiss")
-            Button {
-                resources = ResourcesPresentation(source: nil)
-            } label: {
-                Text(notice.primaryActionLabel)
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(Theme.color.brandPrimary.color)
-                    .frame(minHeight: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("alcoholNotice.seeResources")
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity)
-        // Amber semantic/caution ONLY — never red (§2 hard rule), calm typography.
-        .background(Theme.color.caution.color.opacity(Theme.alpha.cautionTint), in: RoundedRectangle(cornerRadius: 16))
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("alcoholNotice.card")
-    }
-
     /// E6.3 — the discreet-settings entry point (R22.7: a graft like the slip
     /// surface, store-gated because both its halves persist through the repository).
     /// Neutral secondary chrome — settings is not a call to action. The sheet
@@ -395,7 +348,10 @@ struct RootPlaceholderView: View {
     private func rowLabel(_ quit: Quit) -> String {
         if quit.discreetMode { return dashboardCopy.discreetRowLabel }
         if let custom = quit.customLabel, !custom.isEmpty { return custom }
-        return quit.habitCategory.rawValue.capitalized
+        // S46 (operator §3): was `rawValue.capitalized`, which rendered "Vape",
+        // "Doomscroll" and "Custom" — none of them the brand noun the same user
+        // met in the quiz. `displayNoun` is the ONE table (brandkit §1.2).
+        return quit.habitCategory.displayNoun
     }
 }
 

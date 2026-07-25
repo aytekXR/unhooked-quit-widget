@@ -378,7 +378,7 @@ struct SlipLexiconTests {
         // are exactly why "single" and "secure" stay clean).
         #expect(Self.firstViolation(in: "Log a slip?") == nil)
         #expect(Self.firstViolation(in: "That didn't save just yet — nothing's lost.") == nil)
-        #expect(Self.firstViolation(in: "Momentum is clean days over total days — a single day barely moves it.") == nil)
+        #expect(Self.firstViolation(in: "Momentum is your steady days over total days — a single day barely moves it.") == nil)
         #expect(Self.firstViolation(in: "your data stays secure") == nil)
         #expect(Self.firstViolation(in: "It is a sin.") == "sin")
         #expect(Self.firstViolation(in: "we cure addiction") == "cure")
