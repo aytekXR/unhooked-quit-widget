@@ -2,7 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status | LIVE plan — prepared in Session 40 (UIR-5c), the consolidated golden-batch prep |
+| Status | **ACTIONABLE NOW** — prepared in Session 40 (UIR-5c) and gated on the §3 copy pass, which **CLOSED in Session 46B**. This is the next agent session's whole objective. |
+| Trigger fired | 2026-07-26. Copy is FINAL across every table. Two riders from 46B/47 to carry in: (a) 46B's AX5 goldens disproved a documented "the panic title truncates" claim and revealed something worse the docs never recorded — at max Dynamic Type the long title pushed the **breath bloom entirely off-screen**; check the quiz/summary AX5 axes for that same class rather than trusting a default-size render. (b) `HabitCategory.displayNoun` now drives **5** surfaces (the documented scope of 2 was wrong), so any golden rendering a category noun is affected. Also re-check the 2 `ResourcesSnapshotTests` goldens before assuming they are byte-stable — the §3 safety-copy edits touched that surface. |
 | Purpose | Enumerate exactly which snapshot goldens get **minted / re-recorded** when the operator finalizes copy (§3) — so that batch is ONE clean re-record, not a scramble |
 | Rule it serves | **R33.2 — DON'T mint goldens for draft copy.** Onboarding + paywall ship DRAFT copy (§3-blocked), so their goldens do not exist yet; they are minted the moment the copy is final. |
 

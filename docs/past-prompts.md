@@ -6120,3 +6120,182 @@ Both operator docs recorded that the panic entry title "Let's take this one wave
 `copy-pass-checklist.md` flipped to a closed-state record. `operator-expected.md` §3 reduced to the external gates only (clinician + counsel, the two legal pages, two helpline re-verifications, the icon eyeball) per its own OPEN-items-only rule; the resolved OQ-1 section was deleted and the stale "quiz + summary copy is DRAFT" note in §2 corrected. `critical-path-post-uir.md` steps 1–2 marked done with a re-ordered "do next". `mvp.md`, `app-privacy-label.md`, `frontend-brandkit.md` §9.2 and `review-notes.md` §3 carry their ratifications inline.
 
 **Unblocked by this session:** the final golden batch (`golden-batch.md`) was gated on the copy pass and can now be minted by an agent at any time.
+
+---
+
+## Session 47 — the LOCALE axis: two real money-path defects found and fixed, plus a hole in 46A's own guard (1 billed run) (2026-07-26)
+
+**Context: this session began before the operator's 46B copy-pass commits existed and rebased onto them mid-flight.**
+The three-command session-open saw `origin/main` at `41cc162` (46A's close) with CI green per-job (10/10 on
+`30173055411`), free lanes re-run first-hand (**121 pass**), and `roadmap.md` independently re-checked: **zero
+unchecked boxes**, Phase 4/5 post-launch-gated. So the plan-status question was seven-times answered and was not
+re-asked with a workflow. **The operator pushed 46B (§3 copy pass + the redesign blueprint) while this session's
+audit was running**; the standing `git fetch`-before-every-push rule caught it, and this work rebased cleanly —
+there was **zero file overlap** between the two.
+
+**The axis.** 46A found R46.1 and treated it as one bug. S47 treated it as a **CLASS**: a device *Settings* value
+silently changing behaviour, structurally invisible to a suite and 107 goldens that are always `en_US`. `Calendar`
+was one member; nobody had enumerated the rest. A hand probe confirmed the axis before any agent spend — all three
+money formatters leave `formatter.locale` at the device default, and the app declares **no localizations at all**,
+which makes `Locale.current`'s runtime resolution load-bearing and unverified.
+
+**Method — `wf_716e9226-b8c`, 13 agents, ZERO billed runs to find.** 6 read-only dimension finders (locale
+resolution + money · region resolution on the SAFETY surfaces · locale input/persisted-string parsing · crash
+safety · date-time locale · text/script/bidi/layout), each codegraph-first and each required to **execute a Swift
+probe over the exact shipping bytes** rather than reason. Each finding then fed an **independent refuter** told to
+REFUTE and default to REFUTED. Then a completeness critic. **6 raw findings → 2 actioned, 2 refuted, 2 downgraded;
+two dimensions CLEAN.** The lead agent overrode one downgrade and one refutation on evidence the agents lacked
+(recorded below) and personally re-verified every surviving finding against source before touching a byte.
+
+### The two CLEAN dimensions (meaningful negative results)
+
+- **Region resolution on the safety surfaces — CLEAN, and it backs a paste-to-Apple claim.** Four executed probes
+  proved: correct resolution for nil/unknown/no-region locales; both fallback chains correct (a blocked minor gets
+  the US floor with a dialable 988, an adult gets the GLOBAL bucket); the `verified == true` filter blocks both
+  `false` and absent; the GLOBAL bucket is genuinely number-free; every `tel:` URL valid; and **no path produces a
+  zero-text crisis screen**. `review-notes.md` pastes "a region-aware helplines/resources screen" to Apple — that
+  claim now has probe evidence. (Independently reassuring given 46B's ALO 182 discovery the same day.)
+- **Crash safety — CLEAN.** Every trapping construct enumerated: the nine force-unwraps in `QuitRepository.merge()`
+  are unreachable (its sole call site filters `{ $0.count > 1 }`); all twelve `Int(timeIntervalSince…)` conversions
+  are non-trapping even against a corrupted or far-future persisted date; momentum `Int(…rounded())` is
+  double-clamped; `UserDefaults(suiteName:)!` is guarded by a structurally earlier failure.
+- Also verified: the **widget timeline planner is correct across DST fall-back (25h), spring-forward, Lord Howe's
+  24.5h day, Chatham, and Kathmandu's +05:45** — no past, duplicate, or skipped refresh points. And the **widget
+  feed privacy invariant HOLDS**: no user-supplied text reaches the widget or lock screen.
+
+### R47.1 (the headline) — comma-decimal spend input was silently truncated. FIXED.
+
+`spend` (slot 5) and `allowance` (slot 12) are both `decimalInput`, rendering a `.decimalPad`. **iOS draws that
+keypad's separator from the user's Language & Region setting.** The app parsed with bare `Decimal(string:)` /
+`Int(_:)`, which accept a period ONLY:
+
+| user types | was stored | should be |
+|---|---|---|
+| `12,50` | **12** | 12.50 |
+| `0,50` | **0** — money section then hidden app-wide | 0.50 |
+| `10,5` (allowance) | **nil** — reduce goal loses its weekly limit | 10 |
+| `١٢` (Arabic-Indic keypad) | **0** | 12 |
+
+`weeklySpend` is written at `createQuit` and **has no edit path anywhere in `App/Sources`**, so the wrong value is
+permanent for the life of the quit and corrupts the summary, dashboard AND widget. Silently.
+
+**The fix is NOT "pass `Locale.current`".** Measured: `en_DE` reports `,` (the REGION drives the separator, so an
+English-only app on a German device still sees a comma) — but on that same locale `Decimal(string:"6.50", locale:)`
+returns **6**, so a locale-pass-through merely inverts the truncation, and Apple's forums report keyboard language
+and region routinely disagree. NEW `DecimalInputParser` is separator-AGNOSTIC: folds non-Latin digit scripts, drops
+grouping spaces, and reads the final separator's role from grouping SHAPE, so `1.250` is 1250 on de_DE and 1.25 on
+en_US — what each user meant. Malformed input returns `nil` rather than a plausible-looking wrong number.
+
+**The harness caught three bugs in the first version of that parser** (`"."` and `","` resolved to 0; `"1.2.3.4"`
+became 123.4 — exactly the "partially-understood amount" its own doc comment forbids). Grouping-structure
+validation was added and they now reject. **That is the session's methodological point: the executed harness caught
+defects in the FIX, not just in the original code.**
+
+**R47.1b — the same root cause on `allowance`, found by hand.** The audit agent called that step a "stepper" and
+cleared it. It is not: `quizConfig.json` slot 12 is `decimalInput`, the same `.decimalPad`. Bare `Int(_:)` returned
+`nil` for ANY separator, period or comma, so a reduce-goal user typing `10.5` silently got no weekly limit at all.
+
+### R47.2 — `savingsDisplay` rendered the fabricated "~$0/year" its own contract forbids. FIXED.
+
+`guard savings > 0` ran BEFORE the floor-to-ten, so any projection under ten units floored ONTO zero and rendered
+`"~$0/year"` — precisely what AC4 and MVP §7 ban, and what the `savingsAbsent` reframe exists to replace. The
+shipped AC4 test pinned only *exactly* zero. (The `SummaryDerivationTests:17` comment naming this string is
+**red-phase TDD scaffolding**, not evidence the behaviour was intended — checked before acting.)
+
+### R47.3 — 46A's own calendar lint did not scan the files it was written to protect. FIXED.
+
+`CalendarSourceLintTests` claimed to cover "**ALL shipping code**" and explicitly named "the timeline planner's day
+math" as what it protects — but `scopedRoots` omitted `Packages/`, so `StreakTimelinePlanner.swift` and
+`AdherenceCalculator.swift`, the very pair cited as precedent for the R46.1 fix, **were never opened by the walk**.
+Both are correct today, so nothing shipped wrong; the guard was simply weaker than the project believed. Now 143
+files in scope.
+
+### Where the lead agent overrode the adversarial verdicts (recorded honestly)
+
+- **R47.1 was DOWNGRADED to LOW by its refuter for exactly one reason:** it could not verify that `.decimalPad`
+  presents a comma (its WebFetch attempts 404'd), so it treated the trigger as unverified. That trigger was then
+  verified independently — Apple Developer Forums threads plus an open Apple radar (rdar://40762712) document the
+  behaviour. **The downgrade rested on absence of evidence that was subsequently supplied.** Everything else in
+  that refutation strengthened the finding.
+- **A separate F1 — "the panic reasons step clips long motivations" — was REFUTED, correctly, and independently
+  re-confirmed by hand.** The finder assumed free-text motivations; `QuizProfileMapping` builds them from
+  multiChoice **choiceIDs**, six fixed chips whose longest is "Relationships" (13 chars). Nothing clips, which is
+  also why that rule-11 leg passed Apple's full 7-type audit in S35. **R47.4 (forward-looking, now closed by
+  46B's decision):** had the §3 pass adopted the optional free-text "why does {motivation} matter?" elaboration,
+  it would have needed a paired code change — `PanicFlowView.reasonText` has no `.fixedSize` and each reason is
+  pinned to one screen via `.containerRelativeFrame(.vertical)` inside a paging ScrollView, so a long motivation
+  would truncate **silently, no scroll, no indicator, on the panic screen**. 46B kept the six chips, so nothing is
+  needed — but any future session that adds free-text motivations must fix this first. `PanicFlowView.swift` is
+  outside `OnboardingLayoutLintTests`' scope, so CI will not catch it.
+- **S47-2 (bidi marks / non-Latin digits in money strings) was REFUTED and is recorded as HYPOTHESIS-grade.** Its
+  premise — what `Locale.current` resolves to for an unlocalized app — rested on a paraphrased forum quote, not
+  official documentation, and the two possible answers (`ar_SA` vs `en_SA`) differ materially. Cosmetic either
+  way. **R47.1 is robust to that same ambiguity**, which is why it was actioned and this was not.
+
+### The completeness critic — it earned the wait
+
+Asked what modality nobody ran, which surviving finding was under-evidenced, which refutation was too easy, and
+whether an adjacent class went unowned, it returned real answers on all four:
+
+1. **It independently reached the same verdict on the R47.1 downgrade** — the trigger needed a fetched source, and
+   the refuter should have tried the developer forums after the docs page 404'd. That is exactly the step the lead
+   agent took, which is why the downgrade was overridden rather than accepted.
+2. **It caught the R47.3 refutation using a factually wrong safety-net argument.** The skeptic claimed
+   `test_dayNumber_anchoredToQuitTimeZone_travelCannotInflate` provides secondary coverage; the dimension's own
+   writeup says that test checks the SPREAD between two timezone reads and **cannot fire on a calendar-only
+   regression where both reads use the same wrong calendar**. So such a regression would have passed BOTH the lint
+   (package out of scope) and the behavioural test — a genuine CI blind spot, which vindicates fixing it.
+3. **It named the worst unprobed case, and the shipped fix already covers it.** An Arabic-numeral spend entry
+   parsed to `nil` ⇒ `weeklySpend = 0` — categorically worse than the German truncation, because the money feature
+   vanishes rather than being undervalued. `DecimalInputParser` folds Arabic-Indic digits and U+066B; pinned.
+4. **It found the one adjacent class no dimension owned: privacy-manifest completeness vs Required-Reason APIs** —
+   an App REVIEW rejection risk rather than a user-facing defect, which is the right thing to worry about two
+   steps from submission.
+
+### O47.3 — the privacy-manifest question, investigated and deliberately NOT changed
+
+`LiveClock.swift` uses `mach_continuous_time()` (:36), `mach_timebase_info()` (:35) and
+`sysctlbyname("kern.bootsessionuuid")` (:46,:50); both manifests declare only
+`NSPrivacyAccessedAPICategoryUserDefaults` [CA92.1, 1C8F.1]. Apple's published System-Boot-Time category names
+**`systemUptime` and `mach_absolute_time()`** — neither `mach_continuous_time` (which `LiveClock` documents
+choosing precisely BECAUSE it counts across sleep) nor `sysctlbyname` appears in it. **No manifest change was
+made, deliberately:** declaring a category the app does not need is itself a rejection (ITMS-91055 "Invalid API
+reason declaration"), so guessing is a risk in BOTH directions, and Apple's own page could not be fetched
+authoritatively (JS-rendered; only secondary sources agreed). **The operator already holds the definitive
+evidence** — ASC emails an ITMS-91053 warning after processing a build, and this exact manifest + clock code has
+been through processing on every green-main TestFlight upload. Recorded in `operator-expected.md` §8 as a 2-minute
+inbox search that closes it permanently either way.
+
+### Operator-facing observations
+
+- **O47.1 — the helpline directory covers exactly US + TR.** Every other region gets the number-free GLOBAL bucket
+  (correct by ruling; an agent may never author a helpline row — 46B's ALO 182 finding is exactly why). But
+  critical-path step 10 recruits ≥15 EXTERNAL testers: outside US/TR they see no dialable number, and a blocked
+  under-17 tester falls back to a US 988 line they cannot dial. Recorded in `operator-expected.md` §5 as a
+  recruiting decision to make BEFORE recruiting.
+- **O47.3** above — one free 2-minute inbox search.
+
+### Evidence discipline (what makes the born-green claim honest, R31.4)
+
+Three executed Linux harnesses over the exact shipping bytes, each re-run after the rebase onto 46B:
+1. **`DecimalInputParser`** — 46 assertions across the locale × input matrix, exit 0.
+2. **The extended lint** — pass-on-real-bytes (143 files, 0 violations) AND fire-on-mutation *in the newly added
+   package root*, with comments and the sanctioned `Calendar(identifier: .gregorian)` form correctly exempt.
+3. **RED-against-old** — every new assertion re-run against the PREVIOUS implementations; all 15 fail there, so no
+   test in this batch is decorative.
+
+Plus: `swiftc -parse` on all 8 touched files (and on all 17 of 46B's Swift files before pushing onto them, so a
+syntax error in the merged tree could not burn the run), strict-concurrency typecheck on the new file, free lanes
+re-run (121 pass), the staged set checked (no `.claude/settings.json`), and the operator's own in-flight CI run
+allowed to finish first so this run's result isolates this session's changes.
+
+**Batched per the batching rule: R46.6** — `PersistentStore.swift`'s stale "when the rename lands, this is the one
+line that flips" CloudKit comment, which read as a pending to-do and invited a future session to "finish" it and
+silently break the privacy promise. Reworded to state **v1 ships local-only BY DESIGN**.
+
+**Budget: 1 billed run.** **Operator action required: NONE for the code** — two items were added to
+`operator-expected.md` (a free ITMS-9105 inbox check, §8; the beta-tester geography decision, §5), neither
+blocking. **The §3 copy pass closing (46B) means the FINAL GOLDEN BATCH is now unblocked and is the natural next
+agent session** — `docs/golden-batch.md` specifies it: create the onboarding (age gate / quiz / summary) and
+paywall snapshot suites and mint ~12–20 goldens, red → adopt-from-artifact → green, **every PNG visually verified**,
+never born-green (R32.4). Budget 2 billed runs.

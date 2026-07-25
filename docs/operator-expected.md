@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status | LIVE — **only OPEN items are listed here** (Session 46, 2026-07-26). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
-| What changed since you last read this | **TWO Session-46 runs happened on 2026-07-25 and both landed** (they are logged as 46A and 46B in the ledger). **46A — the pre-launch defect hunt (nothing needed from you):** the first-ever audit of the shipped CODE rather than the plan found and fixed a real 17+ compliance defect — the age gate read the *device's* calendar setting, so on an Islamic-calendar device the 17+ boundary admitted **16.60-year-olds**, and on a Japanese-calendar device the birth-year wheel broke entirely. Fixed, lint-guarded, CI green; your App Review posture is stronger for it. That audit also verified **"erase everything" genuinely erases everything** and that the privacy/consent machinery is clean under adversarial review. It left exactly one new line for you: the ⚠️ R46.2 rider at the top of §8, which needs nothing until you paste the RevenueCat key. **46B — you sat down and closed the §3 copy pass** (see the row below). |
+| Status | LIVE — **only OPEN items are listed here** (Session 47, 2026-07-26). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
+| What changed since you last read this (Session 47) | **One new thing for you, and it is free: §8's first checkbox — search your ASC email for "ITMS-9105" (2 min).** It permanently closes a privacy-manifest question S47 investigated but deliberately did not guess at. Otherwise S47 needed nothing from you. It continued 46A's thread: the age-gate calendar bug was one member of a CLASS — a *device Settings* value silently changing behaviour, invisible to CI because every simulator is `en_US` — so S47 swept the rest of that class and **found and fixed two more real money defects**. A user in any comma-decimal region (most of Europe, Turkey, Brazil, Indonesia) who typed **"12,50" for their weekly spend had it stored as 12**; **"0,50" became 0**, which hides the money feature entirely on the summary, dashboard AND widget — permanently, since spend has no edit path. An Arabic-numeral entry became 0 outright. Also fixed: a projection under ten units rendered a fabricated "~$0/year". **Two dimensions came back clean** (crash safety; and helpline region resolution, which now has probe evidence behind the "region-aware" claim in your App Review notes). One thing worth knowing for **§5 beta recruiting**: verified helplines exist for **US and TR only** — see the new first checkbox there. **Your §3 copy pass is what unblocked the final golden batch**, which an agent can now mint on request. |
 | Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **The §3 copy pass is CLOSED** (Session 46B: every copy table read with you end-to-end, ~20 decisions made, 18 string edits + 5 code changes landed, 12 goldens re-recorded, 404 unit / 35 snapshot / 121 free-lane green). The critical path's step 1 is DONE and **the final golden batch is unblocked.** Three findings from it are worth your eye even though they are already fixed: **ALO 182 is a hospital-appointment line, not a crisis line** — §3 had been telling you to mark it verified, which would have shipped a life-safety defect; the **alcohol withdrawal notice was unreachable** for any alcohol user who hit the hard paywall and did not convert; and the paywall's **Terms/Privacy were dead labels** (now real links — but the two pages still need publishing, and that is on you). **The next longest-lead items are the clinician + counsel sign-off and the §8 keys.** |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
@@ -101,6 +101,15 @@
 
 > Step-by-step walkthrough: `docs/testflight-tester-guide.md` (internal group setup, external groups/public link).
 
+- [ ] **Decide beta-tester GEOGRAPHY before you recruit (S47/O47.1, ~2 min).** Verified helpline rows exist for
+      **US and TR only**. Every other region resolves to the GLOBAL bucket, which by your own number-free ruling
+      shows text guidance ("…call your local emergency number… visit findahelpline.com") and **no tappable
+      number**; a blocked under-17 tester outside US/TR falls back to the US 988 line they cannot dial. S47 probed
+      every fallback path and they all behave correctly — this is design working as intended, not a bug, and an
+      agent may never author a helpline row (official-source verification is yours; S46's ALO 182 finding is
+      exactly why). But if you recruit your ≥15 external testers outside US/TR, that is what they will see. Either
+      weight recruiting to US/TR, or add officially-sourced rows for the regions you recruit from — the render
+      path is already proven, so adding a row is data-only.
 - [ ] **Add internal testers** (nobody receives builds until a tester group exists). Now maximally timely — the
       newest build completes the M1 loop end-to-end (install → gate → quiz incl. the consent step → the summary
       payoff → a real quit whose panic flow speaks the tester's own motivations). Follow Part 1 of the guide.
@@ -182,6 +191,19 @@
       primary icon.
 
 ## 8. §8 keys + config — the last gates on live monetization + funnel data
+
+- [ ] **FREE, DO IT NOW (~2 min) — confirm no ITMS-91053 email ever arrived (S47/O47.3).** S47 checked both
+      `PrivacyInfo.xcprivacy` manifests against the app's actual Required-Reason-API usage and concluded **no
+      change is needed** — but that rests on Apple's published System-Boot-Time list naming `systemUptime` and
+      **`mach_absolute_time()`**, while `LiveClock.swift:36` deliberately uses **`mach_continuous_time()`** (chosen
+      because it keeps counting across device sleep) plus a `kern.bootsessionuuid` sysctl. Neither is named in
+      Apple's list, so nothing was declared — and declaring a category you do NOT need is itself a rejection
+      (ITMS-91055 "Invalid API reason declaration"), so an agent must not add one speculatively. **You already hold
+      the definitive evidence:** App Store Connect emails an **ITMS-91053 "Missing API declaration"** warning after
+      it processes a build, and this exact manifest + clock code has been through processing on every green-main
+      TestFlight upload. Search your ASC/developer email for **"ITMS-9105"**. Nothing there ⇒ closed permanently,
+      delete this line. If a warning IS there, paste it and an agent lands the named category + reason code in one
+      run (a two-line XML edit plus its `PrivacyManifestTests` pin).
 
 > Paste keys in this order (the vertical wakes as a unit): **RevenueCat → Superwall → ASC products + win-back
 > offer + IAP Key → TelemetryDeck app ID.** Until each key lands its SDK is never initialized (zero network).
