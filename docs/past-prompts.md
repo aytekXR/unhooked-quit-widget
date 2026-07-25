@@ -5992,3 +5992,43 @@ testing exactly that path).
 **Operator action required: NONE new.** R46.2 is added to `operator-expected.md` §8 as a rider on the key-paste
 step the operator was already going to do. The critical path is otherwise UNCHANGED — this session did not
 unblock, add, or remove any operator dependency; it removed a defect that would have shipped.
+
+### S46 follow-up — the coverage gap the critic named, closed. CLEAN.
+
+The S46 critic honestly reported what it had NOT audited, and the biggest item was that no agent had ever read
+**`QuitRepository.swift` end-to-end** — ~1500 lines, the app's entire data layer, seen only through codegraph
+EXCERPTS by the 12-agent sweep. A second small workflow (`wf_719d730c-6ab`, 4 agents, ZERO billed runs) closed
+it with two deep reads + a refuter each. **2 raw findings, BOTH REFUTED — no defect survived.**
+
+- **`QuitRepository` read IN FULL** (lines 1–1512, in chunks, plus `PersistenceModels`, `StreakWidgetComposer`,
+  `StreakWidgetState`, `StreakCalculator`, `SlipTransition`). Zero findings in any currently-triggerable path:
+  write atomicity + save-before-return ordering, the deliberate `try?` sites, panic-buffer double-apply/loss
+  across a crash mid-flush, `recomputeDerivedState`'s dedupe-merge + ADR-7 heal, and invalid-`timeZoneIdentifier`
+  handling all check out. Its one candidate (an `adoptChildren` fold allegedly dropping `Slip.note`) was
+  **REFUTED** on a precondition that cannot arise: `Slip.quit` is a to-one inverse, so SwiftData will not let one
+  `Slip` sit in two `Quit.slips` collections, and every `logSlip` mints a fresh `UUID()` — two same-UUID `Slip`
+  rows need a v4 collision. (It is also CloudKit-only, and CloudKit is `.none` until G0.)
+- **"Does erase-everything actually erase everything?" — answered exhaustively, and the answer is YES.** The
+  agent enumerated every persistence writer in the shipping tree (SwiftData models, App Group defaults + files,
+  standard defaults, OS-level icon state, widget display) and diffed that list against the erase path
+  (`EraseFlow`, `eraseEverything()`, `eraseLocalArtifacts()`, all three enumeration sites). **Every artifact the
+  standing rule covers honors it** — `widget-state.json`, the panic snapshot, the panic outcome buffer, the
+  haptic-pacer flag, the lapse/teaser stamps, the alcohol-notice stamp, the quiz progress store, and the
+  trial-dedupe store. Local-clear-first ordering confirmed. This is the app's strongest user-facing promise
+  (a privacy-first quit app whose users may be hiding it from someone) and it now has a source-exhaustive
+  verification behind it, not just tests.
+- Its one candidate was **REFUTED as a finding but is worth recording as a NOTE:** the `UITEST_RESET` test hook
+  (`UnhookedApp.swift:62-74`) clears `QuizProgressStore.key` but not `TrialAnalyticsDedupeStore.key`. That is
+  **test scaffolding, not shipping code** — the production `eraseEverything()` clears it at
+  `QuitRepository.swift:681` — and the key is unwritable today anyway (`markFired()` is downstream of both a
+  consent gate and a dormant RevenueCat). Not worth a billed run; recorded so a future session that touches the
+  hook tidies it in passing.
+
+**FORWARD-LOOKING NOTE for the G0/CloudKit step:** both refutations leaned partly on CloudKit being dormant
+(`PersistentStore.makeConfiguration` pins `cloudKitDatabase: .none` until Gate G0 registers a real container).
+The duplicate-fold path in `recomputeDerivedState`/`adoptChildren` exists precisely FOR CloudKit and is
+therefore the least production-exercised code in the data layer. **When the operator flips the container on,
+that fold deserves its own focused session** — it is the one place where a sync-ordering surprise could merge
+two real quits and their children.
+
+**Budget: ZERO billed runs** (read-only agents; docs-only commit). **Operator action required: NONE.**

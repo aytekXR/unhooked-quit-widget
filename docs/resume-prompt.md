@@ -276,6 +276,15 @@
   unverifiable without the operator's RC key (the R41.1 "never touch a gated surface unverified"
   lesson). It is a named rider on `operator-expected.md` §8 — land it in ONE run WITH the key,
   before the sandbox matrix, which is the test that proves it.
+  **R46.4 (NOTE, not a defect)** — the `UITEST_RESET` hook (`UnhookedApp.swift:62-74`) clears
+  `QuizProgressStore.key` but not `TrialAnalyticsDedupeStore.key`. TEST SCAFFOLDING only — the production
+  `eraseEverything()` clears it (`QuitRepository.swift:681`), and the key is unwritable today (downstream of a
+  consent gate AND dormant RevenueCat). Not worth a billed run; tidy it in passing if a session touches the hook.
+  **R46.5 (FORWARD-LOOKING, for the G0/CloudKit step)** — the duplicate-fold path
+  (`recomputeDerivedState`/`adoptChildren`) exists FOR CloudKit and is the least production-exercised code in
+  the data layer; two S46 refutations leaned partly on CloudKit being dormant (`cloudKitDatabase: .none` until
+  G0 registers a container). **When the operator turns the container on, that fold deserves its own focused
+  session** — it is the one place a sync-ordering surprise could merge two real quits and their children.
   **R46.3 (LOW)** — `QuitRepository.swift:1380` `refreshPanicSnapshot()` (launch-time) rewrites
   the widget feed without `scheduleWidgetReload()`, so a launch-time heal is invisible to the
   widget until the planner's next natural `refreshAfter`. Deliberately NOT fixed: a reload on
@@ -443,7 +452,11 @@ external beta, submission) — see the operator-owned blockers below.
 > **READ FIRST: `docs/critical-path-post-uir.md`** — the operator's sequenced launch playbook (the 11
 > steps, the Open-decisions table, the settings Mac-gate handoff).
 > **DO NOT invent build work; DO NOT re-run a general defect hunt on unchanged bytes** (S46 spent that axis
-> for the current tree — re-run it only over code that has CHANGED). **DO NOT re-attempt the
+> for the current tree — re-run it only over code that has CHANGED). **Already deep-audited CLEAN in S46, do
+> not redo:** `QuitRepository.swift` end-to-end (all 1512 lines — write atomicity, the deliberate `try?` sites,
+> panic-buffer double-apply, `recomputeDerivedState`, invalid-timezone handling) and the
+> **erase-everything completeness diff** (every persistence writer in the tree enumerated and matched against
+> the erase path — every App Group artifact honors the rule; local-clear-first confirmed). **DO NOT re-attempt the
 > settings-content audit on CI** (S40 tail + S42 both proved it unproductive; the R41.1 hidden-icon
 > candidate is a KNOWN-FAILED shape — S40 runs 3+4 hid the icon and still failed). It is a Mac session
 > using Xcode's Accessibility Inspector; the one untried variant + fallbacks are in
