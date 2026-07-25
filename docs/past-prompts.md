@@ -5830,6 +5830,216 @@ checklist) and `docs/critical-path-post-uir.md` (the sequenced 11-step playbook)
 
 ---
 
+## Session 46 — the PRE-LAUNCH DEFECT HUNT: a real 17+ age-gate compliance defect found and fixed (1 billed run) (2026-07-25)
+
+**Goal (self-determined at open).** The cheap session-open check answered the standing question in three
+commands — **no operator action since S45** (`git fetch`: local == `origin/main` at `77b7c44`, tree clean; the
+only two commits after the S45 ledger are AGENT docs-declutter commits, below; last **code** CI run
+`29679913441` SUCCESS verified **per-job**, all 10 jobs; free lanes re-run first-hand: **121 pass**; no §3
+copy-table commit, no §8 key, no OQ-1/OQ-2 decision). Roadmap re-checked: **Phase 4 (v1.1) and Phase 5 (AI
+companion) are both explicitly post-launch-gated** (`roadmap.md:252-256`), so there is genuinely no next
+roadmap item an agent can start. So the plan-status question is six-times answered and this session did NOT
+re-ask it.
+
+Instead it opened the **one high-value axis no prior session had ever run.** S41–S45 all asked *"is any
+PLANNED work left?"* — none asked *"is the SHIPPED CODE correct?"* "Green" in this repo means 121 unit tests +
+107 goldens + 4 lint gates pass; that is not the same claim as "correct". With external beta and App Review
+next on the operator's path, a zero-billed-run adversarial defect hunt over the 119 shipping source files is
+squarely launch-relevant: a real bug found now costs a doc line, the same bug found in beta costs the operator
+a cycle.
+
+**Method — workflow `wf_e3149939-8ad`, 12 agents, ZERO billed runs to find.** 6 dimension finders (privacy/
+consent · safety surfaces · persistence + streak math · monetization/entitlements · widget/AppIntents · app
+flows/concurrency), each read-only and codegraph-first, each capped at its 4 strongest findings under a strict
+finding bar (a concrete failure scenario + verbatim source evidence; copy, dormant keys, docs, style, missing
+tests and runtime speculation all explicitly excluded). Each dimension that produced findings then fed an
+**independent adversarial refuter** told to REFUTE, to re-derive from source rather than trust the quoted
+snippet, and to **default to REFUTED under uncertainty**. Then a completeness critic.
+
+**Result: 5 raw findings, 5 CONFIRMED, 0 refuted — and two dimensions came back CLEAN.** The
+privacy/analytics-consent sweep and the app-flows/concurrency sweep each returned **zero findings**. Those are
+meaningful negative results, not empty ones: the consent finder traced the full ADR-8 double gate (the stored
+`analyticsOptIn` read live inside `fire()` + the Noop transport while `telemetryDeckAppID` is empty), the
+DEBUG-only spy's `#if DEBUG` + `UITEST_EVENT_SPY` arming, and the §10 `widget-state.json` absence set, and
+found no hole. The product's central promise survived an adversarial read.
+
+### R46.1 (HIGH) — the 17+ age gate rode the DEVICE calendar. FIXED this session.
+
+`AgeGateContainerView.swift:136` derived `currentYear` through **`Calendar.current`**, which follows Settings ›
+General › Language & Region › Calendar. `AgeGate.evaluate` counts YEARS, and a year is only ~365 days in a
+SOLAR calendar. This session did not reason about the consequence — it **measured** it with an executed Swift
+probe on the free Linux box:
+
+| device calendar | youngest user the 17+ gate ADMITS |
+|---|---|
+| gregorian | **17.57** solar years — correct |
+| islamic-civil / islamic / umm-al-qura | **16.60** solar years — **a 16-year-old passes** |
+
+An ~11.7-month hole in a legally load-bearing gate, opened by a one-tap Settings choice, on a 17+ app whose
+whole App Review posture rests on that gate. **The probe also surfaced a SECOND consequence no agent named:**
+under the **Japanese** calendar `component(.year:)` returns the ERA year (Reiwa 8 ⇒ `8`), so
+`AgeGateModel.selectableYears` becomes **`-112...8`** — the birth-year wheel renders negative years and
+onboarding is uncompletable in that locale. (Buddhist 2569 / Hebrew 5786 / Persian 1405 / ROC 115 are
+solar-length offsets, so their arithmetic stays correct.)
+
+**Why nothing caught it, and why this is unambiguous rather than a judgment call.** `AgeGate.evaluate` is pure
+and unit-pinned with literal `Int`s; the ambient read lived at the composition site, which no unit test covers.
+And `Calendar.current` **is** Gregorian on every simulator and every dev machine — the entire test suite and
+every golden are structurally blind to this class. It exists only on a user's device. Decisively, the project's
+own convention was already unanimous in the other direction: `StreakCardModel:54`, `AdherenceCalculator:27` and
+`StreakTimelinePlanner:114` each construct `Calendar(identifier: .gregorian)` explicitly. **The age gate was
+the single dissenting site in the codebase.**
+
+**The fix** (`0cec0bf`): `AgeGate.calendar` + `AgeGate.currentYear(at:)` pin Gregorian and take the injected
+clock's instant (Architect MUST-FIX #4 preserved — no ambient `Date()`); the container calls that. NEW
+`Tests/Unit/CalendarSourceLintTests.swift` is the `ThemeSourceLintTests` shape applied to date math: bans
+`Calendar.current`/`.autoupdatingCurrent` across App+Shared+Widgets sources, grow-only, comment-stripped, with
+a 100-file non-vacuity floor (119 scanned today) and a gate-gates-itself calibration test. **BORN-GREEN per
+R31.4, honestly:** an executed Linux harness over these exact bytes proved pass-on-real-bytes (119 files, 0
+violations) AND fire-on-mutation on both idioms, with comments and the sanctioned form correctly exempt.
+`AgeGateTests` gains the semantic pin, with the cross-calendar assertions written **relationally, never by
+exact value**, so an ICU revision can never redden the suite for a reason that is not the defect.
+`review-notes.md:69` — a PASTE-TO-APPLE claim that was device-dependent until now — gained the rider.
+
+**Behavior on CI and on every Gregorian device is byte-identical** (same year Int), so no golden moved and no
+audited surface shifted: the fix is observable only on the devices that were broken.
+
+### The completeness critic: ZERO findings across the submission-risk classes.
+
+The 7th agent's job was to find what the six dimensions MISSED, and it came back clean after checking exactly
+the classes that cause App Review rejections and crash-on-launch — a negative result worth banking before
+submission: **all 9 bundled Content JSON files checked against their Swift `Codable` types (no schema drift —
+the crash-on-launch class the founder's copy pass could otherwise introduce); BOTH `PrivacyInfo.xcprivacy`
+manifests checked against the app's ACTUAL required-reason API usage** (`LiveClock`'s `mach_continuous_time`
+and `kern.bootsessionuuid` are correctly not on Apple's required-reason list); **every SF Symbol name checked
+for availability against the iOS 26 deployment target**; the alternate-icon names verified to align across
+`project.yml` ↔ asset catalog ↔ `DiscreetSettingsView`; CloudKit confirmed consistently disabled across
+`LocalOnlyCloudSync` and `project.yml`; entitlements and the test-only `Ballast.storekit` placement checked.
+(It also independently re-derived that the age gate now pins Gregorian — it ran after the fix landed, so it
+incidentally validated it.)
+
+### R46.2 (MEDIUM) — `EntitlementModel` is never refreshed after purchase/restore or on foreground. DOCUMENTED, not fixed.
+
+`EntitlementModel.swift:8-10` states its own contract: *"PULL-based by ruling: refresh on construction, after
+purchase/restore, **and on foreground**."* **Only construction is implemented.** There is exactly one
+`refresh()` call site in the whole app (`RepositoryProvider.swift:130`, inside the launch Task). Proven by
+reading, not inferred: `PaywallPresenter.makeOnPurchaseCompleted` has the fresh `EntitlementState` **in its
+signature**, fires analytics with it, and then **discards it** — `EntitlementModel.state` is `private(set)` and
+reachable only through `refresh()`/`restore()`. Two consequences, both live-path only (dormant builds have no
+model at all, so nothing is wrong today):
+1. The win-back settings row (`DiscreetSettingsView.swift:73-75`, gated on `.lapsed` via `winbackEligible`)
+   **stays visible to a user who just bought**, offering the half-price win-back again. **The refuter
+   explicitly DOWNGRADED this from the finder's "high / duplicate ASC charge" to medium and it was right to:
+   a second `purchase(package:promotionalOffer:)` on an already-active subscription is refused by StoreKit, so
+   Apple's billing prevents a double charge.** The real harm is a paying subscriber being repeatedly shown a
+   win-back offer and walked into a purchase sheet — a support burden and a guideline-3.1.2 smell, not a
+   billing bug. Recording the distinction so the operator is not alarmed for the wrong reason.
+2. `checkPaywallReentry()` runs on `.task` and on every foreground (`PostGateRootView.swift:264-267`) but
+   evaluates a **launch-time snapshot** — the routing decision it exists to re-evaluate on foreground cannot
+   actually change without a cold launch (so a trial that expires while the process lives keeps access).
+
+**Deliberately NOT fixed this session, and the reason is a project rule, not reluctance:** this is the live
+monetization path, which the standing privacy/monetization gate puts behind Architect pre-approval, and which
+is **unverifiable end-to-end without the operator's RevenueCat key** — the exact "touching a gated surface
+unverified" ban that R41.1 was reverted for. It is now a named item on the §8 key-paste step, where the
+operator will already be running the sandbox purchase matrix that can prove the fix. Fix shape is recorded
+there.
+
+### R46.3 (LOW) — `refreshPanicSnapshot()` rewrites the widget feed without `scheduleWidgetReload()`.
+
+`QuitRepository.swift:1380` — the LAUNCH-time rebuild heals the feed but never asks WidgetKit to reload, so a
+launch-time heal (e.g. an ADR-7 clock heal moving the streak start) is invisible to the widget until the
+planner's next natural `refreshAfter`. **Not fixed:** adding a reload on every cold start spends WidgetKit's
+rate-limited reload budget, so this is an owner tradeoff rather than an obvious bug — which is exactly why the
+refuter downgraded it from medium to low. Recorded for the owner.
+
+### Also rediscovered: R29.4 — already known, correctly deferred.
+
+The persistence finder independently found `startIfNeeded`'s `started = true` set BEFORE the do-block
+(`RepositoryProvider.swift:61`), so one transient store-open throw strands the user on the `circle.dashed`
+placeholder for the whole process lifetime. This is **already documented in-code** at
+`RepositoryProvider.swift:155-164` and named as a carried debt since S29; a retry is a §9-owner design decision
+riding the recovery-flow epic. **No action** — but the hunt rediscovering it from scratch is a good validity
+signal for the method.
+
+**Bookkeeping gap closed.** The two commits after the S45 ledger — `12fdb08` and `77b7c44`, which decluttered
+`operator-expected.md` from 1782 → 297 lines at the operator's "only open items" request — were **never
+recorded in this ledger**. They are agent commits (docs-only, `[skip ci]`, no operator dependency changed) and
+are recorded here for completeness; `operator-expected.md`'s open-items-only rule is now a standing rule in its
+own header.
+
+**CI EVIDENCE — green, and the new tests are PROVEN to have executed (not vacuously compiled out).** Run
+`30173055411` = SUCCESS on **all 10 jobs**, incl. the App lane and the TestFlight upload. Per the standing rule
+that a green run must prove its new tests ran, the run log was read back: `CalendarSourceLintTests.swift`
+appears in the `SwiftCompile` line (so XcodeGen's `Tests/Unit` directory glob picked the new file up — no
+`project.yml` edit needed), the suite **`S46 · calendar single-source lint` started and passed** (0.109 s — a
+real 119-file corpus walk, not a no-op), and all three new tests are individually logged as passing:
+`test_shippingSources_deriveNoDateComponentFromTheAmbientCalendar()`,
+`test_calibration_matcherFiresAndCommentsAreExempt()`, and
+`test_ageGate_currentYear_isGregorian_regardlessOfDeviceCalendar()`. The unit lane totals **407 tests in 65
+suites** (this diff contributes +3 tests and +1 suite); snapshot lane 35 tests in 8 suites; the free package
+lanes 84/21/16. **107 goldens unmoved**, exactly as predicted — the fix is byte-identical on a Gregorian host.
+(The prior run's log has since expired on GitHub, so the 404/64 "before" figure is stated as a property of this
+diff rather than as a re-verified measurement.)
+
+**Budget: exactly 1 billed run** (`30173055411`) — spent on a genuine 17+ compliance defect, not on
+make-work. The banked ready-to-ride `StreakWidgetStyle` comment (15 → 29 goldens) was **batched into it** per
+the standing rule. The second banked item (win-back repository-tier tests) was deliberately NOT batched: it is
+a new app-lane test file that cannot be typechecked on this Linux box, so it carries red-run risk, and it is
+non-launch — it stays banked, and it now has a better home anyway (the R46.2 fix session, which will be
+testing exactly that path).
+
+**Operator action required: NONE new.** R46.2 is added to `operator-expected.md` §8 as a rider on the key-paste
+step the operator was already going to do. The critical path is otherwise UNCHANGED — this session did not
+unblock, add, or remove any operator dependency; it removed a defect that would have shipped.
+
+### S46 follow-up — the coverage gap the critic named, closed. CLEAN.
+
+The S46 critic honestly reported what it had NOT audited, and the biggest item was that no agent had ever read
+**`QuitRepository.swift` end-to-end** — ~1500 lines, the app's entire data layer, seen only through codegraph
+EXCERPTS by the 12-agent sweep. A second small workflow (`wf_719d730c-6ab`, 4 agents, ZERO billed runs) closed
+it with two deep reads + a refuter each. **2 raw findings, BOTH REFUTED — no defect survived.**
+
+- **`QuitRepository` read IN FULL** (lines 1–1512, in chunks, plus `PersistenceModels`, `StreakWidgetComposer`,
+  `StreakWidgetState`, `StreakCalculator`, `SlipTransition`). Zero findings in any currently-triggerable path:
+  write atomicity + save-before-return ordering, the deliberate `try?` sites, panic-buffer double-apply/loss
+  across a crash mid-flush, `recomputeDerivedState`'s dedupe-merge + ADR-7 heal, and invalid-`timeZoneIdentifier`
+  handling all check out. Its one candidate (an `adoptChildren` fold allegedly dropping `Slip.note`) was
+  **REFUTED** on a precondition that cannot arise: `Slip.quit` is a to-one inverse, so SwiftData will not let one
+  `Slip` sit in two `Quit.slips` collections, and every `logSlip` mints a fresh `UUID()` — two same-UUID `Slip`
+  rows need a v4 collision. (It is also CloudKit-only, and CloudKit is `.none` until G0.)
+- **"Does erase-everything actually erase everything?" — answered exhaustively, and the answer is YES.** The
+  agent enumerated every persistence writer in the shipping tree (SwiftData models, App Group defaults + files,
+  standard defaults, OS-level icon state, widget display) and diffed that list against the erase path
+  (`EraseFlow`, `eraseEverything()`, `eraseLocalArtifacts()`, all three enumeration sites). **Every artifact the
+  standing rule covers honors it** — `widget-state.json`, the panic snapshot, the panic outcome buffer, the
+  haptic-pacer flag, the lapse/teaser stamps, the alcohol-notice stamp, the quiz progress store, and the
+  trial-dedupe store. Local-clear-first ordering confirmed. This is the app's strongest user-facing promise
+  (a privacy-first quit app whose users may be hiding it from someone) and it now has a source-exhaustive
+  verification behind it, not just tests.
+- Its one candidate was **REFUTED as a finding but is worth recording as a NOTE:** the `UITEST_RESET` test hook
+  (`UnhookedApp.swift:62-74`) clears `QuizProgressStore.key` but not `TrialAnalyticsDedupeStore.key`. That is
+  **test scaffolding, not shipping code** — the production `eraseEverything()` clears it at
+  `QuitRepository.swift:681` — and the key is unwritable today anyway (`markFired()` is downstream of both a
+  consent gate and a dormant RevenueCat). Not worth a billed run; recorded so a future session that touches the
+  hook tidies it in passing.
+
+**FORWARD-LOOKING NOTE for the G0/CloudKit step:** both refutations leaned partly on CloudKit being dormant
+(`PersistentStore.makeConfiguration` pins `cloudKitDatabase: .none` until Gate G0 registers a real container).
+The duplicate-fold path in `recomputeDerivedState`/`adoptChildren` exists precisely FOR CloudKit and is
+therefore the least production-exercised code in the data layer. **When the operator flips the container on,
+that fold deserves its own focused session** — it is the one place where a sync-ordering surprise could merge
+two real quits and their children.
+
+**Budget: ZERO billed runs** (read-only agents; docs-only commit). **Operator action required: NONE.**
+
+> **Two sessions ran concurrently on 2026-07-25 and both numbered themselves 46.** They did not
+> collide: the entry above is the autonomous **pre-launch defect hunt** (the age-gate calendar fix
+> + the redesign blueprint), and the entry below is the **operator-driven §3 copy pass**. They were
+> merged after the fact; the only code overlap was the same stale "15 goldens" comment in
+> `StreakWidgetStyle.swift`, which both fixed identically. Read them as 46A (defect hunt) and
+> 46B (copy pass).
+
 ## 2026-07-25 · Session 46 · The §3 copy pass — worked WITH the operator, closed end-to-end
 
 **Prompted.** The operator opened the session with "operator expected dosyasında benim üzerime düşen işleri yapmaya geldim" — *I've come to do the work that falls on me.* They then selected all four open tracks (§3 copy pass, device sitting #1, §8 keys, §5/§6 housekeeping). This entry records the track that was actually worked to completion in the sitting: **the §3 copy pass, the critical path's step 1 and its longest-lead item.**

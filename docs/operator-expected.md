@@ -2,8 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Status | LIVE — **only OPEN items are listed here** (Session 46, 2026-07-25). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
-| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **Session 46 CLOSED the §3 copy pass** (the operator worked it end-to-end: every copy table read, ~20 decisions made, 18 string edits + 4 code fixes landed, 404 unit / 35 snapshot / 121 free-lane tests green, 12 goldens re-recorded). The critical path's step 1 is DONE; **the next longest-lead items are the clinician + counsel sign-off and the §8 keys.** |
+| Status | LIVE — **only OPEN items are listed here** (Session 46, 2026-07-26). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
+| What changed since you last read this | **TWO Session-46 runs happened on 2026-07-25 and both landed** (they are logged as 46A and 46B in the ledger). **46A — the pre-launch defect hunt (nothing needed from you):** the first-ever audit of the shipped CODE rather than the plan found and fixed a real 17+ compliance defect — the age gate read the *device's* calendar setting, so on an Islamic-calendar device the 17+ boundary admitted **16.60-year-olds**, and on a Japanese-calendar device the birth-year wheel broke entirely. Fixed, lint-guarded, CI green; your App Review posture is stronger for it. That audit also verified **"erase everything" genuinely erases everything** and that the privacy/consent machinery is clean under adversarial review. It left exactly one new line for you: the ⚠️ R46.2 rider at the top of §8, which needs nothing until you paste the RevenueCat key. **46B — you sat down and closed the §3 copy pass** (see the row below). |
+| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **The §3 copy pass is CLOSED** (Session 46B: every copy table read with you end-to-end, ~20 decisions made, 18 string edits + 5 code changes landed, 12 goldens re-recorded, 404 unit / 35 snapshot / 121 free-lane green). The critical path's step 1 is DONE and **the final golden batch is unblocked.** Three findings from it are worth your eye even though they are already fixed: **ALO 182 is a hospital-appointment line, not a crisis line** — §3 had been telling you to mark it verified, which would have shipped a life-safety defect; the **alcohol withdrawal notice was unreachable** for any alcohol user who hit the hard paywall and did not convert; and the paywall's **Terms/Privacy were dead labels** (now real links — but the two pages still need publishing, and that is on you). **The next longest-lead items are the clinician + counsel sign-off and the §8 keys.** |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
 ---
@@ -186,6 +187,19 @@
 > offer + IAP Key → TelemetryDeck app ID.** Until each key lands its SDK is never initialized (zero network).
 > The sandbox purchase matrix + the payload audit are the SECOND physical sitting, sequenced after the keys.
 
+- [ ] **⚠️ AGENT RIDER — R46.2, do this WITH the RevenueCat key, before the sandbox matrix (~1 agent run):** the
+      S46 defect hunt proved (source-verified, not speculative) that **`EntitlementModel` is never refreshed after a
+      purchase/restore or on foreground**, though its own contract promises all three — there is exactly ONE
+      `refresh()` call site in the app (`RepositoryProvider.swift:130`, at launch), and
+      `PaywallPresenter.makeOnPurchaseCompleted` receives the fresh `EntitlementState`, fires analytics with it,
+      then discards it. **Nothing is wrong on today's dormant build** (no key ⇒ no entitlement model at all), but
+      the moment your key lands two things break: (a) the win-back settings row stays visible to someone who JUST
+      bought, re-offering the half-price deal (**not a double-charge risk — StoreKit refuses a second purchase of
+      an active subscription; the harm is a paying subscriber repeatedly walked into a purchase sheet, a support
+      burden and a guideline-3.1.2 smell**); (b) `checkPaywallReentry()` re-runs on every foreground against a
+      launch-time snapshot, so a trial that expires mid-session keeps access until a cold launch. It was NOT fixed
+      blind because the live monetization path cannot be verified without your key. **Say the word when the key is
+      in and an agent lands it in one run — your sandbox matrix below is exactly the test that proves it.**
 - [ ] **RevenueCat key (~10 min)** — create the app in the RevenueCat dashboard and paste the PUBLIC SDK key into
       `App/Sources/Monetization/RevenueCatConfiguration.swift` (`revenueCatAPIKey`). The moment a build carries it,
       non-subscribers hit the paywall after the quiz summary and RC starts caching entitlements (Purchase History

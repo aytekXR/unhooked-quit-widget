@@ -133,7 +133,12 @@ struct AgeGateContainerView: View {
               let repository = provider?.repository,
               AgeGateRouting.firstScreen(ageGatePassed: repository.isAgeGatePassed()) == .ageGate
         else { return }
-        let currentYear = Calendar.current.component(.year, from: LiveClock().now)
+        // S46: the year rides the gate's PINNED Gregorian calendar, never
+        // `Calendar.current` — the device's Language & Region calendar setting must
+        // not be able to move a 17+ boundary (an Islamic-calendar device admitted a
+        // 16.60-year-old; a Japanese-calendar device rendered a -112...8 wheel).
+        // See `AgeGate.currentYear(at:)`.
+        let currentYear = AgeGate.currentYear(at: LiveClock().now)
         model = AgeGateModel(
             analytics: .disabled,
             currentYear: currentYear,
