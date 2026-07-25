@@ -289,6 +289,16 @@
   the widget feed without `scheduleWidgetReload()`, so a launch-time heal is invisible to the
   widget until the planner's next natural `refreshAfter`. Deliberately NOT fixed: a reload on
   every cold start spends WidgetKit's rate-limited budget — an owner tradeoff, not a bug.
+- **R46.6 (ready-to-ride, source-comment fidelity — MILDLY DANGEROUS if left):**
+  `App/Sources/Persistence/PersistentStore.swift:6-10` still reads "CloudKit mirroring is configured EXPLICITLY
+  off **until Gate G0 clears**… when the rename lands, **this is the one line that flips** to
+  `.private("iCloud.<newname>")`." G0's technical half LANDED 2026-07-08 and the line deliberately did NOT flip,
+  because **v1 is local-only by design** — entitlements declare App Groups ONLY (no iCloud), the sync seam is
+  `LocalOnlyCloudSync`, and the positioning copy promises "No server. Nothing to leak." / "never leave your
+  device." As written the comment reads as a PENDING TO-DO, so a future agent could "finish" it and silently
+  break the privacy promise AND the App Privacy label. Reword to "v1 ships local-only BY DESIGN; enabling
+  CloudKit is a post-v1 decision that re-derives the privacy label + manifest." Comment-only ⇒ needs a billed
+  run ⇒ **batch it, never standalone.**
 - **Ready-to-ride agent items:** (a) the `StreakWidgetStyle` "15" → "29" comment — ✅ **DONE S46**
   (batched into the R46.1 run, exactly as the rule prescribes). (b) two repository-tier
   integration tests for `winbackEligible`/`paywallReentry` — STILL BANKED; the pure
