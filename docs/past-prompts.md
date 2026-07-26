@@ -6299,3 +6299,108 @@ blocking. **The §3 copy pass closing (46B) means the FINAL GOLDEN BATCH is now 
 agent session** — `docs/golden-batch.md` specifies it: create the onboarding (age gate / quiz / summary) and
 paywall snapshot suites and mint ~12–20 goldens, red → adopt-from-artifact → green, **every PNG visually verified**,
 never born-green (R32.4). Budget 2 billed runs.
+
+---
+
+## Session 48 — the golden batch: fully scoped, then deliberately NOT minted (0 billed runs, docs-only) (2026-07-26)
+
+**Objective at open:** mint the final golden batch. The operator's 46B closed the §3 copy pass, which is
+exactly the trigger `docs/golden-batch.md` had been waiting for since Session 40 — onboarding (age gate,
+quiz, summary) and the paywall ship copy that is now FINAL but have no snapshot suite at all (R33.2:
+never mint goldens for draft copy). This is the last agent task on the launch path.
+
+**Outcome: scoped end-to-end, then STOPPED on a genuine operator decision. No code changed, no CI run
+spent.** The full mint plan is banked below so the batch starts immediately once the operator answers.
+
+### Why it stopped — two independent reasons, either sufficient
+
+**1. The operator's own `redesign/` blueprint schedules changes to ALL FOUR surfaces, pre-launch.**
+`redesign/design-roadmap.md` (committed by the operator in the same 46B session that unblocked the
+batch) sequences: **QW-6** crest on the age gate (Phase 2); **ME-8** the waterline field behind the quiz
+plus "warmer keyboard steps (spend/custom-name)" (Phase 3); **ME-4 "Summary payoff redesign"** and
+**ME-9 "Paywall goldens + reachable polish"** (Phase 4). Phase 4's own description reads: *"Summary +
+paywall carry their weight; goldens re-record once (`docs/golden-batch.md`); screenshots (LB-5) can
+shoot against final UI."* Phases 1–4 are framed as **"to launch-ready … ~7 weeks"**. So the redesign
+roadmap explicitly OWNS this batch and puts it after the redesign — while
+`critical-path-post-uir.md` (also operator-updated in 46B) says the batch is unblocked now. **Two
+operator-authored documents disagree, and which governs is a product decision an agent cannot derive.**
+
+**2. The batch requires touching PRODUCTION code on exactly the views the redesign rewrites.** The
+scoping proved two seams are unavoidable (below) — one of them in `QuizSummaryView`, which is precisely
+what ME-4 redesigns. Adding a snapshot seam to a view scheduled for rewrite is churn on top of
+throwaway goldens.
+
+**Recorded as `operator-expected.md` §0** with three concrete options: (A) ship the current UI, mint now;
+(B) redesign runs first, batch defers to its Phase 4; (C) freeze some surfaces and mint only those.
+
+### What the scoping found — `wf_37cf6604-562`, 6 agents, 0 billed runs
+
+Four surface agents + a determinism/mechanics agent, then an adversarial compile-risk critic. Every
+agent was required to quote real initializers with file:line and to mark anything unverified, because
+**app-target test code cannot be compiled on this Linux box at all** — every mistake costs a billed run.
+
+**The single most valuable finding — a certain, silent failure that would have wasted run 1:**
+`QuizSummaryView` declares `@State private var revealed = false`, renders `.opacity(revealed ? 1 : 0)`,
+and sets it inside `.onAppear { withAnimation { … } }`. **Every summary golden would have been a BLANK
+PNG.** Two agents confirmed independently; the critic classified it as certain, not speculative. The fix
+is a test-internal init pre-setting `_revealed = State(initialValue: _snapshotRevealed)`, which requires
+adding explicit inits to the production struct body. **The scoping paid for itself on this alone.**
+
+**The critic also caught, before any byte was written:**
+- **A FATAL seam-label mismatch** — the two agents proposed different labels (`_snapshotRevealed` vs
+  `startRevealed:`). Had both files been written from different write-ups, the suite would not compile
+  and would record nothing. Resolved: `_snapshotRevealed`, two-init approach (production and test
+  overloads non-overlapping, so production can never accidentally use it).
+- **A wrong fixture approach** — one agent hand-built `SummaryViewData` from hardcoded strings matching
+  `.degraded`. That golden would stay GREEN if copy changed. Correct form:
+  `SummaryPresentation.make(inputs:copy: SummaryCopy.loadShipping() ?? .degraded, locale: Locale(identifier: "en_US"))`
+  — reads real shipping strings, so a copy change turns it red, which is the whole point of a
+  copy-pinning golden. The rule is not "never call `make` from a snapshot test"; it is "never call it
+  without a pinned locale."
+- **An unnecessary parameter** in the proposed `AgeGateBlockedView` seam (`footerDisclaimer:`), which
+  would have forced the test to supply a value diverging from production's inline default.
+- **Scope blowup: 51 proposed goldens against a 12–20 budget.** Cut to **22** with per-golden rationale;
+  AX5 axes kept only where a documented layout PIVOT exists (summary hero HStack→VStack per R33.12; the
+  age-gate entry; one quiz step) and dropped where content merely scrolls (paywall is inside a ScrollView).
+- **`UITraitCollection(traitsFrom:)` is deprecated and fails under `-warnings-as-errors`** — it burned a
+  billed run once already; only the iOS-17+ closure-init form is allowed.
+
+### THE BANKED PLAN (execute as-is once the operator answers A or C)
+
+**Two production seams, each in the SAME commit as the tests that use them:**
+1. `AgeGateBlockedView` — add `init(model:blocked:)` (2 lines) to bypass its `Locale.current` read. This
+   is the exact `SafetyResourcesView` / `ResourcesSnapshotTests` precedent.
+2. `QuizSummaryView` — add an explicit production init plus a test-internal init taking
+   `_snapshotRevealed: Bool`, assigning `_revealed = State(initialValue: _snapshotRevealed)`. Both inits
+   in the struct body, before `body`.
+
+**22 goldens across 4 new suites:** AgeGate entry (4 axes) + blocked (2); Quiz habit (4) + consent (2);
+Summary fullData (4) + savingsAbsent (2) + withAlcoholNotice (2); Paywall hard_annual (2) +
+teaser_annual (2). Config identical to the shipped suites:
+`.image(precision: 0.99, perceptualPrecision: 0.98, layout: .device(config: .iPhone13), traits: UITraitCollection { … })`,
+`@MainActor @Suite(.snapshots(record: .missing))`.
+
+**Two billed runs, split to isolate risk** (the critic's recommendation, adopted): **run 1** = age gate +
+quiz + paywall (no seam or trivial seam) records 18 goldens; **run 2** = summary alone (the one complex
+seam) records 4. A seam error in the summary therefore cannot destroy the other 18.
+
+**Verified-by-quote initializers** (all confirmed against source by the critic):
+`AgeGateModel.init(analytics:currentYear:persistPass:)`; `QuizFlowModel.init(config:analytics:checkpoint:variant:onComplete:persistConsent:)`;
+`QuizProgressStore.save(_:)`; `PaywallPresentation.make(copy:variant:source:)`; `PaywallModel.Plan`;
+`PaywallModel.selectedPlan` (internal var, writable); `QuizConfig.degraded`. Paywall needs **no** seam —
+it is a pure renderer over `PaywallViewData` + `selectedPlan` + `phase`, settled at construction, and
+constructible inert with two closures and **zero RevenueCat symbols** (the DORMANT canon holds).
+
+**Two open risks to watch on run 1:** (a) the age-gate **UIPickerView** has 122 rows and may not populate
+synchronously — the first minted golden MUST be eyeballed before adoption; if the wheel renders blank or
+centre-row-only, do not adopt. (b) **CI pins no locale or timezone** for the snapshot lane — a future
+flake source worth pinning while the suites are being written.
+
+Full write-ups (quoted signatures, draft Swift, hazard tables) are banked at
+`scratchpad/s48-{age-gate,quiz,summary,paywall,determinism-and-mechanics,critique}.md` and summarised
+here in enough detail to reconstruct them.
+
+**Budget: ZERO billed runs, docs-only commit.** **Operator action required: YES — `operator-expected.md`
+§0, one short answer, and it is the only thing blocking agent work.** Everything else on the critical
+path is unchanged: clinician + counsel sign-off, the two legal pages, G0 trademark clearance, device
+sitting #1, §8 keys (which still carries the R46.2 rider), external beta, submission.

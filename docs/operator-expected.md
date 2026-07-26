@@ -3,11 +3,52 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — **only OPEN items are listed here** (Session 47, 2026-07-26). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
-| What changed since you last read this (Session 47) | **One new thing for you, and it is free: §8's first checkbox — search your ASC email for "ITMS-9105" (2 min).** It permanently closes a privacy-manifest question S47 investigated but deliberately did not guess at. Otherwise S47 needed nothing from you. It continued 46A's thread: the age-gate calendar bug was one member of a CLASS — a *device Settings* value silently changing behaviour, invisible to CI because every simulator is `en_US` — so S47 swept the rest of that class and **found and fixed two more real money defects**. A user in any comma-decimal region (most of Europe, Turkey, Brazil, Indonesia) who typed **"12,50" for their weekly spend had it stored as 12**; **"0,50" became 0**, which hides the money feature entirely on the summary, dashboard AND widget — permanently, since spend has no edit path. An Arabic-numeral entry became 0 outright. Also fixed: a projection under ten units rendered a fabricated "~$0/year". **Two dimensions came back clean** (crash safety; and helpline region resolution, which now has probe evidence behind the "region-aware" claim in your App Review notes). One thing worth knowing for **§5 beta recruiting**: verified helplines exist for **US and TR only** — see the new first checkbox there. **Your §3 copy pass is what unblocked the final golden batch**, which an agent can now mint on request. |
-| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **The §3 copy pass is CLOSED** (Session 46B: every copy table read with you end-to-end, ~20 decisions made, 18 string edits + 5 code changes landed, 12 goldens re-recorded, 404 unit / 35 snapshot / 121 free-lane green). The critical path's step 1 is DONE and **the final golden batch is unblocked.** Three findings from it are worth your eye even though they are already fixed: **ALO 182 is a hospital-appointment line, not a crisis line** — §3 had been telling you to mark it verified, which would have shipped a life-safety defect; the **alcohol withdrawal notice was unreachable** for any alcohol user who hit the hard paywall and did not convert; and the paywall's **Terms/Privacy were dead labels** (now real links — but the two pages still need publishing, and that is on you). **The next longest-lead items are the clinician + counsel sign-off and the §8 keys.** |
+| What changed since you last read this (Session 47) | **One new thing for you, and it is free: §8's first checkbox — search your ASC email for "ITMS-9105" (2 min).** It permanently closes a privacy-manifest question S47 investigated but deliberately did not guess at. Otherwise S47 needed nothing from you. It continued 46A's thread: the age-gate calendar bug was one member of a CLASS — a *device Settings* value silently changing behaviour, invisible to CI because every simulator is `en_US` — so S47 swept the rest of that class and **found and fixed two more real money defects**. A user in any comma-decimal region (most of Europe, Turkey, Brazil, Indonesia) who typed **"12,50" for their weekly spend had it stored as 12**; **"0,50" became 0**, which hides the money feature entirely on the summary, dashboard AND widget — permanently, since spend has no edit path. An Arabic-numeral entry became 0 outright. Also fixed: a projection under ten units rendered a fabricated "~$0/year". **Two dimensions came back clean** (crash safety; and helpline region resolution, which now has probe evidence behind the "region-aware" claim in your App Review notes). One thing worth knowing for **§5 beta recruiting**: verified helplines exist for **US and TR only** — see the new first checkbox there. **Your §3 copy pass is what unblocked the final golden batch — but see the new §0 at the top: your `redesign/` blueprint schedules changes to all four surfaces that batch would cover, so an agent stopped rather than mint goldens that get thrown away. One short answer in §0 unblocks it.** |
+| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **The §3 copy pass is CLOSED** (Session 46B: every copy table read with you end-to-end, ~20 decisions made, 18 string edits + 5 code changes landed, 12 goldens re-recorded, 404 unit / 35 snapshot / 121 free-lane green). The critical path's step 1 is DONE and **the final golden batch is unblocked.** Three findings from it are worth your eye even though they are already fixed: **ALO 182 is a hospital-appointment line, not a crisis line** — §3 had been telling you to mark it verified, which would have shipped a life-safety defect; the **alcohol withdrawal notice was unreachable** for any alcohol user who hit the hard paywall and did not convert; and the paywall's **Terms/Privacy were dead labels** (now real links — but the two pages still need publishing, and that is on you). **The next longest-lead items are the clinician + counsel sign-off and the §8 keys — plus the §0 decision at the top, which is the only thing blocking agent work.** |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
 ---
+
+## 0. ⛔ DECISION NEEDED — does the `redesign/` program run BEFORE launch? (blocks the golden batch)
+
+> **This is the only thing blocking agent work right now.** Everything else below is yours-and-external.
+> One answer unblocks it; it costs you two minutes and it is not a technical question.
+
+**What happened.** Your §3 copy pass (Session 46B) unblocked the **final golden batch** — the last agent
+task on the launch path. Session 48 scoped it fully and was about to mint it. Then it read the
+`redesign/` blueprint you committed in the same session, and stopped, because the two documents disagree:
+
+| Document | What it says about the golden batch |
+|---|---|
+| `docs/critical-path-post-uir.md` (you updated it in 46B) | Step 1 is DONE, the batch is unblocked, "an agent can mint it whenever you want it" |
+| `redesign/design-roadmap.md` (you added it in 46B) | **Phase 4 — Conversion: ME-4 + ME-9 … "Summary + paywall carry their weight; goldens re-record once (`docs/golden-batch.md`); screenshots (LB-5) can shoot against final UI."** And Phases 1–4 are framed as **"to launch-ready … ~7 weeks"** |
+
+**Why an agent cannot decide this for you.** The batch is ~12–20 goldens across the age gate, quiz,
+summary and paywall. The redesign schedules changes to **all four** of those surfaces before launch —
+QW-6 puts the crest on the age gate (Phase 2), ME-8's waterline field sits behind the quiz and warms the
+spend/custom-name steps (Phase 3), **ME-4 is "Summary payoff redesign"** and **ME-9 is literally named
+"Paywall goldens + reachable polish"** (Phase 4). If the redesign runs first, every golden minted now is
+re-recorded within weeks — two billed CI runs spent, plus a permanent maintenance cost and friction
+against the redesign work. If the redesign is post-v1 or partial, the batch should be minted now, because
+it gates your screenshots, which gate submission.
+
+**Answer whichever is true — that is all an agent needs:**
+
+- [ ] **(A) "Ship the current UI. Mint the goldens now."** → the redesign becomes a post-v1 program. An
+      agent mints the batch immediately; the plan is already written and banked (see below), so it is
+      ~2 billed runs and no further design decisions from you.
+- [ ] **(B) "The redesign runs before launch."** → the golden batch is DEFERRED to redesign Phase 4 by
+      the redesign's own sequencing, and the agent work becomes the redesign roadmap itself, starting
+      with its Phase 1 ("Truth & instrumentation — do this before any pixel moves"). Note QW-7 (paywall
+      Terms/Privacy links) already landed in 46B, so Phase 1 is partly done. **If you pick this, also say
+      whether an agent should start executing that roadmap** — it is a ~7-week program and a much larger
+      scope commitment than anything an agent has taken on autonomously so far.
+- [ ] **(C) Something in between** — e.g. "do the redesign's quick wins, but ship the current summary and
+      paywall." Name which surfaces are frozen and an agent mints goldens for exactly those.
+
+**Nothing is lost while you decide.** Session 48 already scoped the batch in full — the exact view
+initializers, the fixture shapes, the determinism hazards and the per-surface golden list are banked in
+the session log, so whenever you answer (A) or (C) the mint starts immediately with no re-scoping.
 
 ## 1. E0.3 panic-latency device measurement — carried since Session 02, load-bearing
 
