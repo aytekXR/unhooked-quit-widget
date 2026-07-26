@@ -106,7 +106,12 @@ struct QuizSummaryView: View {
                     .accessibilityHidden(true)
                 Text(data.footer)
                     .font(.footnote.weight(.medium))
-                    .foregroundStyle(Theme.color.contentTertiary.color)
+                    // Secondary, not tertiary, ink: the tertiary pair on the
+                    // raised card is a "nearly passed" in Apple's contrast
+                    // audit at footnote size (CI run 30184...), and the a11y
+                    // contract outranks the quieter grey. Footnote weight
+                    // keeps the signature quiet.
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
