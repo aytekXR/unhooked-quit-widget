@@ -245,9 +245,32 @@ struct PostGateRootView: View {
                 model: paywall,
                 onUnlocked: {
                     // Entitled (purchase or restore) — fall through to the
-                    // dashboard; the entitlement model already adopted the
-                    // post-purchase state via the action's completed outcome.
+                    // dashboard immediately: the user just paid, nothing should
+                    // stand between them and the app.
                     dismissPaywall()
+                    // R46.2 FIX (S48). The comment that used to sit here claimed
+                    // "the entitlement model already adopted the post-purchase
+                    // state" — it did not. `PaywallModel.purchase`/`restore` call
+                    // `RevenueCatPurchaser` statically and never touch
+                    // `EntitlementModel`, and `makeOnPurchaseCompleted` receives
+                    // the fresh `EntitlementState` only to fire analytics with it
+                    // and drop it. So `entitlementModel.state` stayed frozen at
+                    // its launch value for the whole session, against its own
+                    // documented contract ("refresh on construction, after
+                    // purchase/restore, and on foreground").
+                    //
+                    // The user-visible harm: the win-back settings row is gated on
+                    // that state, so someone who JUST subscribed kept seeing "See
+                    // your plan options" and could be walked back into the
+                    // half-price offer. Not a double charge — StoreKit refuses a
+                    // second purchase of an active subscription — but a paying
+                    // subscriber repeatedly handed a purchase sheet is a support
+                    // burden and a 3.1.2 smell.
+                    //
+                    // Dismiss first, refresh after: the refresh is a network
+                    // round trip and `@Observable` re-renders the row when it
+                    // lands, so correctness costs no perceived latency.
+                    Task { await provider?.entitlementModel?.refresh() }
                 },
                 onTeaserDismiss: {
                     // R25.7: the take already fired teaser_entered + stamped
@@ -316,7 +339,23 @@ struct PostGateRootView: View {
             })
                 .task { checkPaywallReentry() }
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { checkPaywallReentry() }
+                    guard phase == .active else { return }
+                    // R46.2 FIX (S48) — the SECOND half. `checkPaywallReentry`
+                    // reads `entitlementModel.state`, and before this the only
+                    // `refresh()` in the app ran once at launch
+                    // (`RepositoryProvider`), so every foreground re-evaluated a
+                    // launch-time snapshot. A trial that lapsed mid-session kept
+                    // full access until the next COLD launch — which, for an app
+                    // people leave resident for days, can be a long time.
+                    //
+                    // Refresh first, then decide: the whole point of this hook is
+                    // to notice an entitlement CHANGE that happened while the app
+                    // was away, and asking the question against stale data cannot
+                    // do that.
+                    Task {
+                        await provider?.entitlementModel?.refresh()
+                        checkPaywallReentry()
+                    }
                 }
         }
     }

@@ -13,5 +13,10 @@ enum RevenueCatConfiguration {
     /// and the summary CTA falls through to the dashboard exactly as before
     /// E7.1's app half landed. Zero SDK init, zero network, on any build until
     /// the operator acts.
-    static let revenueCatAPIKey = ""
+    /// S48 — LIVE. This is the PUBLIC, app-specific SDK key (`appl_` prefix),
+    /// which is designed to ship inside the binary and grants only what an app
+    /// needs. RevenueCat's SECRET keys (`sk_` prefix) grant full account
+    /// read/write and MUST NEVER appear here or anywhere else in this repo —
+    /// anything in the app bundle is extractable by anyone who downloads it.
+    static let revenueCatAPIKey = "appl_QpyyBBvPTyireURvyHvWQjTsPZO"
 }
