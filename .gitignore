@@ -8,6 +8,9 @@ Widgets/UnhookedWidgets.entitlements
 
 # Build products / caches
 DerivedData/
+# S48: device runs use `-derivedDataPath build/DerivedData` (the documented
+# device-install path), so the whole `build/` tree is a local artifact too.
+build/
 .build/
 .spm-packages/
 Results/

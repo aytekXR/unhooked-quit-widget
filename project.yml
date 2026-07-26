@@ -306,6 +306,16 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: "YES"
+        # S48 — REQUIRED to run this target on a PHYSICAL DEVICE. The simulator
+        # lanes (all of CI) never needed it, so the gap stayed invisible for 47
+        # sessions; a device run fails the BUILD with "UnhookedUITests doesn't
+        # have a bundle identifier" before a single test executes. That blocked
+        # `PanicLatencyDeviceTests` — the E0.3 automated harness, carried as the
+        # operator's load-bearing measurement since Session 02 and the only
+        # thing gating E3's permanent latency CI gate. No `bundleIdPrefix` is
+        # set in `options`, so XcodeGen mints nothing by default.
+        # CI-neutral: an explicit id changes nothing about a simulator run.
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyondkaira.ballast.uitests
     dependencies:
       - target: Unhooked
 
