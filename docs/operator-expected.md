@@ -9,46 +9,45 @@
 
 ---
 
-## 0. ⛔ DECISION NEEDED — does the `redesign/` program run BEFORE launch? (blocks the golden batch)
+## 0. ✅ ANSWERED (operator-instructed, external redesign session, 2026-07-26) — the redesign runs BEFORE launch, and waves 1–2 have ALREADY LANDED
 
-> **This is the only thing blocking agent work right now.** Everything else below is yours-and-external.
-> One answer unblocks it; it costs you two minutes and it is not a technical question.
+**Your answer was (B), given as a direct operator instruction in the external Claude session
+("take all the designs live, don't wait for my approval") — and the same session executed it.**
+What is now ON `main`, green through every CI lane, and in TestFlight:
 
-**What happened.** Your §3 copy pass (Session 46B) unblocked the **final golden batch** — the last agent
-task on the launch path. Session 48 scoped it fully and was about to mint it. Then it read the
-`redesign/` blueprint you committed in the same session, and stopped, because the two documents disagree:
+- **Wave 1 (build 125, uploaded 02:52):** the Surfaced Breath app icon (light/dark/tinted) + redrawn
+  discreet Calendar/Timer alternates; the Erase UI (QW-2 — the App Review promise made real);
+  panic in-flow "More support" (QW-10); dashboard panic-entry priority + support line (QW-4);
+  summary "Start your streak" CTA + the "Steady beats perfect." footer signature; brandkit
+  tokens.json regenerated from Theme.swift (QW-1).
+- **Wave 2 (pushed a6376fe, CI running at close):** the widget-adoption moment after the summary with
+  `widget_added` FINALLY wired (ME-1 — the north-star metric has a surface and instrumentation);
+  Streak Detail rendering the 43-body milestone catalog (first Ember spend); the live wave count-up
+  timer on the panic urge step (ME-5); the Home "Today" shell with tappable cards into Streak Detail.
 
-| Document | What it says about the golden batch |
-|---|---|
-| `docs/critical-path-post-uir.md` (you updated it in 46B) | Step 1 is DONE, the batch is unblocked, "an agent can mint it whenever you want it" |
-| `redesign/design-roadmap.md` (you added it in 46B) | **Phase 4 — Conversion: ME-4 + ME-9 … "Summary + paywall carry their weight; goldens re-record once (`docs/golden-batch.md`); screenshots (LB-5) can shoot against final UI."** And Phases 1–4 are framed as **"to launch-ready … ~7 weeks"** |
+**What this means for the golden batch you were asked about:** the question is superseded, not
+pending. Waves 1–2 minted/re-recorded goldens for every surface they changed (24 touched in wave 2
+alone, all eyeballed); the remaining batch surfaces (age gate, quiz field, summary payoff ME-4,
+paywall ME-9) stay deferred to the redesign's own Phase 3–4 sequencing, exactly as the roadmap wrote
+it. Re-scope the final batch AFTER ME-4/ME-8/ME-9 land — the S48 banked scoping still applies, minus
+the surfaces waves 1–2 already covered.
 
-**Why an agent cannot decide this for you.** The batch is ~12–20 goldens across the age gate, quiz,
-summary and paywall. The redesign schedules changes to **all four** of those surfaces before launch —
-QW-6 puts the crest on the age gate (Phase 2), ME-8's waterline field sits behind the quiz and warms the
-spend/custom-name steps (Phase 3), **ME-4 is "Summary payoff redesign"** and **ME-9 is literally named
-"Paywall goldens + reachable polish"** (Phase 4). If the redesign runs first, every golden minted now is
-re-recorded within weeks — two billed CI runs spent, plus a permanent maintenance cost and friction
-against the redesign work. If the redesign is post-v1 or partial, the batch should be minted now, because
-it gates your screenshots, which gate submission.
+**What the redesign program still owes (next agent session):** ME-7 Settings rebuild (canonical
+section order + panic-access re-entry rows + the widget-moment "Maybe later" nudge), ME-3 milestone
+unlock moments, ME-8 quiz continuous field + interstitials, ME-4 summary payoff, ME-9 paywall polish,
+then the final golden batch + LB-5 screenshots.
 
-**Answer whichever is true — that is all an agent needs:**
-
-- [ ] **(A) "Ship the current UI. Mint the goldens now."** → the redesign becomes a post-v1 program. An
-      agent mints the batch immediately; the plan is already written and banked (see below), so it is
-      ~2 billed runs and no further design decisions from you.
-- [ ] **(B) "The redesign runs before launch."** → the golden batch is DEFERRED to redesign Phase 4 by
-      the redesign's own sequencing, and the agent work becomes the redesign roadmap itself, starting
-      with its Phase 1 ("Truth & instrumentation — do this before any pixel moves"). Note QW-7 (paywall
-      Terms/Privacy links) already landed in 46B, so Phase 1 is partly done. **If you pick this, also say
-      whether an agent should start executing that roadmap** — it is a ~7-week program and a much larger
-      scope commitment than anything an agent has taken on autonomously so far.
-- [ ] **(C) Something in between** — e.g. "do the redesign's quick wins, but ship the current summary and
-      paywall." Name which surfaces are frozen and an agent mints goldens for exactly those.
-
-**Nothing is lost while you decide.** Session 48 already scoped the batch in full — the exact view
-initializers, the fixture shapes, the determinism hazards and the per-surface golden list are banked in
-the session log, so whenever you answer (A) or (C) the mint starts immediately with no re-scoping.
+**NEW operator items this created (add to your §3 reading list):**
+- [ ] **Founder copy pass** over the wave-1/2 DRAFT tables (all shipped operator-instructed, every
+      `_meta` kept DRAFT): `widgetMomentCopy.json`, `StreakDetailCopy`, `panicSupport` in
+      `safetyCopy.json`, the summary `footer`/`cta`, the erase dialog strings, the dashboard
+      panic-entry labels, the wave timer's `elapsedLabel`.
+- [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
+      lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
+      placement before ship).
+- [ ] **Eyeball builds 125 + the wave-2 build on your device** — the operator half of accepting the
+      redesign (the session verified simulator goldens + CI; your thumb on the real widget flow is
+      the missing evidence).
 
 ## 1. E0.3 panic-latency — PARTLY MEASURED (S48). What is left is one 15-minute pass.
 
