@@ -114,6 +114,20 @@ struct AgeGateContainerView: View {
     /// AGE-GATE legs need no hook at all: the gate is the app's first screen, so a fresh
     /// install (UITEST_RESET) IS its mount — the audit drives the real wheel, exactly as
     /// a user does.
+    ///
+    /// **S50 — THIS LIST IS THE SECOND HALF OF EVERY DIRECT MOUNT, and forgetting it is a
+    /// silent failure.** A `UITEST_*` branch added to `PostGateRootView` alone is
+    /// unreachable on a FRESH install: the gate stands in front of it, the leg's own gate
+    /// assertion times out, and the audit never runs — so the leg reports a mount failure
+    /// that reads nothing like "you forgot the age-gate hook". S50's two new legs
+    /// (`UITEST_SETTINGS`, `UITEST_ERASE_FLOW`) failed exactly that way on run
+    /// `30219477906`, and the reverted S40 attempt (`7d861d5`) had carried this same
+    /// one-line addition all along. **Adding a mount below means adding its env var here.**
+    ///
+    /// `UITEST_WIDGET_MOMENT` is included for the same reason even though no audit leg
+    /// uses it yet: it is the operator's documented eyeball path for the ME-1 adoption
+    /// screen, and on a fresh install (the state a tester or a clean simulator is in) it
+    /// could not be reached either.
     private static var uiTestOnboardingMount: Bool {
         #if DEBUG
         let environment = ProcessInfo.processInfo.environment
@@ -122,6 +136,9 @@ struct AgeGateContainerView: View {
             || environment["UITEST_DASHBOARD"] == "1"
             || environment["UITEST_RESOURCES"] == "1"
             || environment["UITEST_PAYWALL_DIRECT"] == "1"
+            || environment["UITEST_WIDGET_MOMENT"] == "1"
+            || environment["UITEST_SETTINGS"] == "1"
+            || environment["UITEST_ERASE_FLOW"] == "1"
         #else
         return false
         #endif

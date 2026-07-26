@@ -4,6 +4,53 @@ A prioritized implementation plan for the Ballast redesign, grounded in the ship
 
 ---
 
+## Execution status (updated Session 50, 2026-07-26)
+
+The operator answered `operator-expected.md` §0 with **(B) — the redesign runs before launch** —
+as a direct instruction ("take all the designs live, don't wait for my approval"). Three waves have
+landed on `main`, all green through CI.
+
+| Item | State | Landed in |
+|---|---|---|
+| QW-1 tokens.json regenerated | ✅ done | wave 1 (`65df4de`) |
+| QW-2 Erase UI | ✅ done | wave 1 (`152890b`) |
+| QW-4 Panic entry visual priority | ✅ done | wave 1 (`152890b`) |
+| QW-5 Averted-urge stat | ✅ done | wave 2 (`9f724a0`) |
+| QW-7 Functional Terms/Privacy links | ✅ done | S46 (`3a10442`) — the two PAGES are still the operator's to publish |
+| QW-9 Parked AX5 settings defects | ✅ done | **wave 3 (S50)** — retired by construction by ME-7; see below |
+| QW-10 Panic in-flow support | ✅ done | wave 1 (`2e3f2dc`) |
+| ME-1 Widget-adoption moment | ✅ done | wave 2 (`0bc768d`) — `widget_added` wired, and re-enterable from Settings as of wave 3 |
+| ME-2 Dashboard IA & nav shell | ✅ done | wave 2 (`9f724a0`) — Home "Today" shell + tappable cards |
+| ME-5 Panic timer live wave | ✅ done | wave 2 (`e82a5a1`) |
+| ME-6 App icon re-render | ✅ done | wave 1 (`d061dd1`) |
+| ME-7 Settings IA | ✅ done | **wave 3 (S50)** |
+| §6.17 Streak Detail (milestone catalog's first renderer) | ✅ done | wave 2 (`d6d6d95`) |
+| **QW-3** Analytics fire-points | ⬜ open | Phase 1 leftover — `widget_added` landed with ME-1; the rest are still dormant |
+| **QW-6** Crest at the age gate | ⬜ open | Phase 2 |
+| **QW-8** Consent revisit toggle | ⬜ open | ME-7 built its home (*Privacy & Data*); the toggle + §6.22 are the next increment |
+| **QW-11** Social PNG re-render | ⬜ open | marketing, gated on G0 |
+| **ME-3** Milestone unlock moments | ⬜ open | **next** — Phase 3 |
+| **ME-4** Summary payoff redesign | ⬜ open | Phase 4 |
+| **ME-8** Waterline primitive + quiz pass | ⬜ open | Phase 3 |
+| **ME-9** Paywall polish + goldens | ⬜ open | Phase 4 |
+| Final golden batch + **LB-5** screenshots | ⬜ open | after ME-4/ME-8/ME-9, exactly as Phase 4 sequences it |
+| LB-1…LB-4, LB-6 | ⬜ open | Phase 5, post-launch |
+
+**Two constraint notes below are now stale in the operator's favour:** hard constraint 5 says "107
+snapshot goldens … 34 WCAG-pinned contrast pairs" — it is **131 goldens** (4 more recording in S50)
+and **32 registered pairs** as of S50, and the audited-surface count is **10**, not 8. The
+substance of the constraint is unchanged: any visual change budgets a golden re-record.
+
+**One item is worth reading before touching a settings-adjacent surface again.** QW-9 stood parked
+for ten sessions as "Mac-gated, needs Xcode's Accessibility Inspector" after seven billed CI runs
+hunting for a row shape that would satisfy Apple's audit. The shape was never the variable — every
+failure was a `List` row or a `Section(footer:)` slot, whose height iOS caps. ME-7's rebuild
+removed the `List` and the class went with it. `SettingsSourceLintTests` now bans those containers
+in all shipping source; if a future item genuinely needs one, it owes an audit leg rendering that
+surface's longest string at AX5 first.
+
+---
+
 ## How to read this roadmap
 
 **Scoring.** Every task carries Effort × Impact:

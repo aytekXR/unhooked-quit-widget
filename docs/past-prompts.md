@@ -6404,3 +6404,142 @@ here in enough detail to reconstruct them.
 §0, one short answer, and it is the only thing blocking agent work.** Everything else on the critical
 path is unchanged: clinician + counsel sign-off, the two legal pages, G0 trademark clearance, device
 sitting #1, §8 keys (which still carries the R46.2 rider), external beta, submission.
+
+---
+
+## Session 49B/50 note — TWO MISSING LEDGER ENTRIES
+
+**Sessions 48B and 49 both happened and neither wrote an entry here.** Recorded now so the
+append-only ledger is not silently wrong:
+
+- **Session 48B** (parallel operator-driven session, commits `d061dd1`…`8ef20b9` + `5d83646`,
+  `852bd76`): the redesign's waves 1–2. The Surfaced Breath icon set; the erase UI (QW-2);
+  panic in-flow support (QW-10); dashboard panic priority (QW-4); the summary CTA + footer
+  signature; brandkit `tokens.json` regenerated (QW-1); **RevenueCat went LIVE** end-to-end
+  with the R46.2 entitlement-refresh fix; the E0.3 harness made runnable on a device (it never
+  could have run — the UI test target carried no bundle id); the paywall bound to Apple's real
+  storefront price (it had shown a hardcoded price to 174 of 175 territories); purchase
+  failures made diagnosable via `os_log`. `8ef20b9` went RED (summary footer on
+  `contentTertiary`, a 3.11:1 near-miss) and the same session fixed it in `5d83646`.
+  Then the widget-adoption moment with `widget_added` wired (ME-1), Streak Detail rendering
+  the 43-body milestone catalog, the panic wave timer (ME-5), and the Home "Today" shell.
+- **Session 49** (`2d8f49f`, `f0ece91`): a 21-agent adversarial audit of that wave from an
+  isolated worktree, written up in full at `docs/session-49-audit.md` — deliberately NOT
+  touching the shared tree's handoff docs because 48B owned them. It found the HIGH erase
+  a11y defect S50 fixed, four lower findings, two CI cost leaks (fixed: `*.log` and
+  `redesign/**` were unignored, so either could burn a 10×-billed macOS run), and recorded
+  the correlated-hallucination lesson in its §6.
+
+---
+
+## Session 50 — ME-7: the Settings rebuild, and the accessibility item that had been parked for ten sessions (2026-07-26)
+
+**Objective.** Wave 3 of the redesign program. `operator-expected.md` §0 named ME-7 as the next
+thing the program owed, and the S49 audit had just found a HIGH-severity defect on the erase
+confirm plus the structural reason it shipped. Those two turned out to be one session: the
+redesign's §6.11 Settings rebuild is what makes both the parked QW-9 accessibility defect and the
+missing erase audit coverage fixable.
+
+### What the session actually established
+
+**The S40 diagnosis was right about the symptoms and wrong about the cure, and that cost seven
+billed runs.** QW-9 had been attacked three times (S38 `3053b06`/`513edcb`, S39
+`0a4bcda`/`56eb13d`, S40 `7d861d5`/`52eafa6`), each time by hunting for a row *shape* that would
+satisfy Apple's audit: `Label` truncated (`.textClipped`); `HStack{Image;Text}` read "Dynamic Type
+partially unsupported"; the hidden-icon variant failed too (run 4, `bfe36ee`); a plain `Text`
+passed but was not a Button. It was finally parked as *Mac-gated — needs Xcode's Accessibility
+Inspector*.
+
+The shape was never the variable. **Every failure happened inside a `List` row or a
+`Section(footer:)` slot, whose height iOS controls.** The tell was in the ledger the whole time:
+the SHORT icon-picker labels ("Default", "Calendar style") *passed* on the very same screen where
+the longer "Support & resources" label failed, and adding `.fixedSize` to the haptic-pacer caption
+changed nothing because the constraint was never the text's. No row shape can win against a capped
+container. Removing the `List` — which the redesign's own §6.11 had specified independently, for
+IA reasons — retires the class by construction.
+
+### Landed
+
+- **ME-7.** Settings rebuilt on the Theme layer with the canonical §6.11 order (Panic access →
+  Discreet Mode → Privacy & Data → Breathing → Your plan → Support & resources): a ScrollView of
+  `themedCard` sections; the title a free-standing scalable `Text` carrying `.isHeader` (the
+  `StreakDetailView` "no second rendering of the same word" precedent — and `.isHeader` matters
+  because without it a rotor user loses the heading the system large title used to provide); every
+  caption an ordinary in-content `Text` with `.fixedSize`; every target built from PADDING, never a
+  `minHeight` floor (the UIR-3 mechanism); rows on `PlanCardButtonStyle`, never
+  `.buttonStyle(.plain)` (R32.9). All four CI-load-bearing accessibility identifiers preserved.
+- **Two new audit legs → 10 audited surfaces.** `test_a11yAudit_settings` (back after three
+  reverts) and `test_a11yAudit_eraseConfirm` (new — the S49 audit's own prescription; it had
+  written *"the erase surface is not one of the 8 CI-audited surfaces, so no lane can ever catch
+  this"*). Both mounts `#if DEBUG`, release-inert; the erase mount's `EraseFlow` closures are
+  no-ops so an audit run cannot destroy data.
+- **S49 §1 (HIGH) fixed STRUCTURALLY, not by extending the enumeration.**
+  `HoldToConfirmButton` picked its safe branch by reading two `@Environment` flags. That could
+  never be completed: `accessibilityAssistiveAccessEnabled` was missing (real — docs JSON 200,
+  iOS 18+), and **Voice Control and Full Keyboard Access are not reportable by any Apple API.**
+  Detection is replaced by `.accessibilityRepresentation` (docs JSON 200, iOS 15.0+): touch keeps
+  the hold, and every assistive technology — including the unreportable ones — sees one standard
+  `Button` whose focus-then-activate IS the deliberate act.
+- **NEW `SettingsSourceLintTests`** bans the height-capped containers across all shipping sources.
+  This is what actually holds R39.2, because the `UITEST_SETTINGS` mount injects no repository and
+  therefore cannot render the Breathing caption that clipped in S39 — a lint reads every line of
+  every file, including the ones no lane mounts.
+- **S49 §3.1–§3.4** landed; S49's three EXTRA candidates deliberately SKIPPED (see rulings).
+- **ME-1 re-entry:** Settings "Panic access" re-opens the widget-adoption moment (the redesign's
+  own promise for §6.15). `widget_added` cannot double-count — the handshake is idempotent.
+- **The settings golden gained the AX5 axis it never had** (2 → 4). Recording the screen whose one
+  defect was accessibility-size clipping at `.large` only meant no golden could ever have shown
+  either the defect or the fix.
+
+### Rulings against the session's own plan (a 13-agent workflow, `wf_a848574d-6ff`)
+
+The plan was good and four of its load-bearing claims were wrong. Recorded because each is a
+reusable class:
+
+1. **REJECTED its copy "refinements."** It proposed restyling `widgetsFooter`,
+   `hapticPacerRowLabel`, `hapticPacerFooter` and `iconHeader` — all **S46-final founder-owned
+   bytes**. Decisive beyond the general rule: `operator-expected.md` §7 instructs the operator to
+   toggle **"Breathe with taps"** BY NAME, so renaming it would have silently invalidated a
+   checklist item a human is about to execute. The copy delta went from 11 strings to 5.
+   Also rejected `perQuitToggleLabel` ("Show numbers only"): with up to three quits it renders
+   three indistinguishable switches and discards a privacy-panel amendment.
+2. **Its free verification ladder could not run.** It prescribed
+   `swift test --package-path Packages/AppTests` — **there is no such package** — and a
+   `--filter` on a test whose own header says *"This lane CANNOT run locally (@testable app
+   import)"*. So its mitigation for the lexicon risk was vacuous. Replaced with a standalone
+   executed harness over the bytes PARSED FROM SOURCE: 24/24 clean, floor met, 5 dirty mutants
+   caught. Its own proposed `widgetsFooter` contained "quit" — one of the banned tokens — which
+   the harness confirms it would have caught.
+3. **Its accepted audit gap would have left the headline claim unverified.** With no repository in
+   the mount, the Breathing caption (R39.2) is not in the render tree. Rather than put a live
+   SwiftData container in a debug view-builder, R39.2 is held by the source lint — a stronger
+   guarantee than one render of one mount, and free.
+4. **OVERRODE its two-commit "CUT A."** It deferred the settings leg to a second commit to
+   insulate the structural build. Reading `ci.yml` directly shows the snapshot and UI-smoke lanes
+   are independent steps (`if: !cancelled() && build success`), so ONE run buys both the recorded
+   goldens and the full audit ledger — the S40 enumerate-all-from-one-run rule. Shipping both legs
+   in Run 1 is strictly cheaper: 2 runs even in the failure case, versus 3.
+
+**SKIPPED, deliberately:** S49's three extra `.fixedSize` candidates. They are non-wrapping
+monospaced-digit texts (a count-up timer, a single-digit ordinal), so R33.12 item 4 — which is
+about *wrapping* text — does not apply, and touching `PanicFlowView`, a rule-11 safety surface
+with 12 goldens, for a no-op is unjustified churn.
+
+### The harness earned its keep before the push
+
+The born-green harness for the new lint **caught a false positive that would have reddened the
+unit lane on a billed run**: a plain-substring `Section(` matched this very file's sibling method
+names `discreetModeSection(`, `breathingSection(`, `yourPlanSection(`. The matcher is now
+word-boundary regex and the calibration test pins those three names permanently. This is the
+second time in three sessions that an executed harness caught a defect in the guard itself before
+it shipped (S47's `DecimalInputParser` was the first, with three).
+
+### Method note — the external oracle, applied to AGENT-PROPOSED fixes
+
+S49 §6's lesson was that adversarial verification does not protect against a shared prior: its
+finder AND its refuter both invented `accessibilityFullKeyboardAccessEnabled`. S50 checked every
+API against Apple's docs JSON **from the orchestrator, first-hand**, before any agent claim was
+trusted — and found the audit's own recommended fix was written with the wrong argument label
+(`accessibilityRepresentation(content:)` is a 404; `(representation:)` is the real one). The rule
+generalizes: docs-JSON confirmation applies to agent-proposed fixes, not just hand-written code.
+
