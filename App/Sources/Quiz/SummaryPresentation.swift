@@ -29,6 +29,9 @@ struct SummaryViewData: Equatable, Sendable {
     /// omitted entirely (invent no reasons — the ReasonsView discipline).
     var motivations: [String]
     var motivationIntro: String
+    /// The card's quiet signature (copy doc §6.5) — the tagline's one in-app
+    /// appearance, rendered under the horizon rule at footnote weight.
+    var footer: String
     var cta: String
 }
 
@@ -48,6 +51,7 @@ enum SummaryPresentation {
             windowLine: inputs.riskToken.flatMap { copy.phrase(forToken: $0) },
             motivations: inputs.motivations,
             motivationIntro: copy.motivationIntro,
+            footer: copy.footer,
             cta: copy.cta
         )
     }

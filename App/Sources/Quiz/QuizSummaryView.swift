@@ -95,6 +95,22 @@ struct QuizSummaryView: View {
             }
 
             motivationBlock
+
+            // Copy doc §6.5 — the quiet signature under the horizon rule: the
+            // tagline's ONE in-app appearance. A hairline, then a footnote in
+            // tertiary ink; the card ends on it, nothing competes with it.
+            VStack(spacing: Theme.space.s3) {
+                Rectangle()
+                    .fill(Theme.color.borderHairline.color)
+                    .frame(width: 48, height: 1)
+                    .accessibilityHidden(true)
+                Text(data.footer)
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(Theme.color.contentTertiary.color)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .accessibilityIdentifier("summary.footer")
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Theme.space.s8)

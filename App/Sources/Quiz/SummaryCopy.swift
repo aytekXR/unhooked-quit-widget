@@ -38,6 +38,10 @@ struct SummaryCopy: Codable, Equatable, Sendable {
     /// Intro line above the user's verbatim motivation words (their words, their
     /// order — the framing is ours, the words are theirs).
     var motivationIntro: String
+    /// Redesign wave 1 (copy doc §6.5) — the card's quiet signature under the
+    /// horizon rule: the primary tagline's ONE in-app appearance. A footnote,
+    /// never a headline; the summary card ends on it.
+    var footer: String
     /// The single forward CTA — the label on AC8's named E7 seam.
     var cta: String
 
@@ -46,7 +50,7 @@ struct SummaryCopy: Codable, Equatable, Sendable {
         case eyebrow, savingsCaption, savingsAbsent
         case windowEvenings, windowAfterWork, windowSocial
         case windowAlone, windowBoredom, windowStress
-        case motivationIntro, cta
+        case motivationIntro, footer, cta
     }
 
     /// The stored token → display phrase map (PM §3.2). An unknown token renders
@@ -88,6 +92,7 @@ struct SummaryCopy: Codable, Equatable, Sendable {
         windowBoredom: "Your first hard window is likely when things get idle.",
         windowStress: "Your first hard window is likely when stress spikes.",
         motivationIntro: "You're doing this for:",
-        cta: "Continue"
+        footer: "Steady beats perfect.",
+        cta: "Start your streak"
     )
 }
