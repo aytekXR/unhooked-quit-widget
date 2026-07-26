@@ -2,11 +2,126 @@
 
 | Field | Value |
 |---|---|
-| Status | **SCOPED AND READY — but PAUSED on one operator decision (`operator-expected.md` §0).** The §3 gate cleared in 46B, so this batch is technically unblocked. Session 48 then scoped it end-to-end and stopped, because the operator's own `redesign/design-roadmap.md` schedules changes to **all four** surfaces this batch covers (QW-6 age gate, ME-8 quiz, **ME-4 "Summary payoff redesign"**, **ME-9 "Paywall goldens"**) and puts the re-record at its Phase 4. Minting now risks 12–20 goldens thrown away within weeks, plus production snapshot seams added to views scheduled for rewrite. **One short answer in §0 resumes it with zero re-scoping.** |
+| Status (Session 49) | **§0 ANSWERED (A) "ship the current UI, mint now" — and the plan below is now RE-VERIFIED against the S48B redesign wave (`852bd76`), with the one ambiguity that would have cost a billed run RESOLVED. See "Session 49 re-verification" immediately below. NOT YET MINTED, for a NEW reason that is not §0: the S48B session pushed 9 commits in ~2 hours touching ALL FOUR surfaces this batch covers — the paywall as recently as `852bd76` and the summary twice (`8ef20b9` added the footer, `5d83646` fixed its ink). A mint is a record→adopt→green cycle across 2 billed macOS runs that only yields valid PNGs if the bytes hold still. The operator has been asked for a "wave is done" signal; on that signal this fires immediately with zero further scoping.** |
+| _superseded_ | **SCOPED AND READY — but PAUSED on one operator decision (`operator-expected.md` §0).** The §3 gate cleared in 46B, so this batch is technically unblocked. Session 48 then scoped it end-to-end and stopped, because the operator's own `redesign/design-roadmap.md` schedules changes to **all four** surfaces this batch covers (QW-6 age gate, ME-8 quiz, **ME-4 "Summary payoff redesign"**, **ME-9 "Paywall goldens"**) and puts the re-record at its Phase 4. Minting now risks 12–20 goldens thrown away within weeks, plus production snapshot seams added to views scheduled for rewrite. **One short answer in §0 resumes it with zero re-scoping.** |
 | The banked plan (Session 48) | **22 goldens, 2 billed runs, split to isolate risk.** Suites: AgeGate entry (4 axes) + blocked (2); Quiz habit (4) + consent (2); Summary fullData (4) + savingsAbsent (2) + withAlcoholNotice (2); Paywall hard_annual (2) + teaser_annual (2). **Run 1** = age gate + quiz + paywall (18 goldens; no or trivial seam). **Run 2** = summary alone (4; the one complex seam), so a seam error cannot destroy the other 18. **Two production seams required, each in the same commit as its tests:** `AgeGateBlockedView.init(model:blocked:)` (2 lines, bypasses its `Locale.current` read — the `ResourcesSnapshotTests` precedent), and `QuizSummaryView` explicit + test-internal inits taking `_snapshotRevealed: Bool` assigning `_revealed = State(initialValue:)`. **THE TRAP that seam exists for:** `QuizSummaryView` renders `.opacity(revealed ? 1 : 0)` and sets `revealed` in `.onAppear { withAnimation { … } }` — without the seam **every summary golden is a BLANK PNG**, certain, not speculative. Fixtures must use `SummaryPresentation.make(inputs:copy: SummaryCopy.loadShipping() ?? .degraded, locale: Locale(identifier: "en_US"))` — hand-built literal strings would leave the golden GREEN when copy changes, defeating the point. Paywall needs NO seam (pure renderer, settled at construction, constructible with zero RevenueCat symbols). **Watch on run 1:** the age-gate UIPickerView has 122 rows and may not populate synchronously — eyeball that golden before adopting; and CI pins no locale/timezone for the snapshot lane (worth pinning while writing these). Full write-ups + quoted initializers are in the Session 48 ledger entry in `docs/past-prompts.md`. |
 | Trigger fired | 2026-07-26. Copy is FINAL across every table. Two riders from 46B/47 to carry in: (a) 46B's AX5 goldens disproved a documented "the panic title truncates" claim and revealed something worse the docs never recorded — at max Dynamic Type the long title pushed the **breath bloom entirely off-screen**; check the quiz/summary AX5 axes for that same class rather than trusting a default-size render. (b) `HabitCategory.displayNoun` now drives **5** surfaces (the documented scope of 2 was wrong), so any golden rendering a category noun is affected. Also re-check the 2 `ResourcesSnapshotTests` goldens before assuming they are byte-stable — the §3 safety-copy edits touched that surface. |
 | Purpose | Enumerate exactly which snapshot goldens get **minted / re-recorded** when the operator finalizes copy (§3) — so that batch is ONE clean re-record, not a scramble |
 | Rule it serves | **R33.2 — DON'T mint goldens for draft copy.** Onboarding + paywall ship DRAFT copy (§3-blocked), so their goldens do not exist yet; they are minted the moment the copy is final. |
+
+## Session 49 re-verification — read this before minting
+
+Two independent re-scopers plus hand-verification against the shipping bytes at `852bd76`. Every
+claim below was checked by reading the file, not inferred.
+
+### Still valid, unchanged
+
+- **The `QuizSummaryView` seam is still MANDATORY.** `@State private var revealed = false` (line 48),
+  `.opacity(revealed ? 1 : 0)` (line 68), `revealed = true` only inside
+  `.onAppear { model.onSummaryAppear(); withAnimation { … } }` — all unchanged. **And the new
+  `summary.footer` block added in `8ef20b9` sits INSIDE that opacity scope**, as does the CTA (it is
+  in the scaffold's `actions:`). So without the seam every summary golden is still a blank PNG.
+- **The `AgeGateBlockedView` seam is still MANDATORY and still 2 lines.** `init(model:)` still reads
+  `AgeGateResources.region(for: Locale.current, in: directory)`. `copy` and `footerDisclaimer` have
+  inline stored initializers and must NOT be added as init parameters; only `model` and `blocked`
+  need assigning. One call site (`AgeGateContainerView.swift:66`), so the seam is purely additive.
+- **The fixture call still compiles and is still required in that exact form.**
+  `SummaryPresentation.make(inputs:copy:locale:)` declares `locale: Locale = .current`, so the
+  explicit `locale: Locale(identifier: "en_US")` is load-bearing, not decoration. It now populates
+  the new `footer` field automatically from `copy.footer` — **no fixture change needed**, and a
+  hand-built literal would still defeat the point.
+- **The two-run split is still the right risk strategy** (run 1 = age gate + quiz + paywall = 18;
+  run 2 = summary alone = 4).
+- **22 goldens, matrix unchanged.**
+
+### RESOLVED — the ambiguity that would have burned a run
+
+The two re-scopers proposed the seam init with `_snapshotRevealed` in **different positions**
+(leading vs trailing) — precisely the mismatch class S48 flagged, recurring on parameter *order*
+instead of label. Swift requires arguments in declaration order, so this is not cosmetic: the wrong
+order fails to compile and records nothing. **Ruling — `_snapshotRevealed` goes LAST**, and
+`onContinue` must be `@escaping` (it is a stored `let` closure; the synthesized memberwise init
+exempts this, a custom init does not):
+
+```swift
+// BOTH inits go in the struct body BEFORE `var body`. Adding any explicit init
+// suppresses the synthesized memberwise init, so the production one is required.
+init(
+    model: QuizFlowModel,
+    data: SummaryViewData,
+    onContinue: @escaping () -> Void,
+    alcoholNotice: AlcoholNoticeSlot? = nil
+) {
+    self.model = model
+    self.data = data
+    self.onContinue = onContinue
+    self.alcoholNotice = alcoholNotice
+}
+
+/// Snapshot seam — `_snapshotRevealed` is LAST (S49 ruling). `alcoholNotice`
+/// keeps its default, so a test may pass `_snapshotRevealed:` alone or supply
+/// `alcoholNotice:` first — both are legal in declaration order.
+init(
+    model: QuizFlowModel,
+    data: SummaryViewData,
+    onContinue: @escaping () -> Void,
+    alcoholNotice: AlcoholNoticeSlot? = nil,
+    _snapshotRevealed: Bool
+) {
+    self.model = model
+    self.data = data
+    self.onContinue = onContinue
+    self.alcoholNotice = alcoholNotice
+    self._revealed = State(initialValue: _snapshotRevealed)
+}
+```
+
+Verified compatible with both existing call sites (`PostGateRootView.swift:288` and `:378`) — each
+passes `model:`, `data:`, `onContinue:` only, so the production init above is signature-identical to
+the memberwise one it replaces.
+
+```swift
+// AgeGateBlockedView — add immediately after the existing init's closing brace.
+/// Snapshot seam — bypasses the `Locale.current` / `HelplineDirectory` reads
+/// (the `ResourcesSnapshotTests` precedent). Never called by production code.
+init(model: AgeGateModel, blocked: AgeGateBlocked) {
+    self.model = model
+    self.blocked = blocked
+}
+```
+
+### Hazard CLEARED — the live RevenueCat key does not affect the paywall goldens
+
+Worth stating because it was the obvious new worry once `644c04d` went live: **`PaywallView` is a
+pure renderer.** It declares `let data: PaywallViewData` / `let model: PaywallModel` and contains
+**no `import RevenueCat`, no `import Purchases`, and no `Purchases.` reference at all**. So the
+fixtures still construct it with zero SDK symbols and no network, and it needs no seam. The
+`hard_annual` / `teaser_annual` goldens remain deterministic under a live key.
+
+### REJECTED — do not add erase-flow goldens to this batch
+
+One re-scoper proposed extending the batch to `EraseEverythingView` (+ making its `Stage` enum
+internal for a `.done`-stage golden). **Do not.** Three reasons: it would require editing a file the
+S48B session created hours ago and may still be editing; the operator's instruction is not to change
+the redesigned UI, and flipping `private enum Stage` to internal is a production change; and most
+importantly **that surface carries a live HIGH accessibility finding** (`docs/session-49-audit.md`
+§1) — minting goldens there would lock in a state that is about to change. Revisit after that
+finding is settled on a device.
+
+### Carried hazards, unchanged
+
+- The age-gate **UIPickerView has 122 rows** and may not populate synchronously. Eyeball that golden
+  specifically; do **not** adopt a blank or centre-row-only wheel.
+- **CI pins no locale or timezone** for the snapshot lane — worth pinning while writing these.
+- `UITraitCollection(traitsFrom:)` is **DEPRECATED** and fails under `-warnings-as-errors` (it burned
+  a billed run once). Closure-init form only: `UITraitCollection { traits in … }`.
+- Mirror `DashboardSnapshotTests` config exactly: `precision: 0.99`, `perceptualPrecision: 0.98`,
+  `layout: .device(config: .iPhone13)`, `@Suite(.snapshots(record: .missing))`.
+- **A note on golden sensitivity (S49):** QW-10 added a visible footer button to `RedirectStepView`
+  and the four `snapshot_redirectStep` goldens were *not* re-recorded — yet
+  `✔ snapshot_redirectStep() passed`. Either the button renders below the scroll fold or the delta
+  fell inside the 1% tolerance. Both readings matter here: this suite's precision may be less
+  sensitive to an added control than assumed, so **visually verify, never trust green alone.**
 
 ## Where the 107 current goldens stand
 
