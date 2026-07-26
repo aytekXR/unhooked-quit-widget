@@ -1,0 +1,276 @@
+<!-- @dsCard group="Screens" name="Home — Today" subtitle="Light · Dark" width="920" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ballast — Home (Today)</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F5F5F4;font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;color:#1A1D21;padding:44px 24px 72px;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto}
+.cap{margin-bottom:30px}
+.cap h1{font-size:20px;font-weight:600;letter-spacing:-.2px}
+.cap p{font-size:14px;color:#565D66;margin-top:6px;max-width:680px;line-height:1.5}
+.frames{display:flex;gap:48px;justify-content:center;flex-wrap:wrap}
+figure{margin:0}
+figcaption{font-size:12.5px;color:#565D66;text-align:center;margin-top:16px;line-height:1.5;max-width:390px}
+figcaption code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#1A1D21;background:#EEECE7;padding:1px 5px;border-radius:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;margin-top:34px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#565D66;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.chip i{width:12px;height:12px;border-radius:4px;display:inline-block;border:1px solid rgba(26,29,33,.12)}
+
+/* ---------- phone frame ---------- */
+.phone{width:390px;height:844px;border-radius:54px;position:relative;overflow:hidden;background:var(--bg);
+box-shadow:0 0 0 12px #1A1D21,0 30px 60px rgba(26,29,33,.22);margin:12px}
+.phone.light{--bg:#F7F6F3;--card:#FFFFFF;--sunk:#EEECE7;--ink:#1A1D21;--ink2:#565D66;--drift:#80868E;
+--hairv:#E2E0DB;--teal:#0C6F65;--onteal:#FFFFFF;--indigo:#5262BC;--moss:#2C774B;--ember:#E8833A;
+--island:#1A1D21;--cbc:#E2E0DB;--wl1:#0C6F65;--wl2:#5262BC;--wlglow:rgba(12,111,101,.30)}
+.phone.dark{--bg:#121417;--card:#1C1F24;--sunk:#0B0D0F;--ink:#F2F1EE;--ink2:#A8AFB8;--drift:#6E757E;
+--hairv:#2B3036;--teal:#4CC8B9;--onteal:#08302B;--indigo:#93A0E8;--moss:#6FCE97;--ember:#F29D5C;
+--island:#0B0D0F;--cbc:transparent;--wl1:#4CC8B9;--wl2:#93A0E8;--wlglow:rgba(76,200,185,.35)}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:36px;border-radius:20px;background:var(--island);z-index:31}
+.status{position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;z-index:30;color:var(--ink)}
+.time{font-size:15.5px;font-weight:600;letter-spacing:.2px;width:56px;text-align:center;font-variant-numeric:tabular-nums}
+.sicons{display:flex;gap:7px;align-items:center}
+.hbar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:140px;height:5px;border-radius:3px;background:var(--ink);opacity:.9;z-index:40}
+
+/* ---------- nav ---------- */
+.nav{position:absolute;top:58px;left:0;right:0;padding:0 20px 0 24px;display:flex;align-items:flex-end;justify-content:space-between;z-index:10}
+.lgtitle{font-size:34px;font-weight:700;letter-spacing:.2px;color:var(--ink)}
+.gear{color:var(--teal);background:none;border:none;padding:6px 2px;display:flex}
+
+/* ---------- content ---------- */
+.content{position:absolute;top:122px;bottom:0;left:0;right:0;padding:10px 20px 150px;display:flex;flex-direction:column;gap:16px;overflow:hidden}
+
+.card{background:var(--card);border-radius:24px;border:1px solid var(--cbc);padding:20px}
+.rowtop{display:flex;align-items:center;justify-content:space-between}
+.quitname{font-size:15px;font-weight:500;color:var(--ink2)}
+.chev{color:var(--drift);display:flex}
+.hero{display:flex;align-items:center;gap:10px;margin-top:14px}
+.hero .flame{color:var(--ember);display:flex}
+.day{font-family:ui-rounded,-apple-system,'SF Pro Rounded','SF Pro Text',sans-serif;font-size:34px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.2px}
+.wline{height:2px;border-radius:1px;background:linear-gradient(90deg,var(--wl1),var(--wl2));box-shadow:0 1px 6px var(--wlglow);margin:16px 0 18px}
+.stats{display:flex;align-items:center;justify-content:space-between;padding:0 6px}
+.mom{display:flex;flex-direction:column;align-items:center;gap:8px}
+.ringwrap{position:relative;width:72px;height:72px}
+.rt{fill:none;stroke:var(--sunk);stroke-width:6}
+.rf{fill:none;stroke:var(--indigo);stroke-width:6;stroke-linecap:round;stroke-dasharray:170 208}
+.ringpct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--indigo);font-variant-numeric:tabular-nums}
+.momlab,.mlab{font-size:13px;color:var(--ink2);letter-spacing:.2px}
+.money{display:flex;flex-direction:column;align-items:center;gap:6px;padding-right:10px}
+.mval{font-family:ui-rounded,-apple-system,'SF Pro Rounded','SF Pro Text',sans-serif;font-size:26px;font-weight:600;color:var(--moss);font-variant-numeric:tabular-nums}
+.mile{margin-top:20px}
+.milab{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2);letter-spacing:.3px;margin-bottom:8px}
+.bar{height:4px;border-radius:2px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px;background:var(--indigo)}
+.statline{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink2);margin-top:14px}
+.statline .cd{color:var(--teal);display:flex}
+.cardfoot{display:flex;justify-content:flex-end;margin-top:10px}
+.quiet{display:flex;align-items:center;gap:7px;font-size:15px;color:var(--ink2);background:none;border:none;padding:10px 4px}
+
+.ghost{background:var(--sunk);border-radius:16px;padding:18px 20px}
+.gtitle{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:600;color:var(--teal)}
+.gsub{font-size:13px;color:var(--ink2);margin-top:5px;padding-left:27px}
+
+/* ---------- panic entry button ---------- */
+.panic{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:13px;
+background:var(--teal);color:var(--onteal);padding:14px 30px 14px 24px;border-radius:999px;z-index:20;
+box-shadow:0 10px 28px rgba(26,29,33,.20)}
+.plabel{font-size:17px;font-weight:600;letter-spacing:.1px}
+.psub{font-size:12.5px;margin-top:2px;letter-spacing:.1px}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="cap">
+    <h1>Home — &ldquo;Today&rdquo;</h1>
+    <p>The rebuilt daily anchor (§6.7): help &gt; progress &gt; admin. One habit-neutral nav title for every state — safe under a disguised icon. The floating Panic button holds visual priority, is never disabled, never covered. The streak card is tappable into Streak Detail; the slip action is demoted to a quiet trailing button on the card itself.</p>
+  </header>
+
+  <div class="frames">
+
+    <!-- ============ LIGHT ============ -->
+    <figure>
+      <div class="phone light">
+        <div class="island"></div>
+        <div class="status">
+          <span class="time">9:41</span>
+          <span class="sicons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7.5" width="3.2" height="4" rx="1"/><rect x="4.9" y="5.2" width="3.2" height="6.3" rx="1"/><rect x="9.8" y="2.6" width="3.2" height="8.9" rx="1"/><rect x="14.7" y="0" width="3.2" height="11.5" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 4.3a9.6 9.6 0 0 1 13 0"/><path d="M4.6 7.2a5.9 5.9 0 0 1 7.8 0"/><circle cx="8.5" cy="10.3" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="21.5" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18.5" height="8" rx="1.8" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg>
+          </span>
+        </div>
+
+        <div class="nav">
+          <h2 class="lgtitle">Today</h2>
+          <button class="gear" aria-label="Settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="6.2" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" stroke-width="1.6"/><path stroke-width="2.2" d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.35 5.35l1.56 1.56M17.09 17.09l1.56 1.56M18.65 5.35l-1.56 1.56M6.91 17.09l-1.56 1.56"/></svg>
+          </button>
+        </div>
+
+        <div class="content">
+          <!-- streak dashboard card -->
+          <div class="card">
+            <div class="rowtop">
+              <span class="quitname">Vaping</span>
+              <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+            </div>
+            <div class="hero">
+              <span class="flame"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4c.5 2.5 1.9 4 3.3 5.5 1.4 1.5 2.5 3.2 2.5 5.4a5.8 5.8 0 0 1-11.6 0c0-1.7.6-3.1 1.6-4.4.3 1.2 1 2.2 2 2.8-.5-3.2.8-6.6 2.2-9.3z"/></svg></span>
+              <span class="day">Day 34</span>
+            </div>
+            <div class="wline"></div>
+            <div class="stats">
+              <div class="mom">
+                <div class="ringwrap">
+                  <svg width="72" height="72" viewBox="0 0 72 72">
+                    <circle class="rt" cx="36" cy="36" r="33"/>
+                    <circle class="rf" cx="36" cy="36" r="33" transform="rotate(-90 36 36)"/>
+                  </svg>
+                  <span class="ringpct">82%</span>
+                </div>
+                <span class="momlab">momentum</span>
+              </div>
+              <div class="money">
+                <span class="mval">$412</span>
+                <span class="mlab">saved</span>
+              </div>
+            </div>
+            <div class="mile">
+              <div class="milab"><span>next milestone</span><span>Three months</span></div>
+              <div class="bar"><i style="width:33%"></i></div>
+            </div>
+            <div class="statline">
+              <span class="cd"><svg width="14" height="14" viewBox="0 0 14 14"><line x1="1.5" y1="10.6" x2="12.5" y2="10.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".55"/><circle cx="7" cy="7.2" r="3.4" fill="currentColor"/></svg></span>
+              12 urges surfed and counting.
+            </div>
+            <div class="cardfoot">
+              <button class="quiet">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M15.6 15.8v-3.6a3.1 3.1 0 0 0-3.1-3.1H8.3"/><path d="M10.6 6.8 8.3 9.1l2.3 2.3"/></svg>
+                Log a slip
+              </button>
+            </div>
+          </div>
+
+          <!-- add another quit -->
+          <div class="ghost">
+            <div class="gtitle">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add another quit
+            </div>
+            <div class="gsub">Track up to three at once.</div>
+          </div>
+        </div>
+
+        <!-- floating panic entry -->
+        <div class="panic">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h9.8a2.7 2.7 0 1 0-2.7-2.7"/><path d="M3 13.5h14.6a2.9 2.9 0 1 1-2.9 2.9"/><path d="M3 18h6.5"/></svg>
+          <span><span class="plabel">Panic</span><br><span class="psub">One tap. About 90 seconds.</span></span>
+        </div>
+
+        <div class="hbar"></div>
+      </div>
+      <figcaption>Light — Canvas <code>#F7F6F3</code>, card Crest <code>#FFFFFF</code> + Hairline <code>#E2E0DB</code>. Panic capsule Harbor Teal <code>#0C6F65</code>, Foam <code>#FFFFFF</code>.</figcaption>
+    </figure>
+
+    <!-- ============ DARK ============ -->
+    <figure>
+      <div class="phone dark">
+        <div class="island"></div>
+        <div class="status">
+          <span class="time">9:41</span>
+          <span class="sicons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7.5" width="3.2" height="4" rx="1"/><rect x="4.9" y="5.2" width="3.2" height="6.3" rx="1"/><rect x="9.8" y="2.6" width="3.2" height="8.9" rx="1"/><rect x="14.7" y="0" width="3.2" height="11.5" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 4.3a9.6 9.6 0 0 1 13 0"/><path d="M4.6 7.2a5.9 5.9 0 0 1 7.8 0"/><circle cx="8.5" cy="10.3" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="21.5" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18.5" height="8" rx="1.8" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg>
+          </span>
+        </div>
+
+        <div class="nav">
+          <h2 class="lgtitle">Today</h2>
+          <button class="gear" aria-label="Settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="6.2" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" stroke-width="1.6"/><path stroke-width="2.2" d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.35 5.35l1.56 1.56M17.09 17.09l1.56 1.56M18.65 5.35l-1.56 1.56M6.91 17.09l-1.56 1.56"/></svg>
+          </button>
+        </div>
+
+        <div class="content">
+          <div class="card">
+            <div class="rowtop">
+              <span class="quitname">Vaping</span>
+              <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+            </div>
+            <div class="hero">
+              <span class="flame"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4c.5 2.5 1.9 4 3.3 5.5 1.4 1.5 2.5 3.2 2.5 5.4a5.8 5.8 0 0 1-11.6 0c0-1.7.6-3.1 1.6-4.4.3 1.2 1 2.2 2 2.8-.5-3.2.8-6.6 2.2-9.3z"/></svg></span>
+              <span class="day">Day 34</span>
+            </div>
+            <div class="wline"></div>
+            <div class="stats">
+              <div class="mom">
+                <div class="ringwrap">
+                  <svg width="72" height="72" viewBox="0 0 72 72">
+                    <circle class="rt" cx="36" cy="36" r="33"/>
+                    <circle class="rf" cx="36" cy="36" r="33" transform="rotate(-90 36 36)"/>
+                  </svg>
+                  <span class="ringpct">82%</span>
+                </div>
+                <span class="momlab">momentum</span>
+              </div>
+              <div class="money">
+                <span class="mval">$412</span>
+                <span class="mlab">saved</span>
+              </div>
+            </div>
+            <div class="mile">
+              <div class="milab"><span>next milestone</span><span>Three months</span></div>
+              <div class="bar"><i style="width:33%"></i></div>
+            </div>
+            <div class="statline">
+              <span class="cd"><svg width="14" height="14" viewBox="0 0 14 14"><line x1="1.5" y1="10.6" x2="12.5" y2="10.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".55"/><circle cx="7" cy="7.2" r="3.4" fill="currentColor"/></svg></span>
+              12 urges surfed and counting.
+            </div>
+            <div class="cardfoot">
+              <button class="quiet">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M15.6 15.8v-3.6a3.1 3.1 0 0 0-3.1-3.1H8.3"/><path d="M10.6 6.8 8.3 9.1l2.3 2.3"/></svg>
+                Log a slip
+              </button>
+            </div>
+          </div>
+
+          <div class="ghost">
+            <div class="gtitle">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add another quit
+            </div>
+            <div class="gsub">Track up to three at once.</div>
+          </div>
+        </div>
+
+        <div class="panic">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h9.8a2.7 2.7 0 1 0-2.7-2.7"/><path d="M3 13.5h14.6a2.9 2.9 0 1 1-2.9 2.9"/><path d="M3 18h6.5"/></svg>
+          <span><span class="plabel">Panic</span><br><span class="psub">One tap. About 90 seconds.</span></span>
+        </div>
+
+        <div class="hbar"></div>
+      </div>
+      <figcaption>Dark — the primary design target (evening risk windows). Canvas <code>#121417</code>, card elevates by tone: Crest <code>#1C1F24</code>, no hairline. Panic capsule <code>#4CC8B9</code> with deliberately dark-on-light-teal Foam <code>#08302B</code>.</figcaption>
+    </figure>
+
+  </div>
+
+  <div class="chips">
+    <span class="chip"><i style="background:#0C6F65"></i>Harbor Teal #0C6F65 · dark #4CC8B9</span>
+    <span class="chip"><i style="background:#5262BC"></i>Dusk Indigo #5262BC · dark #93A0E8</span>
+    <span class="chip"><i style="background:#E8833A"></i>Ember #E8833A · dark #F29D5C</span>
+    <span class="chip"><i style="background:#2C774B"></i>Moss #2C774B · dark #6FCE97</span>
+    <span class="chip"><i style="background:#F7F6F3"></i>Canvas #F7F6F3 · dark #121417</span>
+    <span class="chip"><i style="background:#FFFFFF"></i>Crest #FFFFFF · dark #1C1F24</span>
+    <span class="chip"><i style="background:#EEECE7"></i>Tidepool #EEECE7 · dark #0B0D0F</span>
+    <span class="chip"><i style="background:#1A1D21"></i>Ink #1A1D21 · dark #F2F1EE</span>
+    <span class="chip"><i style="background:#565D66"></i>Ink Secondary #565D66 · dark #A8AFB8</span>
+    <span class="chip"><i style="background:#E2E0DB"></i>Hairline #E2E0DB · dark #2B3036</span>
+  </div>
+</div>
+</body>
+</html>

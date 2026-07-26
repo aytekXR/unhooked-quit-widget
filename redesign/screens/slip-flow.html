@@ -1,0 +1,248 @@
+<!-- @dsCard group="Screens" name="Slip flow" subtitle="Confirm · Logged (forgiveness) · Interstitial B — plus the pending-undo banner" width="1320" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ballast — Slip flow</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F5F5F4;font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;color:#1A1D21;padding:44px 24px 72px;-webkit-font-smoothing:antialiased}
+.page{max-width:1320px;margin:0 auto}
+.cap{margin-bottom:30px}
+.cap h1{font-size:20px;font-weight:600;letter-spacing:-.2px}
+.cap p{font-size:14px;color:#565D66;margin-top:6px;max-width:760px;line-height:1.5}
+.frames{display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
+figure{margin:0}
+figcaption{font-size:12.5px;color:#565D66;text-align:center;margin-top:16px;line-height:1.5;max-width:390px}
+figcaption code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#1A1D21;background:#EEECE7;padding:1px 5px;border-radius:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;margin-top:34px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#565D66;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.chip i{width:12px;height:12px;border-radius:4px;display:inline-block;border:1px solid rgba(26,29,33,.12)}
+
+/* ---------- phone (light) ---------- */
+.phone{width:390px;height:844px;border-radius:54px;position:relative;overflow:hidden;background:#F7F6F3;
+box-shadow:0 0 0 12px #1A1D21,0 30px 60px rgba(26,29,33,.22);margin:12px;
+--card:#FFFFFF;--sunk:#EEECE7;--ink:#1A1D21;--ink2:#565D66;--drift:#80868E;--hairv:#E2E0DB;
+--teal:#0C6F65;--onteal:#FFFFFF;--indigo:#5262BC;--moss:#2C774B;--ember:#E8833A}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:36px;border-radius:20px;background:#1A1D21;z-index:36}
+.status{position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;z-index:35;color:var(--ink)}
+.status.onscrim{color:#FFFFFF}
+.time{font-size:15.5px;font-weight:600;width:56px;text-align:center;font-variant-numeric:tabular-nums}
+.sicons{display:flex;gap:7px;align-items:center}
+.hbar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:140px;height:5px;border-radius:3px;background:#1A1D21;opacity:.9;z-index:40}
+.hbar.onsheet{background:#1A1D21}
+
+/* dimmed home behind sheet */
+.homebg{position:absolute;inset:0}
+.lgtitle{position:absolute;top:66px;left:24px;font-size:34px;font-weight:700;color:var(--ink)}
+.minicard{position:absolute;top:132px;left:20px;right:20px;background:var(--card);border-radius:24px;border:1px solid var(--hairv);padding:20px}
+.quitname{font-size:15px;font-weight:500;color:var(--ink2)}
+.hero{display:flex;align-items:center;gap:10px;margin-top:14px}
+.hero .flame{color:var(--ember);display:flex}
+.day{font-family:ui-rounded,-apple-system,'SF Pro Rounded','SF Pro Text',sans-serif;font-size:34px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.wline{height:2px;border-radius:1px;background:linear-gradient(90deg,#0C6F65,#5262BC);box-shadow:0 1px 6px rgba(12,111,101,.30);margin:16px 0 0}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:10}
+
+/* sheet */
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#FFFFFF;border-radius:24px 24px 0 0;z-index:20;
+padding:10px 26px 46px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.grabber{width:36px;height:5px;border-radius:3px;background:var(--hairv);margin-bottom:22px}
+.stitle{font-size:22px;font-weight:600;color:var(--ink)}
+.sbody{font-size:17px;line-height:1.45;color:var(--ink2);max-width:310px;margin-top:12px}
+.cta{width:100%;max-width:326px;height:56px;border-radius:999px;background:var(--teal);color:var(--onteal);
+font-size:17px;font-weight:600;display:flex;align-items:center;justify-content:center;border:none;margin-top:26px}
+.quiet{font-size:15px;color:var(--ink2);padding:13px;background:none;border:none}
+
+/* logged frame (full sheet) */
+.fullsheet{position:absolute;left:0;right:0;top:22px;bottom:0;background:#FFFFFF;border-radius:24px 24px 0 0;z-index:20;
+padding:10px 26px 40px;display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden}
+.ltitle{font-size:28px;font-weight:600;color:var(--ink);margin-top:14px}
+.lbody{font-size:17px;line-height:1.5;color:var(--ink2);max-width:320px;margin-top:12px}
+.echo{background:var(--sunk);border-radius:16px;padding:14px 18px;font-size:15px;line-height:1.45;color:var(--ink);max-width:326px;width:100%;margin-top:22px}
+.enc{font-size:13px;color:var(--ink2);margin-top:12px}
+.reflabel{font-size:15px;color:var(--ink2);margin-top:26px;max-width:320px}
+.refwell{width:100%;max-width:326px;background:var(--sunk);border-radius:10px;min-height:84px;margin-top:12px;padding:13px 15px;text-align:left;font-size:17px;color:#80868E}
+.rowcta{display:flex;gap:10px;align-items:center;margin-top:20px;width:100%;max-width:326px}
+.rowcta .cta{margin-top:0;flex:1}
+.bridge{border-top:1px solid var(--hairv);margin-top:22px;padding-top:8px;width:100%;max-width:326px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.bridge .quiet{color:var(--ink2)}
+
+/* interstitial */
+.field{position:absolute;inset:0;z-index:1}
+.fsky{position:absolute;top:0;left:0;right:0;height:60%;background:linear-gradient(180deg,rgba(12,111,101,.10),rgba(12,111,101,.03))}
+.fwater{position:absolute;top:60%;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(82,98,188,.13),rgba(82,98,188,.05))}
+.fline{position:absolute;top:calc(60% - 1px);left:0;right:0;height:2px;background:linear-gradient(90deg,#0C6F65,#5262BC);box-shadow:0 0 8px rgba(12,111,101,.35)}
+.crest{position:absolute;top:calc(60% - 33px);left:50%;transform:translateX(-50%);width:66px;height:66px;border-radius:50%;
+background:#FFFFFF;box-shadow:0 0 34px rgba(12,111,101,.28);z-index:2}
+.crest::after{content:"";position:absolute;top:74px;left:9px;width:48px;height:14px;border-radius:50%;background:rgba(255,255,255,.5);filter:blur(3px)}
+.qbar{position:absolute;top:64px;left:20px;right:20px;height:4px;border-radius:2px;background:var(--sunk);z-index:5;overflow:hidden}
+.qbar i{display:block;height:100%;width:77%;border-radius:2px;background:var(--indigo)}
+.icontent{position:absolute;top:120px;left:34px;right:34px;text-align:center;z-index:5}
+.eyebrow{font-size:13px;color:var(--ink2);letter-spacing:.2px}
+.ititle{font-size:28px;font-weight:600;color:var(--ink);line-height:1.25;margin-top:10px}
+.ibody{font-size:17px;line-height:1.5;color:var(--ink2);max-width:300px;margin:16px auto 0}
+.ipin{position:absolute;left:32px;right:32px;bottom:44px;z-index:5;display:flex;justify-content:center}
+.ipin .cta{margin-top:0}
+
+/* undo banner detail */
+.detail{margin-top:40px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.banner{width:358px;background:#EEECE7;border-radius:16px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.btxt b{display:block;font-size:15px;font-weight:600;color:#1A1D21}
+.btxt span{display:block;font-size:12.5px;color:#565D66;margin-top:3px}
+.bundo{font-size:17px;font-weight:600;color:#0C6F65}
+.dcap{font-size:12.5px;color:#565D66;text-align:center;max-width:560px;line-height:1.5}
+.dcap code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#1A1D21;background:#EEECE7;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="cap">
+    <h1>Slip flow</h1>
+    <p>Forgiveness as mechanics (§6.10) — the product&rsquo;s moral center. A slip archives your best, momentum survives, a 10-minute undo exists, and everything moves at standard 300ms so logging one feels procedurally identical to any other action. Never amber, never marked, never day zero. The third frame is onboarding interstitial B — the forgiveness promise stated before the user commits.</p>
+  </header>
+
+  <div class="frames">
+
+    <!-- ============ FRAME 1: CONFIRM ============ -->
+    <figure>
+      <div class="phone">
+        <div class="homebg">
+          <div class="lgtitle">Today</div>
+          <div class="minicard">
+            <span class="quitname">Vaping</span>
+            <div class="hero">
+              <span class="flame"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4c.5 2.5 1.9 4 3.3 5.5 1.4 1.5 2.5 3.2 2.5 5.4a5.8 5.8 0 0 1-11.6 0c0-1.7.6-3.1 1.6-4.4.3 1.2 1 2.2 2 2.8-.5-3.2.8-6.6 2.2-9.3z"/></svg></span>
+              <span class="day">Day 34</span>
+            </div>
+            <div class="wline"></div>
+          </div>
+        </div>
+
+        <div class="scrim"></div>
+
+        <div class="status onscrim">
+          <span class="time">9:41</span>
+          <span class="sicons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7.5" width="3.2" height="4" rx="1"/><rect x="4.9" y="5.2" width="3.2" height="6.3" rx="1"/><rect x="9.8" y="2.6" width="3.2" height="8.9" rx="1"/><rect x="14.7" y="0" width="3.2" height="11.5" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 4.3a9.6 9.6 0 0 1 13 0"/><path d="M4.6 7.2a5.9 5.9 0 0 1 7.8 0"/><circle cx="8.5" cy="10.3" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="21.5" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18.5" height="8" rx="1.8" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="island"></div>
+
+        <div class="sheet">
+          <div class="grabber"></div>
+          <div class="stitle">Log a slip?</div>
+          <div class="sbody">This just records it and starts a fresh streak. Your best is kept safe.</div>
+          <button class="cta">Log it</button>
+          <button class="quiet">Not now</button>
+        </div>
+
+        <div class="hbar"></div>
+      </div>
+      <figcaption>Confirm — sheet at standard 300ms on Sheet <code>#FFFFFF</code> over the 55% scrim. 56pt targets on the slip path. &ldquo;Not now&rdquo; is a first-class exit, not fine print.</figcaption>
+    </figure>
+
+    <!-- ============ FRAME 2: LOGGED ============ -->
+    <figure>
+      <div class="phone">
+        <div class="homebg"><div class="lgtitle">Today</div></div>
+        <div class="scrim"></div>
+        <div class="status onscrim">
+          <span class="time">9:41</span>
+          <span class="sicons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7.5" width="3.2" height="4" rx="1"/><rect x="4.9" y="5.2" width="3.2" height="6.3" rx="1"/><rect x="9.8" y="2.6" width="3.2" height="8.9" rx="1"/><rect x="14.7" y="0" width="3.2" height="11.5" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 4.3a9.6 9.6 0 0 1 13 0"/><path d="M4.6 7.2a5.9 5.9 0 0 1 7.8 0"/><circle cx="8.5" cy="10.3" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="21.5" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18.5" height="8" rx="1.8" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="island"></div>
+
+        <div class="fullsheet">
+          <div class="grabber"></div>
+          <div class="ltitle">Logged.</div>
+          <div class="lbody">Your best — 34 days — is safe, and your momentum is still 82%. When you&rsquo;re ready, the next hour starts now.</div>
+          <div class="echo">You said this matters for your Focus. It still does.</div>
+          <div class="enc">One slip is one data point, not a verdict.</div>
+          <div class="reflabel">Want to note what was going on? (optional, stays on your device)</div>
+          <div class="refwell">What was happening right before?</div>
+          <div class="rowcta">
+            <button class="quiet">Skip</button>
+            <button class="cta">Save note</button>
+          </div>
+          <div class="bridge">
+            <button class="quiet">Back to today</button>
+            <button class="quiet">One round of breathing</button>
+          </div>
+        </div>
+
+        <div class="hbar"></div>
+      </div>
+      <figcaption>Logged — the forgiveness frame. Neutral sunken cards <code>#EEECE7</code>, never amber: a slip is not a warning. The motivation echo quotes the user back to themselves. The &ldquo;what now&rdquo; bridge closes the old dead end: two quiet doors, home or a regulated minute. Placeholder text Driftwood <code>#80868E</code>.</figcaption>
+    </figure>
+
+    <!-- ============ FRAME 3: INTERSTITIAL B ============ -->
+    <figure>
+      <div class="phone">
+        <div class="field">
+          <div class="fsky"></div>
+          <div class="fwater"></div>
+          <div class="fline"></div>
+        </div>
+        <div class="crest"></div>
+
+        <div class="status">
+          <span class="time">9:41</span>
+          <span class="sicons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7.5" width="3.2" height="4" rx="1"/><rect x="4.9" y="5.2" width="3.2" height="6.3" rx="1"/><rect x="9.8" y="2.6" width="3.2" height="8.9" rx="1"/><rect x="14.7" y="0" width="3.2" height="11.5" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M2 4.3a9.6 9.6 0 0 1 13 0"/><path d="M4.6 7.2a5.9 5.9 0 0 1 7.8 0"/><circle cx="8.5" cy="10.3" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="21.5" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18.5" height="8" rx="1.8" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="island"></div>
+
+        <div class="qbar"><i></i></div>
+
+        <div class="icontent">
+          <div class="eyebrow">One thing before your goal</div>
+          <div class="ititle">A slip is never day zero.</div>
+          <div class="ibody">If you slip, Ballast archives your best streak and keeps your momentum. Nothing here ever resets to nothing.</div>
+        </div>
+
+        <div class="ipin"><button class="cta" style="max-width:326px;width:100%">Good to know</button></div>
+
+        <div class="hbar"></div>
+      </div>
+      <figcaption>Onboarding interstitial B — the forgiveness promise before the goal step, rendered as a full Waterline field moment: Horizon Gradient bands <code>#0C6F65 → #5262BC</code> at &le;12% behind content, luminous waterline, crest half-risen. Skippable, emits no analytics slot.</figcaption>
+    </figure>
+
+  </div>
+
+  <!-- ============ DETAIL: PENDING-UNDO BANNER ============ -->
+  <div class="detail">
+    <div class="banner">
+      <div class="btxt">
+        <b>Slip logged. Undo?</b>
+        <span>Undo stays available for 10 minutes.</span>
+      </div>
+      <span class="bundo">Undo</span>
+    </div>
+    <div class="dcap">Detail — the pending-undo banner as it renders on Home: a neutral sunken card <code>#EEECE7</code>, never amber (a slip is not a warning). The window is stated as availability, never as expiry pressure. Undone confirmation: &ldquo;Undone. Your streak is right where it was.&rdquo;</div>
+  </div>
+
+  <div class="chips">
+    <span class="chip"><i style="background:#0C6F65"></i>Harbor Teal #0C6F65</span>
+    <span class="chip"><i style="background:#5262BC"></i>Dusk Indigo #5262BC</span>
+    <span class="chip"><i style="background:#F7F6F3"></i>Canvas #F7F6F3</span>
+    <span class="chip"><i style="background:#FFFFFF"></i>Sheet #FFFFFF</span>
+    <span class="chip"><i style="background:#EEECE7"></i>Tidepool #EEECE7</span>
+    <span class="chip"><i style="background:#1A1D21"></i>Ink #1A1D21</span>
+    <span class="chip"><i style="background:#565D66"></i>Ink Secondary #565D66</span>
+    <span class="chip"><i style="background:#80868E"></i>Driftwood #80868E</span>
+    <span class="chip"><i style="background:#E2E0DB"></i>Hairline #E2E0DB</span>
+    <span class="chip"><i style="background:rgba(0,0,0,.55)"></i>Scrim black @55%</span>
+  </div>
+</div>
+</body>
+</html>

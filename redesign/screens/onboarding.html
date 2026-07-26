@@ -1,0 +1,222 @@
+<!-- @dsCard group="Screens" name="Onboarding — quiz to summary" subtitle="habit step · interstitial A · commitment slider · summary (Start your streak)" width="900" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballast — Onboarding funnel</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F5F5F4;font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;color:#1A1D21;padding:44px 24px 64px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto}
+header.card h1{font-size:20px;font-weight:650;letter-spacing:-.01em}
+header.card p{font-size:14px;color:#565D66;margin-top:5px;line-height:1.5}
+.frames{display:flex;flex-wrap:wrap;gap:40px 28px;justify-content:center;margin-top:30px}
+.fblock{display:flex;flex-direction:column;align-items:center;gap:12px}
+.fcap{font-size:12px;color:#565D66;max-width:404px;text-align:center;line-height:1.55}
+.fcap b{color:#1A1D21;font-weight:600}
+.phone{width:412px;height:866px;background:#1A1D21;border-radius:60px;padding:11px;box-shadow:0 24px 48px rgba(26,29,33,.16),0 4px 12px rgba(26,29,33,.10)}
+.screen{position:relative;width:390px;height:844px;border-radius:49px;overflow:hidden;background:#F7F6F3}
+.island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:122px;height:35px;background:#1A1D21;border-radius:18px;z-index:60}
+.sbar{position:absolute;top:16px;left:0;right:0;height:24px;display:flex;justify-content:space-between;align-items:center;padding:0 34px;z-index:55;color:#1A1D21}
+.sbar.lt{color:#FFFFFF}
+.sbar .t{font-size:15px;font-weight:600;letter-spacing:.02em}
+.hbar{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#1A1D21;z-index:60}
+.field{position:absolute;inset:0;pointer-events:none}
+.wline{position:absolute;left:0;right:0;height:1px}
+.cnt{position:absolute;top:58px;left:0;right:0;bottom:30px;padding:0 24px 8px;display:flex;flex-direction:column;z-index:20}
+.pbar{height:4px;border-radius:2px;background:#EEECE7;margin:8px 0 24px;overflow:hidden}
+.pbar i{display:block;height:4px;border-radius:2px;background:#5262BC}
+.eyebrow{font-size:13px;color:#565D66;margin-bottom:6px}
+.qtitle{font-size:22px;line-height:1.25;font-weight:600;letter-spacing:-.01em}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
+.tile{display:flex;align-items:center;gap:10px;background:#EEECE7;border-radius:16px;padding:16px 14px;font-size:17px;line-height:1.2;min-height:56px}
+.tile .dot{flex:none;width:14px;height:14px;border-radius:4px}
+.tile.sel{background:#0C6F65;color:#FFFFFF;font-weight:600}
+.grow{flex:1}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:26px;background:#0C6F65;color:#FFFFFF;font-size:17px;font-weight:600}
+.quiet{display:flex;align-items:center;justify-content:center;min-height:44px;color:#565D66;font-size:15px;font-weight:500}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:40px;padding-top:18px;border-top:1px solid #E2E0DB}
+.legend .sw{display:flex;align-items:center;gap:7px;font-size:12px;color:#565D66}
+.legend .chip{width:14px;height:14px;border-radius:4px;border:1px solid rgba(26,29,33,.12)}
+/* interstitial */
+.mid{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 12px}
+.mid h3{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.mid p{font-size:17px;line-height:1.45;color:#1A1D21;margin-top:16px;max-width:300px}
+/* slider */
+.echo{font-size:22px;font-weight:600;color:#0C6F65;text-align:center;margin-top:48px}
+.slider{position:relative;height:32px;margin:32px 6px 0}
+.slider .track{position:absolute;top:14px;left:0;right:0;height:6px;border-radius:3px;background:#EEECE7}
+.slider .fill{position:absolute;top:14px;left:0;width:66.6%;height:6px;border-radius:3px;background:#0C6F65}
+.slider .det{position:absolute;top:13px;width:8px;height:8px;border-radius:4px;background:#E2E0DB}
+.slider .det.on{background:#0C6F65}
+.slider .thumb{position:absolute;top:3px;left:66.6%;margin-left:-14px;width:28px;height:28px;border-radius:14px;background:#FFFFFF;box-shadow:0 1px 4px rgba(26,29,33,.28),0 0 0 1px rgba(26,29,33,.06)}
+.dlabels{display:flex;justify-content:space-between;font-size:11px;color:#565D66;margin:10px 2px 0}
+/* summary */
+.sumcard{background:#FFFFFF;border-radius:24px;padding:24px 22px;box-shadow:0 8px 28px rgba(26,29,33,.18)}
+.hero{display:flex;align-items:baseline;gap:6px;margin-top:30px}
+.hero .money{font-family:ui-rounded,-apple-system,'SF Pro Text',sans-serif;font-size:34px;font-weight:700;color:#2C774B;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hero .per{font-size:22px;font-weight:600;color:#565D66}
+.wrule{height:2px;border-radius:1px;background:linear-gradient(90deg,rgba(12,111,101,0),#0C6F65 30%,#5262BC 70%,rgba(82,98,188,0));box-shadow:0 0 8px rgba(82,98,188,.35);margin-top:14px}
+.smallcap{font-size:15px;color:#565D66;margin-top:10px}
+.risk{margin-top:26px}
+.risk .lab{font-size:15px;color:#1A1D21}
+.band{position:relative;height:12px;border-radius:6px;background:#EEECE7;margin-top:10px;overflow:hidden}
+.band i{position:absolute;top:0;bottom:0;left:74%;width:21%;background:#5262BC;border-radius:6px}
+.ticks{display:flex;justify-content:space-between;font-size:11px;color:#565D66;margin-top:6px;font-variant-numeric:tabular-nums}
+.hairline{height:1px;background:#E2E0DB;margin:22px 0 18px}
+.mots .in{font-size:15px;color:#565D66}
+.mots .m{font-size:22px;font-weight:600;margin-top:10px;letter-spacing:-.01em}
+.sig{font-size:13px;color:#565D66;text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="card">
+<h1>Onboarding — quiz to summary</h1>
+<p>First-run funnel frames on the continuous Waterline field, light mode, 390×844. Flow per redesign §5.1: quiz (13 slots) → encouragement interstitials → summary payoff → alcohol notice → paywall → widget moment. Every string is canon (product-copy §3–§4); motivations are the user's own words.</p>
+</header>
+
+<div class="frames">
+
+<!-- FRAME 1 — habit picker -->
+<div class="fblock">
+<div class="phone"><div class="screen">
+<div class="field" style="background:linear-gradient(180deg,rgba(12,111,101,.10),rgba(12,111,101,.04) 46%,rgba(82,98,188,.08))">
+<span class="wline" style="top:58%;background:linear-gradient(90deg,transparent,rgba(12,111,101,.30),transparent)"></span>
+</div>
+<div class="island"></div>
+<div class="sbar"><span class="t">9:41</span><svg width="72" height="14" viewBox="0 0 72 14" fill="none"><rect y="8.5" width="3" height="4.5" rx="1" fill="currentColor"/><rect x="4.6" y="6.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="9.2" y="4.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.8" y="2.5" width="3" height="10.5" rx="1" fill="currentColor"/><path d="M27 5.6a7.6 7.6 0 0 1 9.6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M29.2 8.2a4.4 4.4 0 0 1 5.2 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="31.8" cy="11" r="1.4" fill="currentColor"/><rect x="46" y="2.5" width="21" height="10" rx="3.2" stroke="currentColor" stroke-opacity=".45" fill="none"/><rect x="48" y="4.5" width="14" height="6" rx="1.6" fill="currentColor"/><path d="M68.6 6v3a1.8 1.8 0 0 0 0-3z" fill="currentColor" fill-opacity=".45"/></svg></div>
+<div class="cnt">
+<div class="pbar"><i style="width:8%"></i></div>
+<div class="eyebrow">About your habit</div>
+<h2 class="qtitle">What would you like to focus on?</h2>
+<div class="tiles">
+<div class="tile sel"><span class="dot" style="background:#FFFFFF"></span>Vaping<svg style="margin-left:auto" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l5 5 9-10.5" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="tile"><span class="dot" style="background:#5262BC"></span>Adult content</div>
+<div class="tile"><span class="dot" style="background:#3D6C9E"></span>Alcohol</div>
+<div class="tile"><span class="dot" style="background:#0A5F57"></span>Cannabis</div>
+<div class="tile"><span class="dot" style="background:#6E7681"></span>Doomscrolling</div>
+<div class="tile"><span class="dot" style="background:#80868E"></span>Something else</div>
+</div>
+<div class="grow"></div>
+<div class="btn">Continue</div>
+<div class="quiet">Back</div>
+</div>
+<div class="hbar"></div>
+</div></div>
+<div class="fcap"><b>Quiz slot 1 — habit picker.</b> Word + color-chip tiles, never vice illustrations. Single-select 2-column grid, radius 16; selected chip Harbor Teal #0C6F65 with Foam check. Progress bar Dusk Indigo #5262BC on Tidepool #EEECE7, day-tone field ≤12% behind content.</div>
+</div>
+
+<!-- FRAME 2 — interstitial A -->
+<div class="fblock">
+<div class="phone"><div class="screen">
+<div class="field" style="background:linear-gradient(180deg,rgba(12,111,101,.16),rgba(82,98,188,.09) 52%,rgba(82,98,188,.18))">
+<span class="wline" style="top:54%;height:2px;background:linear-gradient(90deg,transparent,rgba(82,98,188,.38),transparent)"></span>
+<span class="wline" style="top:62%;background:linear-gradient(90deg,transparent,rgba(82,98,188,.18),transparent)"></span>
+</div>
+<div class="island"></div>
+<div class="sbar"><span class="t">9:41</span><svg width="72" height="14" viewBox="0 0 72 14" fill="none"><rect y="8.5" width="3" height="4.5" rx="1" fill="currentColor"/><rect x="4.6" y="6.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="9.2" y="4.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.8" y="2.5" width="3" height="10.5" rx="1" fill="currentColor"/><path d="M27 5.6a7.6 7.6 0 0 1 9.6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M29.2 8.2a4.4 4.4 0 0 1 5.2 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="31.8" cy="11" r="1.4" fill="currentColor"/><rect x="46" y="2.5" width="21" height="10" rx="3.2" stroke="currentColor" stroke-opacity=".45" fill="none"/><rect x="48" y="4.5" width="14" height="6" rx="1.6" fill="currentColor"/><path d="M68.6 6v3a1.8 1.8 0 0 0 0-3z" fill="currentColor" fill-opacity=".45"/></svg></div>
+<div class="cnt">
+<div class="pbar"><i style="width:62%"></i></div>
+<div class="mid">
+<h3>Past tries count.</h3>
+<p>Most people who quit for good tried more than once first. This time you'll have help at the exact moment it's hard — on your lock screen.</p>
+</div>
+<div class="btn">Continue</div>
+</div>
+<div class="hbar"></div>
+</div></div>
+<div class="fcap"><b>Encouragement interstitial A.</b> Mounts after the prior-attempts step, only when the answer isn't "This is my first try." Informational step — no answer, no analytics slot, fully skippable. Dusk field with a faint second waterline below the first: past attempts still count, nothing sinks.</div>
+</div>
+
+<!-- FRAME 3 — commitment slider -->
+<div class="fblock">
+<div class="phone"><div class="screen">
+<div class="field" style="background:linear-gradient(180deg,rgba(12,111,101,.13),rgba(82,98,188,.11) 48%,rgba(82,98,188,.20))">
+<span style="position:absolute;top:13.5%;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:22px;background:radial-gradient(circle,rgba(255,255,255,.85),rgba(255,255,255,0) 70%)"></span>
+<span class="wline" style="top:16%;background:linear-gradient(90deg,transparent,rgba(82,98,188,.30),transparent)"></span>
+</div>
+<div class="island"></div>
+<div class="sbar"><span class="t">9:41</span><svg width="72" height="14" viewBox="0 0 72 14" fill="none"><rect y="8.5" width="3" height="4.5" rx="1" fill="currentColor"/><rect x="4.6" y="6.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="9.2" y="4.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.8" y="2.5" width="3" height="10.5" rx="1" fill="currentColor"/><path d="M27 5.6a7.6 7.6 0 0 1 9.6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M29.2 8.2a4.4 4.4 0 0 1 5.2 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="31.8" cy="11" r="1.4" fill="currentColor"/><rect x="46" y="2.5" width="21" height="10" rx="3.2" stroke="currentColor" stroke-opacity=".45" fill="none"/><rect x="48" y="4.5" width="14" height="6" rx="1.6" fill="currentColor"/><path d="M68.6 6v3a1.8 1.8 0 0 0 0-3z" fill="currentColor" fill-opacity=".45"/></svg></div>
+<div class="cnt">
+<div class="pbar"><i style="width:95%"></i></div>
+<h2 class="qtitle">How ready do you feel?</h2>
+<div class="echo">Almost there</div>
+<div class="slider">
+<span class="track"></span><span class="fill"></span>
+<span class="det on" style="left:0"></span>
+<span class="det on" style="left:calc(33.3% - 4px)"></span>
+<span class="det on" style="left:calc(66.6% - 4px)"></span>
+<span class="det" style="right:0"></span>
+<span class="thumb"></span>
+</div>
+<div class="dlabels"><span>Taking it slow</span><span>Ready to start today</span></div>
+<div class="grow"></div>
+<div class="btn">Continue</div>
+<div class="quiet">Back</div>
+</div>
+<div class="hbar"></div>
+</div></div>
+<div class="fcap"><b>Quiz slot 13 — CommitmentSlider.</b> Haptic detents with word echoes ("Taking it slow / Getting there / Almost there / Ready to start today") — all four judgment-free; "Taking it slow" is a valid answer, not a bottom rung. The crest begins to rise with the slider value. Fill and echo in Harbor Teal #0C6F65.</div>
+</div>
+
+<!-- FRAME 4 — summary -->
+<div class="fblock">
+<div class="phone"><div class="screen" style="background:#F7F6F3">
+<div class="field" style="background:linear-gradient(180deg,#0C6F65 0%,#5262BC 62%,#5262BC 74%,rgba(82,98,188,0) 92%),linear-gradient(180deg,#F7F6F3,#F7F6F3)">
+<span style="position:absolute;top:96px;left:50%;transform:translateX(-50%);width:64px;height:64px;border-radius:32px;background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,0) 70%)"></span>
+<span style="position:absolute;top:112px;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:13px;background:#FFFFFF;opacity:.95"></span>
+<span class="wline" style="top:124px;height:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.65),rgba(255,255,255,0));box-shadow:0 0 10px rgba(255,255,255,.5)"></span>
+</div>
+<div class="island"></div>
+<div class="sbar lt"><span class="t">9:41</span><svg width="72" height="14" viewBox="0 0 72 14" fill="none"><rect y="8.5" width="3" height="4.5" rx="1" fill="currentColor"/><rect x="4.6" y="6.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="9.2" y="4.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.8" y="2.5" width="3" height="10.5" rx="1" fill="currentColor"/><path d="M27 5.6a7.6 7.6 0 0 1 9.6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M29.2 8.2a4.4 4.4 0 0 1 5.2 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="31.8" cy="11" r="1.4" fill="currentColor"/><rect x="46" y="2.5" width="21" height="10" rx="3.2" stroke="currentColor" stroke-opacity=".45" fill="none"/><rect x="48" y="4.5" width="14" height="6" rx="1.6" fill="currentColor"/><path d="M68.6 6v3a1.8 1.8 0 0 0 0-3z" fill="currentColor" fill-opacity=".45"/></svg></div>
+<div class="cnt" style="top:150px">
+<div class="sumcard">
+<div class="eyebrow">Based on your answers</div>
+<div class="hero"><span class="money">~$1,340</span><span class="per">/year</span></div>
+<div class="wrule"></div>
+<div class="smallcap">saved in a year at this rate.</div>
+<div class="risk">
+<div class="lab">Your first hard window is likely evenings.</div>
+<div class="band"><i></i></div>
+<div class="ticks"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>12a</span></div>
+</div>
+<div class="hairline"></div>
+<div class="mots">
+<div class="in">You're doing this for:</div>
+<div class="m">My focus</div>
+<div class="m">My money</div>
+<div class="m">Breathing easier</div>
+</div>
+<div class="wrule" style="margin-top:22px;opacity:.55"></div>
+<div class="sig">Steady beats perfect.</div>
+</div>
+<div class="grow"></div>
+<div class="btn">Start your streak</div>
+</div>
+<div class="hbar"></div>
+</div></div>
+<div class="fcap"><b>Quiz summary — the payoff card.</b> Full-bleed Waterline field (Harbor Teal #0C6F65 into Dusk Indigo #5262BC), crest fully surfaced. Savings hero in Moss #2C774B, .largeTitle SF Rounded, monospaced digits, "/year" as a separate .title2 element — drama by composition, never point size. Risk-window band from SummaryDerivation; motivations echoed verbatim are the user's own words (illustrative user content). "Steady beats perfect." — the tagline's one in-app appearance, a signature, never a headline. CTA "Start your streak" works on both routes. Zero-spend users see this composition with no money block, never "$0".</div>
+</div>
+
+</div>
+
+<div class="legend">
+<span class="sw"><span class="chip" style="background:#0C6F65"></span>Harbor Teal #0C6F65</span>
+<span class="sw"><span class="chip" style="background:#0A5F57"></span>Deep Water #0A5F57</span>
+<span class="sw"><span class="chip" style="background:#5262BC"></span>Dusk Indigo #5262BC</span>
+<span class="sw"><span class="chip" style="background:#2C774B"></span>Moss #2C774B</span>
+<span class="sw"><span class="chip" style="background:#3D6C9E"></span>Slate #3D6C9E</span>
+<span class="sw"><span class="chip" style="background:#6E7681"></span>Harbor Gray #6E7681</span>
+<span class="sw"><span class="chip" style="background:#80868E"></span>Driftwood #80868E</span>
+<span class="sw"><span class="chip" style="background:#F7F6F3"></span>Canvas #F7F6F3</span>
+<span class="sw"><span class="chip" style="background:#FFFFFF"></span>Crest #FFFFFF</span>
+<span class="sw"><span class="chip" style="background:#EEECE7"></span>Tidepool #EEECE7</span>
+<span class="sw"><span class="chip" style="background:#1A1D21"></span>Ink #1A1D21</span>
+<span class="sw"><span class="chip" style="background:#565D66"></span>Ink Secondary #565D66</span>
+<span class="sw"><span class="chip" style="background:#E2E0DB"></span>Hairline #E2E0DB</span>
+</div>
+</div>
+</body>
+</html>

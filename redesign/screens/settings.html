@@ -1,0 +1,208 @@
+<!-- @dsCard group="Screens" name="Settings — honest admin, honestly named" subtitle="panic access + discreet mode · privacy through about · What leaves this device" width="900" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballast — Settings</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F5F5F4;font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;color:#1A1D21;padding:44px 24px 64px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto}
+header.card h1{font-size:20px;font-weight:650;letter-spacing:-.01em}
+header.card p{font-size:14px;color:#565D66;margin-top:5px;line-height:1.5}
+.frames{display:flex;flex-wrap:wrap;gap:40px 28px;justify-content:center;margin-top:30px}
+.fblock{display:flex;flex-direction:column;align-items:center;gap:12px}
+.fcap{font-size:12px;color:#565D66;max-width:404px;text-align:center;line-height:1.55}
+.fcap b{color:#1A1D21;font-weight:600}
+.phone{width:412px;height:866px;background:#1A1D21;border-radius:60px;padding:11px;box-shadow:0 24px 48px rgba(26,29,33,.16),0 4px 12px rgba(26,29,33,.10)}
+.screen{position:relative;width:390px;height:844px;border-radius:49px;overflow:hidden;background:#F7F6F3}
+.island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:122px;height:35px;background:#1A1D21;border-radius:18px;z-index:60}
+.sbar{position:absolute;top:16px;left:0;right:0;height:24px;display:flex;justify-content:space-between;align-items:center;padding:0 34px;z-index:55;color:#1A1D21}
+.sbar .t{font-size:15px;font-weight:600;letter-spacing:.02em}
+.hbar{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#1A1D21;z-index:60}
+.cnt{position:absolute;top:58px;left:0;right:0;bottom:30px;padding:0 20px 8px;display:flex;flex-direction:column;z-index:20}
+.nav{position:relative;display:flex;align-items:center;height:44px}
+.nav .back{display:flex;align-items:center;gap:3px;color:#0C6F65;font-size:17px}
+.nav .nt{position:absolute;left:0;right:0;text-align:center;font-size:17px;font-weight:600;pointer-events:none}
+.sechead{font-size:13px;color:#565D66;margin:18px 6px 8px}
+.group{background:#FFFFFF;border:1px solid #E2E0DB;border-radius:16px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #E2E0DB;font-size:17px;min-height:50px}
+.row:last-child{border-bottom:0}
+.row .sub{display:block;font-size:13px;color:#565D66;margin-top:2px}
+.row .lab{line-height:1.25}
+.chev{margin-left:auto;flex:none}
+.secfoot{font-size:13px;color:#565D66;line-height:1.45;margin:8px 6px 0}
+.tg{flex:none;margin-left:auto;width:51px;height:31px;border-radius:16px;background:#EEECE7;border:1px solid #E2E0DB;position:relative}
+.tg i{position:absolute;top:1px;left:2px;width:27px;height:27px;border-radius:14px;background:#FFFFFF;box-shadow:0 1px 3px rgba(26,29,33,.25)}
+.tg.on{background:#0C6F65;border-color:#0C6F65}
+.tg.on i{left:auto;right:2px}
+/* widget preview pair */
+.pair{display:flex;gap:14px;justify-content:center;padding:14px 16px 16px;border-bottom:1px solid #E2E0DB}
+.pv{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:#565D66}
+.wtile{width:152px;height:64px;border-radius:14px;background:#121417;display:flex;align-items:center;gap:10px;padding:0 12px}
+.wtile .d{font-size:15px;font-weight:600;color:#F2F1EE;font-variant-numeric:tabular-nums;line-height:1.3}
+.wtile .m{font-size:11px;color:rgba(242,241,238,.72);font-variant-numeric:tabular-nums}
+.wtile .cir{margin-left:auto;width:26px;height:26px;border-radius:13px;background:rgba(242,241,238,.25);display:flex;align-items:center;justify-content:center}
+.wtile .rlab{font-size:9px;color:rgba(242,241,238,.72);text-align:center;margin-top:2px}
+/* icon picker */
+.icons{display:flex;gap:22px;padding:6px 16px 16px}
+.icopt{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:#565D66}
+.thumb{width:46px;height:46px;border-radius:11px;position:relative;overflow:hidden;border:1px solid #E2E0DB}
+.thumb.sel{box-shadow:0 0 0 2px #F7F6F3,0 0 0 4px #0C6F65}
+.thumb.crest{background:linear-gradient(180deg,#0C6F65,#5262BC);border:0}
+.thumb.crest .c{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:7px;background:#FFFFFF}
+.thumb.crest .l{position:absolute;top:25px;left:6px;right:6px;height:1.5px;background:rgba(255,255,255,.75)}
+.thumb.plain{background:#FFFFFF;display:flex;align-items:center;justify-content:center}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:40px;padding-top:18px;border-top:1px solid #E2E0DB}
+.legend .sw{display:flex;align-items:center;gap:7px;font-size:12px;color:#565D66}
+.legend .chip{width:14px;height:14px;border-radius:4px;border:1px solid rgba(26,29,33,.12)}
+/* privacy dashboard */
+.lead{font-size:17px;line-height:1.5;margin-top:16px}
+.crestmark{display:flex;justify-content:center;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="card">
+<h1>Settings — honest admin, honestly named</h1>
+<p>Rebuilt from the "Discreet Mode" sheet into a pushed screen on a custom design-system list (retiring the AX5 nav-title defect by construction). Canonical section order restates product values: Panic access → Discreet Mode → Privacy &amp; Data → Breathing → Your plan → Support → About. All strings per product-copy §11.</p>
+</header>
+
+<div class="frames">
+
+<!-- FRAME 1 — upper sections -->
+<div class="fblock">
+<div class="phone"><div class="screen">
+<div class="island"></div>
+<div class="sbar"><span class="t">9:41</span><svg width="72" height="14" viewBox="0 0 72 14" fill="none"><rect y="8.5" width="3" height="4.5" rx="1" fill="currentColor"/><rect x="4.6" y="6.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="9.2" y="4.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.8" y="2.5" width="3" height="10.5" rx="1" fill="currentColor"/><path d="M27 5.6a7.6 7.6 0 0 1 9.6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M29.2 8.2a4.4 4.4 0 0 1 5.2 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="31.8" cy="11" r="1.4" fill="currentColor"/><rect x="46" y="2.5" width="21" height="10" rx="3.2" stroke="currentColor" stroke-opacity=".45" fill="none"/><rect x="48" y="4.5" width="14" height="6" rx="1.6" fill="currentColor"/><path d="M68.6 6v3a1.8 1.8 0 0 0 0-3z" fill="currentColor" fill-opacity=".45"/></svg></div>
+<div class="cnt">
+<div class="nav"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10 2L3 10l7 8" stroke="#0C6F65" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Today</span><span class="nt">Settings</span></div>
+
+<div class="sechead">Panic access</div>
+<div class="group">
+<div class="row"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0C6F65" stroke-width="1.7"><rect x="3" y="7" width="18" height="10" rx="3.5"/><circle cx="16.5" cy="12" r="2.2"/><path d="M6.5 10.8h5M6.5 13.6h3.4" stroke-linecap="round" stroke-width="1.4"/></svg><span class="lab">Add the lock-screen button</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0C6F65" stroke-width="1.7" stroke-linecap="round"><path d="M4 7.5h16M4 16.5h16"/><circle cx="9" cy="7.5" r="2.6" fill="#FFFFFF"/><circle cx="15" cy="16.5" r="2.6" fill="#FFFFFF"/></svg><span class="lab">Add the Control Center button</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+
+<div class="sechead">Discreet Mode</div>
+<div class="group">
+<div class="row"><span class="lab">Show numbers only<span class="sub">Vaping</span></span><span class="tg"><i></i></span></div>
+<div class="pair">
+<span class="pv"><span class="wtile"><span><span class="d">Day 34</span><br><span class="m">$412 saved</span></span><span class="cir"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F2F1EE" stroke-width="2" stroke-linecap="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H3"/><path d="M17.73 7.73A2.5 2.5 0 1 1 19.5 12H3"/><path d="M12.59 19.41A2 2 0 1 0 14 16H3"/></svg></span></span>Standard</span>
+<span class="pv"><span class="wtile"><span class="d">Day 34</span><span style="margin-left:auto;display:flex;flex-direction:column;align-items:center"><span class="cir" style="margin-left:0"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2F1EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5v6h6"/><path d="M4 14a8.5 8.5 0 1 0 2-8.5L2 9.5"/></svg></span><span class="rlab">Reset</span></span></span>Numbers only</span>
+</div>
+<div class="row" style="border-bottom:0"><span class="lab">App icon</span></div>
+<div class="icons">
+<span class="icopt"><span class="thumb crest sel"><span class="c"></span><span class="l"></span></span>Default</span>
+<span class="icopt"><span class="thumb plain"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6E7681" stroke-width="1.7"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 2.8v3.4M16 2.8v3.4" stroke-linecap="round"/></svg></span>Calendar style</span>
+<span class="icopt"><span class="thumb plain"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6E7681" stroke-width="1.7"><circle cx="12" cy="13" r="7.5"/><path d="M12 13V8.6M12 13l3 2.4M9.5 2.5h5" stroke-linecap="round"/></svg></span>Timer style</span>
+</div>
+</div>
+<div class="secfoot">Widgets and buttons for this quit drop every habit word. The app switcher shows a blank card.</div>
+<div class="secfoot">The alternate icons carry no Ballast color, so your home screen stays quiet.</div>
+<div style="flex:1"></div>
+</div>
+<div class="hbar"></div>
+</div></div>
+<div class="fcap"><b>Upper sections.</b> Panic access first — settings order restates product values; both rows reopen the widget-adoption guide and are the widget_added re-entry point. The Discreet section shows the live before/after widget preview pair rendered from the user's real state (luminance-only, night surface #121417) and the icon picker with real thumbnails. Discreet quits are labeled "Tracked goal" even here.</div>
+</div>
+
+<!-- FRAME 2 — lower sections -->
+<div class="fblock">
+<div class="phone"><div class="screen">
+<div class="island"></div>
+<div class="sbar"><span class="t">9:41</span><svg width="72" height="14" viewBox="0 0 72 14" fill="none"><rect y="8.5" width="3" height="4.5" rx="1" fill="currentColor"/><rect x="4.6" y="6.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="9.2" y="4.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.8" y="2.5" width="3" height="10.5" rx="1" fill="currentColor"/><path d="M27 5.6a7.6 7.6 0 0 1 9.6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M29.2 8.2a4.4 4.4 0 0 1 5.2 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="31.8" cy="11" r="1.4" fill="currentColor"/><rect x="46" y="2.5" width="21" height="10" rx="3.2" stroke="currentColor" stroke-opacity=".45" fill="none"/><rect x="48" y="4.5" width="14" height="6" rx="1.6" fill="currentColor"/><path d="M68.6 6v3a1.8 1.8 0 0 0 0-3z" fill="currentColor" fill-opacity=".45"/></svg></div>
+<div class="cnt">
+<div class="nav"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10 2L3 10l7 8" stroke="#0C6F65" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Today</span><span class="nt">Settings</span></div>
+
+<div class="sechead">Privacy &amp; Data</div>
+<div class="group">
+<div class="row"><span class="lab">What leaves this device</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><span class="lab">Share usage data</span><span class="tg"><i></i></span></div>
+<div class="row"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C6100" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M9.5 7V4.8A1.3 1.3 0 0 1 10.8 3.5h2.4a1.3 1.3 0 0 1 1.3 1.3V7M6.5 7l1 12.2a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8L17.5 7"/></svg><span class="lab" style="color:#8C6100">Erase everything</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+<div class="secfoot">Off means nothing leaves this device. On shares which screens you reach and your habit type — never your words, notes, or times, and never tied to you.</div>
+
+<div class="sechead">Breathing</div>
+<div class="group">
+<div class="row"><span class="lab">Breathe by touch</span><span class="tg on"><i></i></span></div>
+</div>
+<div class="secfoot">The pacer guides with taps instead of the screen. Works with your eyes closed.</div>
+
+<div class="sechead">Your plan</div>
+<div class="group">
+<div class="row"><span class="lab">See your plan options</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><span class="lab">Manage subscription</span><svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 9L9 3M4.5 3H9v4.5" stroke="#80868E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+
+<div class="sechead">Support</div>
+<div class="group">
+<div class="row"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0C6F65" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v5M12 16v5M3 12h5M16 12h5" stroke-width="1.3"/></svg><span class="lab">Support &amp; resources</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+
+<div class="sechead">About</div>
+<div class="group">
+<div class="row"><span class="lab">Terms of Use</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><span class="lab">Privacy Policy</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><span class="lab">Version 1.0</span></div>
+</div>
+<div style="flex:1"></div>
+</div>
+<div class="hbar"></div>
+</div></div>
+<div class="fcap"><b>Lower sections (scrolled).</b> "Share usage data" closes the GDPR-hygiene gap — consent asked once in the quiz, revisitable forever here. "Erase everything" carries Low Sun #8C6100 amber with the trash glyph — never red, anywhere. "Manage subscription" is the honest counterpart to "cancel in one tap"; Terms and Privacy are live links (retiring the dead-label blocker). Win-back row is conditional.</div>
+</div>
+
+<!-- FRAME 3 — What leaves this device -->
+<div class="fblock">
+<div class="phone"><div class="screen">
+<div class="island"></div>
+<div class="sbar"><span class="t">9:41</span><svg width="72" height="14" viewBox="0 0 72 14" fill="none"><rect y="8.5" width="3" height="4.5" rx="1" fill="currentColor"/><rect x="4.6" y="6.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="9.2" y="4.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.8" y="2.5" width="3" height="10.5" rx="1" fill="currentColor"/><path d="M27 5.6a7.6 7.6 0 0 1 9.6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M29.2 8.2a4.4 4.4 0 0 1 5.2 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="31.8" cy="11" r="1.4" fill="currentColor"/><rect x="46" y="2.5" width="21" height="10" rx="3.2" stroke="currentColor" stroke-opacity=".45" fill="none"/><rect x="48" y="4.5" width="14" height="6" rx="1.6" fill="currentColor"/><path d="M68.6 6v3a1.8 1.8 0 0 0 0-3z" fill="currentColor" fill-opacity=".45"/></svg></div>
+<div class="cnt">
+<div class="nav"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10 2L3 10l7 8" stroke="#0C6F65" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Settings</span></div>
+<div style="font-size:22px;font-weight:600;letter-spacing:-.01em;margin-top:10px">What leaves this device</div>
+<div class="crestmark">
+<svg width="72" height="52" viewBox="0 0 72 52" fill="none">
+<defs><radialGradient id="cg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0C6F65" stop-opacity=".35"/><stop offset="100%" stop-color="#0C6F65" stop-opacity="0"/></radialGradient></defs>
+<circle cx="36" cy="22" r="20" fill="url(#cg)"/>
+<circle cx="36" cy="20" r="11" fill="#0C6F65"/>
+<rect x="8" y="32" width="56" height="1.6" rx=".8" fill="#5262BC" opacity=".55"/>
+<ellipse cx="36" cy="38" rx="8" ry="2.6" fill="#5262BC" opacity=".28"/>
+</svg>
+</div>
+<div class="lead">Nothing. Ballast has no account, no sign-up, and no server of ours. Your streaks, notes, and answers live only on this device.</div>
+<div class="group" style="margin-top:22px">
+<div class="row"><span class="lab">Share usage data</span><span class="tg"><i></i></span></div>
+</div>
+<div class="secfoot">If you subscribe, Apple processes payment and Ballast checks your subscription status. That's the whole list.</div>
+<div class="secfoot" style="margin-top:14px">Change your mind anytime with the switch above, or erase everything below.</div>
+<div class="group" style="margin-top:14px">
+<div class="row"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C6100" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M9.5 7V4.8A1.3 1.3 0 0 1 10.8 3.5h2.4a1.3 1.3 0 0 1 1.3 1.3V7M6.5 7l1 12.2a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8L17.5 7"/></svg><span class="lab" style="color:#8C6100">Erase everything</span><svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1.5 1.5L6.5 7l-5 5.5" stroke="#80868E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+<div style="flex:1"></div>
+</div>
+<div class="hbar"></div>
+</div></div>
+<div class="fcap"><b>"What leaves this device" — the privacy dashboard (§6.22).</b> Sharing-off state shown: the honesty is the design, the crest is the only mark, no decoration. With sharing on, the lead swaps to the anonymous-counts line and the screen lists the literal 19-event enum by name. Doubles as the analytics-consent revisit surface.</div>
+</div>
+
+</div>
+
+<div class="legend">
+<span class="sw"><span class="chip" style="background:#0C6F65"></span>Harbor Teal #0C6F65</span>
+<span class="sw"><span class="chip" style="background:#5262BC"></span>Dusk Indigo #5262BC</span>
+<span class="sw"><span class="chip" style="background:#8C6100"></span>Low Sun #8C6100</span>
+<span class="sw"><span class="chip" style="background:#6E7681"></span>Harbor Gray #6E7681</span>
+<span class="sw"><span class="chip" style="background:#F7F6F3"></span>Canvas #F7F6F3</span>
+<span class="sw"><span class="chip" style="background:#FFFFFF"></span>Crest #FFFFFF</span>
+<span class="sw"><span class="chip" style="background:#EEECE7"></span>Tidepool #EEECE7</span>
+<span class="sw"><span class="chip" style="background:#1A1D21"></span>Ink #1A1D21</span>
+<span class="sw"><span class="chip" style="background:#565D66"></span>Ink Secondary #565D66</span>
+<span class="sw"><span class="chip" style="background:#80868E"></span>Driftwood #80868E</span>
+<span class="sw"><span class="chip" style="background:#E2E0DB"></span>Hairline #E2E0DB</span>
+<span class="sw"><span class="chip" style="background:#121417"></span>Night base (dark) #121417</span>
+</div>
+</div>
+</body>
+</html>
