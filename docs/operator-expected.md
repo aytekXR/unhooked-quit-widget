@@ -286,18 +286,21 @@ the 10/10 evidence MVP §7 asks for.
       TestFlight upload. Search your ASC/developer email for **"ITMS-9105"**. Nothing there ⇒ closed permanently,
       delete this line. If a warning IS there, paste it and an agent lands the named category + reason code in one
       run (a two-line XML edit plus its `PrivacyManifestTests` pin).
-- [ ] **⚠️ AGENT FIX WAITING ON YOUR WORD — the paywall shows the WRONG PRICE outside the US
-      (found S48B by your own observation).** `PaywallPresentation.swift:96-98` binds the price lines to
-      `ProductCatalog.monthlyDisplayPrice` / `annualControlDisplayPrice` — the hardcoded strings `"$6.99"`
-      and `"$29.99"`. There is no live-StoreKit path at all; the file's own comment admits the intent
-      ("the live operator-keyed path **may later** upgrade the lines to localized StoreKit display
-      prices") and that later never came. You caught it on the device: the paywall said **$29.99** while
-      Apple's purchase sheet said the real local price. We have now priced all **175 territories**, so
-      **174 of them see a price that is not what they will be charged** — a trust problem and a
-      guideline-3.1.2 exposure (the price must be displayed accurately). The fix is an agent job (read
-      `StoreProduct.localizedPriceString` from the fetched offering, fall back to the static constants
-      when dormant/offline, which is what the constants were always for). It is NOT blocked by §0 — no
-      paywall goldens exist yet. **Say the word and it lands in one run.**
+> **✅ S48B closed two things you asked for, both landed and green.**
+> **(1) The paywall now shows the STOREFRONT's price.** It used to bind the hardcoded `"$6.99"`/`"$29.99"`
+> with no live path at all — you caught it on the device, seeing $29.99 on the paywall while Apple's sheet
+> showed the real local price; with all 175 territories priced that was 174 of them shown a price they
+> would not be charged (a trust problem, and a 3.1.2 exposure since the post-trial disclosure line carried
+> it too). The live path now binds Apple's own `localizedPriceString`, and fails SOFT per field — a slow or
+> unreachable store degrades to the old constants rather than blocking the wall, which is also why dormant
+> and offline builds are unchanged. Two new tests pin it.
+> **(2) Purchase failures now say WHY.** All five failure arms in `RevenueCatEntitlementSource` used to
+> `return .failed` with no trace, which is exactly why the sandbox attempt cost an hour. They now log the
+> distinguishing fact to `os_log` (subsystem `com.beyondkaira.ballast`, category `Purchase`): the missing
+> SKU and which offering was current, or the RevenueCat error code — e.g. 23 `configurationError` means
+> "none of the products could be fetched from App Store Connect", which is what an unpropagated catalog
+> produces. Release-safe and habit-word-free, so a shipped purchase failure is diagnosable too.
+
 - [ ] **THE SANDBOX PURCHASE MATRIX — now unblocked, and it is Epic 7's operator half.** ASC →
       Users and Access → **Sandbox** → create a test account; on the device Settings → Developer
       → **Sandbox Apple Account** → sign in. Then run: trial start · trial→paid · monthly ·
@@ -318,10 +321,10 @@ the 10/10 evidence MVP §7 asks for.
       first because it is a one-click check:** in the RevenueCat dashboard confirm the `default` offering
       carries the **Current** badge (the API reported `is_current: true` in S48B, so this is very likely
       already fine).
-      **⚠️ The real error is currently invisible** — `RevenueCatEntitlementSource.swift:112` and `:124`
-      both collapse every cause into `return .failed`, so "product not found" and "validation failed"
-      look identical. An agent can add two `os_log` lines there so your next attempt reports its own
-      cause with no USB, no Console.app and no `sudo`. **Worth doing before you retry.**
+      **✅ The error is now readable (S48B).** Retry, then read it with Console.app: connect the phone,
+      select it in the sidebar, filter the subsystem to `com.beyondkaira.ballast` and look for category
+      `Purchase`. You will get either the missing SKU plus which offering was current, or the RevenueCat
+      error code. No `sudo`, no log-collect, no rebuild.
 - [ ] **Open `App/Resources/Ballast.storekit` in Xcode 26 once (~5 min, any Mac sitting):** it was hand-authored
       on Linux against Apple's documented structure; a one-time open-and-save validates/normalizes it (and the
       `adHocOffers` win-back entry). Same sitting: run with launch env `UITEST_PAYWALL=1` to eyeball the paywall.

@@ -67,11 +67,41 @@ struct PaywallViewData: Equatable, Sendable {
     var winbackOffer: WinbackOfferData?
 }
 
+/// The display prices the `%@` slots bind, as DATA — so this file stays
+/// Foundation-only and Linux-harnessable while still rendering real,
+/// localized, per-storefront prices (S48).
+///
+/// WHY THIS EXISTS. Until S48 the paywall bound `ProductCatalog`'s static
+/// `"$6.99"` / `"$29.99"` constants unconditionally, and the operator caught it
+/// on a device: the paywall said **$29.99** while Apple's own purchase sheet
+/// showed the real local price. Once all 175 territories were priced, that made
+/// 174 of them show a price the user would NOT be charged — a trust problem
+/// first, and a guideline-3.1.2 exposure second (the price must be displayed
+/// accurately). The constants were always meant to be the offline/dormant
+/// fallback, which is exactly what `.catalogFallback` is now.
+struct PaywallDisplayPrices: Equatable, Sendable {
+    var monthly: String
+    var annual: String
+    /// The win-back's discounted FIRST-YEAR price (the renewal price is
+    /// `annual` above — the two together are the 3.1.2(c)-grade pair).
+    var winbackFirstYear: String
+
+    /// Architecture §8's bundled fallback: what a DORMANT (keyless) or offline
+    /// build renders, where no StoreKit product can be fetched. USD by
+    /// construction, and correct in that context precisely because no purchase
+    /// is reachable there.
+    static let catalogFallback = PaywallDisplayPrices(
+        monthly: ProductCatalog.monthlyDisplayPrice,
+        annual: ProductCatalog.annualControlDisplayPrice,
+        winbackFirstYear: ProductCatalog.annualWinbackDisplayPrice
+    )
+}
+
 /// Pure copy+catalog → view data assembly (the SummaryPresentation twin —
-/// Foundation-only, Linux-harnessable). The `%@` templates bind the catalog's
-/// static CONTROL-arm display prices (architecture §8: the bundled fallback
-/// renders offline/dormant); the live operator-keyed path may later upgrade
-/// the lines to localized StoreKit display prices — never the other way.
+/// Foundation-only, Linux-harnessable). The `%@` templates bind whatever
+/// `PaywallDisplayPrices` is handed in: the live operator-keyed path passes
+/// StoreKit's localized strings, and everything else falls back to the
+/// catalog's static CONTROL-arm constants (architecture §8).
 enum PaywallPresentation {
     /// E7.2 (R25.8): `variant`/`source` drive the teaser fork — defaults keep
     /// every E7.1 call site (and its pins) byte-compatible: `.hard` +
@@ -80,10 +110,15 @@ enum PaywallPresentation {
     /// eyebrow and NEVER the escape (single-use, R25.7 — "Then this screen
     /// returns." must stay true); the hard variant composes neither
     /// (close-free, R24.9 carried).
+    ///
+    /// `prices` defaults to the catalog fallback, so every pre-S48 call site
+    /// (and its pins) stays byte-compatible; only the live path passes real
+    /// StoreKit prices.
     static func make(
         copy: PaywallCopy,
         variant: PaywallVariant = .hard,
-        source: PaywallSource = .onboarding
+        source: PaywallSource = .onboarding,
+        prices: PaywallDisplayPrices = .catalogFallback
     ) -> PaywallViewData {
         PaywallViewData(
             headline: copy.headline,
@@ -93,9 +128,9 @@ enum PaywallPresentation {
             planMonthlyTitle: copy.planMonthlyTitle,
             planAnnualTitle: copy.planAnnualTitle,
             trialBadge: copy.trialBadge,
-            priceMonthlyLine: bind(copy.priceMonthlyFmt, ProductCatalog.monthlyDisplayPrice),
-            priceAnnualLine: bind(copy.priceAnnualFmt, ProductCatalog.annualControlDisplayPrice),
-            trialMechanicsLine: bind(copy.trialMechanicsLineFmt, ProductCatalog.annualControlDisplayPrice),
+            priceMonthlyLine: bind(copy.priceMonthlyFmt, prices.monthly),
+            priceAnnualLine: bind(copy.priceAnnualFmt, prices.annual),
+            trialMechanicsLine: bind(copy.trialMechanicsLineFmt, prices.annual),
             autoRenewDisclosure: copy.autoRenewDisclosure,
             termsLabel: copy.termsLabel,
             privacyLabel: copy.privacyLabel,
@@ -118,8 +153,8 @@ enum PaywallPresentation {
                     offerLine: copy.winbackOfferLine,
                     mechanicsLine: bind(
                         copy.winbackMechanicsLineFmt,
-                        ProductCatalog.annualWinbackDisplayPrice,
-                        ProductCatalog.annualControlDisplayPrice
+                        prices.winbackFirstYear,
+                        prices.annual
                     ),
                     reassurance: copy.winbackReassurance,
                     dismissLabel: copy.winbackDismissLabel

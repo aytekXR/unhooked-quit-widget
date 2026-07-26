@@ -114,6 +114,58 @@ struct PaywallCopyTests {
         Self.expectShameAndLeakFree(.degraded, label: "degraded")
     }
 
+    /// S48 — the paywall renders the STOREFRONT's price, not a US constant.
+    ///
+    /// Red evidence for this fix was a device observation, not a test: the
+    /// paywall said "$29.99 / year" while Apple's own purchase sheet showed the
+    /// real local price. `PaywallPresentation` bound `ProductCatalog`'s static
+    /// constants unconditionally, so with all 175 territories priced, 174 of
+    /// them were shown a price the user would not be charged.
+    ///
+    /// This pins the seam rather than the SDK: injected prices must reach ALL
+    /// FOUR binding sites, including `trialMechanicsLine` (the 3.1.2(c) "what
+    /// you pay after the trial" line — the one where a stale price is a
+    /// disclosure defect, not just a cosmetic one) and both slots of the
+    /// win-back mechanics pair.
+    @Test func test_paywallComposed_bindsInjectedStorefrontPrices_notCatalogConstants() {
+        let copy = PaywallCopy.loadShipping() ?? .degraded
+        // A non-USD storefront, formatted the way Apple renders it there.
+        let turkish = PaywallDisplayPrices(
+            monthly: "₺249,99", annual: "₺1.099,99", winbackFirstYear: "₺549,99"
+        )
+
+        let data = PaywallPresentation.make(copy: copy, prices: turkish)
+        #expect(data.priceMonthlyLine.contains("₺249,99"))
+        #expect(data.priceAnnualLine.contains("₺1.099,99"))
+        #expect(
+            data.trialMechanicsLine.contains("₺1.099,99"),
+            "the post-trial price is a 3.1.2(c) disclosure — a stale constant here misstates what the user will be charged"
+        )
+        #expect(
+            !data.priceAnnualLine.contains("$29.99") && !data.trialMechanicsLine.contains("$29.99"),
+            "no US constant survives anywhere once real prices are supplied"
+        )
+
+        let winback = PaywallPresentation.make(copy: copy, source: .winback, prices: turkish)
+        let mechanics = try? #require(winback.winbackOffer?.mechanicsLine)
+        #expect(
+            mechanics?.contains("₺549,99") == true && mechanics?.contains("₺1.099,99") == true,
+            "both slots bind — discounted first year AND the renewal price it reverts to"
+        )
+    }
+
+    /// S48 — the fallback stays exactly what it was: a DORMANT or offline build
+    /// has no StoreKit product to read, and the catalog constants are correct
+    /// there precisely because no purchase is reachable. This is what keeps
+    /// every pre-S48 call site (and the disclosure test below) byte-compatible.
+    @Test func test_paywallComposed_withoutInjectedPrices_keepsCatalogConstants() {
+        let data = PaywallPresentation.make(copy: PaywallCopy.loadShipping() ?? .degraded)
+
+        #expect(data.priceMonthlyLine.contains(ProductCatalog.monthlyDisplayPrice))
+        #expect(data.priceAnnualLine.contains(ProductCatalog.annualControlDisplayPrice))
+        #expect(PaywallDisplayPrices.catalogFallback.annual == ProductCatalog.annualControlDisplayPrice)
+    }
+
     /// M22d (designed-red): the COMPOSED screen data carries every
     /// guideline-3.1.1/3.1.2(c) disclosure — price, trial length AND the
     /// price that follows it, the auto-renewal statement, Terms/Privacy, and

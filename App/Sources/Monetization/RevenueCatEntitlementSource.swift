@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import PaywallKit
 import RevenueCat
 
@@ -95,6 +96,66 @@ struct RevenueCatEntitlementSource: EntitlementSource {
 /// BY RULE (the sole-RC-importer discipline). Only ever constructed on the
 /// operator-keyed path; the DEBUG render override injects inert actions.
 enum RevenueCatPurchaser {
+    /// S48 — the diagnostic seam. Every failure arm below used to `return
+    /// .failed` with no trace, so "Apple has not propagated the products yet",
+    /// "the RC dashboard offering is not Current", "our SKU is missing from the
+    /// offering" and "the purchase itself was rejected" were INDISTINGUISHABLE
+    /// — from the user's banner and from the operator's side alike. The S48
+    /// sandbox session burned an hour on exactly that ambiguity.
+    ///
+    /// Failure paths only: a healthy purchase logs nothing. This carries no
+    /// user content — SKUs, offering identifiers and error codes are the whole
+    /// payload, none of it habit-shaped, so the discreet rule is unaffected and
+    /// this is safe in release (where it is also most useful: a shipped
+    /// purchase failure is otherwise invisible forever).
+    private static let log = Logger(
+        subsystem: AppIdentifiers.loggingSubsystem, category: "Purchase"
+    )
+
+    /// S48 — the live, LOCALIZED display prices for the paywall's `%@` slots.
+    ///
+    /// `localizedPriceString` (5.80.3 StoreProduct.swift:90, and
+    /// StoreProductDiscount.swift:76 for the win-back arm) is Apple's own
+    /// rendered price for the CURRENT STOREFRONT — correct currency, correct
+    /// symbol placement, correct locale grouping. Binding it is the whole fix
+    /// for the operator's device finding: the paywall used to claim "$29.99"
+    /// worldwide while Apple's purchase sheet charged the real local price.
+    ///
+    /// Fails SOFT and per-field: anything not fetched keeps the catalog
+    /// constant. A price that cannot be read is never a reason to block the
+    /// screen — the wall must still render, and the disclosure lines must still
+    /// carry SOMETHING. (It also means a dormant/offline build is unchanged.)
+    /// The one thing this must never do is show a price from the WRONG
+    /// product, so each field is keyed to its own SKU.
+    static func displayPrices() async -> PaywallDisplayPrices {
+        var prices = PaywallDisplayPrices.catalogFallback
+        do {
+            let packages = try await Purchases.shared.offerings().current?.availablePackages ?? []
+            func product(_ sku: String) -> StoreProduct? {
+                packages.first { $0.storeProduct.productIdentifier == sku }?.storeProduct
+            }
+            if let monthly = product(ProductCatalog.monthlySKU) {
+                prices.monthly = monthly.localizedPriceString
+            }
+            if let annual = product(ProductCatalog.annualSKU) {
+                prices.annual = annual.localizedPriceString
+                // The win-back's first-year price lives on the SAME SKU as a
+                // discount (R26.2), so it is only readable once ASC carries the
+                // promotional offer; absent, the constant stands.
+                if let discount = annual.discounts
+                    .first(where: { $0.offerIdentifier == ProductCatalog.winbackOfferID }) {
+                    prices.winbackFirstYear = discount.localizedPriceString
+                }
+            }
+        } catch {
+            let ns = error as NSError
+            log.error(
+                "displayPrices: threw, falling back to catalog constants — domain=\(ns.domain, privacy: .public) code=\(ns.code, privacy: .public)"
+            )
+        }
+        return prices
+    }
+
     /// The bundled fallback offers monthly + the CONTROL annual only
     /// (architecture §8) — the $39.99 arm is Superwall's to assign (E7.2).
     static func purchase(plan: PaywallModel.Plan) async -> PurchaseOutcome {
@@ -109,6 +170,20 @@ enum RevenueCatPurchaser {
             else {
                 // Offerings reachable but our SKU absent (dashboard drift):
                 // the never-trap failure surface — retry + restore both live.
+                //
+                // S48: the two sub-causes look identical from here and are
+                // fixed in completely different places, so name them both.
+                // `current == nil` means the RC dashboard has no offering
+                // marked Current; a non-empty list without our SKU means the
+                // offering exists but does not carry it (or Apple has not
+                // served the product yet, which drops it from the list).
+                let offering = offerings.current?.identifier ?? "<nil>"
+                let available = (offerings.current?.availablePackages ?? [])
+                    .map { $0.storeProduct.productIdentifier }
+                    .joined(separator: ",")
+                log.error(
+                    "purchase: SKU absent from current offering — sku=\(sku, privacy: .public) currentOffering=\(offering, privacy: .public) available=[\(available, privacy: .public)]"
+                )
                 return .failed
             }
             let result = try await Purchases.shared.purchase(package: package)
@@ -121,6 +196,15 @@ enum RevenueCatPurchaser {
                 )
             )
         } catch {
+            // S48: the RC `ErrorCode` integer is the actual answer here — e.g.
+            // 23 `configurationError` ("none of the products could be fetched
+            // from App Store Connect"), which is what an unpropagated or
+            // misconfigured catalog produces, versus a genuine store/payment
+            // rejection. Without it every cause reads as "try again".
+            let ns = error as NSError
+            log.error(
+                "purchase: threw — sku=\(sku, privacy: .public) domain=\(ns.domain, privacy: .public) code=\(ns.code, privacy: .public) desc=\(ns.localizedDescription, privacy: .public)"
+            )
             return .failed
         }
     }
@@ -136,6 +220,10 @@ enum RevenueCatPurchaser {
                 )
             )
         } catch {
+            let ns = error as NSError
+            log.error(
+                "restore: threw — domain=\(ns.domain, privacy: .public) code=\(ns.code, privacy: .public) desc=\(ns.localizedDescription, privacy: .public)"
+            )
             return .failed
         }
     }
@@ -161,11 +249,25 @@ enum RevenueCatPurchaser {
             guard let package = (offerings.current?.availablePackages ?? [])
                 .first(where: { $0.storeProduct.productIdentifier == ProductCatalog.annualSKU })
             else {
+                let offering = offerings.current?.identifier ?? "<nil>"
+                log.error(
+                    "winback: annual SKU absent from current offering — currentOffering=\(offering, privacy: .public)"
+                )
                 return .failed
             }
             guard let discount = package.storeProduct.discounts
                 .first(where: { $0.offerIdentifier == ProductCatalog.winbackOfferID })
             else {
+                // S48: this is the "ASC promotional offer missing or renamed"
+                // arm — the one the §8 runbook's exact-string warning exists
+                // for. Naming the offers we DID find turns a silent failure
+                // into a one-glance answer.
+                let found = package.storeProduct.discounts
+                    .map { $0.offerIdentifier ?? "<nil>" }
+                    .joined(separator: ",")
+                log.error(
+                    "winback: offer '\(ProductCatalog.winbackOfferID, privacy: .public)' not on the product — discounts=[\(found, privacy: .public)]"
+                )
                 return .failed
             }
             let signed = try await Purchases.shared.promotionalOffer(
@@ -185,6 +287,10 @@ enum RevenueCatPurchaser {
                 )
             )
         } catch {
+            let ns = error as NSError
+            log.error(
+                "winback: threw — domain=\(ns.domain, privacy: .public) code=\(ns.code, privacy: .public) desc=\(ns.localizedDescription, privacy: .public)"
+            )
             return .failed
         }
     }

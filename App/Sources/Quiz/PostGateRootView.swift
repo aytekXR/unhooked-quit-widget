@@ -488,10 +488,16 @@ struct PostGateRootView: View {
         let placement = source == .winback ? SuperwallPlacement.winback : SuperwallPlacement.postSummary
         let assignment = await assigner.assignment(for: placement)
         let analytics = repository.analyticsService
+        // S48 — the LIVE path binds StoreKit's localized prices. This is the
+        // only call site that does: the debug render and every test keep the
+        // catalog constants via the parameter's default, exactly as before.
+        // `displayPrices()` fails soft per field, so a slow or unreachable
+        // store degrades to the constants rather than blocking the wall.
         paywallData = PaywallPresentation.make(
             copy: PaywallCopy.loadShipping() ?? .degraded,
             variant: assignment.variant,
-            source: source
+            source: source,
+            prices: await RevenueCatPurchaser.displayPrices()
         )
         let firePaywallViewed = PaywallPresenter.makeFirePaywallViewed(
             assignment: assignment,
