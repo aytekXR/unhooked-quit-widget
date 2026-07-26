@@ -6543,3 +6543,44 @@ trusted — and found the audit's own recommended fix was written with the wrong
 (`accessibilityRepresentation(content:)` is a 404; `(representation:)` is the real one). The rule
 generalizes: docs-JSON confirmation applies to agent-proposed fixes, not just hand-written code.
 
+
+### Outcome — 4 billed runs, all evidence, no retries; GREEN at close
+
+`30221833229` SUCCESS, verified **per-job**: all 10 green including the TestFlight upload.
+
+| Run | What it bought |
+|---|---|
+| `30219477906` | 4 settings goldens recorded (record-missing writes-then-fails, by design) + Unit lane GREEN on the first try, which independently confirmed all three Linux harnesses (the new container lint, the 12→24 Mirror floor, the panicScript cross-pin). **And the discovery that both new audit legs never reached their mounts.** |
+| `30220337353` | Mount fixed → **`test_a11yAudit_eraseConfirm` PASSED CLEAN on its first real audit** (the S49 §1 surface now has a lane). Settings leg surfaced a genuine violation: **"Label duplicates traits"**. |
+| `30221110745` | Violation fixed → **UI smoke GREEN, all 10 audit legs pass**; goldens re-recorded for the one-word copy change. |
+| `30221833229` | Goldens adopted after visual verification. **Everything green, 10/10 jobs.** |
+
+**The violation is the session's most valuable single result, because it would have shipped.**
+Settings was not an audited surface for the whole of S38–S50. A row label that restates its own
+control trait is invisible to a golden, to all five source lints, and to a human reading
+`redesign/product-copy.md` §11, where "Add the lock-screen button" reads perfectly sensibly — it
+was naming the WIDGET's panic button, a different object. Only Apple's `.trait` audit sees it, and
+only if the surface has a leg. Adding the leg is what turned a VoiceOver user hearing *"Add the
+lock-screen button, button"* into a red build.
+
+Fixed with the smallest faithful edit — one word, `button` → `widget`, which is also the more
+accurate noun (you add the widget; the widget carries the button) — flagged to the operator in
+§0 as an audit-forced deviation from their own copy doc, and guarded by
+`test_settingsRowLabels_doNotRestateAControlTrait` so a founder edit that restores the doc's
+wording fails on the unit lane with the reason, not on the UI lane with a bare audit string.
+
+**The refused shortcut is worth recording as a rule.** The bytes could have been kept by
+overriding `.accessibilityLabel`. That buys a green check at the cost of WCAG 2.5.3 (Label in
+Name): the accessible name would no longer contain the visible text, so a Voice Control user
+saying "tap Add the lock-screen button" would stop matching the control. **Never trade a real
+accessibility property for a passing machine check** — the audit exists to serve the property, not
+the reverse.
+
+### Budget note — the plan's own commit split would have cost a 5th run
+
+The plan's "CUT A" deferred the settings audit leg to a second commit to insulate the structural
+build. Reading `ci.yml` directly showed the snapshot and UI-smoke lanes are independent steps of
+one job (`if: !cancelled() && build success`), so ONE run buys both the recorded goldens and the
+full audit ledger — the S40 enumerate-all-from-one-run rule. Shipping both legs in run 1 is what
+surfaced the mount bug and the trait violation one run earlier each. Four runs instead of five,
+with strictly more evidence per run.
