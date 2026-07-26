@@ -1,0 +1,1778 @@
+⚙️  Generating plists...
+⚙️  Generating project...
+⚙️  Writing project...
+Created project at /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Unhooked.xcodeproj
+An error was encountered processing the command (domain=com.apple.CoreSimulator.SimError, code=405):
+Unable to boot device in current state: Booted
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild build-for-testing -project Unhooked.xcodeproj -scheme Unhooked -destination id=0E9344F1-0F01-4A75-B819-05BBF8EC52E4 -clonedSourcePackagesDirPath .spm-packages -derivedDataPath DerivedData CODE_SIGN_IDENTITY=-
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = -
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.6.1
+  RevenueCat: https://github.com/RevenueCat/purchases-ios @ 5.80.3
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.11.0
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 603.0.2
+  TelemetryDeck: https://github.com/TelemetryDeck/SwiftSDK @ 2.14.1
+  swift-snapshot-testing: https://github.com/pointfreeco/swift-snapshot-testing @ 1.19.3
+  Superscript: https://github.com/superwall/superscript-ios-next @ 1.0.14
+  SuperwallKit: https://github.com/superwall/Superwall-iOS @ 4.16.1
+  PaywallKit: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/PaywallKit
+  WidgetToolkit: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/WidgetToolkit
+  StreakEngine: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/StreakEngine
+
+note: Using codesigning identity override: -
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (24 targets)
+    Target 'UnhookedUITests' in project 'Unhooked'
+        ➜ Explicit dependency on target 'Unhooked' in project 'Unhooked'
+    Target 'UnhookedSnapshotTests' in project 'Unhooked'
+        ➜ Explicit dependency on target 'Unhooked' in project 'Unhooked'
+        ➜ Explicit dependency on target 'SnapshotTesting' in project 'swift-snapshot-testing'
+        ➜ Explicit dependency on target 'StreakEngine' in project 'StreakEngine'
+        ➜ Explicit dependency on target 'WidgetToolkit' in project 'WidgetToolkit'
+    Target 'SnapshotTesting' in project 'swift-snapshot-testing'
+        ➜ Explicit dependency on target 'SnapshotTesting' in project 'swift-snapshot-testing'
+    Target 'SnapshotTesting' in project 'swift-snapshot-testing' (no dependencies)
+    Target 'UnhookedTests' in project 'Unhooked'
+        ➜ Explicit dependency on target 'Unhooked' in project 'Unhooked'
+        ➜ Explicit dependency on target 'StreakEngine' in project 'StreakEngine'
+        ➜ Explicit dependency on target 'WidgetToolkit' in project 'WidgetToolkit'
+        ➜ Explicit dependency on target 'PaywallKit' in project 'PaywallKit'
+        ➜ Explicit dependency on target 'RevenueCat' in project 'RevenueCat'
+    Target 'Unhooked' in project 'Unhooked'
+        ➜ Explicit dependency on target 'UnhookedWidgets' in project 'Unhooked'
+        ➜ Explicit dependency on target 'StreakEngine' in project 'StreakEngine'
+        ➜ Explicit dependency on target 'WidgetToolkit' in project 'WidgetToolkit'
+        ➜ Explicit dependency on target 'PaywallKit' in project 'PaywallKit'
+        ➜ Explicit dependency on target 'TelemetryDeck' in project 'TelemetryDeck'
+        ➜ Explicit dependency on target 'RevenueCat' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'SuperwallKit' in project 'SuperwallKit'
+    Target 'SuperwallKit' in project 'SuperwallKit'
+        ➜ Explicit dependency on target 'SuperwallKit' in project 'SuperwallKit'
+        ➜ Explicit dependency on target 'SuperwallKit_SuperwallKit' in project 'SuperwallKit'
+        ➜ Explicit dependency on target 'Superscript' in project 'Superscript'
+    Target 'SuperwallKit' in project 'SuperwallKit'
+        ➜ Explicit dependency on target 'SuperwallKit_SuperwallKit' in project 'SuperwallKit'
+        ➜ Explicit dependency on target 'Superscript' in project 'Superscript'
+    Target 'Superscript' in project 'Superscript'
+        ➜ Explicit dependency on target 'Superscript' in project 'Superscript'
+    Target 'Superscript' in project 'Superscript' (no dependencies)
+    Target 'SuperwallKit_SuperwallKit' in project 'SuperwallKit' (no dependencies)
+    Target 'RevenueCat' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat_RevenueCat' in project 'RevenueCat'
+    Target 'RevenueCat' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat_RevenueCat' in project 'RevenueCat'
+    Target 'RevenueCat_RevenueCat' in project 'RevenueCat' (no dependencies)
+    Target 'TelemetryDeck' in project 'TelemetryDeck'
+        ➜ Explicit dependency on target 'TelemetryDeck' in project 'TelemetryDeck'
+        ➜ Explicit dependency on target 'TelemetryDeck_TelemetryDeck' in project 'TelemetryDeck'
+    Target 'TelemetryDeck' in project 'TelemetryDeck'
+        ➜ Explicit dependency on target 'TelemetryDeck_TelemetryDeck' in project 'TelemetryDeck'
+    Target 'TelemetryDeck_TelemetryDeck' in project 'TelemetryDeck' (no dependencies)
+    Target 'PaywallKit' in project 'PaywallKit'
+        ➜ Explicit dependency on target 'PaywallKit' in project 'PaywallKit'
+    Target 'PaywallKit' in project 'PaywallKit' (no dependencies)
+    Target 'UnhookedWidgets' in project 'Unhooked'
+        ➜ Explicit dependency on target 'WidgetToolkit' in project 'WidgetToolkit'
+        ➜ Explicit dependency on target 'StreakEngine' in project 'StreakEngine'
+    Target 'StreakEngine' in project 'StreakEngine'
+        ➜ Explicit dependency on target 'StreakEngine' in project 'StreakEngine'
+    Target 'StreakEngine' in project 'StreakEngine' (no dependencies)
+    Target 'WidgetToolkit' in project 'WidgetToolkit'
+        ➜ Explicit dependency on target 'WidgetToolkit' in project 'WidgetToolkit'
+    Target 'WidgetToolkit' in project 'WidgetToolkit' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/App/Resources/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/momc --dry-run --action generate --swift-version 5 --sdkroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk --iphonesimulator-deployment-target 13.0 --module SuperwallKit /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/.spm-packages/checkouts/Superwall-iOS/Sources/SuperwallKit/Storage/Core Data/SuperwallKit_Model.xcdatamodeld /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/SuperwallKit.build/Debug-iphonesimulator/SuperwallKit.build/DerivedSources/CoreDataGenerated/SuperwallKit_Model
+
+ReadFileContents /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/docc/features.json
+
+Build description signature: 25c02ab2cd28972b3f9aca4cdb66aa76
+Build description path: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/XCBuildData/25c02ab2cd28972b3f9aca4cdb66aa76.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-6cfe768891a92b912361537c460fe42b.sdkstatcache
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Unhooked.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-6cfe768891a92b912361537c460fe42b.sdkstatcache
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/PaywallKit_-5339C21C0DC49EF4_PackageProduct.framework/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/PaywallKit.build/Debug-iphonesimulator/PaywallKit\ product.build/empty-PaywallKit_-5339C21C0DC49EF4_PackageProduct.plist (in target 'PaywallKit' from project 'PaywallKit')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/PaywallKit
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/PaywallKit.build/Debug-iphonesimulator/PaywallKit\ product.build/empty-PaywallKit_-5339C21C0DC49EF4_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/PaywallKit_-5339C21C0DC49EF4_PackageProduct.framework/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/RevenueCat_RevenueCat.bundle/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat_RevenueCat.build/empty-RevenueCat_RevenueCat.plist (in target 'RevenueCat_RevenueCat' from project 'RevenueCat')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/.spm-packages/checkouts/purchases-ios
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat_RevenueCat.build/empty-RevenueCat_RevenueCat.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/RevenueCat_RevenueCat.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/RevenueCat_76EF69325FE509FC_PackageProduct.framework/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat\ product.build/empty-RevenueCat_76EF69325FE509FC_PackageProduct.plist (in target 'RevenueCat' from project 'RevenueCat')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/.spm-packages/checkouts/purchases-ios
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat\ product.build/empty-RevenueCat_76EF69325FE509FC_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/RevenueCat_76EF69325FE509FC_PackageProduct.framework/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/StreakEngine_38A763DA510A46CC_PackageProduct.framework/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/StreakEngine.build/Debug-iphonesimulator/StreakEngine\ product.build/empty-StreakEngine_38A763DA510A46CC_PackageProduct.plist (in target 'StreakEngine' from project 'StreakEngine')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/StreakEngine
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/StreakEngine.build/Debug-iphonesimulator/StreakEngine\ product.build/empty-StreakEngine_38A763DA510A46CC_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/StreakEngine_38A763DA510A46CC_PackageProduct.framework/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/WidgetToolkit_269E66EBC8886257_PackageProduct.framework/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/WidgetToolkit.build/Debug-iphonesimulator/WidgetToolkit\ product.build/empty-WidgetToolkit_269E66EBC8886257_PackageProduct.plist (in target 'WidgetToolkit' from project 'WidgetToolkit')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/WidgetToolkit
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/WidgetToolkit.build/Debug-iphonesimulator/WidgetToolkit\ product.build/empty-WidgetToolkit_269E66EBC8886257_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/WidgetToolkit_269E66EBC8886257_PackageProduct.framework/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/SuperwallKit_SuperwallKit.bundle/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/SuperwallKit.build/Debug-iphonesimulator/SuperwallKit_SuperwallKit.build/empty-SuperwallKit_SuperwallKit.plist (in target 'SuperwallKit_SuperwallKit' from project 'SuperwallKit')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/.spm-packages/checkouts/Superwall-iOS
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/SuperwallKit.build/Debug-iphonesimulator/SuperwallKit_SuperwallKit.build/empty-SuperwallKit_SuperwallKit.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/SuperwallKit.build/Debug-iphonesimulator/SuperwallKit_SuperwallKit.build/assetcatalog_generated_info.plist -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/SuperwallKit_SuperwallKit.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/TelemetryDeck_TelemetryDeck.bundle/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/TelemetryDeck.build/Debug-iphonesimulator/TelemetryDeck_TelemetryDeck.build/empty-TelemetryDeck_TelemetryDeck.plist (in target 'TelemetryDeck_TelemetryDeck' from project 'TelemetryDeck')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/.spm-packages/checkouts/SwiftSDK
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/TelemetryDeck.build/Debug-iphonesimulator/TelemetryDeck_TelemetryDeck.build/empty-TelemetryDeck_TelemetryDeck.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/TelemetryDeck_TelemetryDeck.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedWidgets.appex/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Widgets/Info.plist (in target 'UnhookedWidgets' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Widgets/Info.plist -producttype com.apple.product-type.app-extension -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedWidgets.appex/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/App/Info.plist (in target 'Unhooked' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/App/Info.plist -producttype com.apple.product-type.application -genpkginfo /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/Unhooked.build/assetcatalog_generated_info.plist -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Frameworks/PaywallKit_-5339C21C0DC49EF4_PackageProduct.framework -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Frameworks/RevenueCat_76EF69325FE509FC_PackageProduct.framework -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Frameworks/StreakEngine_38A763DA510A46CC_PackageProduct.framework -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Frameworks/WidgetToolkit_269E66EBC8886257_PackageProduct.framework -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedWidgets.appex -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/RevenueCat_RevenueCat.bundle -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/SuperwallKit_SuperwallKit.bundle -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/TelemetryDeck_TelemetryDeck.bundle -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Info.plist
+warning: 'UIRequiresFullScreen' has been deprecated starting in iOS 26.0 and will be ignored in a future release. See the UIRequiresFullScreen documentation for more details. (in target 'Unhooked' from project 'Unhooked')
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedTests.build/empty-UnhookedTests.plist (in target 'UnhookedTests' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedTests.build/empty-UnhookedTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/RevenueCat_RevenueCat.bundle -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/SuperwallKit_SuperwallKit.bundle -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/TelemetryDeck_TelemetryDeck.bundle -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedSnapshotTests.build/empty-UnhookedSnapshotTests.plist (in target 'UnhookedSnapshotTests' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedSnapshotTests.build/empty-UnhookedSnapshotTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/RevenueCat_RevenueCat.bundle -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/SuperwallKit_SuperwallKit.bundle -scanforprivacyfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/TelemetryDeck_TelemetryDeck.bundle -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/Info.plist
+
+CopySwiftLibs /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest (in target 'UnhookedSnapshotTests' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/UnhookedSnapshotTests --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/Frameworks --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/PlugIns --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/SystemExtensions --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/Extensions --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/StreakEngine_38A763DA510A46CC_PackageProduct.framework --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/WidgetToolkit_269E66EBC8886257_PackageProduct.framework --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedSnapshotTests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedSnapshotTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+CopySwiftLibs /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest (in target 'UnhookedTests' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/UnhookedTests --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/Frameworks --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/PlugIns --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/SystemExtensions --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/Extensions --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/StreakEngine_38A763DA510A46CC_PackageProduct.framework --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/WidgetToolkit_269E66EBC8886257_PackageProduct.framework --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/PaywallKit_-5339C21C0DC49EF4_PackageProduct.framework --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/PackageFrameworks/RevenueCat_76EF69325FE509FC_PackageProduct.framework --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/PlugIns/UnhookedTests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+CodeSign /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Unhooked.debug.dylib (in target 'Unhooked' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Unhooked.debug.dylib
+/tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/Unhooked.debug.dylib: replacing existing signature
+
+CodeSign /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/__preview.dylib (in target 'Unhooked' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/__preview.dylib
+/tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app/__preview.dylib: replacing existing signature
+
+CodeSign /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app (in target 'Unhooked' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --entitlements /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/Unhooked.build/Unhooked.app.xcent --timestamp\=none --generate-entitlement-der /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app
+/tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app: replacing existing signature
+
+Validate /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app (in target 'Unhooked' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-validationUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/Unhooked.app -shallow-bundle -infoplist-subpath Info.plist
+
+ProcessInfoPlistFile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest/Info.plist /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedUITests.build/empty-UnhookedUITests.plist (in target 'UnhookedUITests' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-infoPlistUtility /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedUITests.build/empty-UnhookedUITests.plist -producttype com.apple.product-type.bundle.ui-testing -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedUITests.build/ProductTypeInfoPlistAdditions.plist -o /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest/Info.plist
+
+CopySwiftLibs /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest (in target 'UnhookedUITests' from project 'Unhooked')
+    cd /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest/UnhookedUITests --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest/Frameworks --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest/PlugIns --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest/SystemExtensions --scan-folder /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Products/Debug-iphonesimulator/UnhookedUITests-Runner.app/PlugIns/UnhookedUITests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/DerivedData/Build/Intermediates.noindex/Unhooked.build/Debug-iphonesimulator/UnhookedUITests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+** TEST BUILD SUCCEEDED **
+
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Unhooked.xcodeproj -scheme Unhooked -destination id=0E9344F1-0F01-4A75-B819-05BBF8EC52E4 -derivedDataPath DerivedData "-only-testing:UnhookedTests" -resultBundlePath Results/unit.xcresult CODE_SIGN_IDENTITY=-
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = -
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  WidgetToolkit: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/WidgetToolkit
+  TelemetryDeck: https://github.com/TelemetryDeck/SwiftSDK @ 2.14.1
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.6.1
+  PaywallKit: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/PaywallKit
+  StreakEngine: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/StreakEngine
+  Superscript: https://github.com/superwall/superscript-ios-next @ 1.0.14
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 603.0.2
+  swift-snapshot-testing: https://github.com/pointfreeco/swift-snapshot-testing @ 1.19.3
+  SuperwallKit: https://github.com/superwall/Superwall-iOS @ 4.16.1
+  RevenueCat: https://github.com/RevenueCat/purchases-ios @ 5.80.3
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.11.0
+
+Writing result bundle at path:
+	/private/tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Results/unit.xcresult
+
+Test Suite 'All tests' started at 2026-07-26 04:41:35.107.
+Test Suite 'All tests' passed at 2026-07-26 04:41:35.107.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64-apple-ios13.0-simulator
+◇ Suite "E5.1 · age gate" started.
+◇ Test test_ageGate_under17_blocksAndShowsResources() started.
+✔ Test test_ageGate_under17_blocksAndShowsResources() passed after 0.003 seconds.
+◇ Test test_ageGate_blockedSurface_neverShowsUnverifiedNumbers() started.
+✔ Test test_ageGate_blockedSurface_neverShowsUnverifiedNumbers() passed after 0.001 seconds.
+◇ Test test_ageGateDecision_boundaryTable(_:) started.
+◇ Test case passing 1 argument testCase → (2008, Unhooked.AgeGateDecision.pass) to test_ageGateDecision_boundaryTable(_:) started.
+​◇ Test case passing 1 argument testCase → (2009, Unhooked.AgeGateDecision.blocked) to test_ageGateDecision_boundaryTable(_:) started.
+​◇ Test case passing 1 argument testCase → (2010, Unhooked.AgeGateDecision.blocked) to test_ageGateDecision_boundaryTable(_:) started.
+​◇ Test case passing 1 argument testCase → (2026, Unhooked.AgeGateDecision.blocked) to test_ageGateDecision_boundaryTable(_:) started.
+​✔ Test test_ageGateDecision_boundaryTable(_:) with 4 test cases passed after 0.019 seconds.
+◇ Test test_ageGate_under17_neverRoutesToContent() started.
+✔ Test test_ageGate_under17_neverRoutesToContent() passed after 0.001 seconds.
+◇ Test test_ageGate_normalRoot_showsGateWhenNotPassed() started.
+✔ Test test_ageGate_normalRoot_showsGateWhenNotPassed() passed after 0.001 seconds.
+◇ Test test_ageGate_birthYearNeverPersisted() started.
+✔ Test test_ageGate_birthYearNeverPersisted() passed after 0.001 seconds.
+◇ Test test_ageGate_firesNoAnalyticsEvents() started.
+✔ Test test_ageGate_firesNoAnalyticsEvents() passed after 0.001 seconds.
+◇ Test test_ageGate_selectableYears_excludeFutureYears() started.
+✔ Test test_ageGate_selectableYears_excludeFutureYears() passed after 0.001 seconds.
+◇ Test test_ageGate_currentYear_isGregorian_regardlessOfDeviceCalendar() started.
+✔ Test test_ageGate_currentYear_isGregorian_regardlessOfDeviceCalendar() passed after 0.001 seconds.
+✔ Suite "E5.1 · age gate" passed after 0.033 seconds.
+◇ Suite "E9.1 · alcohol-notice once-shown stamp wiring" started.
+◇ Test test_recordAlcoholNoticeShown_stampsOnce_fromInjectedClock() started.
+✔ Test test_recordAlcoholNoticeShown_stampsOnce_fromInjectedClock() passed after 0.012 seconds.
+◇ Test test_shouldShowAlcoholNotice_composedOverActiveQuitsAndStamp() started.
+✔ Test test_shouldShowAlcoholNotice_composedOverActiveQuitsAndStamp() passed after 0.037 seconds.
+◇ Test test_erase_wipesAlcoholNoticeStamp() started.
+✔ Test test_erase_wipesAlcoholNoticeStamp() passed after 0.018 seconds.
+✔ Suite "E9.1 · alcohol-notice once-shown stamp wiring" passed after 0.069 seconds.
+◇ Suite "E6.3 · alternate app icon (switcher + reconciler)" started.
+◇ Test test_altIcon_switch_appliesAndPersists() started.
+✔ Test test_altIcon_switch_appliesAndPersists() passed after 0.006 seconds.
+◇ Test test_erase_requestsAlternateIconReset() started.
+✔ Test test_erase_requestsAlternateIconReset() passed after 0.001 seconds.
+◇ Test test_iconReconciler_resetsOnlyWhenOSIconOutlivesSelection() started.
+✔ Test test_iconReconciler_resetsOnlyWhenOSIconOutlivesSelection() passed after 0.001 seconds.
+✔ Suite "E6.3 · alternate app icon (switcher + reconciler)" passed after 0.006 seconds.
+◇ Suite "E8.1 · analytics enum + service" started.
+◇ Test test_analyticsFixtures_coverEveryEventKind() started.
+✔ Test test_analyticsFixtures_coverEveryEventKind() passed after 0.001 seconds.
+◇ Test test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+◇ Test case passing 1 argument kind → .onboardingStarted to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .quizStepCompleted to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .quizCompleted to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .paywallViewed to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .trialStarted to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .purchase to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .teaserEntered to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .quitCreated to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .widgetAdded to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .panicOpened to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .panicStepReached to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .urgeAverted to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .slipLogged to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .slipUndone to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .discreetModeEnabled to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .resourcesViewed to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .eraseAllCompleted to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .winbackShown to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​◇ Test case passing 1 argument kind → .winbackConverted to test_everyEventCase_serializesOnlyWhitelistedKeys(_:) started.
+​✔ Test test_everyEventCase_serializesOnlyWhitelistedKeys(_:) with 19 test cases passed after 0.002 seconds.
+◇ Test test_slipLogged_payload_hasNoTimestampProperty() started.
+✔ Test test_slipLogged_payload_hasNoTimestampProperty() passed after 0.011 seconds.
+◇ Test test_analyticsFacade_hasNoGenericTrackMethod() started.
+✔ Test test_analyticsFacade_hasNoGenericTrackMethod() passed after 0.001 seconds.
+◇ Test test_optOut_sendsNothing() started.
+✔ Test test_optOut_sendsNothing() passed after 0.001 seconds.
+◇ Test test_optIn_deliversTypedEventToSink() started.
+✔ Test test_optIn_deliversTypedEventToSink() passed after 0.001 seconds.
+◇ Test test_panicOpened_sourceAndBucket_serializeToAuditedWireValues() started.
+✔ Test test_panicOpened_sourceAndBucket_serializeToAuditedWireValues() passed after 0.001 seconds.
+✔ Suite "E8.1 · analytics enum + service" passed after 0.015 seconds.
+◇ Suite "E8.1 · analytics wiring — urge_averted + slip_undone" started.
+◇ Test test_urgeAverted_firesOncePerAvertedOutcome_warmRoute() started.
+✔ Test test_urgeAverted_firesOncePerAvertedOutcome_warmRoute() passed after 0.022 seconds.
+◇ Test test_urgeAverted_firesFromColdFlush_onlyForLandedAttributedDrafts() started.
+✔ Test test_urgeAverted_firesFromColdFlush_onlyForLandedAttributedDrafts() passed after 0.011 seconds.
+◇ Test test_slipUndone_firesOnlyOnRealUndo() started.
+✔ Test test_slipUndone_firesOnlyOnRealUndo() passed after 0.017 seconds.
+◇ Test test_wiring_respectsConsentGate_endToEnd() started.
+✔ Test test_wiring_respectsConsentGate_endToEnd() passed after 0.011 seconds.
+◇ Test test_discreetWidgetToggleOn_firesDiscreetModeEnabled_widget() started.
+✔ Test test_discreetWidgetToggleOn_firesDiscreetModeEnabled_widget() passed after 0.008 seconds.
+◇ Test test_altIconSelected_firesDiscreetModeEnabled_icon() started.
+✔ Test test_altIconSelected_firesDiscreetModeEnabled_icon() passed after 0.003 seconds.
+◇ Test test_discreetToggleOff_andIconReset_fireNothing() started.
+✔ Test test_discreetToggleOff_andIconReset_fireNothing() passed after 0.006 seconds.
+✔ Suite "E8.1 · analytics wiring — urge_averted + slip_undone" passed after 0.081 seconds.
+◇ Suite "S46 · calendar single-source lint" started.
+◇ Test test_shippingSources_deriveNoDateComponentFromTheAmbientCalendar() started.
+✔ Test test_shippingSources_deriveNoDateComponentFromTheAmbientCalendar() passed after 0.041 seconds.
+◇ Test test_calibration_matcherFiresAndCommentsAreExempt() started.
+✔ Test test_calibration_matcherFiresAndCommentsAreExempt() passed after 0.001 seconds.
+✔ Suite "S46 · calendar single-source lint" passed after 0.042 seconds.
+◇ Suite "E8.2 · consent gate — slot-3 render + live opt-in gate" started.
+◇ Test test_consentStep_rendersAtSlot3_betweenSlots2and4_nonCustom() started.
+✔ Test test_consentStep_rendersAtSlot3_betweenSlots2and4_nonCustom() passed after 0.007 seconds.
+◇ Test test_consentStep_rendersAtSlot3_afterCustomName_customPath() started.
+✔ Test test_consentStep_rendersAtSlot3_afterCustomName_customPath() passed after 0.001 seconds.
+◇ Test test_advancingPastConsent_firesQuizStepCompleted3_optedIn() started.
+✔ Test test_advancingPastConsent_firesQuizStepCompleted3_optedIn() passed after 0.004 seconds.
+◇ Test test_optInAtConsent_summaryQuizCompletedReachesSink_liveGate() started.
+✔ Test test_optInAtConsent_summaryQuizCompletedReachesSink_liveGate() passed after 0.003 seconds.
+◇ Test test_declineAtConsent_transmitsNothingEver() started.
+✔ Test test_declineAtConsent_transmitsNothingEver() passed after 0.003 seconds.
+◇ Test test_consentChoice_neverLandsInCheckpointAnswers() started.
+✔ Test test_consentChoice_neverLandsInCheckpointAnswers() passed after 0.001 seconds.
+◇ Test test_preConsentSurfaces_fireNothing_onboardingStartedDropped() started.
+✔ Test test_preConsentSurfaces_fireNothing_onboardingStartedDropped() passed after 0.001 seconds.
+◇ Test test_resume_onConsent_landsOnConsent_freshDecision() started.
+✔ Test test_resume_onConsent_landsOnConsent_freshDecision() passed after 0.001 seconds.
+◇ Test test_resume_pastConsent_landsPastIt_neverReAsks() started.
+✔ Test test_resume_pastConsent_landsPastIt_neverReAsks() passed after 0.001 seconds.
+◇ Test test_degradedConfig_hasNoConsentStep_soDegradedUsersStayOptedOut() started.
+✔ Test test_degradedConfig_hasNoConsentStep_soDegradedUsersStayOptedOut() passed after 0.001 seconds.
+✔ Suite "E8.2 · consent gate — slot-3 render + live opt-in gate" passed after 0.025 seconds.
+◇ Suite "E8.2 · consent persistence + live composition" started.
+◇ Test test_consentDefaultsToOff() started.
+✔ Test test_consentDefaultsToOff() passed after 0.004 seconds.
+◇ Test test_setAnalyticsOptIn_persistsThroughSingletonHelper() started.
+✔ Test test_setAnalyticsOptIn_persistsThroughSingletonHelper() passed after 0.004 seconds.
+◇ Test test_analyticsEventsBlockedBeforeConsent() started.
+✔ Test test_analyticsEventsBlockedBeforeConsent() passed after 0.003 seconds.
+◇ Test test_consentWrite_flipsLiveGate_sameServiceInstance() started.
+✔ Test test_consentWrite_flipsLiveGate_sameServiceInstance() passed after 0.004 seconds.
+◇ Test test_erase_resetsConsentToOff() started.
+✔ Test test_erase_resetsConsentToOff() passed after 0.013 seconds.
+✔ Suite "E8.2 · consent persistence + live composition" passed after 0.030 seconds.
+◇ Suite "E7.1 · Contract_RevenueCat (real SDK types)" started.
+◇ Test contract_presentButInactiveEntitlement_readsLapsed() started.
+✔ Test contract_presentButInactiveEntitlement_readsLapsed() passed after 0.003 seconds.
+◇ Test contract_trialPeriodEntitlement_readsTrial() started.
+✔ Test contract_trialPeriodEntitlement_readsTrial() passed after 0.001 seconds.
+◇ Test contract_absentPremiumEntitlement_readsNever() started.
+✔ Test contract_absentPremiumEntitlement_readsNever() passed after 0.001 seconds.
+◇ Test contract_periodTypeMirror_isOneToOne() started.
+✔ Test contract_periodTypeMirror_isOneToOne() passed after 0.001 seconds.
+◇ Test contract_winbackPromotionalOffer_roundTripsOfferIdentifier() started.
+✔ Test contract_winbackPromotionalOffer_roundTripsOfferIdentifier() passed after 0.001 seconds.
+✔ Suite "E7.1 · Contract_RevenueCat (real SDK types)" passed after 0.004 seconds.
+◇ Suite "UIR-2 · DashboardCardComposer" started.
+◇ Test test_dayNumber_sameCalendarDay_isDayOne() started.
+✔ Test test_dayNumber_sameCalendarDay_isDayOne() passed after 0.001 seconds.
+◇ Test test_dayNumber_startedBeforeLocalMidnight_isDayTwoNextMorning() started.
+✔ Test test_dayNumber_startedBeforeLocalMidnight_isDayTwoNextMorning() passed after 0.001 seconds.
+◇ Test test_dayNumber_matchesTheWidgetFixture_dayThirtyFour() started.
+✔ Test test_dayNumber_matchesTheWidgetFixture_dayThirtyFour() passed after 0.001 seconds.
+◇ Test test_dayNumber_neverBelowOne_evenIfClockRolledBack() started.
+✔ Test test_dayNumber_neverBelowOne_evenIfClockRolledBack() passed after 0.001 seconds.
+◇ Test test_dayNumber_emptyTimeZoneIdentifier_fallsBackWithoutCrashing() started.
+✔ Test test_dayNumber_emptyTimeZoneIdentifier_fallsBackWithoutCrashing() passed after 0.001 seconds.
+◇ Test test_dayNumber_matchesTheWidgetPlanner_acrossBoundaries() started.
+✔ Test test_dayNumber_matchesTheWidgetPlanner_acrossBoundaries() passed after 0.001 seconds.
+◇ Test test_milestoneProgress_noLadder_isNil() started.
+✔ Test test_milestoneProgress_noLadder_isNil() passed after 0.001 seconds.
+◇ Test test_milestoneProgress_midLadder_isTheFractionTowardTheNextRung() started.
+✔ Test test_milestoneProgress_midLadder_isTheFractionTowardTheNextRung() passed after 0.001 seconds.
+◇ Test test_milestoneProgress_exactlyAtARung_advancesToTheNext() started.
+✔ Test test_milestoneProgress_exactlyAtARung_advancesToTheNext() passed after 0.001 seconds.
+◇ Test test_milestoneProgress_allRungsClimbed_isNil_notAFullBar() started.
+✔ Test test_milestoneProgress_allRungsClimbed_isNil_notAFullBar() passed after 0.001 seconds.
+✔ Suite "UIR-2 · DashboardCardComposer" passed after 0.001 seconds.
+◇ Suite "UIR-2 · DashboardCopy discipline" started.
+◇ Test test_savedLabel_isByteIdenticalToStreakWidgetStyle() started.
+✔ Test test_savedLabel_isByteIdenticalToStreakWidgetStyle() passed after 0.005 seconds.
+◇ Test test_milestoneLabel_isByteIdenticalToStreakWidgetStyle() started.
+✔ Test test_milestoneLabel_isByteIdenticalToStreakWidgetStyle() passed after 0.001 seconds.
+◇ Test test_panicEntryLabels_areByteIdenticalToPanicControlStyle() started.
+✔ Test test_panicEntryLabels_areByteIdenticalToPanicControlStyle() passed after 0.001 seconds.
+◇ Test test_panicEntrySupportLines_carryTheSignedBytes() started.
+✔ Test test_panicEntrySupportLines_carryTheSignedBytes() passed after 0.001 seconds.
+◇ Test test_everyBlockedSlot_isEmptyUntilTheFounderPass() started.
+✔ Test test_everyBlockedSlot_isEmptyUntilTheFounderPass() passed after 0.001 seconds.
+✔ Suite "UIR-2 · DashboardCopy discipline" passed after 0.005 seconds.
+◇ Suite "S29 · debug event-spy — the consent-honest sink decorator + a11y bridge" started.
+◇ Test test_debugEventSpy_capturesEachEventThatPassedTheConsentGate() started.
+✔ Test test_debugEventSpy_capturesEachEventThatPassedTheConsentGate() passed after 0.001 seconds.
+◇ Test test_debugEventSpy_preservesFireOrder() started.
+✔ Test test_debugEventSpy_preservesFireOrder() passed after 0.001 seconds.
+◇ Test test_debugEventSpy_capturesOnlyPostConsentEvents() started.
+✔ Test test_debugEventSpy_capturesOnlyPostConsentEvents() passed after 0.001 seconds.
+◇ Test test_debugEventSpy_bridgeExposesCapturedKindsAsAccessibilityValue() started.
+✔ Test test_debugEventSpy_bridgeExposesCapturedKindsAsAccessibilityValue() passed after 0.001 seconds.
+✔ Suite "S29 · debug event-spy — the consent-honest sink decorator + a11y bridge" passed after 0.004 seconds.
+◇ Suite "S47 · locale-tolerant decimalInput parsing" started.
+◇ Test test_decimal_commaNotation_keepsTheFractionalPart() started.
+✔ Test test_decimal_commaNotation_keepsTheFractionalPart() passed after 0.001 seconds.
+◇ Test test_decimal_subUnitCommaSpend_isNotFlattenedToZero() started.
+✔ Test test_decimal_subUnitCommaSpend_isNotFlattenedToZero() passed after 0.001 seconds.
+◇ Test test_decimal_periodNotation_survivesOnACommaRegionDevice() started.
+✔ Test test_decimal_periodNotation_survivesOnACommaRegionDevice() passed after 0.001 seconds.
+◇ Test test_decimal_plainAsciiInput_matchesThePreviousBehaviour() started.
+✔ Test test_decimal_plainAsciiInput_matchesThePreviousBehaviour() passed after 0.001 seconds.
+◇ Test test_decimal_groupedPaste_readsPerLocale() started.
+✔ Test test_decimal_groupedPaste_readsPerLocale() passed after 0.001 seconds.
+◇ Test test_decimal_spaceGroupedInput_dropsTheSpaces() started.
+✔ Test test_decimal_spaceGroupedInput_dropsTheSpaces() passed after 0.001 seconds.
+◇ Test test_decimal_nonLatinDigits_foldToASCII() started.
+✔ Test test_decimal_nonLatinDigits_foldToASCII() passed after 0.001 seconds.
+◇ Test test_decimal_malformedInput_returnsNilNeverAGuess() started.
+✔ Test test_decimal_malformedInput_returnsNilNeverAGuess() passed after 0.001 seconds.
+◇ Test test_decimal_toleratedShapes() started.
+✔ Test test_decimal_toleratedShapes() passed after 0.001 seconds.
+◇ Test test_int_allowanceInput_survivesEitherSeparator() started.
+✔ Test test_int_allowanceInput_survivesEitherSeparator() passed after 0.001 seconds.
+◇ Test test_decimal_digitsOnly_isLocaleInvariant() started.
+✔ Test test_decimal_digitsOnly_isLocaleInvariant() passed after 0.001 seconds.
+✔ Suite "S47 · locale-tolerant decimalInput parsing" passed after 0.006 seconds.
+◇ Suite "E6.3 · discreet settings copy" started.
+◇ Test test_discreetSettingsCopy_shipping_isShameAndLeakFree_withNonVacuityFloor() started.
+✔ Test test_discreetSettingsCopy_shipping_isShameAndLeakFree_withNonVacuityFloor() passed after 0.003 seconds.
+✔ Suite "E6.3 · discreet settings copy" passed after 0.003 seconds.
+◇ Suite "E7.1 · erase → entitlement wiring" started.
+◇ Test test_erase_resetsEntitlementOnce_beforeCloudPurge() started.
+✔ Test test_erase_resetsEntitlementOnce_beforeCloudPurge() passed after 0.016 seconds.
+◇ Test test_erase_entitlementResetFailure_surfacesForRetry_afterLocalErase() started.
+✔ Test test_erase_entitlementResetFailure_surfacesForRetry_afterLocalErase() passed after 0.019 seconds.
+◇ Test test_erase_sweepsTrialDedupeMarker() started.
+✔ Test test_erase_sweepsTrialDedupeMarker() passed after 0.012 seconds.
+✔ Suite "E7.1 · erase → entitlement wiring" passed after 0.049 seconds.
+◇ Suite "E7.1 · entitlement model + summary-CTA routing" started.
+◇ Test test_entitlementModel_refresh_reflectsProviderState() started.
+✔ Test test_entitlementModel_refresh_reflectsProviderState() passed after 0.001 seconds.
+◇ Test test_entitlementModel_secondRefresh_tracksProviderTransitions() started.
+✔ Test test_entitlementModel_secondRefresh_tracksProviderTransitions() passed after 0.001 seconds.
+◇ Test test_summaryCTA_whenNotEntitled_routesToPaywall() started.
+✔ Test test_summaryCTA_whenNotEntitled_routesToPaywall() passed after 0.001 seconds.
+◇ Test test_summaryCTA_whenEntitled_routesToDashboard() started.
+✔ Test test_summaryCTA_whenEntitled_routesToDashboard() passed after 0.001 seconds.
+✔ Suite "E7.1 · entitlement model + summary-CTA routing" passed after 0.001 seconds.
+◇ Suite "E2.4 · one-tap erase" started.
+◇ Test test_erase_deletesBothStoreFiles() started.
+2026-07-26 04:41:35.525918+0300 Unhooked[13807:882318] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-EC5814C5-B66A-48DD-BDD9-9475DA2DB404/unhooked.store-wal
+2026-07-26 04:41:35.525958+0300 Unhooked[13807:882318] [logging] invalidated open fd: 12 (0x11)
+2026-07-26 04:41:35.525986+0300 Unhooked[13807:882318] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-EC5814C5-B66A-48DD-BDD9-9475DA2DB404/unhooked.store-shm
+2026-07-26 04:41:35.526025+0300 Unhooked[13807:882318] [logging] invalidated open fd: 13 (0x11)
+2026-07-26 04:41:35.526067+0300 Unhooked[13807:882309] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-EC5814C5-B66A-48DD-BDD9-9475DA2DB404/unhooked.store
+2026-07-26 04:41:35.526119+0300 Unhooked[13807:882309] [logging] invalidated open fd: 11 (0x11)
+✔ Test test_erase_deletesBothStoreFiles() passed after 0.025 seconds.
+◇ Test test_erase_requestsCloudKitZoneDeletion() started.
+✔ Test test_erase_requestsCloudKitZoneDeletion() passed after 0.017 seconds.
+◇ Test test_erase_clearsPanicPreCacheDefaults() started.
+✔ Test test_erase_clearsPanicPreCacheDefaults() passed after 0.012 seconds.
+◇ Test test_iCloudUnavailable_appFunctionsFullyLocal() started.
+2026-07-26 04:41:35.583977+0300 Unhooked[13807:882309] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-36ECF990-E38C-464A-933F-B1A1DC0041C6/unhooked.store-wal
+2026-07-26 04:41:35.584019+0300 Unhooked[13807:882309] [logging] invalidated open fd: 12 (0x11)
+2026-07-26 04:41:35.584076+0300 Unhooked[13807:882309] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-36ECF990-E38C-464A-933F-B1A1DC0041C6/unhooked.store-shm
+2026-07-26 04:41:35.584106+0300 Unhooked[13807:882309] [logging] invalidated open fd: 13 (0x11)
+2026-07-26 04:41:35.584129+0300 Unhooked[13807:882309] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-36ECF990-E38C-464A-933F-B1A1DC0041C6/unhooked.store
+2026-07-26 04:41:35.584171+0300 Unhooked[13807:882309] [logging] invalidated open fd: 11 (0x11)
+✔ Test test_iCloudUnavailable_appFunctionsFullyLocal() passed after 0.031 seconds.
+◇ Test test_erase_deletesAllEntities_freshContextSeesEmptyStore() started.
+✔ Test test_erase_deletesAllEntities_freshContextSeesEmptyStore() passed after 0.025 seconds.
+◇ Test test_erase_cloudFailureSurfaces_localEraseCompletes_thenRetrySucceeds() started.
+2026-07-26 04:41:35.628512+0300 Unhooked[13807:882318] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store-wal
+2026-07-26 04:41:35.628551+0300 Unhooked[13807:882318] [logging] invalidated open fd: 12 (0x11)
+2026-07-26 04:41:35.628596+0300 Unhooked[13807:882309] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store-shm
+2026-07-26 04:41:35.628658+0300 Unhooked[13807:882318] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store
+2026-07-26 04:41:35.628691+0300 Unhooked[13807:882318] [logging] invalidated open fd: 11 (0x11)
+2026-07-26 04:41:35.628709+0300 Unhooked[13807:882309] [logging] invalidated open fd: 13 (0x11)
+2026-07-26 04:41:35.632733+0300 Unhooked[13807:882241] [error] CoreData: error: (6922) I/O error for database at /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store.  SQLite error code:6922, 'disk I/O error'
+CoreData: error: (6922) I/O error for database at /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store.  SQLite error code:6922, 'disk I/O error'
+2026-07-26 04:41:35.633332+0300 Unhooked[13807:882241] [error] CoreData: error: SQLCore dispatchRequest: exception handling request: <NSSQLFetchRequestContext: 0x117836760> , I/O error for database at /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store.  SQLite error code:6922, 'disk I/O error' with userInfo of {
+    NSFilePath = "/Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store";
+    NSSQLiteErrorDomain = 6922;
+}
+CoreData: error: SQLCore dispatchRequest: exception handling request: <NSSQLFetchRequestContext: 0x117836760> , I/O error for database at /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store.  SQLite error code:6922, 'disk I/O error' with userInfo of {
+    NSFilePath = "/Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store";
+    NSSQLiteErrorDomain = 6922;
+}
+2026-07-26 04:41:35.633407+0300 Unhooked[13807:882241] [error] CoreData: error: -executeRequest: encountered exception = I/O error for database at /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store.  SQLite error code:6922, 'disk I/O error' with userInfo = {
+    NSFilePath = "/Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store";
+    NSSQLiteErrorDomain = 6922;
+}
+CoreData: error: -executeRequest: encountered exception = I/O error for database at /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store.  SQLite error code:6922, 'disk I/O error' with userInfo = {
+    NSFilePath = "/Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store";
+    NSSQLiteErrorDomain = 6922;
+}
+2026-07-26 04:41:35.637173+0300 Unhooked[13807:882318] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store-wal
+2026-07-26 04:41:35.637211+0300 Unhooked[13807:882318] [logging] invalidated open fd: 12 (0x11)
+2026-07-26 04:41:35.637237+0300 Unhooked[13807:882318] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store-shm
+2026-07-26 04:41:35.637294+0300 Unhooked[13807:882318] [logging] invalidated open fd: 13 (0x11)
+2026-07-26 04:41:35.637295+0300 Unhooked[13807:882309] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-C85E0111-E80D-4279-BD44-B956B0086900/unhooked.store
+2026-07-26 04:41:35.637343+0300 Unhooked[13807:882309] [logging] invalidated open fd: 11 (0x11)
+✔ Test test_erase_cloudFailureSurfaces_localEraseCompletes_thenRetrySucceeds() passed after 0.024 seconds.
+◇ Test test_erase_deletesOrphanRows_notJustCascadedChildren() started.
+✔ Test test_erase_deletesOrphanRows_notJustCascadedChildren() passed after 0.014 seconds.
+◇ Test test_erase_scopedToStoreFileSet_unrelatedSiblingSurvives() started.
+2026-07-26 04:41:35.670571+0300 Unhooked[13807:882320] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-FB4BA37B-7275-4000-AE26-68E71DEE6595/unhooked.store-wal
+2026-07-26 04:41:35.670608+0300 Unhooked[13807:882320] [logging] invalidated open fd: 12 (0x11)
+2026-07-26 04:41:35.670633+0300 Unhooked[13807:882318] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-FB4BA37B-7275-4000-AE26-68E71DEE6595/unhooked.store-shm
+2026-07-26 04:41:35.670680+0300 Unhooked[13807:882318] [logging] invalidated open fd: 13 (0x11)
+2026-07-26 04:41:35.670683+0300 Unhooked[13807:882320] [logging] BUG IN CLIENT OF libsqlite3.dylib: database integrity compromised by API violation: vnode unlinked while in use: /Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/30EA7649-4AC3-4757-8418-01DE9BBEC4AE/tmp/e24-erase-FB4BA37B-7275-4000-AE26-68E71DEE6595/unhooked.store
+2026-07-26 04:41:35.670723+0300 Unhooked[13807:882320] [logging] invalidated open fd: 11 (0x11)
+✔ Test test_erase_scopedToStoreFileSet_unrelatedSiblingSurvives() passed after 0.020 seconds.
+◇ Test test_erase_triggersDebouncedWidgetReload() started.
+✔ Test test_erase_triggersDebouncedWidgetReload() passed after 0.010 seconds.
+◇ Test test_erase_removesSlippedDraftAndRevocationRecords() started.
+✔ Test test_erase_removesSlippedDraftAndRevocationRecords() passed after 0.014 seconds.
+◇ Test test_erase_clearsQuizProgressCheckpoint() started.
+✔ Test test_erase_clearsQuizProgressCheckpoint() passed after 0.011 seconds.
+✔ Suite "E2.4 · one-tap erase" passed after 0.208 seconds.
+◇ Suite "E9.2 · milestone content audit" started.
+◇ Test test_milestonesJSON_matchesSchema() started.
+✔ Test test_milestonesJSON_matchesSchema() passed after 0.001 seconds.
+◇ Test test_milestoneCopy_containsNoMedicalClaimLexicon() started.
+✔ Test test_milestoneCopy_containsNoMedicalClaimLexicon() passed after 0.009 seconds.
+✔ Suite "E9.2 · milestone content audit" passed after 0.009 seconds.
+◇ Suite "E7.1 · dormant-gate composition" started.
+◇ Test test_dormantKey_absent_buildsNeverSource_zeroRevenueCatConfigure() started.
+✔ Test test_dormantKey_absent_buildsNeverSource_zeroRevenueCatConfigure() passed after 0.001 seconds.
+◇ Test test_dormantKey_present_configuresRevenueCatOnce_buildsAdapterSource() started.
+✔ Test test_dormantKey_present_configuresRevenueCatOnce_buildsAdapterSource() passed after 0.001 seconds.
+✔ Suite "E7.1 · dormant-gate composition" passed after 0.001 seconds.
+◇ Suite "E7.1 · monetization config (catalog + storekit)" started.
+◇ Test test_productCatalog_tierForSKU_bothAnnualArmsMapToAnnual() started.
+✔ Test test_productCatalog_tierForSKU_bothAnnualArmsMapToAnnual() passed after 0.001 seconds.
+◇ Test test_productCatalog_entitlementIdentifier_isThePremiumKey() started.
+✔ Test test_productCatalog_entitlementIdentifier_isThePremiumKey() passed after 0.001 seconds.
+◇ Test test_productCatalog_wireProductIDs_matchTheAuditedFixtureVocabulary() started.
+✔ Test test_productCatalog_wireProductIDs_matchTheAuditedFixtureVocabulary() passed after 0.001 seconds.
+◇ Test test_productCatalog_staticDisplayPrices_matchMVP6() started.
+✔ Test test_productCatalog_staticDisplayPrices_matchMVP6() passed after 0.001 seconds.
+◇ Test test_storekitConfig_pricesAndTrials_matchMVP6_controlArmIs2999() started.
+✔ Test test_storekitConfig_pricesAndTrials_matchMVP6_controlArmIs2999() passed after 0.001 seconds.
+◇ Test test_storekitConfig_annualSKU_declaresWinbackAnnualPromotionalOffer() started.
+✔ Test test_storekitConfig_annualSKU_declaresWinbackAnnualPromotionalOffer() passed after 0.001 seconds.
+✔ Suite "E7.1 · monetization config (catalog + storekit)" passed after 0.001 seconds.
+◇ Suite "UIR-1 · onboarding layout lint" started.
+◇ Test test_onboardingSources_carryNoDynamicTypeDefeatingIdioms() started.
+✔ Test test_onboardingSources_carryNoDynamicTypeDefeatingIdioms() passed after 0.018 seconds.
+◇ Test test_theLint_firesOnEveryRetiredHeroIdiom() started.
+✔ Test test_theLint_firesOnEveryRetiredHeroIdiom() passed after 0.001 seconds.
+◇ Test test_theLint_firesOnAScaledMetricDrivenPointSize_onText() started.
+✔ Test test_theLint_firesOnAScaledMetricDrivenPointSize_onText() passed after 0.001 seconds.
+◇ Test test_theLint_acceptsTextStylesAndImageGlyphs() started.
+✔ Test test_theLint_acceptsTextStylesAndImageGlyphs() passed after 0.001 seconds.
+✔ Suite "UIR-1 · onboarding layout lint" passed after 0.019 seconds.
+◇ Suite "E3.3 · Panic entry-point matrix" started.
+◇ Test test_panicIntent_parameter_quitEntity_resolvesActiveQuits() started.
+✔ Test test_panicIntent_parameter_quitEntity_resolvesActiveQuits() passed after 0.001 seconds.
+◇ Test test_controlWidget_discreetMode_usesNeutralTitleAndSymbol() started.
+✔ Test test_controlWidget_discreetMode_usesNeutralTitleAndSymbol() passed after 0.001 seconds.
+◇ Test test_panicControl_standardMode_keepsPanicTitleAndBreathGlyph() started.
+✔ Test test_panicControl_standardMode_keepsPanicTitleAndBreathGlyph() passed after 0.001 seconds.
+◇ Test test_launchFlag_source_roundTrips_perSource(_:) started.
+◇ Test case passing 1 argument source → .lockscreenWidget to test_launchFlag_source_roundTrips_perSource(_:) started.
+​◇ Test case passing 1 argument source → .homeWidget to test_launchFlag_source_roundTrips_perSource(_:) started.
+​◇ Test case passing 1 argument source → .controlCenter to test_launchFlag_source_roundTrips_perSource(_:) started.
+​◇ Test case passing 1 argument source → .actionButton to test_launchFlag_source_roundTrips_perSource(_:) started.
+​◇ Test case passing 1 argument source → .inApp to test_launchFlag_source_roundTrips_perSource(_:) started.
+​✔ Test test_launchFlag_source_roundTrips_perSource(_:) with 5 test cases passed after 0.009 seconds.
+◇ Test test_launchFlag_clear_removesSourceKey() started.
+✔ Test test_launchFlag_clear_removesSourceKey() passed after 0.001 seconds.
+◇ Test test_panicFlowView_threadsInjectedSourceIntoModel(_:) started.
+◇ Test case passing 1 argument source → .lockscreenWidget to test_panicFlowView_threadsInjectedSourceIntoModel(_:) started.
+​◇ Test case passing 1 argument source → .homeWidget to test_panicFlowView_threadsInjectedSourceIntoModel(_:) started.
+​◇ Test case passing 1 argument source → .controlCenter to test_panicFlowView_threadsInjectedSourceIntoModel(_:) started.
+​◇ Test case passing 1 argument source → .actionButton to test_panicFlowView_threadsInjectedSourceIntoModel(_:) started.
+​◇ Test case passing 1 argument source → .inApp to test_panicFlowView_threadsInjectedSourceIntoModel(_:) started.
+​✔ Test test_panicFlowView_threadsInjectedSourceIntoModel(_:) with 5 test cases passed after 0.018 seconds.
+◇ Test test_panicFlowView_threadsHapticsOnlyPacerIntoModel() started.
+✔ Test test_panicFlowView_threadsHapticsOnlyPacerIntoModel() passed after 0.001 seconds.
+◇ Test test_inAppEntry_attributesInApp_andResolvesFromPreCache() started.
+✔ Test test_inAppEntry_attributesInApp_andResolvesFromPreCache() passed after 0.001 seconds.
+✔ Suite "E3.3 · Panic entry-point matrix" passed after 0.031 seconds.
+◇ Suite "E3.2 · panic flow + write buffer" started.
+◇ Test test_outcomeBuffer_appendIsDurableNDJSON_readsBackInOrder() started.
+✔ Test test_outcomeBuffer_appendIsDurableNDJSON_readsBackInOrder() passed after 0.001 seconds.
+◇ Test test_outcomeBuffer_toleratesTornTailLine() started.
+✔ Test test_outcomeBuffer_toleratesTornTailLine() passed after 0.001 seconds.
+◇ Test test_outcomeBuffer_clearRemovesOwnedFileOnly() started.
+✔ Test test_outcomeBuffer_clearRemovesOwnedFileOnly() passed after 0.001 seconds.
+◇ Test test_breathPacer_pattern_478_threeRounds() started.
+✔ Test test_breathPacer_pattern_478_threeRounds() passed after 0.001 seconds.
+◇ Test test_breathPacer_hapticsSeam_firesPatternInBothModes() started.
+✔ Test test_breathPacer_hapticsSeam_firesPatternInBothModes() passed after 0.001 seconds.
+◇ Test test_hapticsOnlyPacer_runsWithoutVisualDependency() started.
+✔ Test test_hapticsOnlyPacer_runsWithoutVisualDependency() passed after 0.001 seconds.
+◇ Test test_panicFlow_everyStepSkippable() started.
+✔ Test test_panicFlow_everyStepSkippable() passed after 0.001 seconds.
+◇ Test test_panicFlow_recordsStepsReached() started.
+✔ Test test_panicFlow_recordsStepsReached() passed after 0.001 seconds.
+◇ Test test_reasonsStep_rendersVerbatimMotivations_fromPreCache() started.
+✔ Test test_reasonsStep_rendersVerbatimMotivations_fromPreCache() passed after 0.001 seconds.
+◇ Test test_exitUrgePassed_logsUrgeEventAverted() started.
+✔ Test test_exitUrgePassed_logsUrgeEventAverted() passed after 0.017 seconds.
+◇ Test test_exitSlipped_routesToSlipFlow() started.
+✔ Test test_exitSlipped_routesToSlipFlow() passed after 0.001 seconds.
+◇ Test test_panicScript_decodesShippingFile_pacerAndExitsPinned() started.
+✔ Test test_panicScript_decodesShippingFile_pacerAndExitsPinned() passed after 0.001 seconds.
+◇ Test test_flush_preservesExitTimestamp_notFlushClock() started.
+✔ Test test_flush_preservesExitTimestamp_notFlushClock() passed after 0.010 seconds.
+◇ Test test_flush_isIdempotent_afterCrashBetweenSaveAndClear() started.
+2026-07-26 04:41:35.814777+0300 Unhooked[13807:882310] [AudioConverter]     AudioConverterOOP.cpp:1084  Failed to prepare AudioConverterService: -302
+✔ Test test_flush_isIdempotent_afterCrashBetweenSaveAndClear() passed after 0.009 seconds.
+◇ Test test_flush_dropsDraftsForErasedQuits_keepsUnattributed() started.
+✔ Test test_flush_dropsDraftsForErasedQuits_keepsUnattributed() passed after 0.009 seconds.
+◇ Test test_redirectBreatheOption_restartsThePacerRun() started.
+✔ Test test_redirectBreatheOption_restartsThePacerRun() passed after 0.001 seconds.
+◇ Test test_flush_duplicateDraftIdsInOneBuffer_landOnce() started.
+✔ Test test_flush_duplicateDraftIdsInOneBuffer_landOnce() passed after 0.008 seconds.
+◇ Test test_flush_emptyBuffer_isNoOp() started.
+✔ Test test_flush_emptyBuffer_isNoOp() passed after 0.005 seconds.
+◇ Test test_launch_normalRoute_flushesBuffer_panicRouteNever() started.
+✔ Test test_launch_normalRoute_flushesBuffer_panicRouteNever() passed after 0.010 seconds.
+◇ Test test_erase_removesPanicOutcomeBuffer_unownedSiblingSurvives() started.
+✔ Test test_erase_removesPanicOutcomeBuffer_unownedSiblingSurvives() passed after 0.013 seconds.
+◇ Test test_panicOutcomeBuffer_notResurrectedByErase() started.
+✔ Test test_panicOutcomeBuffer_notResurrectedByErase() passed after 0.013 seconds.
+✔ Suite "E3.2 · panic flow + write buffer" passed after 0.107 seconds.
+◇ Suite "E3.1 · panic path productionizing" started.
+◇ Test test_motivationsPreCache_updatedOnEveryQuitWrite() started.
+✔ Test test_motivationsPreCache_updatedOnEveryQuitWrite() passed after 0.019 seconds.
+◇ Test test_panicPreCache_discreetQuit_labelStripped_motivationsKept() started.
+✔ Test test_panicPreCache_discreetQuit_labelStripped_motivationsKept() passed after 0.009 seconds.
+◇ Test test_panicPreCache_excludesSlipNotes() started.
+✔ Test test_panicPreCache_excludesSlipNotes() passed after 0.007 seconds.
+◇ Test test_erase_removesPanicSnapshotFile_unownedSiblingSurvives() started.
+✔ Test test_erase_removesPanicSnapshotFile_unownedSiblingSurvives() passed after 0.012 seconds.
+◇ Test test_panicPreCache_notResurrectedByErase() started.
+✔ Test test_panicPreCache_notResurrectedByErase() passed after 0.013 seconds.
+◇ Test test_panicIntent_quitIDChannel_roundTripsThroughAppGroup() started.
+✔ Test test_panicIntent_quitIDChannel_roundTripsThroughAppGroup() passed after 0.001 seconds.
+◇ Test test_panicLaunch_withQuitID_selectsThatQuit() started.
+✔ Test test_panicLaunch_withQuitID_selectsThatQuit() passed after 0.001 seconds.
+◇ Test test_panicLaunch_noQuitSelected_showsQuitPicker() started.
+✔ Test test_panicLaunch_noQuitSelected_showsQuitPicker() passed after 0.001 seconds.
+◇ Test test_panicLaunch_singleQuit_skipsPicker() started.
+✔ Test test_panicLaunch_singleQuit_skipsPicker() passed after 0.001 seconds.
+◇ Test test_panicLaunch_zeroQuits_rendersBareBreatheFrame() started.
+✔ Test test_panicLaunch_zeroQuits_rendersBareBreatheFrame() passed after 0.001 seconds.
+◇ Test test_panicLaunch_unknownQuitID_fallsBackLikeNoSelection() started.
+✔ Test test_panicLaunch_unknownQuitID_fallsBackLikeNoSelection() passed after 0.001 seconds.
+◇ Test test_panicLaunch_skipsStoreWorkBeforeFirstFrame() started.
+✔ Test test_panicLaunch_skipsStoreWorkBeforeFirstFrame() passed after 0.001 seconds.
+◇ Test test_launch_normalRoute_opensStoreOnce_recomputes_andRefreshesPreCache() started.
+✔ Test test_launch_normalRoute_opensStoreOnce_recomputes_andRefreshesPreCache() passed after 0.010 seconds.
+◇ Test test_repositoryProvider_startIsIdempotent() started.
+✔ Test test_repositoryProvider_startIsIdempotent() passed after 0.005 seconds.
+◇ Test test_panicSnapshotStore_appGroupRoundTrip() started.
+✔ Test test_panicSnapshotStore_appGroupRoundTrip() passed after 0.001 seconds.
+◇ Test test_launch_nonMutatingLaunch_refreshesStalePreCacheFromStoreTruth() started.
+✔ Test test_launch_nonMutatingLaunch_refreshesStalePreCacheFromStoreTruth() passed after 0.007 seconds.
+◇ Test test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(category:expected:) started.
+◇ Test case passing 2 arguments category → .vape, expected → "Vaping" to test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(category:expected:) started.
+​◇ Test case passing 2 arguments category → .porn, expected → "Adult content" to test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(category:expected:) started.
+​◇ Test case passing 2 arguments category → .alcohol, expected → "Alcohol" to test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(category:expected:) started.
+​◇ Test case passing 2 arguments category → .weed, expected → "Cannabis" to test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(category:expected:) started.
+​◇ Test case passing 2 arguments category → .doomscroll, expected → "Doomscrolling" to test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(category:expected:) started.
+​◇ Test case passing 2 arguments category → .custom, expected → "Your goal" to test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(category:expected:) started.
+​✔ Test test_panicPreCache_standardCategoryLabel_isTheExactBrandNoun(category:expected:) with 6 test cases passed after 0.033 seconds.
+◇ Test test_liveClock_readingsAreUsableGuardEvidence() started.
+✔ Test test_liveClock_readingsAreUsableGuardEvidence() passed after 0.001 seconds.
+◇ Test test_panicPreCache_carriesStreakFields_forSlipFraming() started.
+✔ Test test_panicPreCache_carriesStreakFields_forSlipFraming() passed after 0.008 seconds.
+◇ Test test_panicPreCache_stillExcludesNotesAndFreeText() started.
+✔ Test test_panicPreCache_stillExcludesNotesAndFreeText() passed after 0.008 seconds.
+◇ Test test_hapticOnlyBreathPacer_stampedIntoPreCacheFromSettings() started.
+✔ Test test_hapticOnlyBreathPacer_stampedIntoPreCacheFromSettings() passed after 0.006 seconds.
+✔ Suite "E3.1 · panic path productionizing" passed after 0.145 seconds.
+◇ Suite "E9.3 · panic-script copy gate" started.
+◇ Test test_panicScriptStrings_containNoShameLexicon() started.
+✔ Test test_panicScriptStrings_containNoShameLexicon() passed after 0.008 seconds.
+◇ Test test_panicScriptDiscreetStrings_containNoHabitLeak() started.
+✔ Test test_panicScriptDiscreetStrings_containNoHabitLeak() passed after 0.001 seconds.
+◇ Test test_lexiconMatcher_firesOnViolations_passesSanctionedCopy() started.
+✔ Test test_lexiconMatcher_firesOnViolations_passesSanctionedCopy() passed after 0.001 seconds.
+✔ Suite "E9.3 · panic-script copy gate" passed after 0.009 seconds.
+◇ Suite "Panic warm-launch matrix (control-family device fix)" started.
+◇ Test test_controlIntent_isAppTargetMember_andOpensApp() started.
+✔ Test test_controlIntent_isAppTargetMember_andOpensApp() passed after 0.001 seconds.
+◇ Test test_widgetIntent_isAppTargetMember_andOpensApp() started.
+✔ Test test_widgetIntent_isAppTargetMember_andOpensApp() passed after 0.001 seconds.
+◇ Test test_warmPanicEntry_flagSet_resolvesMountWithTrueSource() started.
+✔ Test test_warmPanicEntry_flagSet_resolvesMountWithTrueSource() passed after 0.001 seconds.
+◇ Test test_warmPanicEntry_noFlag_resolvesNil() started.
+✔ Test test_warmPanicEntry_noFlag_resolvesNil() passed after 0.001 seconds.
+◇ Test test_controlIntent_perform_armsFlagBeforeSignal() started.
+✔ Test test_controlIntent_perform_armsFlagBeforeSignal() passed after 0.004 seconds.
+✔ Suite "Panic warm-launch matrix (control-family device fix)" passed after 0.006 seconds.
+◇ Suite "E7.1 · paywall copy + guideline-3.1.1 strings" started.
+◇ Test test_paywallCopy_shipping_decodesFromBundle() started.
+✔ Test test_paywallCopy_shipping_decodesFromBundle() passed after 0.001 seconds.
+◇ Test test_paywallCopy_shipping_isShameAndLeakFree_withNonVacuityFloor() started.
+✔ Test test_paywallCopy_shipping_isShameAndLeakFree_withNonVacuityFloor() passed after 0.003 seconds.
+◇ Test test_paywallCopy_degraded_isShameAndLeakFree_withNonVacuityFloor() started.
+✔ Test test_paywallCopy_degraded_isShameAndLeakFree_withNonVacuityFloor() passed after 0.003 seconds.
+◇ Test test_paywallComposed_carriesGuideline311Disclosures() started.
+✔ Test test_paywallComposed_carriesGuideline311Disclosures() passed after 0.001 seconds.
+◇ Test test_paywallCopy_teaserStrings_presentAndNonEmpty() started.
+✔ Test test_paywallCopy_teaserStrings_presentAndNonEmpty() passed after 0.001 seconds.
+◇ Test test_paywallComposed_teaserVariant_carriesEscapeAndAllDisclosures() started.
+✔ Test test_paywallComposed_teaserVariant_carriesEscapeAndAllDisclosures() passed after 0.001 seconds.
+◇ Test test_paywallComposed_teaserExpiryRepresent_eyebrowNoEscape_hardComposesNeither() started.
+✔ Test test_paywallComposed_teaserExpiryRepresent_eyebrowNoEscape_hardComposesNeither() passed after 0.001 seconds.
+✔ Suite "E7.1 · paywall copy + guideline-3.1.1 strings" passed after 0.008 seconds.
+◇ Suite "E7.1 · paywall model (never-trap)" started.
+◇ Test test_paywallModel_purchaseFailure_landsOnFailedSurface_neverTraps() started.
+✔ Test test_paywallModel_purchaseFailure_landsOnFailedSurface_neverTraps() passed after 0.001 seconds.
+◇ Test test_paywallModel_userCancel_isNotAFailureSurface() started.
+✔ Test test_paywallModel_userCancel_isNotAFailureSurface() passed after 0.001 seconds.
+◇ Test test_paywallModel_completedPurchase_unlocks() started.
+✔ Test test_paywallModel_completedPurchase_unlocks() passed after 0.001 seconds.
+◇ Test test_paywallModel_restoreFindsNothing_staysRecoverable() started.
+✔ Test test_paywallModel_restoreFindsNothing_staysRecoverable() passed after 0.001 seconds.
+◇ Test test_paywallModel_restoreRecoversEntitlement_unlocks() started.
+✔ Test test_paywallModel_restoreRecoversEntitlement_unlocks() passed after 0.001 seconds.
+◇ Test test_paywallModel_annualPlanIsPreselected() started.
+✔ Test test_paywallModel_annualPlanIsPreselected() passed after 0.001 seconds.
+✔ Suite "E7.1 · paywall model (never-trap)" passed after 0.001 seconds.
+◇ Suite "E7.2 · purchase wire" started.
+◇ Test test_purchaseCompletion_monthly_firesPurchaseWithWireProductAndPeriod() started.
+✔ Test test_purchaseCompletion_monthly_firesPurchaseWithWireProductAndPeriod() passed after 0.001 seconds.
+◇ Test test_purchaseCompletion_paidAnnual_firesPurchaseAnnual() started.
+✔ Test test_purchaseCompletion_paidAnnual_firesPurchaseAnnual() passed after 0.001 seconds.
+◇ Test test_purchaseCompletion_trialState_firesNoPurchase() started.
+✔ Test test_purchaseCompletion_trialState_firesNoPurchase() passed after 0.001 seconds.
+◇ Test test_restoreCompletion_firesNoPurchase() started.
+✔ Test test_restoreCompletion_firesNoPurchase() passed after 0.001 seconds.
+◇ Test test_nonCompletedOutcomes_fireNoPurchase() started.
+✔ Test test_nonCompletedOutcomes_fireNoPurchase() passed after 0.001 seconds.
+◇ Test test_purchaseCompletion_optedOut_firesNothing_stillUnlocks() started.
+✔ Test test_purchaseCompletion_optedOut_firesNothing_stillUnlocks() passed after 0.001 seconds.
+✔ Suite "E7.2 · purchase wire" passed after 0.001 seconds.
+◇ Suite "E7.2 · paywall_viewed + teaser_entered wire" started.
+◇ Test test_paywallViewed_carriesVariantAndSource() started.
+✔ Test test_paywallViewed_carriesVariantAndSource() passed after 0.001 seconds.
+◇ Test test_paywallViewed_firesOncePerPresentation() started.
+✔ Test test_paywallViewed_firesOncePerPresentation() passed after 0.001 seconds.
+◇ Test test_paywallViewed_bundledFallback_isHardControl_neverEchoes() started.
+✔ Test test_paywallViewed_bundledFallback_isHardControl_neverEchoes() passed after 0.001 seconds.
+◇ Test test_paywallViewed_optedOut_firesNothing() started.
+✔ Test test_paywallViewed_optedOut_firesNothing() passed after 0.001 seconds.
+◇ Test test_teaserEntered_firesOnTeaserTake_once_andStampsGrant() started.
+✔ Test test_teaserEntered_firesOnTeaserTake_once_andStampsGrant() passed after 0.001 seconds.
+◇ Test test_teaserEntered_optedOut_firesNothing_grantStillStamps() started.
+✔ Test test_teaserEntered_optedOut_firesNothing_grantStillStamps() passed after 0.001 seconds.
+◇ Test test_wireValueDomains_areFixed() started.
+✔ Test test_wireValueDomains_areFixed() passed after 0.001 seconds.
+✔ Suite "E7.2 · paywall_viewed + teaser_entered wire" passed after 0.004 seconds.
+◇ Suite "E2.1 · single SwiftData store in the App Group" started.
+◇ Test test_store_mirrorsExpectedModels() started.
+✔ Test test_store_mirrorsExpectedModels() passed after 0.001 seconds.
+◇ Test test_allMirroredModelProperties_haveDefaultsOrOptionals() started.
+✔ Test test_allMirroredModelProperties_haveDefaultsOrOptionals() passed after 0.006 seconds.
+◇ Test test_storeLivesInAppGroupContainer() started.
+✔ Test test_storeLivesInAppGroupContainer() passed after 0.006 seconds.
+◇ Test test_quitStartTimeZoneIdentifier_isDefaultedMirroredField_roundTrips() started.
+✔ Test test_quitStartTimeZoneIdentifier_isDefaultedMirroredField_roundTrips() passed after 0.005 seconds.
+✔ Suite "E2.1 · single SwiftData store in the App Group" passed after 0.018 seconds.
+◇ Suite "R30.6 · privacy manifest pins" started.
+◇ Test test_appManifest_shipsAtBundleRoot_withTheVerifiedKeySets() started.
+✔ Test test_appManifest_shipsAtBundleRoot_withTheVerifiedKeySets() passed after 0.001 seconds.
+◇ Test test_widgetManifest_authoredBytes_are1C8F1Only_andWiredIntoTheAppexTarget() started.
+✔ Test test_widgetManifest_authoredBytes_are1C8F1Only_andWiredIntoTheAppexTarget() passed after 0.001 seconds.
+◇ Test test_manifestPins_gateThemselves() started.
+✔ Test test_manifestPins_gateThemselves() passed after 0.001 seconds.
+✔ Suite "R30.6 · privacy manifest pins" passed after 0.001 seconds.
+◇ Suite "E6.3 · privacy overlay policy" started.
+◇ Test test_appSwitcherOverlay_activeWhenDiscreet() started.
+✔ Test test_appSwitcherOverlay_activeWhenDiscreet() passed after 0.001 seconds.
+◇ Test test_appSwitcherOverlay_inactiveWhenSafe() started.
+✔ Test test_appSwitcherOverlay_inactiveWhenSafe() passed after 0.001 seconds.
+✔ Suite "E6.3 · privacy overlay policy" passed after 0.001 seconds.
+◇ Suite "E2.2 · QuitRepository" started.
+◇ Test test_logSlip_isSynchronous_noAwaitNoNetwork() started.
+✔ Test test_logSlip_isSynchronous_noAwaitNoNetwork() passed after 0.008 seconds.
+◇ Test test_logSlip_persistsBeforeReturning() started.
+✔ Test test_logSlip_persistsBeforeReturning() passed after 0.008 seconds.
+◇ Test test_activeQuits_excludesArchived() started.
+✔ Test test_activeQuits_excludesArchived() passed after 0.009 seconds.
+◇ Test test_createQuit_fourthActiveQuit_throwsLimitError() started.
+✔ Test test_createQuit_fourthActiveQuit_throwsLimitError() passed after 0.013 seconds.
+◇ Test test_logSlip_unknownQuit_throwsQuitNotFound() started.
+✔ Test test_logSlip_unknownQuit_throwsQuitNotFound() passed after 0.005 seconds.
+◇ Test test_logUrgeEvent_persistsBeforeReturning_andCountsAvertedOnly() started.
+✔ Test test_logUrgeEvent_persistsBeforeReturning_andCountsAvertedOnly() passed after 0.009 seconds.
+◇ Test test_createQuit_afterArchive_assignsUnusedSortIndex() started.
+✔ Test test_createQuit_afterArchive_assignsUnusedSortIndex() passed after 0.012 seconds.
+◇ Test test_repositoryWrite_triggersDebouncedWidgetReload() started.
+✔ Test test_repositoryWrite_triggersDebouncedWidgetReload() passed after 0.011 seconds.
+◇ Test test_streakValue_rebootForwardJump_beyondCap_freezesNotInflates() started.
+✔ Test test_streakValue_rebootForwardJump_beyondCap_freezesNotInflates() passed after 0.006 seconds.
+◇ Test test_logSlip_banksCappedTruth_notInflated_acrossRebootForwardJump() started.
+✔ Test test_logSlip_banksCappedTruth_notInflated_acrossRebootForwardJump() passed after 0.009 seconds.
+◇ Test test_lastKnownGood_refreshedOnNormalVerdict_notOnRollback() started.
+✔ Test test_lastKnownGood_refreshedOnNormalVerdict_notOnRollback() passed after 0.006 seconds.
+◇ Test test_lastKnownGood_freshAnchorCannotBlessTheWall_siblingQuitStaysCapped() started.
+✔ Test test_lastKnownGood_freshAnchorCannotBlessTheWall_siblingQuitStaysCapped() passed after 0.012 seconds.
+◇ Test test_ageGate_pass_persistsAgeGatePassedTrue() started.
+✔ Test test_ageGate_pass_persistsAgeGatePassedTrue() passed after 0.004 seconds.
+◇ Test test_lastKnownGood_isDeviceLocal_notInSwiftDataStore() started.
+✔ Test test_lastKnownGood_isDeviceLocal_notInSwiftDataStore() passed after 0.004 seconds.
+◇ Test test_postGate_noActiveQuit_routesToQuiz() started.
+✔ Test test_postGate_noActiveQuit_routesToQuiz() passed after 0.001 seconds.
+✔ Suite "E2.2 · QuitRepository" passed after 0.124 seconds.
+◇ Suite "E5.2 · quiz completion — createQuit(from:) + pre-cache + local-only answers" started.
+◇ Test test_quiz_answersPersistLocallyOnly() started.
+✔ Test test_quiz_answersPersistLocallyOnly() passed after 0.011 seconds.
+◇ Test test_quizCompletion_createsQuitWithMotivationsAndSpend() started.
+✔ Test test_quizCompletion_createsQuitWithMotivationsAndSpend() passed after 0.005 seconds.
+◇ Test test_quizCompletion_writesMotivationsPreCache() started.
+✔ Test test_quizCompletion_writesMotivationsPreCache() passed after 0.006 seconds.
+◇ Test test_quizConfig_degradedFallback_stillCompletesAndCreatesQuit() started.
+✔ Test test_quizConfig_degradedFallback_stillCompletesAndCreatesQuit() passed after 0.007 seconds.
+◇ Test test_quiz_customName_neverLeavesDevice() started.
+✔ Test test_quiz_customName_neverLeavesDevice() passed after 0.007 seconds.
+◇ Test test_quiz_maxThreeQuits_surfacedCalmly() started.
+✔ Test test_quiz_maxThreeQuits_surfacedCalmly() passed after 0.009 seconds.
+✔ Suite "E5.2 · quiz completion — createQuit(from:) + pre-cache + local-only answers" passed after 0.048 seconds.
+◇ Suite "E5.2 · quiz flow model" started.
+◇ Test test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+◇ Test case passing 1 argument slot → 1 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 3 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 4 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 5 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 6 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 7 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 8 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 9 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 10 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 11 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​◇ Test case passing 1 argument slot → 13 to test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) started.
+​✔ Test test_quiz_everyStepAdvance_firesQuizStepCompleted(step:) with 11 test cases passed after 0.032 seconds.
+◇ Test test_quiz_backNavigation_preservesAnswers() started.
+✔ Test test_quiz_backNavigation_preservesAnswers() passed after 0.002 seconds.
+◇ Test test_quiz_onboardingStarted_firesOnceOnFirstScreen_withSettingsVariant() started.
+✔ Test test_quiz_onboardingStarted_firesOnceOnFirstScreen_withSettingsVariant() passed after 0.002 seconds.
+◇ Test test_quizFlow_visibleSteps_derivedFromConfigAndAnswers() started.
+✔ Test test_quizFlow_visibleSteps_derivedFromConfigAndAnswers() passed after 0.001 seconds.
+◇ Test test_quiz_conditionalSteps_visibilityAndStableNumbering() started.
+✔ Test test_quiz_conditionalSteps_visibilityAndStableNumbering() passed after 0.001 seconds.
+◇ Test test_quiz_consentStep_slot3_rendersWithSignedStrings() started.
+✔ Test test_quiz_consentStep_slot3_rendersWithSignedStrings() passed after 0.001 seconds.
+◇ Test test_quiz_fullRun_firesNoQuizCompleted() started.
+✔ Test test_quiz_fullRun_firesNoQuizCompleted() passed after 0.006 seconds.
+◇ Test test_quiz_progressCheckpoint_resumesAndClearsOnCompletion() started.
+✔ Test test_quiz_progressCheckpoint_resumesAndClearsOnCompletion() passed after 0.003 seconds.
+◇ Test test_quiz_checkpoint_isAppStandardDefaults_notAppGroup() started.
+✔ Test test_quiz_checkpoint_isAppStandardDefaults_notAppGroup() passed after 0.002 seconds.
+✔ Suite "E5.2 · quiz flow model" passed after 0.053 seconds.
+◇ Suite "E5.3 · quiz_completed fires on summary render" started.
+◇ Test test_summary_render_firesQuizCompletedOncePerCompletion() started.
+✔ Test test_summary_render_firesQuizCompletedOncePerCompletion() passed after 0.002 seconds.
+◇ Test test_summary_reRender_firesNothing() started.
+✔ Test test_summary_reRender_firesNothing() passed after 0.002 seconds.
+◇ Test test_summary_payloadExact_carriesOnlyCategoryAndGoal() started.
+✔ Test test_summary_payloadExact_carriesOnlyCategoryAndGoal() passed after 0.002 seconds.
+◇ Test test_summary_onAppearBeforeCompletion_firesNothing() started.
+✔ Test test_summary_onAppearBeforeCompletion_firesNothing() passed after 0.001 seconds.
+◇ Test test_summary_optedOut_firesNothing() started.
+✔ Test test_summary_optedOut_firesNothing() passed after 0.001 seconds.
+✔ Suite "E5.3 · quiz_completed fires on summary render" passed after 0.009 seconds.
+◇ Suite "E5.3 · summary fields at the repository seam" started.
+◇ Test test_summary_profileFieldsFilledAtCompletion_noNewField() started.
+✔ Test test_summary_profileFieldsFilledAtCompletion_noNewField() passed after 0.006 seconds.
+◇ Test test_summary_riskWindow_isolatedFromNonTriggerAnswers() started.
+✔ Test test_summary_riskWindow_isolatedFromNonTriggerAnswers() passed after 0.007 seconds.
+◇ Test test_summary_decimalSafeSavings_persistsExact() started.
+✔ Test test_summary_decimalSafeSavings_persistsExact() passed after 0.007 seconds.
+◇ Test test_summary_degradedConfigCompletion_isSummarySafe() started.
+✔ Test test_summary_degradedConfigCompletion_isSummarySafe() passed after 0.006 seconds.
+✔ Suite "E5.3 · summary fields at the repository seam" passed after 0.027 seconds.
+◇ Suite "E2.3 · CloudKit dedupe merge pass" started.
+◇ Test test_mergeDuplicateQuits_keepsMaxTotalTrackedSeconds() started.
+✔ Test test_mergeDuplicateQuits_keepsMaxTotalTrackedSeconds() passed after 0.008 seconds.
+◇ Test test_merge_takesFieldwiseMax_bestStreak_totalClean() started.
+✔ Test test_merge_takesFieldwiseMax_bestStreak_totalClean() passed after 0.008 seconds.
+◇ Test test_merge_unionsSlipsWithoutDuplicates() started.
+✔ Test test_merge_unionsSlipsWithoutDuplicates() passed after 0.009 seconds.
+◇ Test test_merge_noDuplicates_isNoOp() started.
+✔ Test test_merge_noDuplicates_isNoOp() passed after 0.010 seconds.
+◇ Test test_merge_reparentsChildrenBeforeDelete_cascadeCannotEatHistory() started.
+✔ Test test_merge_reparentsChildrenBeforeDelete_cascadeCannotEatHistory() passed after 0.010 seconds.
+◇ Test test_merge_keepsMaxStartAt_andCoherentAnchor_neverInflates() started.
+✔ Test test_merge_keepsMaxStartAt_andCoherentAnchor_neverInflates() passed after 0.009 seconds.
+◇ Test test_merge_archivedOnAnyDevice_staysArchived_maxThreeHolds() started.
+✔ Test test_merge_archivedOnAnyDevice_staysArchived_maxThreeHolds() passed after 0.015 seconds.
+◇ Test test_merge_unionsMotivations_deterministicallyAcrossOrders() started.
+✔ Test test_merge_unionsMotivations_deterministicallyAcrossOrders() passed after 0.016 seconds.
+◇ Test test_merge_recountsAvertedAcrossUnionedEvents_floorsAtStoredMax() started.
+✔ Test test_merge_recountsAvertedAcrossUnionedEvents_floorsAtStoredMax() passed after 0.013 seconds.
+◇ Test test_merge_discreetOnAnyDevice_staysDiscreet() started.
+✔ Test test_merge_discreetOnAnyDevice_staysDiscreet() passed after 0.010 seconds.
+◇ Test test_merge_resolvesScalarFields_absolutely() started.
+✔ Test test_merge_resolvesScalarFields_absolutely() passed after 0.009 seconds.
+◇ Test test_merge_startAtTie_anchoredRecordWins() started.
+✔ Test test_merge_startAtTie_anchoredRecordWins() passed after 0.018 seconds.
+◇ Test test_merge_repointsQuizProfileToSurvivor() started.
+✔ Test test_merge_repointsQuizProfileToSurvivor() passed after 0.009 seconds.
+◇ Test test_activeQuits_ordersDeterministically_onSortIndexCollision() started.
+✔ Test test_activeQuits_ordersDeterministically_onSortIndexCollision() passed after 0.009 seconds.
+✔ Suite "E2.3 · CloudKit dedupe merge pass" passed after 0.160 seconds.
+◇ Suite "E2.3 · merge property" started.
+◇ Test test_property_mergeIsCommutativeAndIdempotent() started.
+✔ Test test_property_mergeIsCommutativeAndIdempotent() passed after 0.663 seconds.
+✔ Suite "E2.3 · merge property" passed after 0.663 seconds.
+◇ Suite "E2.3 · healing re-anchor + witness" started.
+◇ Test test_recompute_healsOverCapQuit_freezeThenResume() started.
+✔ Test test_recompute_healsOverCapQuit_freezeThenResume() passed after 0.009 seconds.
+◇ Test test_recompute_witnessRestart_grantsAtMostCap_neverTheLyingWall() started.
+✔ Test test_recompute_witnessRestart_grantsAtMostCap_neverTheLyingWall() passed after 0.009 seconds.
+◇ Test test_recompute_witnessRestart_grantsOncePerBoot_notPerCall() started.
+✔ Test test_recompute_witnessRestart_grantsOncePerBoot_notPerCall() passed after 0.011 seconds.
+◇ Test test_witness_stackedHeals_matchInWindowChannelBound() started.
+✔ Test test_witness_stackedHeals_matchInWindowChannelBound() passed after 0.012 seconds.
+◇ Test test_lastKnownGood_uptimeAccrual_advancesConservatively_neverTheLyingWall() started.
+✔ Test test_lastKnownGood_uptimeAccrual_advancesConservatively_neverTheLyingWall() passed after 0.007 seconds.
+◇ Test test_lastKnownGood_accrualNeverCrossesBoots_evenWithLargerUptime() started.
+✔ Test test_lastKnownGood_accrualNeverCrossesBoots_evenWithLargerUptime() passed after 0.006 seconds.
+◇ Test test_lastKnownGood_chainReconverges_afterHealLagDecaysBelowCap() started.
+✔ Test test_lastKnownGood_chainReconverges_afterHealLagDecaysBelowCap() passed after 0.013 seconds.
+✔ Suite "E2.3 · healing re-anchor + witness" passed after 0.071 seconds.
+◇ Suite "E7.1 · RevenueCat entitlement mapping (pure)" started.
+◇ Test test_rcMapping_presentButInactive_mapsToInactiveSnapshot_neverNil() started.
+✔ Test test_rcMapping_presentButInactive_mapsToInactiveSnapshot_neverNil() passed after 0.001 seconds.
+◇ Test test_rcMapping_absentEntitlement_mapsToNilSnapshot_neverState() started.
+✔ Test test_rcMapping_absentEntitlement_mapsToNilSnapshot_neverState() passed after 0.001 seconds.
+◇ Test test_rcMapping_trialPeriod_carriesTrialThroughToTrialState() started.
+✔ Test test_rcMapping_trialPeriod_carriesTrialThroughToTrialState() passed after 0.001 seconds.
+◇ Test test_rcMapping_skuResolvesTierViaCatalog_bothAnnualArmsAnnual() started.
+✔ Test test_rcMapping_skuResolvesTierViaCatalog_bothAnnualArmsAnnual() passed after 0.001 seconds.
+◇ Test test_rcMapping_unknownSKU_stillHonorsActiveEntitlement() started.
+✔ Test test_rcMapping_unknownSKU_stillHonorsActiveEntitlement() passed after 0.001 seconds.
+◇ Test test_rcMapping_presentInactive_readsLapsedNeverNever() started.
+✔ Test test_rcMapping_presentInactive_readsLapsedNeverNever() passed after 0.001 seconds.
+✔ Suite "E7.1 · RevenueCat entitlement mapping (pure)" passed after 0.001 seconds.
+◇ Suite "E9.1 · safety resources" started.
+◇ Test test_resources_reachableFromSettingsAndSlipFlow_oneTap() started.
+✔ Test test_resources_reachableFromSettingsAndSlipFlow_oneTap() passed after 0.003 seconds.
+◇ Test test_helplines_regionFallbackToGlobal() started.
+✔ Test test_helplines_regionFallbackToGlobal() passed after 0.001 seconds.
+◇ Test test_alcoholNotice_shownOnceOnAlcoholQuitCreation() started.
+✔ Test test_alcoholNotice_shownOnceOnAlcoholQuitCreation() passed after 0.001 seconds.
+◇ Test test_resourcesViewed_firesWithSource() started.
+✔ Test test_resourcesViewed_firesWithSource() passed after 0.001 seconds.
+◇ Test test_helplinesJSON_matchesSchema() started.
+✔ Test test_helplinesJSON_matchesSchema() passed after 0.001 seconds.
+◇ Test test_resourcesSource_wireValues_exactDomain() started.
+✔ Test test_resourcesSource_wireValues_exactDomain() passed after 0.001 seconds.
+◇ Test test_resourcesSelection_neverSurfacesUnverifiedRows() started.
+✔ Test test_resourcesSelection_neverSurfacesUnverifiedRows() passed after 0.001 seconds.
+✔ Suite "E9.1 · safety resources" passed after 0.005 seconds.
+◇ Suite "E4.1 · slip copy audit" started.
+◇ Test test_slipCopy_shippingFileBundledAndDecodes() started.
+✔ Test test_slipCopy_shippingFileBundledAndDecodes() passed after 0.004 seconds.
+◇ Test test_slipCopy_containsNoShameLexicon_orMedicalClaims() started.
+✔ Test test_slipCopy_containsNoShameLexicon_orMedicalClaims() passed after 0.001 seconds.
+◇ Test test_slipCopy_undoBannerCopy_isCalm() started.
+✔ Test test_slipCopy_undoBannerCopy_isCalm() passed after 0.001 seconds.
+✔ Suite "E4.1 · slip copy audit" passed after 0.005 seconds.
+◇ Suite "R28.13 · slip logged composition" started.
+◇ Test test_loggedComposition_nilMomentum_dropsSentence_neverDangles() started.
+✔ Test test_loggedComposition_nilMomentum_dropsSentence_neverDangles() passed after 0.001 seconds.
+◇ Test test_loggedComposition_filledTokens_reproducesLegacyOutputByteForByte() started.
+✔ Test test_loggedComposition_filledTokens_reproducesLegacyOutputByteForByte() passed after 0.001 seconds.
+✔ Suite "R28.13 · slip logged composition" passed after 0.002 seconds.
+◇ Suite "E4.1 · slip flow (cold + store routes)" started.
+◇ Test test_coldConfirm_appendsSlippedDraft_withCapturedTuple_beforeLoggedStage() started.
+✔ Test test_coldConfirm_appendsSlippedDraft_withCapturedTuple_beforeLoggedStage() passed after 0.002 seconds.
+◇ Test test_coldConfirm_capturesNilWitnessAsNil() started.
+✔ Test test_coldConfirm_capturesNilWitnessAsNil() passed after 0.001 seconds.
+◇ Test test_coldConfirm_appendFailure_staysConfirming_showsRetryNote() started.
+✔ Test test_coldConfirm_appendFailure_staysConfirming_showsRetryNote() passed after 0.001 seconds.
+◇ Test test_coldFraming_bestIsMaxOfCardBestAndGuardedEnded_momentumUnchanged(cardBestDays:expectedBestDays:) started.
+◇ Test case passing 2 arguments cardBestDays → 10, expectedBestDays → 10 to test_coldFraming_bestIsMaxOfCardBestAndGuardedEnded_momentumUnchanged(cardBestDays:expectedBestDays:) started.
+​◇ Test case passing 2 arguments cardBestDays → 1, expectedBestDays → 3 to test_coldFraming_bestIsMaxOfCardBestAndGuardedEnded_momentumUnchanged(cardBestDays:expectedBestDays:) started.
+​✔ Test test_coldFraming_bestIsMaxOfCardBestAndGuardedEnded_momentumUnchanged(cardBestDays:expectedBestDays:) with 2 test cases passed after 0.002 seconds.
+◇ Test test_coldFraming_degradedCard_missingFields_yieldsNilNumbers_notInventedOnes() started.
+✔ Test test_coldFraming_degradedCard_missingFields_yieldsNilNumbers_notInventedOnes() passed after 0.001 seconds.
+◇ Test test_coldFraming_foldsEarlierUnrevokedSlipDrafts() started.
+✔ Test test_coldFraming_foldsEarlierUnrevokedSlipDrafts() passed after 0.001 seconds.
+◇ Test test_coldUndo_withinWindow_appendsRevocation_andRestoresStage() started.
+✔ Test test_coldUndo_withinWindow_appendsRevocation_andRestoresStage() passed after 0.001 seconds.
+◇ Test test_coldUndo_pastWindow_isCalmNoOp() started.
+✔ Test test_coldUndo_pastWindow_isCalmNoOp() passed after 0.001 seconds.
+◇ Test test_undoAvailable_liveGate_honestUnderClockFiddle() started.
+✔ Test test_undoAvailable_liveGate_honestUnderClockFiddle() passed after 0.001 seconds.
+◇ Test test_coldRoute_writesOnlyTheBufferFile() started.
+✔ Test test_coldRoute_writesOnlyTheBufferFile() passed after 0.001 seconds.
+◇ Test test_coldRoute_hasNoReflectionNote() started.
+✔ Test test_coldRoute_hasNoReflectionNote() passed after 0.006 seconds.
+◇ Test test_storeConfirm_logsSynchronouslyThroughRepository() started.
+✔ Test test_storeConfirm_logsSynchronouslyThroughRepository() passed after 0.009 seconds.
+◇ Test test_storeUndo_restoresThroughRepository() started.
+✔ Test test_storeUndo_restoresThroughRepository() passed after 0.010 seconds.
+◇ Test test_reflectionNote_autosavesOnKeystrokePause() started.
+✔ Test test_reflectionNote_autosavesOnKeystrokePause() passed after 0.009 seconds.
+◇ Test test_cancel_writesNothing() started.
+✔ Test test_cancel_writesNothing() passed after 0.001 seconds.
+◇ Test test_discreetCard_flagsDiscreet() started.
+✔ Test test_discreetCard_flagsDiscreet() passed after 0.001 seconds.
+✔ Suite "E4.1 · slip flow (cold + store routes)" passed after 0.050 seconds.
+◇ Suite "E4.1 · flushPanicOutcomes — deferred slip application" started.
+◇ Test test_flush_deferredSlip_equalsLiveLogSlip_forCapturedTuple(arm:) started.
+◇ Test case passing 1 argument arm → .sameBoot to test_flush_deferredSlip_equalsLiveLogSlip_forCapturedTuple(arm:) started.
+​◇ Test case passing 1 argument arm → .rebootBetween to test_flush_deferredSlip_equalsLiveLogSlip_forCapturedTuple(arm:) started.
+​◇ Test case passing 1 argument arm → .rolledBackWall to test_flush_deferredSlip_equalsLiveLogSlip_forCapturedTuple(arm:) started.
+​✔ Test test_flush_deferredSlip_equalsLiveLogSlip_forCapturedTuple(arm:) with 3 test cases passed after 0.056 seconds.
+◇ Test test_flush_slipAfterPreSlipReboot_banksSlipTimeSpan_notFlushTimeSpan() started.
+✔ Test test_flush_slipAfterPreSlipReboot_banksSlipTimeSpan_notFlushTimeSpan() passed after 0.010 seconds.
+◇ Test test_flush_duplicateSlipDraftIds_applyTransitionOnce() started.
+✔ Test test_flush_duplicateSlipDraftIds_applyTransitionOnce() passed after 0.009 seconds.
+◇ Test test_flush_replayAfterSaveBeforeClear_doesNotDoubleApplySlip() started.
+✔ Test test_flush_replayAfterSaveBeforeClear_doesNotDoubleApplySlip() passed after 0.009 seconds.
+◇ Test test_flush_revokedPair_dropsBoth_revocationNeverAnUrgeEvent() started.
+✔ Test test_flush_revokedPair_dropsBoth_revocationNeverAnUrgeEvent() passed after 0.007 seconds.
+◇ Test test_flush_slipUndoSlip_landsExactlyOneSlip() started.
+✔ Test test_flush_slipUndoSlip_landsExactlyOneSlip() passed after 0.008 seconds.
+◇ Test test_flush_nilQuitSlippedDraft_landsUnattributedUrgeEventOnly() started.
+✔ Test test_flush_nilQuitSlippedDraft_landsUnattributedUrgeEventOnly() passed after 0.008 seconds.
+◇ Test test_flush_erasedQuitSlippedDraft_drops_liveQuitStillTransitions() started.
+✔ Test test_flush_erasedQuitSlippedDraft_drops_liveQuitStillTransitions() passed after 0.008 seconds.
+◇ Test test_flush_appliesInAppendOrder_neverWallSorted() started.
+✔ Test test_flush_appliesInAppendOrder_neverWallSorted() passed after 0.008 seconds.
+◇ Test test_flush_twoSlipsSameQuit_onlyNewestPending() started.
+✔ Test test_flush_twoSlipsSameQuit_onlyNewestPending() passed after 0.008 seconds.
+◇ Test test_flush_neverAdvancesWitness() started.
+✔ Test test_flush_neverAdvancesWitness() passed after 0.009 seconds.
+◇ Test test_flush_windowClosedByFlushTime_landsFinalized() started.
+✔ Test test_flush_windowClosedByFlushTime_landsFinalized() passed after 0.008 seconds.
+◇ Test test_flush_healCollision_banksTowardZero_neverInflates() started.
+✔ Test test_flush_healCollision_banksTowardZero_neverInflates() passed after 0.011 seconds.
+✔ Suite "E4.1 · flushPanicOutcomes — deferred slip application" passed after 0.166 seconds.
+◇ Suite "E4.2 · zero-shame copy gate" started.
+◇ Test test_slipStrings_containNoForbiddenLexicon() started.
+✔ Test test_slipStrings_containNoForbiddenLexicon() passed after 0.008 seconds.
+◇ Test test_ageGateStrings_containNoForbiddenLexicon() started.
+✔ Test test_ageGateStrings_containNoForbiddenLexicon() passed after 0.002 seconds.
+◇ Test test_quizConfigStrings_containNoForbiddenLexicon() started.
+✔ Test test_quizConfigStrings_containNoForbiddenLexicon() passed after 0.016 seconds.
+◇ Test test_summaryStrings_containNoForbiddenLexicon() started.
+✔ Test test_summaryStrings_containNoForbiddenLexicon() passed after 0.004 seconds.
+◇ Test test_safetyStrings_containNoForbiddenLexicon() started.
+✔ Test test_safetyStrings_containNoForbiddenLexicon() passed after 0.004 seconds.
+◇ Test test_slipTable_carriesDashboardStrings_byteExactWithRenderedCopy() started.
+✔ Test test_slipTable_carriesDashboardStrings_byteExactWithRenderedCopy() passed after 0.001 seconds.
+◇ Test test_forbiddenLexicon_onlyGrows_fromFoundationFloor() started.
+✔ Test test_forbiddenLexicon_onlyGrows_fromFoundationFloor() passed after 0.001 seconds.
+✔ Suite "E4.2 · zero-shame copy gate" passed after 0.038 seconds.
+◇ Suite "E4.1 · Slip undo lifecycle (store route)" started.
+◇ Test test_logSlip_opensUndoWindow_flagAndPayloadPersisted() started.
+✔ Test test_logSlip_opensUndoWindow_flagAndPayloadPersisted() passed after 0.009 seconds.
+◇ Test test_logSlip_newerSlip_finalizesOlderPendingUndo() started.
+✔ Test test_logSlip_newerSlip_finalizesOlderPendingUndo() passed after 0.010 seconds.
+◇ Test test_undoSlip_withinWindow_restoresExactPriorState_andRemovesRow() started.
+✔ Test test_undoSlip_withinWindow_restoresExactPriorState_andRemovesRow() passed after 0.009 seconds.
+◇ Test test_undoSlip_at600s_restores_at601s_calmNoOp() started.
+✔ Test test_undoSlip_at600s_restores_at601s_calmNoOp() passed after 0.018 seconds.
+◇ Test test_undoSlip_nothingPending_returnsFalse() started.
+✔ Test test_undoSlip_nothingPending_returnsFalse() passed after 0.008 seconds.
+◇ Test test_undoSlip_doesNotAdvanceWitness() started.
+✔ Test test_undoSlip_doesNotAdvanceWitness() passed after 0.009 seconds.
+◇ Test test_finalizePendingSlips_sweepsClosedWindows_idempotent() started.
+✔ Test test_finalizePendingSlips_sweepsClosedWindows_idempotent() passed after 0.012 seconds.
+◇ Test test_finalizePendingSlips_windowMeasuredOnGuardedTimeline_rollbackCannotBurnIt() started.
+✔ Test test_finalizePendingSlips_windowMeasuredOnGuardedTimeline_rollbackCannotBurnIt() passed after 0.008 seconds.
+◇ Test test_pendingUndoSlip_returnsTheOnePendingRow() started.
+✔ Test test_pendingUndoSlip_returnsTheOnePendingRow() passed after 0.009 seconds.
+◇ Test test_updateSlipNote_persistsOnStoreRoute() started.
+✔ Test test_updateSlipNote_persistsOnStoreRoute() passed after 0.009 seconds.
+◇ Test test_undoSlip_restoresBankedFields_theOneSanctionedDecrease() started.
+✔ Test test_undoSlip_restoresBankedFields_theOneSanctionedDecrease() passed after 0.013 seconds.
+✔ Suite "E4.1 · Slip undo lifecycle (store route)" passed after 0.120 seconds.
+◇ Suite "E6.2 · streak widget composer (read → select → map → plan)" started.
+◇ Test test_compose_configuredIDPresent_streakPlan_dayNumberFollowsADR11() started.
+✔ Test test_compose_configuredIDPresent_streakPlan_dayNumberFollowsADR11() passed after 0.001 seconds.
+◇ Test test_compose_configuredIDVanished_isExactlyOneUnavailableEntry_noQuit() started.
+✔ Test test_compose_configuredIDVanished_isExactlyOneUnavailableEntry_noQuit() passed after 0.001 seconds.
+◇ Test test_compose_nilConfiguredID_selectsFirstQuit_streakPlan() started.
+✔ Test test_compose_nilConfiguredID_selectsFirstQuit_streakPlan() passed after 0.001 seconds.
+◇ Test test_compose_dayRollsInQuitsFixedZone_notTheRenderingZone() started.
+✔ Test test_compose_dayRollsInQuitsFixedZone_notTheRenderingZone() passed after 0.001 seconds.
+◇ Test test_compose_invalidTimeZoneIdentifier_isUnavailable_neverAGuess() started.
+✔ Test test_compose_invalidTimeZoneIdentifier_isUnavailable_neverAGuess() passed after 0.001 seconds.
+◇ Test test_compose_passesMilestoneCrossingsToPlanner_entryAtStartPlus24h() started.
+✔ Test test_compose_passesMilestoneCrossingsToPlanner_entryAtStartPlus24h() passed after 0.001 seconds.
+✔ Suite "E6.2 · streak widget composer (read → select → map → plan)" passed after 0.001 seconds.
+◇ Suite "E6.2 · streak widget style + display" started.
+◇ Test test_streakWidgetStyle_shipping_isShameAndLeakFree_withNonVacuityFloor() started.
+✔ Test test_streakWidgetStyle_shipping_isShameAndLeakFree_withNonVacuityFloor() passed after 0.004 seconds.
+◇ Test test_discreetWidgets_accessibilityLabels_containNoHabitTerms() started.
+✔ Test test_discreetWidgets_accessibilityLabels_containNoHabitTerms() passed after 0.001 seconds.
+◇ Test test_rectangularWidget_panicButton_invokesPanicIntentWithQuitID() started.
+✔ Test test_rectangularWidget_panicButton_invokesPanicIntentWithQuitID() passed after 0.001 seconds.
+◇ Test test_panicButton_discreetSelection_swapsGlyphAndLabel() started.
+✔ Test test_panicButton_discreetSelection_swapsGlyphAndLabel() passed after 0.001 seconds.
+✔ Suite "E6.2 · streak widget style + display" passed after 0.005 seconds.
+◇ Suite "E10.2 · submission metadata lint" started.
+◇ Test test_release_bundleContainsNoExplicitTermsInMetadata() started.
+✔ Test test_release_bundleContainsNoExplicitTermsInMetadata() passed after 0.023 seconds.
+◇ Test test_release_metadataLexicons_onlyGrow_fromFoundationFloor() started.
+✔ Test test_release_metadataLexicons_onlyGrow_fromFoundationFloor() passed after 0.001 seconds.
+✔ Suite "E10.2 · submission metadata lint" passed after 0.023 seconds.
+◇ Suite "E5.3 · summary derivation, display math & navigation order" started.
+◇ Test test_summary_projectedSavings_matchesSpendMath() started.
+✔ Test test_summary_projectedSavings_matchesSpendMath() passed after 0.001 seconds.
+◇ Test test_summary_projectedSavings_decimalSafe_centsBearing() started.
+✔ Test test_summary_projectedSavings_decimalSafe_centsBearing() passed after 0.001 seconds.
+◇ Test test_summary_projectedSavings_zeroSpend_showsNoFigure() started.
+✔ Test test_summary_projectedSavings_zeroSpend_showsNoFigure() passed after 0.001 seconds.
+◇ Test test_summary_savingsDisplay_flooringOntoZero_showsNoFigure() started.
+✔ Test test_summary_savingsDisplay_flooringOntoZero_showsNoFigure() passed after 0.001 seconds.
+◇ Test test_riskWindowHint_derivedFromTriggerAnswers() started.
+✔ Test test_riskWindowHint_derivedFromTriggerAnswers() passed after 0.001 seconds.
+◇ Test test_riskWindow_singleTrigger_eachMapsToItsToken(_:) started.
+◇ Test case passing 1 argument trigger → "evenings" to test_riskWindow_singleTrigger_eachMapsToItsToken(_:) started.
+​◇ Test case passing 1 argument trigger → "afterWork" to test_riskWindow_singleTrigger_eachMapsToItsToken(_:) started.
+​◇ Test case passing 1 argument trigger → "social" to test_riskWindow_singleTrigger_eachMapsToItsToken(_:) started.
+​◇ Test case passing 1 argument trigger → "alone" to test_riskWindow_singleTrigger_eachMapsToItsToken(_:) started.
+​◇ Test case passing 1 argument trigger → "boredom" to test_riskWindow_singleTrigger_eachMapsToItsToken(_:) started.
+​◇ Test case passing 1 argument trigger → "stress" to test_riskWindow_singleTrigger_eachMapsToItsToken(_:) started.
+​✔ Test test_riskWindow_singleTrigger_eachMapsToItsToken(_:) with 6 test cases passed after 0.001 seconds.
+◇ Test test_riskWindow_noTriggers_isNilNoGuess() started.
+✔ Test test_riskWindow_noTriggers_isNilNoGuess() passed after 0.001 seconds.
+◇ Test test_riskWindow_ignoresNonTriggerInputs() started.
+✔ Test test_riskWindow_ignoresNonTriggerInputs() passed after 0.001 seconds.
+◇ Test test_summary_savingsDisplay_floorsToTen() started.
+✔ Test test_summary_savingsDisplay_floorsToTen() passed after 0.001 seconds.
+◇ Test test_summary_savingsDisplay_usesQuitCurrencyCode() started.
+✔ Test test_summary_savingsDisplay_usesQuitCurrencyCode() passed after 0.001 seconds.
+◇ Test test_summary_shownBeforeAnyPaywall() started.
+✔ Test test_summary_shownBeforeAnyPaywall() passed after 0.001 seconds.
+✔ Suite "E5.3 · summary derivation, display math & navigation order" passed after 0.004 seconds.
+◇ Suite "E7.2 · Superwall dormant gate + de-integration fallback" started.
+◇ Test test_superwallRemoved_paywallKitFallbackRendersHardVariant() started.
+✔ Test test_superwallRemoved_paywallKitFallbackRendersHardVariant() passed after 0.001 seconds.
+◇ Test test_dormantSuperwallKey_absent_zeroConfigure_bundledAssigner() started.
+✔ Test test_dormantSuperwallKey_absent_zeroConfigure_bundledAssigner() passed after 0.001 seconds.
+◇ Test test_superwallKey_present_configuresOnce_buildsAdapter() started.
+✔ Test test_superwallKey_present_configuresOnce_buildsAdapter() passed after 0.001 seconds.
+◇ Test test_superwallVariantMapping_mapsKnownID_defaultsHardOtherwise() started.
+✔ Test test_superwallVariantMapping_mapsKnownID_defaultsHardOtherwise() passed after 0.001 seconds.
+✔ Suite "E7.2 · Superwall dormant gate + de-integration fallback" passed after 0.004 seconds.
+◇ Suite "E7.2 · teaser policy + re-entry routing" started.
+◇ Test test_teaserMode_expiresAfter1Day_representsPaywall() started.
+✔ Test test_teaserMode_expiresAfter1Day_representsPaywall() passed after 0.001 seconds.
+◇ Test test_teaserExpiry_paywallSource_isTeaserExpiry() started.
+✔ Test test_teaserExpiry_paywallSource_isTeaserExpiry() passed after 0.001 seconds.
+◇ Test test_teaserActive_butEntitled_entitlementWins() started.
+✔ Test test_teaserActive_butEntitled_entitlementWins() passed after 0.001 seconds.
+◇ Test test_noTeaserTaken_neverRepresents() started.
+✔ Test test_noTeaserTaken_neverRepresents() passed after 0.001 seconds.
+◇ Test test_isExpired_boundaryIsInclusive() started.
+✔ Test test_isExpired_boundaryIsInclusive() passed after 0.001 seconds.
+✔ Suite "E7.2 · teaser policy + re-entry routing" passed after 0.007 seconds.
+◇ Suite "E7.2 · teaser + variant-echo repository wiring" started.
+◇ Test test_enterTeaser_stampsExpiry_oneDayFromInjectedClock() started.
+✔ Test test_enterTeaser_stampsExpiry_oneDayFromInjectedClock() passed after 0.006 seconds.
+◇ Test test_setPaywallVariantAssigned_roundTrips() started.
+✔ Test test_setPaywallVariantAssigned_roundTrips() passed after 0.005 seconds.
+◇ Test test_erase_wipesTeaserGrantAndVariantEcho() started.
+✔ Test test_erase_wipesTeaserGrantAndVariantEcho() passed after 0.015 seconds.
+✔ Suite "E7.2 · teaser + variant-echo repository wiring" passed after 0.027 seconds.
+◇ Suite "UIR-0 · tokens-v2 contrast registry" started.
+◇ Test test_everyRegisteredPair_meetsItsWCAGThreshold_bothAppearances() started.
+✔ Test test_everyRegisteredPair_meetsItsWCAGThreshold_bothAppearances() passed after 0.001 seconds.
+◇ Test test_contrastRegistry_neverShrinks() started.
+✔ Test test_contrastRegistry_neverShrinks() passed after 0.001 seconds.
+◇ Test test_colorTokenRegistry_isTheExactAuthoredSet() started.
+✔ Test test_colorTokenRegistry_isTheExactAuthoredSet() passed after 0.001 seconds.
+◇ Test test_everyPair_referencesRegisteredTokens() started.
+✔ Test test_everyPair_referencesRegisteredTokens() passed after 0.001 seconds.
+◇ Test test_calibration_wcagAnchors() started.
+✔ Test test_calibration_wcagAnchors() passed after 0.001 seconds.
+◇ Test test_calibration_theS28TealButtonDefect_stillComputesAsAViolation() started.
+✔ Test test_calibration_theS28TealButtonDefect_stillComputesAsAViolation() passed after 0.001 seconds.
+◇ Test test_calibration_alphaCompositing() started.
+✔ Test test_calibration_alphaCompositing() passed after 0.001 seconds.
+◇ Test test_scrimAlpha_holdsTheWhiteOnScrimFloor() started.
+✔ Test test_scrimAlpha_holdsTheWhiteOnScrimFloor() passed after 0.001 seconds.
+✔ Suite "UIR-0 · tokens-v2 contrast registry" passed after 0.001 seconds.
+◇ Suite "UIR-0 · Theme single-source lint" started.
+◇ Test test_appSources_carryNoRetiredColorIdioms() started.
+✔ Test test_appSources_carryNoRetiredColorIdioms() passed after 0.124 seconds.
+◇ Test test_calibration_matcherFiresAndCommentsAreExempt() started.
+✔ Test test_calibration_matcherFiresAndCommentsAreExempt() passed after 0.001 seconds.
+✔ Suite "UIR-0 · Theme single-source lint" passed after 0.124 seconds.
+◇ Suite "E7.1 · trial_started wire + cross-launch dedup" started.
+◇ Test test_trialStartedSink_optedIn_firesTrialStartedWithCanonicalAnnualID() started.
+✔ Test test_trialStartedSink_optedIn_firesTrialStartedWithCanonicalAnnualID() passed after 0.001 seconds.
+◇ Test test_trialStartedSink_tierMapsToCanonicalWireID_monthly() started.
+✔ Test test_trialStartedSink_tierMapsToCanonicalWireID_monthly() passed after 0.001 seconds.
+◇ Test test_trialStartedSink_optedOut_firesNothing_andLeavesMarkerUnset() started.
+✔ Test test_trialStartedSink_optedOut_firesNothing_andLeavesMarkerUnset() passed after 0.001 seconds.
+◇ Test test_trialStartedSink_crossLaunchReplay_firesExactlyOnce() started.
+✔ Test test_trialStartedSink_crossLaunchReplay_firesExactlyOnce() passed after 0.001 seconds.
+◇ Test test_trialStartedSink_lateOptIn_whileStillTrialing_firesOnce() started.
+✔ Test test_trialStartedSink_lateOptIn_whileStillTrialing_firesOnce() passed after 0.001 seconds.
+✔ Suite "E7.1 · trial_started wire + cross-launch dedup" passed after 0.005 seconds.
+◇ Suite "Epic 0 · walking skeleton" started.
+◇ Test test_ci_runsSwiftTesting() started.
+✔ Test test_ci_runsSwiftTesting() passed after 0.001 seconds.
+◇ Test test_appGroup_containerURL_isSharedBetweenTargets() started.
+✔ Test test_appGroup_containerURL_isSharedBetweenTargets() passed after 0.001 seconds.
+◇ Test test_packages_linkAndExposeEntryPoints() started.
+✔ Test test_packages_linkAndExposeEntryPoints() passed after 0.001 seconds.
+◇ Test test_panicIntent_setsLaunchFlag_inAppGroupDefaults() started.
+✔ Test test_panicIntent_setsLaunchFlag_inAppGroupDefaults() passed after 0.001 seconds.
+◇ Test test_sceneRoot_whenPanicFlagSet_buildsPanicPlaceholderNotTabs() started.
+✔ Test test_sceneRoot_whenPanicFlagSet_buildsPanicPlaceholderNotTabs() passed after 0.001 seconds.
+✔ Suite "Epic 0 · walking skeleton" passed after 0.001 seconds.
+◇ Suite "E6.2 · widget feed (the app half)" started.
+◇ Test test_widgetStateFile_afterMutatingWrite_carriesExactlyTheRuledKeySet() started.
+✔ Test test_widgetStateFile_afterMutatingWrite_carriesExactlyTheRuledKeySet() passed after 0.009 seconds.
+◇ Test test_widgetStateBytes_carryNoHabitLeak_norForbiddenKeyNames() started.
+✔ Test test_widgetStateBytes_carryNoHabitLeak_norForbiddenKeyNames() passed after 0.009 seconds.
+◇ Test test_widgetStateFile_discreetQuit_carriesDiscreetTrue_normalQuitOmitsIt() started.
+✔ Test test_widgetStateFile_discreetQuit_carriesDiscreetTrue_normalQuitOmitsIt() passed after 0.009 seconds.
+◇ Test test_widgetStreakStart_onUncorrectedRead_equalsStoredStartAt_subSecond() started.
+✔ Test test_widgetStreakStart_onUncorrectedRead_equalsStoredStartAt_subSecond() passed after 0.008 seconds.
+◇ Test test_createQuit_stampsStartTimeZoneIdentifier_atCreation() started.
+✔ Test test_createQuit_stampsStartTimeZoneIdentifier_atCreation() passed after 0.006 seconds.
+◇ Test test_createQuitFromProfile_stampsStartTimeZoneIdentifier_atCreation() started.
+✔ Test test_createQuitFromProfile_stampsStartTimeZoneIdentifier_atCreation() passed after 0.007 seconds.
+◇ Test test_launchPass_backfillsEmptyStartTimeZone_andNeverWritesEmptyToFeed() started.
+✔ Test test_launchPass_backfillsEmptyStartTimeZone_andNeverWritesEmptyToFeed() passed after 0.007 seconds.
+◇ Test test_widgetConfiguration_quitSelector_listsActiveQuitsOnly() started.
+✔ Test test_widgetConfiguration_quitSelector_listsActiveQuitsOnly() passed after 0.012 seconds.
+◇ Test test_erase_removesWidgetStateFile() started.
+✔ Test test_erase_removesWidgetStateFile() passed after 0.014 seconds.
+◇ Test test_erase_scopedToOwnedFiles_unrelatedWidgetSiblingSurvives() started.
+✔ Test test_erase_scopedToOwnedFiles_unrelatedWidgetSiblingSurvives() passed after 0.015 seconds.
+◇ Test test_launchRefresh_zeroActiveQuits_removesWidgetFile_panicFilePresentEmpty() started.
+✔ Test test_launchRefresh_zeroActiveQuits_removesWidgetFile_panicFilePresentEmpty() passed after 0.007 seconds.
+✔ Suite "E6.2 · widget feed (the app half)" passed after 0.108 seconds.
+◇ Suite "E7.3 · win-back copy + composition" started.
+◇ Test test_paywallCopy_winbackStrings_presentAndNonEmpty() started.
+✔ Test test_paywallCopy_winbackStrings_presentAndNonEmpty() passed after 0.001 seconds.
+◇ Test test_paywallComposed_winbackVariant_carriesOfferAndAllDisclosures() started.
+✔ Test test_paywallComposed_winbackVariant_carriesOfferAndAllDisclosures() passed after 0.001 seconds.
+◇ Test test_winbackMechanicsLine_carriesDiscountedAndRenewalPrice() started.
+✔ Test test_winbackMechanicsLine_carriesDiscountedAndRenewalPrice() passed after 0.001 seconds.
+◇ Test test_paywallComposed_nonWinbackSources_composeNoWinbackOffer() started.
+✔ Test test_paywallComposed_nonWinbackSources_composeNoWinbackOffer() passed after 0.001 seconds.
+◇ Test test_paywallComposed_winbackSource_composesNoTeaserEscape() started.
+✔ Test test_paywallComposed_winbackSource_composesNoTeaserEscape() passed after 0.001 seconds.
+✔ Suite "E7.3 · win-back copy + composition" passed after 0.001 seconds.
+◇ Suite "E7.3 · observed-lapse stamp repository wiring" started.
+◇ Test test_observeLapse_stampsLapseFromInjectedClock() started.
+✔ Test test_observeLapse_stampsLapseFromInjectedClock() passed after 0.006 seconds.
+◇ Test test_erase_wipesLapseStamp() started.
+✔ Test test_erase_wipesLapseStamp() passed after 0.015 seconds.
+✔ Suite "E7.3 · observed-lapse stamp repository wiring" passed after 0.022 seconds.
+◇ Suite "E7.3 · win-back eligibility policy" started.
+◇ Test test_winback_eligibility_trialLapsedPlus7Days() started.
+✔ Test test_winback_eligibility_trialLapsedPlus7Days() passed after 0.001 seconds.
+◇ Test test_winback_notShownToActiveOrNeverTrialed() started.
+✔ Test test_winback_notShownToActiveOrNeverTrialed() passed after 0.001 seconds.
+◇ Test test_winbackEligibility_boundaryIsInclusiveAtSevenDays() started.
+✔ Test test_winbackEligibility_boundaryIsInclusiveAtSevenDays() passed after 0.001 seconds.
+◇ Test test_winbackEligibility_lapsedProductTier() started.
+✔ Test test_winbackEligibility_lapsedProductTier() passed after 0.001 seconds.
+◇ Test test_winback_dormantNeverObservesLapse() started.
+✔ Test test_winback_dormantNeverObservesLapse() passed after 0.001 seconds.
+✔ Suite "E7.3 · win-back eligibility policy" passed after 0.001 seconds.
+◇ Suite "E7.3 · win-back re-entry routing" started.
+◇ Test test_reentry_winbackEligible_representsWinbackSource() started.
+✔ Test test_reentry_winbackEligible_representsWinbackSource() passed after 0.001 seconds.
+◇ Test test_reentry_teaserVsWinback_precedence() started.
+✔ Test test_reentry_teaserVsWinback_precedence() passed after 0.001 seconds.
+◇ Test test_reentry_winbackIneligible_fallsThroughToTeaserRules() started.
+✔ Test test_reentry_winbackIneligible_fallsThroughToTeaserRules() passed after 0.001 seconds.
+◇ Test test_dormant_neverSurfacesWinback() started.
+✔ Test test_dormant_neverSurfacesWinback() passed after 0.001 seconds.
+✔ Suite "E7.3 · win-back re-entry routing" passed after 0.001 seconds.
+◇ Suite "E7.3 · win-back wire" started.
+◇ Test test_winbackPurchase_firesPurchaseWinbackAnnual() started.
+✔ Test test_winbackPurchase_firesPurchaseWinbackAnnual() passed after 0.001 seconds.
+◇ Test test_winbackShown_firesBeforePaywallViewed_sourceWinback() started.
+✔ Test test_winbackShown_firesBeforePaywallViewed_sourceWinback() passed after 0.001 seconds.
+◇ Test test_winbackShown_optedOut_firesNothing() started.
+✔ Test test_winbackShown_optedOut_firesNothing() passed after 0.001 seconds.
+◇ Test test_winbackConverted_optedOut_firesNothing() started.
+✔ Test test_winbackConverted_optedOut_firesNothing() passed after 0.001 seconds.
+◇ Test test_winbackTrialCompletion_firesNothing() started.
+✔ Test test_winbackTrialCompletion_firesNothing() passed after 0.001 seconds.
+◇ Test test_winbackWireValueDomains_areFixed() started.
+✔ Test test_winbackWireValueDomains_areFixed() passed after 0.001 seconds.
+✔ Suite "E7.3 · win-back wire" passed after 0.005 seconds.
+✔ Test run with 421 tests in 66 suites passed after 2.854 seconds.
+2026-07-26 04:41:38.275 xcodebuild[13774:881862] [MT] IDETestOperationsObserverDebug: 5.385 elapsed -- Testing started completed.
+2026-07-26 04:41:38.275 xcodebuild[13774:881862] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-07-26 04:41:38.275 xcodebuild[13774:881862] [MT] IDETestOperationsObserverDebug: 5.385 sec, +5.385 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Results/unit.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Unhooked.xcodeproj -scheme Unhooked -destination id=0E9344F1-0F01-4A75-B819-05BBF8EC52E4 -derivedDataPath DerivedData "-only-testing:UnhookedSnapshotTests" -resultBundlePath Results/snapshot.xcresult CODE_SIGN_IDENTITY=-
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = -
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  StreakEngine: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/StreakEngine
+  swift-snapshot-testing: https://github.com/pointfreeco/swift-snapshot-testing @ 1.19.3
+  SuperwallKit: https://github.com/superwall/Superwall-iOS @ 4.16.1
+  WidgetToolkit: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/WidgetToolkit
+  TelemetryDeck: https://github.com/TelemetryDeck/SwiftSDK @ 2.14.1
+  RevenueCat: https://github.com/RevenueCat/purchases-ios @ 5.80.3
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.6.1
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.11.0
+  Superscript: https://github.com/superwall/superscript-ios-next @ 1.0.14
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 603.0.2
+  PaywallKit: /tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Packages/PaywallKit
+
+Writing result bundle at path:
+	/private/tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Results/snapshot.xcresult
+
+Test Suite 'All tests' started at 2026-07-26 04:41:42.785.
+Test Suite 'All tests' passed at 2026-07-26 04:41:42.785.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64-apple-ios13.0-simulator
+◇ Suite DashboardSnapshotTests started.
+◇ Test snapshot_dashboardCard_active() started.
+2026-07-26 04:41:42.926124+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+2026-07-26 04:41:42.926459+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bf800>.
+✔ Test snapshot_dashboardCard_active() passed after 0.135 seconds.
+2026-07-26 04:41:42.926688+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+◇ Test snapshot_dashboardCard_discreet() started.
+2026-07-26 04:41:42.926848+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc800>.
+✔ Test snapshot_dashboardCard_discreet() passed after 0.047 seconds.
+◇ Test snapshot_dashboardCard_frozen() started.
+2026-07-26 04:41:42.998817+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bf800>.
+2026-07-26 04:41:42.999095+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+2026-07-26 04:41:42.999406+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+✔ Test snapshot_dashboardCard_frozen() passed after 0.024 seconds.
+◇ Test snapshot_dashboardCard_reduce() started.
+✔ Test snapshot_dashboardCard_reduce() passed after 0.024 seconds.
+✔ Suite DashboardSnapshotTests passed after 0.234 seconds.
+◇ Suite PanicFlowSnapshotTests started.
+◇ Test snapshot_breathStep() started.
+2026-07-26 04:41:43.158389+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+✔ Test snapshot_breathStep() passed after 0.135 seconds.
+◇ Test snapshot_breathStep_hapticsOnly() started.
+2026-07-26 04:41:43.159135+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bfc00>.
+2026-07-26 04:41:43.159349+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc800>.
+2026-07-26 04:41:43.159498+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd400>.
+2026-07-26 04:41:43.159625+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be000>.
+✔ Test snapshot_breathStep_hapticsOnly() passed after 0.102 seconds.
+◇ Test snapshot_breathStep_discreet() started.
+2026-07-26 04:41:43.360384+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+2026-07-26 04:41:43.360618+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+2026-07-26 04:41:43.360771+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bcc00>.
+2026-07-26 04:41:43.360900+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd800>.
+✔ Test snapshot_breathStep_discreet() passed after 0.099 seconds.
+◇ Test snapshot_timerStep() started.
+2026-07-26 04:41:43.458984+0300 Unhooked[13862:882998] fopen failed for data file: errno = 2 (No such file or directory)
+2026-07-26 04:41:43.645491+0300 Unhooked[13862:883024] fopen failed for data file: errno = 2 (No such file or directory)
+⎙ Attached 'reference.png' to snapshot_timerStep().
+⎙ Attached 'failure.png' to snapshot_timerStep().
+⎙ Attached 'difference.png' to snapshot_timerStep().
+✘ Test snapshot_timerStep() recorded an issue at PanicFlowSnapshotTests.swift:116:26: Issue recorded
+↳ Snapshot "light-ax5" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_timerStep.light-ax5.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_timerStep.light-ax5.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.98017883 is less than required 0.99
+  The lowest perceptual color precision 0.013750017 is less than required 0.98
+⎙ Attached 'reference.png' to snapshot_timerStep().
+⎙ Attached 'failure.png' to snapshot_timerStep().
+⎙ Attached 'difference.png' to snapshot_timerStep().
+✘ Test snapshot_timerStep() recorded an issue at PanicFlowSnapshotTests.swift:116:26: Issue recorded
+↳ Snapshot "dark-ax5" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_timerStep.dark-ax5.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_timerStep.dark-ax5.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.97998047 is less than required 0.99
+  The lowest perceptual color precision 0.33375 is less than required 0.98
+2026-07-26 04:41:44.744497+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bdc00>.
+2026-07-26 04:41:44.744758+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be800>.
+2026-07-26 04:41:44.744912+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf400>.
+2026-07-26 04:41:44.745044+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bfc00>.
+✘ Test snapshot_timerStep() failed after 1.384 seconds with 2 issues.
+◇ Test snapshot_reasonsStep() started.
+⎙ Attached 'reference.png' to snapshot_reasonsStep().
+⎙ Attached 'failure.png' to snapshot_reasonsStep().
+⎙ Attached 'difference.png' to snapshot_reasonsStep().
+✘ Test snapshot_reasonsStep() recorded an issue at PanicFlowSnapshotTests.swift:124:26: Issue recorded
+↳ Snapshot "light" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_reasonsStep.light.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_reasonsStep.light.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.9893036 is less than required 0.99
+  The lowest perceptual color precision 0.013750017 is less than required 0.98
+⎙ Attached 'reference.png' to snapshot_reasonsStep().
+⎙ Attached 'failure.png' to snapshot_reasonsStep().
+⎙ Attached 'difference.png' to snapshot_reasonsStep().
+✘ Test snapshot_reasonsStep() recorded an issue at PanicFlowSnapshotTests.swift:124:26: Issue recorded
+↳ Snapshot "dark" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_reasonsStep.dark.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_reasonsStep.dark.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.989151 is less than required 0.99
+  The lowest perceptual color precision 0.33375 is less than required 0.98
+⎙ Attached 'reference.png' to snapshot_reasonsStep().
+⎙ Attached 'failure.png' to snapshot_reasonsStep().
+⎙ Attached 'difference.png' to snapshot_reasonsStep().
+✘ Test snapshot_reasonsStep() recorded an issue at PanicFlowSnapshotTests.swift:124:26: Issue recorded
+↳ Snapshot "light-ax5" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_reasonsStep.light-ax5.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_reasonsStep.light-ax5.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.9853363 is less than required 0.99
+  The lowest perceptual color precision 0.013750017 is less than required 0.98
+⎙ Attached 'reference.png' to snapshot_reasonsStep().
+⎙ Attached 'failure.png' to snapshot_reasonsStep().
+⎙ Attached 'difference.png' to snapshot_reasonsStep().
+✘ Test snapshot_reasonsStep() recorded an issue at PanicFlowSnapshotTests.swift:124:26: Issue recorded
+↳ Snapshot "dark-ax5" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_reasonsStep.dark-ax5.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_reasonsStep.dark-ax5.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.9851761 is less than required 0.99
+  The lowest perceptual color precision 0.33375 is less than required 0.98
+2026-07-26 04:41:46.465285+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bf800>.
+2026-07-26 04:41:46.465508+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bcc00>.
+2026-07-26 04:41:46.465639+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc400>.
+2026-07-26 04:41:46.465757+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf800>.
+2026-07-26 04:41:46.466252+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bfc00>.
+✘ Test snapshot_reasonsStep() failed after 1.719 seconds with 4 issues.
+◇ Test snapshot_reasonsStep_emptyFallback() started.
+2026-07-26 04:41:46.466431+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be800>.
+2026-07-26 04:41:46.466573+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd000>.
+2026-07-26 04:41:46.466693+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be000>.
+⎙ Attached 'reference.png' to snapshot_reasonsStep_emptyFallback().
+⎙ Attached 'failure.png' to snapshot_reasonsStep_emptyFallback().
+⎙ Attached 'difference.png' to snapshot_reasonsStep_emptyFallback().
+✘ Test snapshot_reasonsStep_emptyFallback() recorded an issue at PanicFlowSnapshotTests.swift:132:26: Issue recorded
+↳ Snapshot "light" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_reasonsStep_emptyFallback.light.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_reasonsStep_emptyFallback.light.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.94888306 is less than required 0.99
+  The lowest perceptual color precision 0.013750017 is less than required 0.98
+⎙ Attached 'reference.png' to snapshot_reasonsStep_emptyFallback().
+⎙ Attached 'failure.png' to snapshot_reasonsStep_emptyFallback().
+⎙ Attached 'difference.png' to snapshot_reasonsStep_emptyFallback().
+✘ Test snapshot_reasonsStep_emptyFallback() recorded an issue at PanicFlowSnapshotTests.swift:132:26: Issue recorded
+↳ Snapshot "dark" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_reasonsStep_emptyFallback.dark.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_reasonsStep_emptyFallback.dark.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.94821167 is less than required 0.99
+  The lowest perceptual color precision 0.33375 is less than required 0.98
+⎙ Attached 'reference.png' to snapshot_reasonsStep_emptyFallback().
+⎙ Attached 'failure.png' to snapshot_reasonsStep_emptyFallback().
+⎙ Attached 'difference.png' to snapshot_reasonsStep_emptyFallback().
+✘ Test snapshot_reasonsStep_emptyFallback() recorded an issue at PanicFlowSnapshotTests.swift:132:26: Issue recorded
+↳ Snapshot "light-ax5" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_reasonsStep_emptyFallback.light-ax5.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_reasonsStep_emptyFallback.light-ax5.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.9753876 is less than required 0.99
+  The lowest perceptual color precision 0.013750017 is less than required 0.98
+⎙ Attached 'reference.png' to snapshot_reasonsStep_emptyFallback().
+⎙ Attached 'failure.png' to snapshot_reasonsStep_emptyFallback().
+⎙ Attached 'difference.png' to snapshot_reasonsStep_emptyFallback().
+✘ Test snapshot_reasonsStep_emptyFallback() recorded an issue at PanicFlowSnapshotTests.swift:132:26: Issue recorded
+↳ Snapshot "dark-ax5" does not match reference.
+  
+  @−
+  "file:///tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Tests/Snapshot/__Snapshots__/PanicFlowSnapshotTests/snapshot_reasonsStep_emptyFallback.dark-ax5.png"
+  @+
+  "file:///Users/ae/Library/Developer/CoreSimulator/Devices/0E9344F1-0F01-4A75-B819-05BBF8EC52E4/data/Containers/Data/Application/E177AD35-DFCF-4785-BA37-849B09EB0957/tmp/PanicFlowSnapshotTests/snapshot_reasonsStep_emptyFallback.dark-ax5.png"
+  
+  To configure output for a custom diff tool, use 'withSnapshotTesting'. For example:
+  
+      withSnapshotTesting(diffTool: .ksdiff) {
+        // ...
+      }
+  
+  The percentage of pixels that match 0.97520447 is less than required 0.99
+  The lowest perceptual color precision 0.33375 is less than required 0.98
+✘ Test snapshot_reasonsStep_emptyFallback() failed after 1.706 seconds with 4 issues.
+◇ Test snapshot_redirectStep() started.
+2026-07-26 04:41:48.396945+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+2026-07-26 04:41:48.397171+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc400>.
+2026-07-26 04:41:48.397322+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd000>.
+2026-07-26 04:41:48.397439+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bdc00>.
+2026-07-26 04:41:48.397996+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be000>.
+✔ Test snapshot_redirectStep() passed after 0.225 seconds.
+◇ Test snapshot_exitsStep() started.
+2026-07-26 04:41:48.398174+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bec00>.
+2026-07-26 04:41:48.398327+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf800>.
+2026-07-26 04:41:48.398523+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bfc00>.
+✔ Test snapshot_exitsStep() passed after 0.097 seconds.
+◇ Test snapshot_exitsStep_discreet() started.
+2026-07-26 04:41:48.583210+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+2026-07-26 04:41:48.583471+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc400>.
+2026-07-26 04:41:48.583664+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd000>.
+2026-07-26 04:41:48.583806+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bdc00>.
+✔ Test snapshot_exitsStep_discreet() passed after 0.088 seconds.
+◇ Test snapshot_celebration() started.
+2026-07-26 04:41:48.683838+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be000>.
+2026-07-26 04:41:48.684083+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bec00>.
+2026-07-26 04:41:48.684267+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf800>.
+2026-07-26 04:41:48.684406+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bf800>.
+2026-07-26 04:41:48.684821+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd000>.
+✔ Test snapshot_celebration() passed after 0.100 seconds.
+✘ Suite PanicFlowSnapshotTests failed after 5.661 seconds with 10 issues.
+◇ Suite PrivacyOverlaySnapshotTests started.
+◇ Test snapshot_privacyOverlay() started.
+2026-07-26 04:41:48.684959+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+2026-07-26 04:41:48.685074+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf000>.
+2026-07-26 04:41:48.685201+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bf400>.
+✔ Test snapshot_privacyOverlay() passed after 0.037 seconds.
+✔ Suite PrivacyOverlaySnapshotTests passed after 0.037 seconds.
+◇ Suite ResourcesSnapshotTests started.
+◇ Test snapshot_resources_usRows() started.
+2026-07-26 04:41:48.789162+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+2026-07-26 04:41:48.789445+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bfc00>.
+2026-07-26 04:41:48.789971+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc400>.
+✔ Test snapshot_resources_usRows() passed after 0.066 seconds.
+✔ Suite ResourcesSnapshotTests passed after 0.067 seconds.
+◇ Suite SettingsSnapshotTests started.
+◇ Test snapshot_settings_resourcesRowOnly() started.
+2026-07-26 04:41:48.790191+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd000>.
+✔ Test snapshot_settings_resourcesRowOnly() passed after 0.133 seconds.
+✔ Suite SettingsSnapshotTests passed after 0.133 seconds.
+◇ Suite SlipFlowSnapshotTests started.
+◇ Test snapshot_confirmStage() started.
+2026-07-26 04:41:49.029555+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bcc00>.
+2026-07-26 04:41:49.029804+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+2026-07-26 04:41:49.030245+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bdc00>.
+✔ Test snapshot_confirmStage() passed after 0.106 seconds.
+◇ Test snapshot_confirmStage_retryNote() started.
+2026-07-26 04:41:49.030406+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be800>.
+2026-07-26 04:41:49.030536+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf400>.
+2026-07-26 04:41:49.030682+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bfc00>.
+✔ Test snapshot_confirmStage_retryNote() passed after 0.102 seconds.
+◇ Test snapshot_confirmStage_discreet() started.
+2026-07-26 04:41:49.231664+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+2026-07-26 04:41:49.231908+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf400>.
+2026-07-26 04:41:49.232053+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be400>.
+2026-07-26 04:41:49.232192+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+2026-07-26 04:41:49.232624+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc400>.
+✔ Test snapshot_confirmStage_discreet() passed after 0.099 seconds.
+◇ Test snapshot_loggedStage_bestAndMomentum() started.
+2026-07-26 04:41:49.232807+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd400>.
+2026-07-26 04:41:49.232940+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf800>.
+2026-07-26 04:41:49.233066+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x11dc60000>.
+✔ Test snapshot_loggedStage_bestAndMomentum() passed after 0.132 seconds.
+◇ Test snapshot_loggedStage_degradedNoBest() started.
+2026-07-26 04:41:49.480985+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd400>.
+2026-07-26 04:41:49.481271+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bdc00>.
+2026-07-26 04:41:49.481476+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be400>.
+2026-07-26 04:41:49.481646+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bfc00>.
+2026-07-26 04:41:49.482199+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+✔ Test snapshot_loggedStage_degradedNoBest() passed after 0.117 seconds.
+◇ Test snapshot_undoneStage() started.
+2026-07-26 04:41:49.482348+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bcc00>.
+2026-07-26 04:41:49.482512+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bcc00>.
+2026-07-26 04:41:49.482659+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x11dc60000>.
+✔ Test snapshot_undoneStage() passed after 0.090 seconds.
+✔ Suite SlipFlowSnapshotTests passed after 0.649 seconds.
+◇ Suite "Epic 0 · snapshot lane smoke" started.
+◇ Test snapshotLane_recordsAndComparesDeterministicValue() started.
+✔ Test snapshotLane_recordsAndComparesDeterministicValue() passed after 0.002 seconds.
+✔ Suite "Epic 0 · snapshot lane smoke" passed after 0.002 seconds.
+◇ Suite StreakWidgetSnapshotTests started.
+◇ Test snapshot_rectangularFamily() started.
+2026-07-26 04:41:49.576032+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+2026-07-26 04:41:49.576342+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf400>.
+2026-07-26 04:41:49.576496+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bdc00>.
+2026-07-26 04:41:49.576621+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bec00>.
+✔ Test snapshot_rectangularFamily() passed after 0.047 seconds.
+◇ Test snapshot_circularFamily() started.
+2026-07-26 04:41:50.025313+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd400>.
+2026-07-26 04:41:50.025566+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf400>.
+2026-07-26 04:41:50.025940+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+✔ Test snapshot_circularFamily() passed after 0.402 seconds.
+◇ Test snapshot_inlineFamily() started.
+2026-07-26 04:41:50.026124+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bcc00>.
+✔ Test snapshot_inlineFamily() passed after 0.006 seconds.
+◇ Test snapshot_smallFamily() started.
+2026-07-26 04:41:50.104289+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf000>.
+2026-07-26 04:41:50.104484+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bfc00>.
+2026-07-26 04:41:50.104747+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd800>.
+✔ Test snapshot_smallFamily() passed after 0.072 seconds.
+◇ Test snapshot_mediumFamily() started.
+2026-07-26 04:41:50.104939+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bec00>.
+2026-07-26 04:41:50.105074+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be400>.
+2026-07-26 04:41:50.105192+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf800>.
+✔ Test snapshot_mediumFamily() passed after 0.044 seconds.
+◇ Test snapshot_unavailableState() started.
+✔ Test snapshot_unavailableState() passed after 0.006 seconds.
+◇ Test snapshot_rectangularFamily_discreet() started.
+2026-07-26 04:41:50.166390+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc400>.
+2026-07-26 04:41:50.166561+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd000>.
+2026-07-26 04:41:50.166684+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd400>.
+2026-07-26 04:41:50.166800+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf400>.
+2026-07-26 04:41:50.167015+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+✔ Test snapshot_rectangularFamily_discreet() passed after 0.011 seconds.
+◇ Test snapshot_circularFamily_discreet() started.
+2026-07-26 04:41:50.565206+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bcc00>.
+2026-07-26 04:41:50.565440+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bfc00>.
+2026-07-26 04:41:50.565786+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1092bf400>.
+✔ Test snapshot_circularFamily_discreet() passed after 0.398 seconds.
+◇ Test snapshot_inlineFamily_discreet() started.
+2026-07-26 04:41:50.565968+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc000>.
+✔ Test snapshot_inlineFamily_discreet() passed after 0.005 seconds.
+◇ Test snapshot_smallFamily_discreet() started.
+2026-07-26 04:41:50.596181+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174be000>.
+2026-07-26 04:41:50.596360+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf000>.
+2026-07-26 04:41:50.596601+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bf400>.
+✔ Test snapshot_smallFamily_discreet() passed after 0.025 seconds.
+◇ Test snapshot_mediumFamily_discreet() started.
+2026-07-26 04:41:50.596721+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd400>.
+2026-07-26 04:41:50.596830+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bd000>.
+2026-07-26 04:41:50.596935+0300 Unhooked[13862:882962] Unbalanced calls to begin/end appearance transitions for <UIViewController: 0x1174bc400>.
+✔ Test snapshot_mediumFamily_discreet() passed after 0.032 seconds.
+✔ Suite StreakWidgetSnapshotTests passed after 1.053 seconds.
+✘ Test run with 35 tests in 8 suites failed after 7.840 seconds with 10 issues.
+2026-07-26 04:41:59.637 xcodebuild[13828:882647] [MT] IDETestOperationsObserverDebug: 18.836 elapsed -- Testing started completed.
+2026-07-26 04:41:59.637 xcodebuild[13828:882647] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-07-26 04:41:59.637 xcodebuild[13828:882647] [MT] IDETestOperationsObserverDebug: 18.836 sec, +18.836 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/claude-501/-Users-ae-repo/3e08674c-e5ec-4a98-b67c-569af6ae67c7/scratchpad/impl-ballast/Results/snapshot.xcresult
+
+Failing tests:
+	PanicFlowSnapshotTests.snapshot_timerStep()
+	PanicFlowSnapshotTests.snapshot_timerStep()
+	PanicFlowSnapshotTests.snapshot_reasonsStep()
+	PanicFlowSnapshotTests.snapshot_reasonsStep()
+	PanicFlowSnapshotTests.snapshot_reasonsStep()
+	PanicFlowSnapshotTests.snapshot_reasonsStep()
+	PanicFlowSnapshotTests.snapshot_reasonsStep_emptyFallback()
+	PanicFlowSnapshotTests.snapshot_reasonsStep_emptyFallback()
+	PanicFlowSnapshotTests.snapshot_reasonsStep_emptyFallback()
+	PanicFlowSnapshotTests.snapshot_reasonsStep_emptyFallback()
+
+** TEST EXECUTE FAILED **
+
+Testing started

@@ -27,6 +27,26 @@ enum DashboardCopy {
     /// `StreakWidgetStyle.shipping.milestoneLabel` (`Shared/Sources/StreakWidgetStyle.swift`).
     static let milestoneLabel = "next milestone"
 
+    /// QW-4 (redesign copy doc §6, verbatim) — the dashboard panic entry's label.
+    /// Byte-identical to the Control Center control's headline verb
+    /// (`PanicControlStyle` standard label) for cross-surface consistency;
+    /// pinned by `DashboardCopyTests`.
+    static let panicEntryLabel = "Panic"
+
+    /// QW-4 (copy doc §6, NEW row — verbatim) — the support line under the panic
+    /// label: what one tap buys, hedged ("About"), zero urgency.
+    static let panicEntrySupportLine = "One tap. About 90 seconds."
+
+    /// QW-4 (copy doc §6, verbatim) — the discreet twin: discretion changes
+    /// words, never availability. Byte-identical to the discreet control's
+    /// label (`PanicControlStyle`); pinned by `DashboardCopyTests`.
+    static let panicEntryDiscreetLabel = "Reset"
+
+    /// QW-4 (copy doc §6, verbatim) — the discreet support line. Byte-identical
+    /// to the panic script's discreet entry title ("Take a moment.") — one
+    /// phrase, both surfaces, same meaning.
+    static let panicEntryDiscreetSupportLine = "Take a moment."
+
     /// §3-BLOCKED. Concept string in brandkit §6#9: "streak paused — clock issue,
     /// it'll self-heal". Not in any audited `.swift`/`.json`. The card renders it only
     /// when non-empty; until the founder pass signs it, a frozen streak reads its

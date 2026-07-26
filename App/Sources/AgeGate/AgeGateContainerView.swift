@@ -37,6 +37,14 @@ struct AgeGateContainerView: View {
         .onChange(of: provider?.repository == nil) { _, _ in
             makeModelIfNeeded()
         }
+        // QW-2 — an in-session erase: the durable gate flag died with the store,
+        // so the in-session phase must die with it — drop the (possibly .passed)
+        // model and rebuild over the fresh store's truth. Lands on the fresh
+        // age gate, exactly like a relaunch (EraseUITests' relaunch pin).
+        .onChange(of: provider?.eraseGeneration ?? 0) { _, _ in
+            model = nil
+            makeModelIfNeeded()
+        }
     }
 
     @ViewBuilder private var content: some View {

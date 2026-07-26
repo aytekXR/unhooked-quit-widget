@@ -49,6 +49,33 @@ struct DiscreetSettingsCopy: Sendable {
     /// mode UNIVERSALLY (screen-off / eyes-closed breathing, for anyone), never
     /// as an accessibility accommodation. DRAFT/founder-owned → operator §3.
     let hapticPacerFooter: String
+    /// QW-2 (redesign copy doc §11) — the erase-everything settings row. Amber
+    /// (caution) label, per the no-red rule; the destructive dialog it opens is
+    /// the App Review / store-listing "one-tap erase" promise made real.
+    let eraseRowLabel: String
+    /// QW-2 — the erase dialog title (copy doc §11, verbatim).
+    let eraseConfirmTitle: String
+    /// QW-2 — the erase dialog body (copy doc §11, verbatim): the honest
+    /// manifest — icon reset stated because a surviving disguise would break the
+    /// erase promise; entitlement survival stated because losing paid access
+    /// would be a false fear.
+    let eraseConfirmBody: String
+    /// QW-2 — the hold-to-confirm action label (copy doc §11, verbatim).
+    let eraseConfirmActionLabel: String
+    /// QW-2 — the quiet cancel (copy doc §11, verbatim). Cancel is always the
+    /// easy path.
+    let eraseCancelLabel: String
+    /// QW-2 — the completion line (copy doc §11, verbatim), on the
+    /// crest-anchored confirmation frame. Shown once, never again.
+    let eraseCompletionBody: String
+    /// QW-2 — the completion frame's quiet door (adopts the copy system's
+    /// standing dismiss byte — §7 celebration / §9 milestone "Done").
+    /// DRAFT/founder-owned → operator §3.
+    let eraseCompletionDismissLabel: String
+    /// QW-2 — the VoiceOver hint on the standard double-activation alternative
+    /// to the 600ms hold (redesign §8: "an explicit hint"). Factual, no urgency.
+    /// DRAFT/founder-owned → operator §3.
+    let eraseAssistiveHint: String
 
     static let shipping = DiscreetSettingsCopy(
         screenTitle: "Discreet Mode",
@@ -62,6 +89,14 @@ struct DiscreetSettingsCopy: Sendable {
         winbackRowLabel: "See your plan options",
         resourcesRowLabel: "Support & resources",
         hapticPacerRowLabel: "Breathe with taps",
-        hapticPacerFooter: "The breathing exercise guides you with gentle taps, so you can follow it with the screen off or your eyes closed."
+        hapticPacerFooter: "The breathing exercise guides you with gentle taps, so you can follow it with the screen off or your eyes closed.",
+        eraseRowLabel: "Erase everything",
+        eraseConfirmTitle: "Erase everything?",
+        eraseConfirmBody: "This deletes every streak, note, answer, and setting, resets your app icon, and returns Ballast to a fresh install. There's no copy anywhere else — once it's gone, it's gone. If you have a subscription, it stays with your Apple Account.",
+        eraseConfirmActionLabel: "Erase everything",
+        eraseCancelLabel: "Keep my data",
+        eraseCompletionBody: "Everything's gone. This app is now exactly as it was before you opened it.",
+        eraseCompletionDismissLabel: "Done",
+        eraseAssistiveHint: "Erases everything right away."
     )
 }

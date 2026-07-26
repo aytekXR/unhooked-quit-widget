@@ -205,8 +205,17 @@ struct RootPlaceholderView: View {
         warmPanic = resolved
     }
 
+    /// QW-4 (redesign §5.3/§6.7) — the in-app panic entry finally gets its visual
+    /// priority: the full `PrimaryButtonStyle` treatment (Harbor Teal capsule fill,
+    /// Foam glyph + label, ≥56pt target via growing padding), visually unmistakable
+    /// from the admin rows around it. Discreet twin ("Reset" / "Take a moment.",
+    /// `arrow.counterclockwise`) when ANY active quit is discreet — the shield's
+    /// own signal; discretion changes words, never availability, and the button
+    /// never renders disabled. Copy bytes from the audited `DashboardCopy` table
+    /// (copy doc §6, verbatim).
     private var panicEntry: some View {
-        Button {
+        let discreet = provider?.discreetAnyActive == true
+        return Button {
             // ONE pre-cache read (ADR-6 — the store never opens here even when warm):
             // the resolver and the eyes-free pacer bool both ride it.
             let snapshot = PanicSnapshotStore.appGroup()?.read()
@@ -215,20 +224,26 @@ struct RootPlaceholderView: View {
                 hapticsOnlyPacer: snapshot?.hapticOnlyBreathPacer ?? false
             )
         } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "wind")
-                    .accessibilityHidden(true)
-                Text("Panic")
-                    .font(.body.weight(.semibold))
-                Spacer()
+            VStack(spacing: Theme.space.s1) {
+                HStack(spacing: Theme.space.s3) {
+                    Image(systemName: discreet ? "arrow.counterclockwise" : "wind")
+                        .font(.body.weight(.semibold))
+                        .accessibilityHidden(true)
+                    Text(discreet ? DashboardCopy.panicEntryDiscreetLabel : DashboardCopy.panicEntryLabel)
+                        .font(.body.weight(.semibold))
+                }
+                Text(discreet ? DashboardCopy.panicEntryDiscreetSupportLine : DashboardCopy.panicEntrySupportLine)
+                    .font(.footnote)
+                    .multilineTextAlignment(.center)
             }
-            .foregroundStyle(Theme.color.brandPrimary.color)
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity, minHeight: 56)
-            .background(Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint), in: RoundedRectangle(cornerRadius: 14))
-            .contentShape(Rectangle())
+            // R33.5: the 56pt-plus panic target rides PADDING, never a height
+            // floor — the capsule grows with the text at accessibility sizes.
+            .padding(.vertical, Theme.space.s4)
+            .padding(.horizontal, Theme.space.s5)
+            .frame(maxWidth: .infinity)
+            .contentShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PrimaryButtonStyle())
         .accessibilityIdentifier("root.panicEntry")
         .sheet(item: $inAppPanic) { item in
             PanicPlaceholderView(presentation: item.presentation, source: InAppPanicEntry.source, hapticsOnlyPacer: item.hapticsOnlyPacer)
@@ -338,7 +353,11 @@ struct RootPlaceholderView: View {
         .sheet(isPresented: $showsDiscreetSettings) {
             DiscreetSettingsView(
                 onWinbackRowTap: onWinbackRowTap,
-                onResourcesRowTap: { resources = ResourcesPresentation(source: .settings) }
+                onResourcesRowTap: { resources = ResourcesPresentation(source: .settings) },
+                // QW-2 — the completion frame's door: restart the normal root
+                // over the fresh (empty) store. This subtree — and both sheets
+                // riding it — unmounts, and the fresh age gate stands.
+                onErased: { provider?.restartAfterErase() }
             )
         }
     }

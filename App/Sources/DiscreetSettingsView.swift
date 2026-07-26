@@ -26,6 +26,13 @@ struct DiscreetSettingsView: View {
     /// tap away (an MVP §7 release-gate row), never eligibility- or
     /// entitlement-gated (unlike the winback row).
     var onResourcesRowTap: (() -> Void)? = nil
+    /// QW-2 — the erase confirm sheet (mounted over this sheet; the completion
+    /// frame's door hands off to `onErased`).
+    @State private var showsErase = false
+    /// QW-2 — the post-erase hand-off: the host restarts the normal root over
+    /// the fresh (empty) store, landing on the fresh age gate. nil hides the
+    /// erase row — a host that cannot restart must not offer the erase.
+    var onErased: (() -> Void)? = nil
 
     private let copy = DiscreetSettingsCopy.shipping
     private let slipCopy = SlipCopy.loadShipping() ?? .degraded
@@ -41,6 +48,9 @@ struct DiscreetSettingsView: View {
                     winbackRow(repository)
                 }
                 resourcesRow()
+                if provider?.repository != nil, onErased != nil {
+                    eraseRow()
+                }
             }
             // UIR-4b: the List's system-grouped chrome moves onto the Theme layer WITHOUT
             // abandoning List (its native cell accessibility is kept). The scroll's system
@@ -60,6 +70,26 @@ struct DiscreetSettingsView: View {
             // (move long footers out of the `footer:` slot into scalable in-content rows). Enumerate
             // ALL findings from ONE audit run before fixing; then re-record the 2 settings goldens.
             .navigationTitle(copy.screenTitle)
+            // QW-2 — the erase confirm sheet (over this sheet). Composed here,
+            // at the screen level: `EraseFlow` gets the repository's data erase
+            // and the switcher's erase-path icon reset (R22.4 — best-effort,
+            // AFTER the data erase, never a persist).
+            .sheet(isPresented: $showsErase) {
+                if let repository = provider?.repository {
+                    let switcher = provider?.appIconSwitcher
+                    EraseEverythingView(
+                        flow: EraseFlow(
+                            erase: { try await repository.eraseEverything() },
+                            applyIcon: { _ in try await switcher?.resetToPrimary() }
+                        ),
+                        onErased: {
+                            // The host restarts the root onto the fresh age
+                            // gate; both sheets fall with this subtree.
+                            onErased?()
+                        }
+                    )
+                }
+            }
         }
     }
 
@@ -108,6 +138,25 @@ struct DiscreetSettingsView: View {
             }
             .listRowBackground(Theme.color.surfaceRaised.color)
         }
+    }
+
+    /// QW-2 — the erase-everything row (redesign §5.8): amber label + trash
+    /// glyph (the sanctioned erase vocabulary — §9.5 "trash paired with amber
+    /// copy"), store-gated like every mutating row. Opens the hold-to-confirm
+    /// sheet over `EraseFlow` — this row never calls the repository directly.
+    @ViewBuilder
+    private func eraseRow() -> some View {
+        Section {
+            Button {
+                showsErase = true
+            } label: {
+                Label(copy.eraseRowLabel, systemImage: "trash")
+                    .foregroundStyle(Theme.color.caution.color)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("settings.erase.row")
+        }
+        .listRowBackground(Theme.color.surfaceRaised.color)
     }
 
     @ViewBuilder

@@ -21,6 +21,24 @@ struct DashboardCopyTests {
         #expect(DashboardCopy.milestoneLabel == "next milestone")
     }
 
+    /// QW-4 — the panic entry's label pair stays byte-identical to the Control
+    /// Center control pair (`PanicControlStyle`): "Panic"/"Reset" is ONE
+    /// cross-surface vocabulary (copy doc §6), and a future edit to either
+    /// surface must be a deliberate two-place change, never a silent divergence.
+    @Test func test_panicEntryLabels_areByteIdenticalToPanicControlStyle() {
+        #expect(DashboardCopy.panicEntryLabel == PanicControlStyle.standard.title)
+        #expect(DashboardCopy.panicEntryLabel == "Panic")
+        #expect(DashboardCopy.panicEntryDiscreetLabel == PanicControlStyle.discreet.title)
+        #expect(DashboardCopy.panicEntryDiscreetLabel == "Reset")
+    }
+
+    /// QW-4 — the support lines carry the copy doc §6 bytes verbatim: hedged
+    /// ("About"), urgency-free, and the discreet line habit-context-free.
+    @Test func test_panicEntrySupportLines_carryTheSignedBytes() {
+        #expect(DashboardCopy.panicEntrySupportLine == "One tap. About 90 seconds.")
+        #expect(DashboardCopy.panicEntryDiscreetSupportLine == "Take a moment.")
+    }
+
     /// Every §3-blocked slot must be empty pre-pass. A non-empty value here means a new
     /// user-facing string reached the dashboard without the operator's §3 sign-off — the
     /// exact thing UIR is forbidden from doing. The view guards each with a non-empty

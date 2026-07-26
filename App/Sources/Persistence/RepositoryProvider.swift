@@ -165,6 +165,34 @@ final class RepositoryProvider {
         }
     }
 
+    /// QW-2 — bumped once per completed erase; the age-gate container observes it
+    /// to drop its in-session gate phase so the fresh age gate mounts immediately.
+    private(set) var eraseGeneration = 0
+
+    /// QW-2 (redesign §5.8) — the in-session return to a fresh install after
+    /// `EraseFlow.run()`: the erased repository and its container are dead by
+    /// design (`QuitRepository.eraseEverything` contract), so every published
+    /// handle drops and the deferred start re-runs over a brand-new, EMPTY store
+    /// — the same path a relaunch takes, without requiring one. Normal route
+    /// only (the panic route never mounts settings, let alone erase).
+    ///
+    /// Live-key note: on a build with an operator RC key, the re-run calls
+    /// `Purchases.configure` a second time in-process (RC tolerates and logs).
+    /// Dormant builds — every build until the operator pastes keys — never
+    /// enter that branch.
+    func restartAfterErase() {
+        repository = nil
+        // Tri-state back to nil ⇒ the shield covers until the fresh store
+        // publishes (fail-toward-privacy, R22.5).
+        discreetAnyActive = nil
+        appIconSwitcher = nil
+        entitlementModel = nil
+        paywallAssigner = nil
+        started = false
+        eraseGeneration += 1
+        startIfNeeded(for: .placeholderTabs)
+    }
+
     /// E6.3 — re-reads the discreet-any signal after a toggle (the settings screen
     /// calls this beside `setDiscreetMode`; erase paths recompute on next launch).
     func refreshDiscreetSignal() {
