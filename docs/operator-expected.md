@@ -4,7 +4,7 @@
 |---|---|
 | Status | LIVE — **only OPEN items are listed here** (Session 47, 2026-07-26). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
 | What changed since you last read this (Session 48B) | **Monetization went LIVE and it needed nothing further from you.** The RevenueCat key you pasted is wired; the RC project now carries the App Store app, entitlement `premium`, all three products, an offering, and the **In-App Purchase Key** (the piece that authorizes the signed 50%-off win-back). In App Store Connect the subscription group, all three products, both 3-day trials, the `winback_annual` offer, localizations, review screenshots and prices across **175 territories** are in — **all three products now report READY_TO_SUBMIT**. Two things were fixed on the way: **R46.2** (`EntitlementModel` was never refreshed after purchase/restore or on foreground, so a user who had JUST subscribed kept being offered the half-price win-back), and the **E0.3 harness, which could never have run on a device at all** (a missing test-target bundle id failed the build before any test executed — see §1, which now carries real numbers). **What this unblocks for you: the sandbox purchase matrix**, §8's first checkbox and Epic 7's operator half — it is also the only test that proves the R46.2 fix. Nothing in §0 changed; that decision still gates all agent work. |
-| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **The §3 copy pass is CLOSED** (Session 46B: every copy table read with you end-to-end, ~20 decisions made, 18 string edits + 5 code changes landed, 12 goldens re-recorded, 404 unit / 35 snapshot / 121 free-lane green). The critical path's step 1 is DONE and **the final golden batch is unblocked.** Three findings from it are worth your eye even though they are already fixed: **ALO 182 is a hospital-appointment line, not a crisis line** — §3 had been telling you to mark it verified, which would have shipped a life-safety defect; the **alcohol withdrawal notice was unreachable** for any alcohol user who hit the hard paywall and did not convert; and the paywall's **Terms/Privacy were dead labels** (now real links — but the two pages still need publishing, and that is on you). **The next longest-lead items are the clinician + counsel sign-off and the §8 keys — plus the §0 decision at the top, which is the only thing blocking agent work.** |
+| Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **The §3 copy pass is CLOSED** (Session 46B: every copy table read with you end-to-end, ~20 decisions made, 18 string edits + 5 code changes landed, 12 goldens re-recorded, 404 unit / 35 snapshot / 121 free-lane green). The critical path's step 1 is DONE and **the final golden batch is unblocked.** Three findings from it are worth your eye even though they are already fixed: **ALO 182 is a hospital-appointment line, not a crisis line** — §3 had been telling you to mark it verified, which would have shipped a life-safety defect; the **alcohol withdrawal notice was unreachable** for any alcohol user who hit the hard paywall and did not convert; and the paywall's **Terms/Privacy were dead labels** (now real links — but the two pages still need publishing, and that is on you). **The §8 keys are DONE as of Session 48B — monetization is live end-to-end.** The next longest-lead items are now the clinician + counsel sign-off, the two legal pages, and G0 trademark clearance — all three run on someone else's clock, so start them first. The §0 decision at the top remains the only thing blocking agent work. |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
 ---
@@ -195,9 +195,10 @@ the 10/10 evidence MVP §7 asks for.
 ## 7. Physical device matrix (E3.3 + the carried device rows) — YOUR half of acceptance
 
 > **Recommended: do everything here as ONE consolidated sitting (~1 hour) on today's build** — it clears the
-> E3.3 matrix + the widget/discreet rows + §2's funnel try + the E0.3 latency measurement + the eyeball checks
-> below. The SECOND physical sitting (the §8 sandbox purchase matrix + the payload audit) waits for your §8
-> keys — sequenced, not now. For seeded quits, run from Xcode with scheme env `UITEST_SEED_PANIC_SNAPSHOT=1`.
+> E3.3 matrix + the widget/discreet rows + §2's funnel try + the E0.3 measurement (§1 has the procedure and
+> the tooling is installed) + the eyeball checks below. **The SECOND sitting no longer waits on anything:**
+> the §8 keys are all in, so the sandbox purchase matrix is live work (see §8 for where the first attempt
+> got to). The payload audit still waits on the TelemetryDeck app ID. For seeded quits, run from Xcode with scheme env `UITEST_SEED_PANIC_SNAPSHOT=1`.
 
 **The eyeball checks (each a screenshot can't verify):**
 
@@ -208,7 +209,9 @@ the 10/10 evidence MVP §7 asks for.
       slip log — every control announces a sensible name (the slider says its WORDS; the icon picker says which is
       selected).
 - [ ] **Safety layer (~2 min):** Settings → "Support & resources" → your region's verified lines (US: 988 first,
-      then SAMHSA/quitline/NAMI; TR: 112 + 171 + 115 — 182 hidden until your ALO-182 check flips its flag); tap a
+      then SAMHSA/quitline/NAMI; TR: 112 + 171 + 115 — **182 is gone for good, and that is correct**: S46 established
+      against the Ministry of Health's own page that ALO 182 is the MHRS hospital-APPOINTMENT line, not a
+      crisis line, so its row stays permanently `verified: false` and can never render); tap a
       number row and confirm the dial sheet shows the number verbatim. Log a slip → the forgiveness screen carries
       the same link. With an alcohol quit (or a reduce goal for one), the amber "One thing worth knowing" card
       appears ONCE — "Got it" dismisses forever, "See resources" opens the same screen.
@@ -283,14 +286,42 @@ the 10/10 evidence MVP §7 asks for.
       TestFlight upload. Search your ASC/developer email for **"ITMS-9105"**. Nothing there ⇒ closed permanently,
       delete this line. If a warning IS there, paste it and an agent lands the named category + reason code in one
       run (a two-line XML edit plus its `PrivacyManifestTests` pin).
+- [ ] **⚠️ AGENT FIX WAITING ON YOUR WORD — the paywall shows the WRONG PRICE outside the US
+      (found S48B by your own observation).** `PaywallPresentation.swift:96-98` binds the price lines to
+      `ProductCatalog.monthlyDisplayPrice` / `annualControlDisplayPrice` — the hardcoded strings `"$6.99"`
+      and `"$29.99"`. There is no live-StoreKit path at all; the file's own comment admits the intent
+      ("the live operator-keyed path **may later** upgrade the lines to localized StoreKit display
+      prices") and that later never came. You caught it on the device: the paywall said **$29.99** while
+      Apple's purchase sheet said the real local price. We have now priced all **175 territories**, so
+      **174 of them see a price that is not what they will be charged** — a trust problem and a
+      guideline-3.1.2 exposure (the price must be displayed accurately). The fix is an agent job (read
+      `StoreProduct.localizedPriceString` from the fetched offering, fall back to the static constants
+      when dormant/offline, which is what the constants were always for). It is NOT blocked by §0 — no
+      paywall goldens exist yet. **Say the word and it lands in one run.**
 - [ ] **THE SANDBOX PURCHASE MATRIX — now unblocked, and it is Epic 7's operator half.** ASC →
       Users and Access → **Sandbox** → create a test account; on the device Settings → Developer
       → **Sandbox Apple Account** → sign in. Then run: trial start · trial→paid · monthly ·
       restore · reinstall · cancellation · **the on-update regression** (the Quittr-scandal row:
       an existing subscriber must not lose entitlement across an app update). This is also **the
       only test that proves the S48 R46.2 fix** — after a sandbox purchase the win-back settings
-      row must disappear immediately, without a relaunch. Note ASC products can take 15–30 min to
-      propagate to sandbox; "product not found" right after creation is expected, not a defect.
+      row must disappear immediately, without a relaunch.
+      **WHERE THE FIRST ATTEMPT GOT TO (S48B — read this before you retry, it will save you an hour):**
+      the sandbox account signs in fine and Apple's purchase sheet OPENS and shows the correct USD price,
+      so StoreKit resolves the products and the account is right. The purchase then fails with the app's
+      generic banner. A 4-agent diagnosis ruled out, against source: an active StoreKit config in the
+      scheme, bundle-id or SKU mismatch, the win-back path being taken by mistake, observer mode, and
+      entitlement/signing causes. The most likely remaining cause is **Apple-side propagation** — the
+      products were created ~1 h before the test, and RevenueCat's API still reports
+      `duration: null` on all three (RC populates that field from Apple's product metadata, and RC's own
+      template products in the same project carry `duration: "P1M"`), which is the fingerprint of Apple
+      not yet serving them. Retry ~24 h after creation. **Second, unrelated cause worth eliminating
+      first because it is a one-click check:** in the RevenueCat dashboard confirm the `default` offering
+      carries the **Current** badge (the API reported `is_current: true` in S48B, so this is very likely
+      already fine).
+      **⚠️ The real error is currently invisible** — `RevenueCatEntitlementSource.swift:112` and `:124`
+      both collapse every cause into `return .failed`, so "product not found" and "validation failed"
+      look identical. An agent can add two `os_log` lines there so your next attempt reports its own
+      cause with no USB, no Console.app and no `sudo`. **Worth doing before you retry.**
 - [ ] **Open `App/Resources/Ballast.storekit` in Xcode 26 once (~5 min, any Mac sitting):** it was hand-authored
       on Linux against Apple's documented structure; a one-time open-and-save validates/normalizes it (and the
       `adHocOffers` win-back entry). Same sitting: run with launch env `UITEST_PAYWALL=1` to eyeball the paywall.
