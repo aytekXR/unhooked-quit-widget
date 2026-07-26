@@ -50,6 +50,8 @@ struct RootPlaceholderView: View {
     /// row injects `.settings`; the alcohol notice's hand-off injects nil (the
     /// out-of-domain open fires nothing, R27.4).
     @State private var resources: ResourcesPresentation?
+    /// P2 (redesign §6.7) — the pushed Streak Detail's selection (nil = Home).
+    @State private var detailQuitID: UUID?
 
     /// E4.2: every slip string this surface renders comes from the ONE audited table
     /// (implementation-plan §E4.2), never a view-inline literal — byte-identical to
@@ -62,38 +64,55 @@ struct RootPlaceholderView: View {
         ?? SafetyCopy.AlcoholNotice.degraded
 
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView(.vertical) {
-                VStack(spacing: Theme.space.s4) {
-                    dashboardSection
-                    if let repository = provider?.repository {
-                        if showsAlcoholNotice {
-                            AlcoholNoticeCard(slot: AlcoholNoticeSlot(
-                                copy: noticeCopy,
-                                onDismiss: { showsAlcoholNotice = false },
-                                onSeeResources: { resources = ResourcesPresentation(source: nil) }
-                            ))
+        // P2 (redesign §4/§6.7) — the Home shell: a NavigationStack root with a
+        // real title ("Today" — habit-neutral, shoulder-safe, disguise-safe; one
+        // title for every state) and the single gearshape toolbar entry. INLINE
+        // title on purpose: the large-title style is the settings screen's open
+        // AX5 audit defect, and this shell must not inherit it.
+        NavigationStack {
+            VStack(spacing: 0) {
+                ScrollView(.vertical) {
+                    VStack(spacing: Theme.space.s4) {
+                        dashboardSection
+                        if let repository = provider?.repository {
+                            if showsAlcoholNotice {
+                                AlcoholNoticeCard(slot: AlcoholNoticeSlot(
+                                    copy: noticeCopy,
+                                    onDismiss: { showsAlcoholNotice = false },
+                                    onSeeResources: { resources = ResourcesPresentation(source: nil) }
+                                ))
+                            }
+                            storeSlipSurface(repository)
+                                .onAppear { considerAlcoholNotice(repository) }
                         }
-                        storeSlipSurface(repository)
-                            .onAppear { considerAlcoholNotice(repository) }
-                        settingsEntry
                     }
+                    .frame(maxWidth: Theme.layout.contentMaxWidth) // brandkit §5 one-column measure
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, Theme.space.s5)
+                    .padding(.top, Theme.space.s4)
+                    .padding(.bottom, Theme.space.s2)
                 }
-                .frame(maxWidth: Theme.layout.contentMaxWidth) // brandkit §5 one-column measure
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, Theme.space.s5)
-                .padding(.top, Theme.space.s4)
-                .padding(.bottom, Theme.space.s2)
+                .scrollBounceBehavior(.basedOnSize)
+                // R33.5 / brandkit §5 one-hand rule: the panic action is PINNED (never scrolls
+                // away) in the lower reach; the dashboard content scrolls above it, so a card's
+                // text can always grow at accessibility sizes without pushing help off-screen.
+                panicEntry
+                    .padding(.horizontal, Theme.space.s5)
+                    .padding(.bottom, Theme.space.s4)
             }
-            .scrollBounceBehavior(.basedOnSize)
-            // R33.5 / brandkit §5 one-hand rule: the panic action is PINNED (never scrolls
-            // away) in the lower reach; the dashboard content scrolls above it, so a card's
-            // text can always grow at accessibility sizes without pushing help off-screen.
-            panicEntry
-                .padding(.horizontal, Theme.space.s5)
-                .padding(.bottom, Theme.space.s4)
+            .themedScreenSurface() // UIR-0: surface/base behind the dashboard
+            .navigationTitle(DashboardCopy.screenTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { settingsToolbarButton }
+            }
+            // P2 (§6.7 → §6.17): a card tap pushes the quit's Streak Detail —
+            // the model is composed from store truth AT push time, so the
+            // detail always reads current numbers.
+            .navigationDestination(item: $detailQuitID) { quitID in
+                streakDetail(for: quitID)
+            }
         }
-        .themedScreenSurface() // UIR-0: surface/base behind the dashboard
         .sheet(item: $resources) { presented in
             SafetyResourcesView(
                 source: presented.source,
@@ -154,16 +173,74 @@ struct RootPlaceholderView: View {
             ForEach(quits, id: \.id) { quit in
                 let value = (try? provider?.repository?.streakValue(for: quit.id))
                     ?? StreakValue(elapsedSeconds: 0, moneySaved: 0, momentum: 1.0)
-                StreakDashboardCard(
-                    model: cardModel(quit: quit, value: value),
-                    accessibilityID: "dashboard.card.\(quit.id.uuidString)",
-                    // UIR-5c: the LIVE dashboard opts the ring into its motion/calm appear
-                    // animation (snapshots + the audit mount keep the default settled ring).
-                    animateRing: true
-                )
+                // P2 (§6.7): the card is finally TAPPABLE → Streak Detail. The
+                // press rides the card's whole surface; the card keeps its own
+                // a11y identity (`dashboard.card.<uuid>`) as a descendant, so
+                // the CI anchors hold.
+                Button {
+                    detailQuitID = quit.id
+                } label: {
+                    StreakDashboardCard(
+                        model: cardModel(quit: quit, value: value),
+                        accessibilityID: "dashboard.card.\(quit.id.uuidString)",
+                        // UIR-5c: the LIVE dashboard opts the ring into its motion/calm appear
+                        // animation (snapshots + the audit mount keep the default settled ring).
+                        animateRing: true
+                    )
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("dashboard.cardLink.\(quit.id.uuidString)")
             }
         }
         .id(refreshToken)
+    }
+
+    /// P2 (§6.17) — the pushed detail, composed from store truth at push time.
+    /// A vanished quit (erase raced the push) renders the calm base surface —
+    /// never a dead end, and the back affordance stands.
+    @ViewBuilder private func streakDetail(for quitID: UUID) -> some View {
+        if let repository = provider?.repository,
+           let quit = ((try? repository.activeQuits()) ?? []).first(where: { $0.id == quitID }) {
+            let value = (try? repository.streakValue(for: quit.id))
+                ?? StreakValue(elapsedSeconds: 0, moneySaved: 0, momentum: 1.0)
+            StreakDetailView(
+                model: StreakDetailModel(
+                    title: rowLabel(quit),
+                    dayNumber: DashboardCardComposer.calendarDayNumber(
+                        startAt: quit.startAt,
+                        timeZoneIdentifier: quit.startTimeZoneIdentifier,
+                        now: LiveClock().now
+                    ),
+                    moneySaved: value.moneySaved,
+                    currencyCode: quit.currencyCode,
+                    momentumFraction: value.momentum,
+                    avertedUrgeCount: quit.avertedUrgeCount,
+                    isDiscreet: quit.discreetMode,
+                    isFrozen: value.clockSanity == .clockRolledBack,
+                    isReduceMode: quit.goalMode == .reduce,
+                    milestones: StreakDetailComposer.milestoneRows(
+                        elapsedSeconds: value.elapsedSeconds,
+                        milestones: MilestoneCatalog.shipping.milestones(for: quit.habitCategory)
+                    ),
+                    notes: quit.discreetMode
+                        ? []
+                        : ((try? repository.reflectionNotes(for: quit.id)) ?? [])
+                ),
+                onLogSlip: {
+                    presentation = SlipPresentation(
+                        model: SlipFlowModel(
+                            route: .store(repository: repository, quitID: quit.id),
+                            copy: slipCopy,
+                            clock: LiveClock()
+                        )
+                    )
+                },
+                animateHeader: true // the quiet settle, live pushes only (§11)
+            )
+        } else {
+            Color.clear.themedScreenSurface()
+        }
     }
 
     /// Maps persisted truth (`Quit`) + the live streak readout (`StreakValue`) onto the
@@ -186,7 +263,8 @@ struct RootPlaceholderView: View {
             ),
             isDiscreet: quit.discreetMode,
             isReduceMode: quit.goalMode == .reduce,
-            isFrozen: value.clockSanity == .clockRolledBack
+            isFrozen: value.clockSanity == .clockRolledBack,
+            avertedCount: quit.avertedUrgeCount // P2/QW-5 — the quiet-pride stat
         )
     }
 
@@ -340,29 +418,22 @@ struct RootPlaceholderView: View {
         showsAlcoholNotice = true
     }
 
-    /// E6.3 — the discreet-settings entry point (R22.7: a graft like the slip
-    /// surface, store-gated because both its halves persist through the repository).
-    /// Neutral secondary chrome — settings is not a call to action. The sheet
-    /// inherits the environment, and the app-switcher shield covers it like every
-    /// sheet (it is a separate high-level window).
-    private var settingsEntry: some View {
+    /// P2 (redesign §6.7) — the settings entry moves to the shell's single
+    /// gearshape toolbar item (admin out-ranks nothing on this screen —
+    /// help > progress > admin). The CI-load-bearing identity and the a11y
+    /// label ride along unchanged; the sheet mount rides the button exactly as
+    /// the old row's did (E6.3 semantics untouched).
+    private var settingsToolbarButton: some View {
         Button {
             showsDiscreetSettings = true
         } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "gearshape")
-                    .accessibilityHidden(true)
-                Text(DiscreetSettingsCopy.shipping.screenTitle)
-                    .font(.body.weight(.medium))
-                Spacer()
-            }
-            .foregroundStyle(Theme.color.contentSecondary.color)
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity, minHeight: 56)
-            .background(Theme.color.surfaceSunken.color, in: RoundedRectangle(cornerRadius: 14))
-            .contentShape(Rectangle())
+            Image(systemName: "gearshape")
+                // 44pt target via padding (R33.5 — never a height floor).
+                .padding(Theme.space.s3)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .foregroundStyle(Theme.color.contentSecondary.color)
         .accessibilityLabel(DiscreetSettingsCopy.shipping.settingsEntryAccessibilityLabel)
         .accessibilityIdentifier("root.settingsEntry")
         .sheet(isPresented: $showsDiscreetSettings) {

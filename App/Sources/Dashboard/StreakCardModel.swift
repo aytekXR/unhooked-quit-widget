@@ -29,6 +29,11 @@ struct StreakCardModel: Equatable, Sendable {
     /// (`StreakValue.clockSanity == .clockRolledBack`): the numbers are still valid, the
     /// ring goes neutral, and there is no ticking. Not a problem state.
     let isFrozen: Bool
+    /// P2 (redesign §6.7 / QW-5) — the quit's total averted urges
+    /// (`Quit.avertedUrgeCount`): the quiet-pride stat line renders below the
+    /// milestone bar when ≥ 1. Defaulted so every existing construction site
+    /// (fixtures included) is byte-unchanged at 0 — the line simply absent.
+    var avertedCount: Int = 0
 }
 
 /// Pure display derivations for the dashboard card — separated from the view so the unit

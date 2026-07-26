@@ -19,6 +19,13 @@ import Foundation
 /// §3), and `DashboardCopyTests` fails the unit lane the instant any of them gains a
 /// value without that sign-off — the same discipline the onboarding copy tables carry.
 enum DashboardCopy {
+    /// P2 (redesign §6.7, copy doc §6 — DRAFT, operator-instructed, founder
+    /// pass pending): the Home shell's nav title. ONE habit-neutral,
+    /// shoulder-safe, present-tense title for every state — safe under a
+    /// disguised icon (a large "Ballast" would out the disguise the moment the
+    /// app opens); no discreet variant needed by construction.
+    static let screenTitle = "Today"
+
     /// AUDITED — Session-21 PM+Brand+QA joint-signed. Byte-identical to
     /// `StreakWidgetStyle.shipping.savedLabel` (`Shared/Sources/StreakWidgetStyle.swift`).
     static let savedLabel = "saved"

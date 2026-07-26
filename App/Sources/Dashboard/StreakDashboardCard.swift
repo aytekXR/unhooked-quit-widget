@@ -134,6 +134,19 @@ struct StreakDashboardCard: View {
                 }
             }
 
+            // P2 (redesign §6.7 / QW-5) — the averted-urge stat line: quiet
+            // pride as a stat, below the milestone bar, hidden until ≥ 1.
+            // Habit-context-free by construction (the celebration count-line
+            // precedent), so it renders in discreet mode too. One declaration
+            // (StreakDetailCopy.avertedLine) serves card AND detail — byte
+            // divergence is unrepresentable.
+            if model.avertedCount >= 1 {
+                Text(StreakDetailCopy.avertedLine(count: model.avertedCount))
+                    .font(.footnote)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             // Frozen tooltip — §3-blocked; the empty guard prevents an empty Text. Until
             // the founder pass, a frozen streak shows its (correct) numbers + neutral ring.
             if model.isFrozen, !DashboardCopy.frozenTooltip.isEmpty {

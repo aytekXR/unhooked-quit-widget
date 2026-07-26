@@ -39,6 +39,25 @@ struct DashboardCopyTests {
         #expect(DashboardCopy.panicEntryDiscreetSupportLine == "Take a moment.")
     }
 
+    /// P2 — the Home shell's title carries the copy doc §6 byte (DRAFT,
+    /// operator-instructed, founder pass pending): habit-neutral,
+    /// shoulder-safe, one title for every state. The habit-leak scan makes the
+    /// disguise-safety machine-checked.
+    @Test func test_screenTitle_isTheDraftByte_andHabitNeutral() {
+        #expect(DashboardCopy.screenTitle == "Today")
+        let leak = [
+            "vape", "vaping", "porn", "alcohol", "weed", "doomscroll",
+            "smoke", "drink", "sober", "quit", "addiction", "relapse", "habit",
+            "ballast",
+        ]
+        for term in leak {
+            #expect(
+                !DashboardCopy.screenTitle.lowercased().contains(term),
+                "the Home title must stay shoulder- and disguise-safe — never '\(term)'"
+            )
+        }
+    }
+
     /// Every §3-blocked slot must be empty pre-pass. A non-empty value here means a new
     /// user-facing string reached the dashboard without the operator's §3 sign-off — the
     /// exact thing UIR is forbidden from doing. The view guards each with a non-empty

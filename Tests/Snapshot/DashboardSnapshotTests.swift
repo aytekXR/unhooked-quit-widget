@@ -157,4 +157,13 @@ struct DashboardSnapshotTests {
         // Reduce goal renders the same card today (adherence framing is §3-blocked).
         assertCard(Self.reduce, axes: [("light", false, false)])
     }
+
+    @Test func snapshot_dashboardCard_avertedLine() {
+        // P2/QW-5: the quiet-pride stat line below the milestone bar ("12
+        // urges surfed and counting."), hidden until ≥ 1 — every OTHER fixture
+        // rides the 0 default, so the existing goldens are byte-unchanged.
+        var model = Self.active
+        model.avertedCount = 12
+        assertCard(model, axes: Self.lightDark)
+    }
 }
