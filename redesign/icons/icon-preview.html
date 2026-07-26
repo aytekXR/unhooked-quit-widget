@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballast — App Icon Concepts</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#F5F5F4; color:#1A1D21; font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif; padding:40px 24px 64px; }
+  .wrap { max-width:960px; margin:0 auto; }
+  header.card-cap { margin-bottom:28px; }
+  header.card-cap h1 { font-size:22px; font-weight:600; letter-spacing:-0.2px; }
+  header.card-cap p { font-size:14px; color:#565D66; margin-top:6px; max-width:74ch; line-height:1.5; }
+  section { background:#FFFFFF; border:1px solid #E2E0DB; border-radius:16px; padding:24px; margin-bottom:20px; }
+  section h2 { font-size:15px; font-weight:600; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  section .intent { font-size:13px; color:#565D66; margin:4px 0 18px; line-height:1.55; max-width:78ch; }
+  .badge { font-size:10.5px; font-weight:600; letter-spacing:.4px; color:#FFFFFF; background:#0C6F65; border-radius:999px; padding:3px 10px; }
+  .badge.gray { background:#6E7681; }
+  .row { display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start; }
+  .icell { text-align:center; }
+  .icell .pad { width:152px; height:152px; display:flex; align-items:center; justify-content:center; background:#EEECE7; border-radius:14px; }
+  .icell .pad.dark { background:#121417; }
+  .icell .pad.wall { background:linear-gradient(#0C6F65,#5262BC); }
+  .icell .cap { font-size:11.5px; color:#565D66; margin-top:8px; line-height:1.4; }
+  .icell .cap b { color:#1A1D21; font-weight:600; }
+  svg.ic { display:block; border-radius:0; }
+  .small-row { display:flex; align-items:center; gap:14px; margin-top:16px; background:#EEECE7; border-radius:12px; padding:12px 16px; flex-wrap:wrap; }
+  .small-row.dark { background:#121417; }
+  .small-row .lbl { font-size:11px; color:#565D66; }
+  .small-row.dark .lbl { color:#A8AFB8; }
+  .meta { font-size:12px; color:#565D66; background:#EEECE7; border-radius:10px; padding:10px 14px; margin-top:16px; line-height:1.6; }
+  .meta b { color:#1A1D21; font-weight:600; }
+  .hx { font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:11px; }
+  .swatches { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .sw { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-family:ui-monospace,'SF Mono',Menlo,monospace; color:#565D66; background:#FFFFFF; border:1px solid #E2E0DB; border-radius:999px; padding:3px 10px 3px 4px; }
+  .sw i { width:16px; height:16px; border-radius:50%; display:inline-block; border:1px solid #E2E0DB; }
+  .anno { display:flex; gap:24px; align-items:center; flex-wrap:wrap; margin-top:18px; }
+  .anno .spec { font-size:12.5px; color:#565D66; line-height:1.7; max-width:52ch; }
+  .anno .spec b { color:#1A1D21; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="card-cap">
+  <h1>App icon concepts</h1>
+  <p>Four concepts from the creative inventory, built as literal compositions on the iOS squircle. All render on the Horizon Gradient — Harbor Teal <span class="hx">#0C6F65</span> into Dusk Indigo <span class="hx">#5262BC</span> — the field reserved for the icon and marketing only. Each concept shows light / dark / tinted at 120px and a 29px proof row: an icon that dies at 29px dies in Settings. No red, no letterforms, no habit imagery, no people.</p>
+</header>
+
+<!-- ======================= SHARED DEFS ======================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="sq"><path d="M50 0C11.2 0 0 11.2 0 50s11.2 50 50 50 50-11.2 50-50S88.8 0 50 0z"/></clipPath>
+
+    <linearGradient id="hzn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0C6F65"/><stop offset="1" stop-color="#5262BC"/>
+    </linearGradient>
+    <linearGradient id="sky6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".06"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="wlband" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#FFFFFF" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="crestfill">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".92"/>
+      <stop offset=".96" stop-color="#FFFFFF" stop-opacity=".92"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="seamglow">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".30"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="keelg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0A5F57"/><stop offset=".55" stop-color="#5262BC"/><stop offset="1" stop-color="#5262BC"/>
+    </linearGradient>
+    <linearGradient id="ringbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5262BC"/><stop offset="1" stop-color="#121417"/>
+    </linearGradient>
+    <radialGradient id="flbloom">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Concept 1: Surfaced Breath — Refined -->
+    <g id="sb-field">
+      <rect width="100" height="100" fill="url(#hzn)"/>
+      <rect width="100" height="16" fill="url(#sky6)"/>
+    </g>
+    <g id="sb-lum">
+      <ellipse cx="50" cy="63" rx="15.5" ry="6.8" fill="#FFFFFF" opacity=".18"/>
+      <rect y="50" width="100" height="10" fill="url(#wlband)"/>
+      <ellipse cx="50" cy="55" rx="16" ry="7" fill="url(#seamglow)"/>
+      <circle cx="50" cy="38" r="17" fill="url(#crestfill)"/>
+    </g>
+    <symbol id="sb-l" viewBox="0 0 100 100"><g clip-path="url(#sq)"><use href="#sb-field"/><use href="#sb-lum"/></g></symbol>
+    <symbol id="sb-d" viewBox="0 0 100 100"><g clip-path="url(#sq)"><use href="#sb-field"/><rect width="100" height="100" fill="#121417" opacity=".52"/><use href="#sb-lum"/></g></symbol>
+    <symbol id="sb-t" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#1C1F24"/>
+      <rect y="53.6" width="100" height="2.8" fill="#FFFFFF"/>
+      <circle cx="50" cy="38" r="17" fill="#FFFFFF"/>
+    </g></symbol>
+    <symbol id="sb-c" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#FFFFFF" opacity=".2"/>
+      <rect y="53.6" width="100" height="2.8" fill="#FFFFFF" opacity=".55"/>
+      <circle cx="50" cy="38" r="17" fill="#FFFFFF" opacity=".95"/>
+      <path d="M50 1.5C13 1.5 1.5 13 1.5 50S13 98.5 50 98.5 98.5 87 98.5 50 87 1.5 50 1.5z" fill="none" stroke="#FFFFFF" stroke-opacity=".5" stroke-width="1.4"/>
+    </g></symbol>
+
+    <!-- Concept 2: Waterline Keel -->
+    <g id="kl-base">
+      <rect width="100" height="100" fill="#0C6F65"/>
+      <rect y="41.5" width="100" height="58.5" fill="#121417" opacity=".18"/>
+      <rect x="38" y="47" width="24" height="36" rx="12" fill="url(#keelg)"/>
+      <rect y="40.6" width="100" height="1.8" fill="#FFFFFF" opacity=".95"/>
+    </g>
+    <symbol id="kl-l" viewBox="0 0 100 100"><g clip-path="url(#sq)"><use href="#kl-base"/></g></symbol>
+    <symbol id="kl-d" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#0C6F65"/>
+      <rect width="100" height="100" fill="#121417" opacity=".5"/>
+      <rect x="38" y="47" width="24" height="36" rx="12" fill="url(#keelg)"/>
+      <rect y="40.6" width="100" height="1.8" fill="#FFFFFF" opacity=".95"/>
+    </g></symbol>
+    <symbol id="kl-t" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#1C1F24"/>
+      <rect y="40.6" width="100" height="2.4" fill="#FFFFFF"/>
+      <rect x="38" y="47" width="24" height="36" rx="12" fill="#FFFFFF"/>
+    </g></symbol>
+
+    <!-- Concept 3: Breath Ring -->
+    <g id="br-base">
+      <rect width="100" height="100" fill="url(#ringbg)"/>
+      <path d="M56.29 24.77A26 26 0 1 1 43.71 24.77" fill="none" stroke="#4CC8B9" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="50" cy="24" r="6.35" fill="#FFFFFF"/>
+    </g>
+    <symbol id="br-l" viewBox="0 0 100 100"><g clip-path="url(#sq)"><use href="#br-base"/></g></symbol>
+    <symbol id="br-d" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#ringbg)"/>
+      <rect width="100" height="100" fill="#121417" opacity=".35"/>
+      <path d="M56.29 24.77A26 26 0 1 1 43.71 24.77" fill="none" stroke="#4CC8B9" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="50" cy="24" r="6.35" fill="#FFFFFF"/>
+    </g></symbol>
+    <symbol id="br-t" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#1C1F24"/>
+      <path d="M56.29 24.77A26 26 0 1 1 43.71 24.77" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="50" cy="24" r="6.35" fill="#FFFFFF"/>
+    </g></symbol>
+
+    <!-- Concept 4: First Light -->
+    <g id="fl-base">
+      <rect width="100" height="55" fill="#0C6F65"/>
+      <rect y="55" width="100" height="45" fill="#5262BC"/>
+      <rect y="52" width="100" height="6" fill="url(#wlband)"/>
+      <ellipse cx="50" cy="55" rx="28" ry="12" fill="url(#flbloom)"/>
+      <rect y="54.3" width="100" height="1.4" fill="#FFFFFF" opacity=".55"/>
+    </g>
+    <symbol id="fl-l" viewBox="0 0 100 100"><g clip-path="url(#sq)"><use href="#fl-base"/></g></symbol>
+    <symbol id="fl-d" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="55" fill="#0C6F65"/>
+      <rect y="55" width="100" height="45" fill="#5262BC"/>
+      <rect width="100" height="100" fill="#121417" opacity=".55"/>
+      <rect y="52" width="100" height="6" fill="url(#wlband)"/>
+      <ellipse cx="50" cy="55" rx="28" ry="12" fill="url(#flbloom)"/>
+      <rect y="54.3" width="100" height="1.4" fill="#FFFFFF" opacity=".55"/>
+    </g></symbol>
+    <symbol id="fl-t" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#1C1F24"/>
+      <rect y="53.8" width="100" height="2.4" fill="#FFFFFF"/>
+      <ellipse cx="50" cy="55" rx="16" ry="5" fill="#FFFFFF" opacity=".55"/>
+    </g></symbol>
+
+    <!-- Discreet alternates: zero brand color -->
+    <symbol id="cal-l" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#FFFFFF"/>
+      <text x="50" y="31" text-anchor="middle" font-family="-apple-system,'SF Pro Text','Helvetica Neue',sans-serif" font-size="13" font-weight="600" letter-spacing="1.6" fill="#565D66">FRI</text>
+      <text x="50" y="74" text-anchor="middle" font-family="-apple-system,'SF Pro Text','Helvetica Neue',sans-serif" font-size="46" font-weight="400" fill="#1A1D21">17</text>
+    </g></symbol>
+    <symbol id="cal-d" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#1C1F24"/>
+      <text x="50" y="31" text-anchor="middle" font-family="-apple-system,'SF Pro Text','Helvetica Neue',sans-serif" font-size="13" font-weight="600" letter-spacing="1.6" fill="#A8AFB8">FRI</text>
+      <text x="50" y="74" text-anchor="middle" font-family="-apple-system,'SF Pro Text','Helvetica Neue',sans-serif" font-size="46" font-weight="400" fill="#F2F1EE">17</text>
+    </g></symbol>
+    <symbol id="tm-l" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#FFFFFF"/>
+      <circle cx="50" cy="50" r="30" fill="none" stroke="#1A1D21" stroke-width="3.5"/>
+      <g stroke="#565D66" stroke-width="1.8" stroke-linecap="round">
+        <line x1="70.78" y1="62" x2="73.82" y2="63.75"/><line x1="62" y1="70.78" x2="63.75" y2="73.82"/>
+        <line x1="38" y1="70.78" x2="36.25" y2="73.82"/><line x1="29.22" y1="62" x2="26.18" y2="63.75"/>
+        <line x1="29.22" y1="38" x2="26.18" y2="36.25"/><line x1="38" y1="29.22" x2="36.25" y2="26.18"/>
+        <line x1="62" y1="29.22" x2="63.75" y2="26.18"/><line x1="70.78" y1="38" x2="73.82" y2="36.25"/>
+      </g>
+      <g stroke="#1A1D21" stroke-width="2.5" stroke-linecap="round">
+        <line x1="74" y1="50" x2="77.5" y2="50"/><line x1="50" y1="74" x2="50" y2="77.5"/>
+        <line x1="26" y1="50" x2="22.5" y2="50"/><line x1="50" y1="26" x2="50" y2="22.5"/>
+      </g>
+      <g stroke="#1A1D21" stroke-width="3" stroke-linecap="round">
+        <line x1="50" y1="50" x2="40.5" y2="43"/><line x1="50" y1="50" x2="59" y2="38.5"/>
+      </g>
+      <circle cx="50" cy="50" r="2.2" fill="#1A1D21"/>
+    </g></symbol>
+    <symbol id="tm-d" viewBox="0 0 100 100"><g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="#0B0D0F"/>
+      <circle cx="50" cy="50" r="30" fill="none" stroke="#F2F1EE" stroke-width="3.5"/>
+      <g stroke="#A8AFB8" stroke-width="1.8" stroke-linecap="round">
+        <line x1="70.78" y1="62" x2="73.82" y2="63.75"/><line x1="62" y1="70.78" x2="63.75" y2="73.82"/>
+        <line x1="38" y1="70.78" x2="36.25" y2="73.82"/><line x1="29.22" y1="62" x2="26.18" y2="63.75"/>
+        <line x1="29.22" y1="38" x2="26.18" y2="36.25"/><line x1="38" y1="29.22" x2="36.25" y2="26.18"/>
+        <line x1="62" y1="29.22" x2="63.75" y2="26.18"/><line x1="70.78" y1="38" x2="73.82" y2="36.25"/>
+      </g>
+      <g stroke="#F2F1EE" stroke-width="2.5" stroke-linecap="round">
+        <line x1="74" y1="50" x2="77.5" y2="50"/><line x1="50" y1="74" x2="50" y2="77.5"/>
+        <line x1="26" y1="50" x2="22.5" y2="50"/><line x1="50" y1="26" x2="50" y2="22.5"/>
+      </g>
+      <g stroke="#F2F1EE" stroke-width="3" stroke-linecap="round">
+        <line x1="50" y1="50" x2="40.5" y2="43"/><line x1="50" y1="50" x2="59" y2="38.5"/>
+      </g>
+      <circle cx="50" cy="50" r="2.2" fill="#F2F1EE"/>
+    </g></symbol>
+  </defs>
+</svg>
+
+<!-- ======================= CONCEPT 1 ======================= -->
+<section>
+  <h2>1 · Surfaced Breath — Refined <span class="badge">RECOMMENDED — BUILD THIS</span></h2>
+  <p class="intent">The existing crest geometry re-rendered with contemporary depth: crest enlarged ~8%, the hard 1px horizon replaced by a luminous waterline glow (Foam at 35% over the gradient seam, brightest at the crest's intersection), a whisper of vertical light falloff in the sky (top 15% brightened ≤6%), the submerged reflection deepened at 18% opacity, compressed to ~40% of crest height. Polysemous — sun rising, head above water, breath surfacing — habit-neutral, rename-proof, and it preserves recognition for existing TestFlight users.</p>
+  <div class="row">
+    <div class="icell"><div class="pad"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#sb-l"/></svg></div><div class="cap"><b>Light</b> · Horizon Gradient <span class="hx">#0C6F65 → #5262BC</span> · crest Foam <span class="hx">#FFFFFF</span> @92%</div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#sb-d"/></svg></div><div class="cap"><b>Dark</b> · field deepened toward <span class="hx">#121417</span> @52% · crest stays luminous</div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#sb-t"/></svg></div><div class="cap"><b>Tinted</b> · crest + waterline as one template on <span class="hx">#1C1F24</span> — system applies the user's tint</div></div>
+    <div class="icell"><div class="pad wall"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#sb-c"/></svg></div><div class="cap"><b>Clear</b> · crest on glass, shown over a wallpaper field</div></div>
+  </div>
+  <div class="anno">
+    <svg width="200" height="144" viewBox="0 0 139 100" style="background:#EEECE7;border-radius:12px">
+      <g transform="translate(2 0)"><use href="#sb-l" width="100" height="100"/></g>
+      <g stroke="#565D66" stroke-width=".5" stroke-dasharray="2 1.6">
+        <line x1="2" y1="38" x2="126" y2="38"/>
+        <line x1="2" y1="55" x2="126" y2="55"/>
+      </g>
+      <g font-family="-apple-system,'SF Pro Text','Helvetica Neue',sans-serif" font-size="4.6" fill="#565D66">
+        <text x="108" y="36.4">crest center 38%</text>
+        <text x="108" y="61">waterline 55%</text>
+      </g>
+    </svg>
+    <div class="spec"><b>Composition grid:</b> crest center at ~38% height · waterline at ~55% · reflection ellipse compressed to ~40% of crest height · waterline glow 4–6px soft-light band, Foam @35% over the seam. Assemble the full iOS 26 appearance set in Apple Icon Composer.</div>
+  </div>
+  <div class="small-row">
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#sb-l"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#sb-d"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#sb-t"/></svg>
+    <span class="lbl">29px — Settings-row size. The glow reads where the old 1px hairline vanished.</span>
+  </div>
+</section>
+
+<!-- ======================= CONCEPT 2 ======================= -->
+<section>
+  <h2>2 · Waterline Keel <span class="badge gray">PROTOTYPE AT 29PT FIRST</span></h2>
+  <p class="intent">Above a thin Foam waterline, calm negative space in Harbor Teal; below, a single rounded keel-weight form in deep indigo hanging steady — the ballast itself. The only concept that literalizes the name without nautical cliché (anchors are banned territory — tattoo/navy connotations, and "stuck" contradicts forgiveness). Keel at 2:3 width-to-depth, centered mass just below the line so it reads <i>held</i>, not sinking.</p>
+  <div class="row">
+    <div class="icell"><div class="pad"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#kl-l"/></svg></div><div class="cap"><b>Light</b> · sky <span class="hx">#0C6F65</span> · keel <span class="hx">#0A5F57 → #5262BC</span> · line Foam <span class="hx">#FFFFFF</span></div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#kl-d"/></svg></div><div class="cap"><b>Dark</b> · field deepened <span class="hx">#121417</span> @50%</div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#kl-t"/></svg></div><div class="cap"><b>Tinted</b> · keel + line as template</div></div>
+  </div>
+  <div class="small-row">
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#kl-l"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#kl-d"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#kl-t"/></svg>
+    <span class="lbl">29px — the named risk: does the bottom-weighted form read as <i>held</i> or as sinking at glance distance?</span>
+  </div>
+</section>
+
+<!-- ======================= CONCEPT 3 ======================= -->
+<section>
+  <h2>3 · Breath Ring <span class="badge gray">ARGUE AGAINST — KEEP ON FILE</span></h2>
+  <p class="intent">A single soft teal ring, open at 12 o'clock, crest-dot resting in the gap, on a Dusk Indigo-to-near-black field — momentum ring and breath bloom collapsed into one mark. Ring stroke ≈ icon-width/11 · gap ≈ 28° · dot diameter ≈ 1.4× stroke. Risk: crowded territory (Activity rings, meditation apps); differentiation hangs entirely on the crest-dot surviving 29px.</p>
+  <div class="row">
+    <div class="icell"><div class="pad"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#br-l"/></svg></div><div class="cap"><b>Light</b> · ring <span class="hx">#4CC8B9</span> (dark-mode teal for luminosity) · field <span class="hx">#5262BC → #121417</span></div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#br-d"/></svg></div><div class="cap"><b>Dark</b> · field deepened @35%</div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#br-t"/></svg></div><div class="cap"><b>Tinted</b> · ring + dot as template</div></div>
+  </div>
+  <div class="small-row">
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#br-l"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#br-d"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#br-t"/></svg>
+    <span class="lbl">29px — the crest-dot is the whole differentiation. Judge it here, not at 120.</span>
+  </div>
+</section>
+
+<!-- ======================= CONCEPT 4 ======================= -->
+<section>
+  <h2>4 · First Light <span class="badge gray">BENCHMARK — DO NOT SHIP</span></h2>
+  <p class="intent">No shapes: the two-zone horizon field alone with a soft light bloom breathing at the waterline — the moment before dawn. Maximally discreet (indistinguishable from a wallpaper app at shoulder distance — a genuine feature for this audience) and stunning in dark and tinted modes. Risk: near-invisible recall in App Library and search results. Keep as the ceiling of restraint the chosen icon is measured against.</p>
+  <div class="row">
+    <div class="icell"><div class="pad"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#fl-l"/></svg></div><div class="cap"><b>Light</b> · sky <span class="hx">#0C6F65</span> · water <span class="hx">#5262BC</span> · bloom Foam <span class="hx">#FFFFFF</span></div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#fl-d"/></svg></div><div class="cap"><b>Dark</b> · night field <span class="hx">#121417</span> @55% — the "11pm" register</div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#fl-t"/></svg></div><div class="cap"><b>Tinted</b> · reduces to the waterline alone</div></div>
+  </div>
+  <div class="small-row">
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#fl-l"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#fl-d"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#fl-t"/></svg>
+    <span class="lbl">29px — quiet to the point of anonymity. That is both the feature and the reason it stays a benchmark.</span>
+  </div>
+</section>
+
+<!-- ======================= DISCREET ALTERNATES ======================= -->
+<section>
+  <h2>Discreet alternates — zero brand color, by definition</h2>
+  <p class="intent">"Calendar style" and "Timer style" carry no Ballast color — the disguise is the absence of identity. Redrawn on the crest's geometric grid (same optical margins, same centering) so they feel like quality apps, not clip art. Grays only, no red anywhere: even the disguise obeys the palette law. Settings footer, verbatim: "The alternate icons carry no Ballast color, so your home screen stays quiet." Erase resets to the primary icon — an "erased" phone doesn't keep the disguise.</p>
+  <div class="row">
+    <div class="icell"><div class="pad"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#cal-l"/></svg></div><div class="cap"><b>Calendar style</b> · light · <span class="hx">#FFFFFF</span> / <span class="hx">#1A1D21</span> / <span class="hx">#565D66</span></div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#cal-d"/></svg></div><div class="cap"><b>Calendar style</b> · dark · <span class="hx">#1C1F24</span> / <span class="hx">#F2F1EE</span> / <span class="hx">#A8AFB8</span></div></div>
+    <div class="icell"><div class="pad"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#tm-l"/></svg></div><div class="cap"><b>Timer style</b> · light · <span class="hx">#FFFFFF</span> / <span class="hx">#1A1D21</span> / <span class="hx">#565D66</span></div></div>
+    <div class="icell"><div class="pad dark"><svg class="ic" width="120" height="120" viewBox="0 0 100 100"><use href="#tm-d"/></svg></div><div class="cap"><b>Timer style</b> · dark · <span class="hx">#0B0D0F</span> / <span class="hx">#F2F1EE</span> / <span class="hx">#A8AFB8</span></div></div>
+  </div>
+  <div class="small-row">
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#cal-l"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#cal-d"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#tm-l"/></svg>
+    <svg class="ic" width="29" height="29" viewBox="0 0 100 100"><use href="#tm-d"/></svg>
+    <span class="lbl">29px — the disguise must be boring at every size. A static date and a still clock: nothing to notice.</span>
+  </div>
+</section>
+
+<!-- ======================= SIDE-BY-SIDE ======================= -->
+<section>
+  <h2>Shoulder-distance board — dark appearances at 56px</h2>
+  <p class="intent">Dark mode is the primary design target. The side-by-side the decision gets made on: presence (1), literalism (2), daily-glyph continuity (3), the ceiling of restraint (4), and the two disguises that must disappear next to all of them.</p>
+  <div class="small-row dark">
+    <svg class="ic" width="56" height="56" viewBox="0 0 100 100"><use href="#sb-d"/></svg>
+    <svg class="ic" width="56" height="56" viewBox="0 0 100 100"><use href="#kl-d"/></svg>
+    <svg class="ic" width="56" height="56" viewBox="0 0 100 100"><use href="#br-d"/></svg>
+    <svg class="ic" width="56" height="56" viewBox="0 0 100 100"><use href="#fl-d"/></svg>
+    <svg class="ic" width="56" height="56" viewBox="0 0 100 100"><use href="#cal-d"/></svg>
+    <svg class="ic" width="56" height="56" viewBox="0 0 100 100"><use href="#tm-d"/></svg>
+    <span class="lbl">On base #121417 — App Library / dark wallpaper conditions.</span>
+  </div>
+  <div class="swatches">
+    <span class="sw"><i style="background:#0C6F65"></i>#0C6F65 Harbor Teal</span>
+    <span class="sw"><i style="background:#5262BC"></i>#5262BC Dusk Indigo</span>
+    <span class="sw"><i style="background:#0A5F57"></i>#0A5F57 Deep Water</span>
+    <span class="sw"><i style="background:#4CC8B9"></i>#4CC8B9 Teal (dark)</span>
+    <span class="sw"><i style="background:#FFFFFF"></i>#FFFFFF Foam</span>
+    <span class="sw"><i style="background:#121417"></i>#121417 Base (dark)</span>
+    <span class="sw"><i style="background:#1C1F24"></i>#1C1F24 Raised (dark)</span>
+    <span class="sw"><i style="background:#0B0D0F"></i>#0B0D0F Sunken (dark)</span>
+  </div>
+  <div class="meta"><b>Production:</b> 1024×1024 masters per concept × 4 appearances (light/dark/tinted/clear), assembled in Apple Icon Composer; 29pt and 60pt proof renders on a real home-screen mock. Winner replaces <span class="hx">AppIcon.appiconset</span> and all sizes in <span class="hx">brandkit/branding-assets/icons/</span>. Keep <span class="hx">generate-alt-icons.py</span> output untouched for the discreet alternates. Every hex above is verbatim from Theme.swift — the stale brandkit tokens.json must never be resurrected.</div>
+</section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 100 100">
+<defs>
+<clipPath id="sb-sq"><path d="M50 0C11.2 0 0 11.2 0 50s11.2 50 50 50 50-11.2 50-50S88.8 0 50 0z"/></clipPath>
+<linearGradient id="sb-hzn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0C6F65"/><stop offset="1" stop-color="#5262BC"/></linearGradient>
+<linearGradient id="sb-sky6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".06"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<linearGradient id="sb-wlband" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".35"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<radialGradient id="sb-seamglow"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".30"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+<radialGradient id="sb-crestfill"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".92"/><stop offset=".96" stop-color="#FFFFFF" stop-opacity=".92"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+</defs>
+<g clip-path="url(#sb-sq)">
+<rect width="100" height="100" fill="url(#sb-hzn)"/><rect width="100" height="16" fill="url(#sb-sky6)"/><ellipse cx="50" cy="63" rx="15.5" ry="6.8" fill="#FFFFFF" opacity=".18"/><rect y="50" width="100" height="10" fill="url(#sb-wlband)"/><ellipse cx="50" cy="55" rx="16" ry="7" fill="url(#sb-seamglow)"/><circle cx="50" cy="38" r="17" fill="url(#sb-crestfill)"/>
+</g>
+</svg>
