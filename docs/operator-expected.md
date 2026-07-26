@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | LIVE — **only OPEN items are listed here** (Session 47, 2026-07-26). The build side is agent-complete and the project is OPERATOR-GATED; everything below is yours. Completed/closed items and the full FYI vetoable-rulings record live in `docs/past-prompts.md` (the append-only ledger). |
-| What changed since you last read this (Session 47) | **One new thing for you, and it is free: §8's first checkbox — search your ASC email for "ITMS-9105" (2 min).** It permanently closes a privacy-manifest question S47 investigated but deliberately did not guess at. Otherwise S47 needed nothing from you. It continued 46A's thread: the age-gate calendar bug was one member of a CLASS — a *device Settings* value silently changing behaviour, invisible to CI because every simulator is `en_US` — so S47 swept the rest of that class and **found and fixed two more real money defects**. A user in any comma-decimal region (most of Europe, Turkey, Brazil, Indonesia) who typed **"12,50" for their weekly spend had it stored as 12**; **"0,50" became 0**, which hides the money feature entirely on the summary, dashboard AND widget — permanently, since spend has no edit path. An Arabic-numeral entry became 0 outright. Also fixed: a projection under ten units rendered a fabricated "~$0/year". **Two dimensions came back clean** (crash safety; and helpline region resolution, which now has probe evidence behind the "region-aware" claim in your App Review notes). One thing worth knowing for **§5 beta recruiting**: verified helplines exist for **US and TR only** — see the new first checkbox there. **Your §3 copy pass is what unblocked the final golden batch — but see the new §0 at the top: your `redesign/` blueprint schedules changes to all four surfaces that batch would cover, so an agent stopped rather than mint goldens that get thrown away. One short answer in §0 unblocks it.** |
+| What changed since you last read this (Session 48B) | **Monetization went LIVE and it needed nothing further from you.** The RevenueCat key you pasted is wired; the RC project now carries the App Store app, entitlement `premium`, all three products, an offering, and the **In-App Purchase Key** (the piece that authorizes the signed 50%-off win-back). In App Store Connect the subscription group, all three products, both 3-day trials, the `winback_annual` offer, localizations, review screenshots and prices across **175 territories** are in — **all three products now report READY_TO_SUBMIT**. Two things were fixed on the way: **R46.2** (`EntitlementModel` was never refreshed after purchase/restore or on foreground, so a user who had JUST subscribed kept being offered the half-price win-back), and the **E0.3 harness, which could never have run on a device at all** (a missing test-target bundle id failed the build before any test executed — see §1, which now carries real numbers). **What this unblocks for you: the sandbox purchase matrix**, §8's first checkbox and Epic 7's operator half — it is also the only test that proves the R46.2 fix. Nothing in §0 changed; that decision still gates all agent work. |
 | Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook. **The §3 copy pass is CLOSED** (Session 46B: every copy table read with you end-to-end, ~20 decisions made, 18 string edits + 5 code changes landed, 12 goldens re-recorded, 404 unit / 35 snapshot / 121 free-lane green). The critical path's step 1 is DONE and **the final golden batch is unblocked.** Three findings from it are worth your eye even though they are already fixed: **ALO 182 is a hospital-appointment line, not a crisis line** — §3 had been telling you to mark it verified, which would have shipped a life-safety defect; the **alcohol withdrawal notice was unreachable** for any alcohol user who hit the hard paywall and did not convert; and the paywall's **Terms/Privacy were dead labels** (now real links — but the two pages still need publishing, and that is on you). **The next longest-lead items are the clinician + counsel sign-off and the §8 keys — plus the §0 decision at the top, which is the only thing blocking agent work.** |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
@@ -50,16 +50,44 @@ it gates your screenshots, which gate submission.
 initializers, the fixture shapes, the determinism hazards and the per-surface golden list are banked in
 the session log, so whenever you answer (A) or (C) the mint starts immediately with no re-scoping.
 
-## 1. E0.3 panic-latency device measurement — carried since Session 02, load-bearing
+## 1. E0.3 panic-latency — PARTLY MEASURED (S48). What is left is one 15-minute pass.
 
-- [ ] Run the harness in `docs/spike-panic-latency.md` on an **iPhone 15-class physical
-      device** with full Xcode; record the numbers in that doc (~30 min). It is the ONLY
-      remaining blocker on wiring E3's permanent latency CI gate, and it measures the REAL
-      panic flow's first frame. (The signpost fires under subsystem `com.beyondkaira.ballast`
-      — the runbook names it.)
+> **The harness could never have run.** `UnhookedUITests` carried no
+> `PRODUCT_BUNDLE_IDENTIFIER`; simulator lanes (all of CI) do not need one, so a device run
+> failed the BUILD before a single test executed. Fixed in S48 — so this item was carried as
+> "the operator hasn't measured it" when it was closer to "it could not be measured."
+
+**What S48 measured (real numbers, iPhone 17 Pro Max / iOS 27, Debug):**
+
+| | p90 |
+|---|---|
+| panic arm | 2483 ms |
+| control arm (same harness, panic route OFF) | 2379 ms |
+| **⇒ panic route's app-owned cost** | **≈ 104 ms** |
+
+The raw 2483 looked like a failure and is not one: ~2.36 s of it is XCTest's own
+automation-attach/quiescence handshake, present identically on a launch that does no panic
+work. **The app-owned panic cost is ~0.1 s.**
+
+**What is still unmeasured, and only you can do it:** total lock-to-intervention — finger
+down on the lock-screen widget to a breathing screen. That span also contains the OS's
+intent→process-spawn phase (architecture §11 budgets ~500–800 ms), which no in-app
+instrument sees. Everything points to comfortably under 2 s, but that is an inference, not
+the 10/10 evidence MVP §7 asks for.
+
+- [ ] **The 15-minute pass (tooling is ready).** `ffmpeg` is installed and
+      `measure_panic.py` (in the S48 session scratch, re-creatable in a minute) parses a
+      screen recording frame-by-frame and prints every attempt's span plus p90 against both
+      bars. Procedure: start iOS screen recording → lock → wait ~10 s → tap the lock-screen
+      panic button → let the breath screen settle → **swipe the app away in the app switcher**
+      (otherwise attempts 2-10 are warm, not cold) → repeat ×10 → AirDrop the video to the Mac.
 - [ ] With the numbers, settle the wording drift: MVP §7 "<2 s, 10/10" vs test-suite §1.5
       "p90 < 2.0 s" (one-line edit to the losing doc). This also decides whether "<2s" can be
-      marketing copy (10/10 cold taps < 2000 ms) or degrades to "fast".
+      marketing copy or degrades to "fast". **Until then the copy stays "fast".**
+- [ ] **⚠️ BINDING for E3.1 (recorded in `spike-panic-latency.md`):** the plan graduates this
+      test into a permanent CI gate **on its raw p90**. It must not — that pins XCTest's
+      overhead, not the product, and fails at 2000 ms today for reasons unrelated to the app.
+      Gate on the delta (the control now ships beside it) or on the `PanicColdLaunch` signpost.
 - [ ] Optional, while on the device (~5 min): feel-pass the 4-7-8 haptic rhythm in the real
       panic flow.
 
@@ -231,7 +259,17 @@ the session log, so whenever you answer (A) or (C) the mint starts immediately w
       quit, the card shows content. (d) **Erase** — with an alternate icon set, one-tap erase reverts to the
       primary icon.
 
-## 8. §8 keys + config — the last gates on live monetization + funnel data
+## 8. §8 keys + config — RevenueCat is LIVE (S48). What is left.
+
+> **DONE in S48, do not redo:** the RevenueCat public SDK key is in the app; the RC project
+> carries the App Store app, entitlement `premium`, all three products attached to it, and an
+> offering (monthly + control annual — `annual.hi` deliberately excluded, it reaches users only
+> through the Superwall B arm); the **In-App Purchase Key is uploaded** (`subscription_key_configured: true`),
+> which is what authorizes the signed 50%-off win-back purchase. In ASC: the subscription group,
+> all three products at $6.99/$29.99/$39.99, 3-day trials on both annual arms, the
+> `winback_annual` promotional offer, localizations, review screenshots, and prices across all
+> **175 territories** — all three products report **READY_TO_SUBMIT**. The R46.2 entitlement-refresh
+> defect was fixed in the same run. Full record in `past-prompts.md` (Session 48B).
 
 - [ ] **FREE, DO IT NOW (~2 min) — confirm no ITMS-91053 email ever arrived (S47/O47.3).** S47 checked both
       `PrivacyInfo.xcprivacy` manifests against the app's actual Required-Reason-API usage and concluded **no
@@ -245,69 +283,45 @@ the session log, so whenever you answer (A) or (C) the mint starts immediately w
       TestFlight upload. Search your ASC/developer email for **"ITMS-9105"**. Nothing there ⇒ closed permanently,
       delete this line. If a warning IS there, paste it and an agent lands the named category + reason code in one
       run (a two-line XML edit plus its `PrivacyManifestTests` pin).
-
-> Paste keys in this order (the vertical wakes as a unit): **RevenueCat → Superwall → ASC products + win-back
-> offer + IAP Key → TelemetryDeck app ID.** Until each key lands its SDK is never initialized (zero network).
-> The sandbox purchase matrix + the payload audit are the SECOND physical sitting, sequenced after the keys.
-
-- [ ] **⚠️ AGENT RIDER — R46.2, do this WITH the RevenueCat key, before the sandbox matrix (~1 agent run):** the
-      S46 defect hunt proved (source-verified, not speculative) that **`EntitlementModel` is never refreshed after a
-      purchase/restore or on foreground**, though its own contract promises all three — there is exactly ONE
-      `refresh()` call site in the app (`RepositoryProvider.swift:130`, at launch), and
-      `PaywallPresenter.makeOnPurchaseCompleted` receives the fresh `EntitlementState`, fires analytics with it,
-      then discards it. **Nothing is wrong on today's dormant build** (no key ⇒ no entitlement model at all), but
-      the moment your key lands two things break: (a) the win-back settings row stays visible to someone who JUST
-      bought, re-offering the half-price deal (**not a double-charge risk — StoreKit refuses a second purchase of
-      an active subscription; the harm is a paying subscriber repeatedly walked into a purchase sheet, a support
-      burden and a guideline-3.1.2 smell**); (b) `checkPaywallReentry()` re-runs on every foreground against a
-      launch-time snapshot, so a trial that expires mid-session keeps access until a cold launch. It was NOT fixed
-      blind because the live monetization path cannot be verified without your key. **Say the word when the key is
-      in and an agent lands it in one run — your sandbox matrix below is exactly the test that proves it.**
-- [ ] **RevenueCat key (~10 min)** — create the app in the RevenueCat dashboard and paste the PUBLIC SDK key into
-      `App/Sources/Monetization/RevenueCatConfiguration.swift` (`revenueCatAPIKey`). The moment a build carries it,
-      non-subscribers hit the paywall after the quiz summary and RC starts caching entitlements (Purchase History
-      only, not linked/tracking; device-identifier collection is switched OFF).
-- [ ] **ASC + RC products (sandbox-verification time — where your accounts become blocking):** in RC create the
-      entitlement **"premium"** + three products matching `ProductCatalog` EXACTLY —
-      `com.beyondkaira.ballast.monthly` ($6.99), `com.beyondkaira.ballast.annual` ($29.99, 3-day trial — control),
-      `com.beyondkaira.ballast.annual.hi` ($39.99, 3-day trial — Superwall B arm); attach all three to "premium",
-      build an offering with monthly + the control annual, and create the same products in App Store Connect. The
-      **sandbox matrix** (trial start, trial→paid, monthly, restore, reinstall, cancellation) is your half of the
-      Epic 7 acceptance.
-- [ ] **Win-back offer config (~15 min, with the sandbox matrix):** in ASC on `com.beyondkaira.ballast.annual`
-      create a **Promotional Offer** — type **Pay Up Front**, duration **1 year**, price **$14.99**, identifier
-      **`winback_annual`** (this exact string — it's the pinned analytics `offer` value and what the app requests).
-      Then ASC → Users and Access → Integrations → In-App Purchase → generate/reuse the **In-App Purchase Key** and
-      upload it to RevenueCat (Project settings → Apple → In-App Purchase Key) — RC signs the offer server-side;
-      without the key the discounted purchase can't be authorized. The app-side signed path is already built; this
-      upload is the ONLY thing between the app and the live 50%-off (zero further app-side code).
+- [ ] **THE SANDBOX PURCHASE MATRIX — now unblocked, and it is Epic 7's operator half.** ASC →
+      Users and Access → **Sandbox** → create a test account; on the device Settings → Developer
+      → **Sandbox Apple Account** → sign in. Then run: trial start · trial→paid · monthly ·
+      restore · reinstall · cancellation · **the on-update regression** (the Quittr-scandal row:
+      an existing subscriber must not lose entitlement across an app update). This is also **the
+      only test that proves the S48 R46.2 fix** — after a sandbox purchase the win-back settings
+      row must disappear immediately, without a relaunch. Note ASC products can take 15–30 min to
+      propagate to sandbox; "product not found" right after creation is expected, not a defect.
 - [ ] **Open `App/Resources/Ballast.storekit` in Xcode 26 once (~5 min, any Mac sitting):** it was hand-authored
-      on Linux against Apple's documented structure; a one-time open-and-save validates/normalizes it (and the new
-      `adHocOffers` win-back entry). Same sitting: run with launch env `UITEST_PAYWALL=1` to eyeball the paywall
-      (unreachable any other way until your key lands).
-- [ ] **Superwall key (after the RC key):** create the app in the Superwall dashboard and paste the public API key
+      on Linux against Apple's documented structure; a one-time open-and-save validates/normalizes it (and the
+      `adHocOffers` win-back entry). Same sitting: run with launch env `UITEST_PAYWALL=1` to eyeball the paywall.
+- [ ] **Superwall key:** create the app in the Superwall dashboard and paste the public API key
       into `App/Sources/Monetization/SuperwallConfiguration.swift` (`superwallAPIKey`). Until then every build shows
       the bundled hard-wall control paywall.
 - [ ] **Superwall dashboard config (with the key):** two placements — **`quiz_completed`** and **`winback`**; the
       teaser-vs-hard experiment (teaser = escape allowed; hard = no close); the $29.99-vs-$39.99 price experiment
-      binding `….annual` (control) vs `….annual.hi` (B arm); then fill the variant-id mapping in
+      binding `….annual` (control) vs `….annual.hi` (B arm); then hand an agent the variant ids to fill
       `SuperwallPlacement.variantMapping` (opaque dashboard ids → `teaser`/`hard`; unmapped ids safely render the
-      hard control). For the App Privacy label: SuperwallKit's manifest declares Purchase History + a FileTimestamp
-      reason and pulls a checksummed Rust binary (`libcel.xcframework`) — recorded so review surprises no one.
+      hard control). **Also assign the review build to the TEASER arm** — that is what makes the S46-ratified
+      3.1.2 posture true; it is a dashboard setting, not code. For the App Privacy label: SuperwallKit's manifest
+      declares Purchase History + a FileTimestamp reason and pulls a checksummed Rust binary
+      (`libcel.xcframework`) — recorded so review surprises no one.
 - [ ] **TelemetryDeck app ID (~10 min)** — create the app in the TelemetryDeck console and paste the app ID into
       `App/Sources/TelemetryDeckSink.swift` (`telemetryDeckAppID`). Until then the transport is a Noop sink (zero
       bytes leave any build). This is now the ONLY analytics gate (the consent step already shipped); the moment a
       build carries it, opted-in users' funnel events flow and decliners still transmit nothing. While creating the
       app, decide the optional **salt** (`Config(appID:salt:)` — 64 chars, set once and never change it, or
       distinct-user continuity breaks); record the decision (wiring it is a one-line agent edit).
+- [ ] **RevenueCat privacy toggle (~1 min, do it while you are in there):** Project settings →
+      privacy → switch **device-identifier collection OFF**. The App Privacy label declares NO
+      Identifiers row, so leaving it on would make that declaration false.
 - [ ] **Payload / MITM audit (~30 min, after the app ID ships in a TestFlight build):** run `docs/payload-audit.md`
       — your operator-only release gate (mitmproxy + the §4 procedure; expect the real wire values, e.g. the
       cold-start bucket sends `under_1s`/`1s_to_2s`/`over_2s`). Archive per its §6
       (`docs/audits/payload-audit-<build>.md`) — that archive IS the Epic 8 DoD's operator half and the evidence
-      base for the App Privacy label. The zero-before-consent half is verifiable on today's dormant build too.
+      base for the App Privacy label. The zero-before-consent half is verifiable on today's build too.
 - [ ] **App Privacy label entry (~15 min at submission time)** — `docs/app-privacy-label.md` is the ready-to-enter
-      row set: THREE collected rows (Usage Data › Product Interaction; the habit CATEGORY — see OQ-2; Purchases ›
-      Purchase History once RC is live), all Not-linked / Not-tracking, NO Identifiers row. **OQ-2 — RATIFIED Session 46:**
-      the habit CATEGORY is declared as **Health & Fitness › Health** (the reviewer-safe mapping for a 17+
-      addiction app). Rationale and the two rejected alternatives are recorded in `docs/app-privacy-label.md`.
-      Counsel may still veto; if they do, the manifest + its key-set pin move in the same session (LOCKSTEP).
+      row set: THREE collected rows (Usage Data › Product Interaction; the habit CATEGORY; Purchases ›
+      Purchase History — RC is live now, so this row APPLIES), all Not-linked / Not-tracking, NO Identifiers row.
+      **OQ-2 — RATIFIED Session 46:** the habit CATEGORY is declared as **Health & Fitness › Health**. Rationale and
+      the two rejected alternatives are in `docs/app-privacy-label.md`. Counsel may still veto; if they do, the
+      manifest + its key-set pin move in the same session (LOCKSTEP).
