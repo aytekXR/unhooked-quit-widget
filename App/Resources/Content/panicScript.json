@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": 1,
-    "audit": "No shame lexicon and no verdict language. No medical or withdrawal advice. Physical, time-boxed, urge-surfing framing. Steps map to PanicStep enum: breath, timer, reasons, redirect. Every step is skippable. The `reasons` step renders the user's own motivations verbatim ({{motivations}}) — our copy frames, theirs stars (brand kit §1.2). Discreet mode overrides: the intent is titled 'Reset' and strings carry zero habit context.",
+    "audit": "No shame lexicon and no verdict language. No medical or withdrawal advice. Physical, time-boxed, urge-surfing framing. Steps map to PanicStep enum: breath, timer, reasons, redirect. Every step is skippable. The `reasons` step renders the user's own motivations verbatim ({{motivations}}) — our copy frames, theirs stars (brand kit §1.2). Discreet mode overrides: the intent is titled 'Reset' and strings carry zero habit context. P2 wave timer (redesign §6.8): `elapsedLabel` ('riding it') is DRAFT — operator-instructed, founder pass pending — rendered after the count-UP elapsed figure (pure data, monospaced digits); time on this step only ever accumulates in the user's favor.",
     "duration_target_seconds": 90
   },
   "entryTitle": "Just this one wave.",
@@ -21,6 +21,7 @@
       "title": "This will pass",
       "instruction": "Urges crest and pass — usually within about 15 minutes. You don't have to win forever right now. Just this wave.",
       "subtext": "Stay here as long as you like. Nothing is counting down against you.",
+      "elapsedLabel": "riding it",
       "skipLabel": "I'm ready to keep going"
     },
     {

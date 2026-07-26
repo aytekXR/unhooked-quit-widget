@@ -72,7 +72,15 @@ struct PanicFlowSnapshotTests {
         ]
         for axis in axes {
             assertSnapshot(
-                of: PanicFlowView(model: model),
+                // pauseDate freezes the wave timer step 2:34 into the ride
+                // (the fixture clock's epoch + 154s — strictly inside the tick
+                // interval, the widget-lane precedent): the golden shows a
+                // partially-risen crest and a mid-ride count. Steps without a
+                // ticking element ignore it.
+                of: PanicFlowView(
+                    model: model,
+                    pauseDate: Date(timeIntervalSince1970: 1_783_425_600 + 154)
+                ),
                 as: .image(
                     precision: 0.99,
                     perceptualPrecision: 0.98,

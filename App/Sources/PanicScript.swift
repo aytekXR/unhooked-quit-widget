@@ -28,6 +28,12 @@ struct PanicScript: Codable, Equatable, Sendable {
         /// on the panic path.
         var instructionNonVisual: String?
         var subtext: String?
+        /// P2 (redesign §6.8) — the wave timer's count-up label ("riding it"):
+        /// rendered AFTER the ticking elapsed figure, which is pure data.
+        /// OPTIONAL for decode tolerance (the additive-field rule): a script
+        /// without it renders the bare figure — never a decode failure on the
+        /// panic path. DRAFT / founder-owned like every byte in this table.
+        var elapsedLabel: String?
         var motivationsToken: String?
         var emptyFallback: String?
         var options: [RedirectOption]?

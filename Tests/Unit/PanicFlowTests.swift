@@ -692,6 +692,38 @@ struct PanicFlowTests {
         #expect(f.haptics.patterns.count == 2, "the re-entered pacer replays its haptic rhythm")
     }
 
+    @Test func test_waveTimer_rideLatchesOnce_andNeverResets() throws {
+        // P2 (redesign §6.8): the ride clock starts when the timer step's first
+        // frame lands and then only ever ACCUMULATES — a second visit to the
+        // step (redirect → one more breathing round → skip back) continues the
+        // SAME ride. Nothing counts down against the user; nothing restarts
+        // against them either. Initial render is phase zero (nil — golden
+        // determinism, the pacer precedent).
+        let f = try FlowFixture(quit: card("Vaping"))
+        #expect(f.model.timerStartedAt == nil, "construction never starts the ride — the step's .task does")
+
+        f.model.skip() // breath → timer
+        f.model.markTimerStarted()
+        let rideStart = f.model.timerStartedAt
+        #expect(rideStart == f.clock.now)
+
+        f.clock.advance(by: 120)
+        f.model.skip() // → reasons
+        f.model.skip() // → redirect
+        f.model.selectRedirect("breathe") // back to the pacer…
+        f.model.skip() // …and into the timer step again
+        f.model.markTimerStarted() // the re-entered step's .task
+        #expect(f.model.timerStartedAt == rideStart, "the ride latches once — re-entry continues the same count-up")
+    }
+
+    @Test func test_shippingScript_timerStep_carriesTheElapsedLabel() throws {
+        // The DRAFT count-up label rides the audited table (never a view
+        // literal); decode tolerance is the additive-field rule — an older
+        // script without it renders the bare figure.
+        let script = try #require(PanicScript.loadShipping())
+        #expect(script.step(.timer)?.elapsedLabel == "riding it")
+    }
+
     @Test func test_flush_duplicateDraftIdsInOneBuffer_landOnce() throws {
         // Session 10 review pin: the exit-time append RETRY can double-write one
         // draft (the first write's bytes land but its fsync error surfaces late) —

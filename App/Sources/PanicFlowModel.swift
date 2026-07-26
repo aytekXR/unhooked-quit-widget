@@ -53,6 +53,15 @@ final class PanicFlowModel {
     /// TimelineView measures elapsed time against this; nil until the first frame's
     /// `.task` marks it, so the initial render is always phase zero.
     private(set) var pacerStartedAt: Date?
+    /// P2 (redesign §6.8) — when the RIDE began: the wave timer step's count-up
+    /// origin. nil until the timer step's first frame `.task` marks it (initial
+    /// render is always phase zero — golden-deterministic, and the panic entry
+    /// frame never pays for it). LATCHES ONCE, unlike the pacer: a second visit
+    /// to the timer step (redirect → one more breathing round → skip) continues
+    /// the SAME ride — elapsed ride time only ever accumulates, it never resets
+    /// (nothing counts down against the user, and nothing restarts against them
+    /// either).
+    private(set) var timerStartedAt: Date?
 
     init(
         quit: QuitSnapshot?,
@@ -124,6 +133,14 @@ final class PanicFlowModel {
     func markPacerStarted() {
         guard pacerStartedAt == nil else { return }
         pacerStartedAt = clock.now
+    }
+
+    /// The ride begins when the wave step's first frame is on screen (the view's
+    /// `.task`) — same discipline as the pacer, but latched for the flow's whole
+    /// life (see `timerStartedAt`).
+    func markTimerStarted() {
+        guard timerStartedAt == nil else { return }
+        timerStartedAt = clock.now
     }
 
     /// "Urge passed" — buffers the averted outcome (§9 rule 2) and celebrates quietly.

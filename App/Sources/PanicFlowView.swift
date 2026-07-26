@@ -10,6 +10,10 @@ import SwiftUI
 /// animation on entry, stage transitions at motion/calm 600ms fades.
 struct PanicFlowView: View {
     @State var model: PanicFlowModel
+    /// Freezes the wave timer's ticking text + crest for deterministic
+    /// snapshot goldens (the `StreakWidgetView.pauseDate` precedent);
+    /// production always passes nil.
+    var pauseDate: Date?
     /// The cold-route slip flow, built EXACTLY ONCE when the slipped-exit handoff
     /// appears (never per render) and then model-state-driven from there. Nil = the
     /// panic steps show; non-nil = the real slip flow is mounted over them.
@@ -20,8 +24,9 @@ struct PanicFlowView: View {
     @State private var showsResources = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    init(model: PanicFlowModel) {
+    init(model: PanicFlowModel, pauseDate: Date? = nil) {
         _model = State(initialValue: model)
+        self.pauseDate = pauseDate
     }
 
     /// Production wiring for the cold panic route. E3.3: the launch's TRUE origin
@@ -78,7 +83,7 @@ struct PanicFlowView: View {
         } else {
             switch model.stage {
             case .breath: BreathStepView(model: model, reduceMotion: reduceMotion)
-            case .timer: TimerStepView(model: model, onMoreSupport: { showsResources = true })
+            case .timer: TimerStepView(model: model, pauseDate: pauseDate, onMoreSupport: { showsResources = true })
             case .reasons: ReasonsStepView(model: model, onMoreSupport: { showsResources = true })
             case .redirect: RedirectStepView(model: model, onMoreSupport: { showsResources = true })
             case .exits: ExitsView(model: model)
@@ -365,11 +370,15 @@ private enum PanicSupportAffordance {
     static let copy = SafetyCopy.loadShipping()?.panicSupport ?? .degraded
 }
 
-// MARK: - Step 2 · urge timer
+// MARK: - Step 2 · urge timer (the live wave — P2, redesign §6.8)
 
 private struct TimerStepView: View {
     let model: PanicFlowModel
+    /// Snapshot freeze (nil in production — see `PanicFlowView.pauseDate`).
+    let pauseDate: Date?
     let onMoreSupport: () -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         let step = model.script.step(.timer)
@@ -383,11 +392,63 @@ private struct TimerStepView: View {
             supportLabel: PanicSupportAffordance.copy.moreSupportLabel,
             onSupport: onMoreSupport
         ) {
-            Image(systemName: "timer")
-                .font(.system(size: 56, weight: .light))
-                .foregroundStyle(Theme.color.brandPrimary.color)
-                .accessibilityHidden(true)
+            VStack(spacing: Theme.space.s5) {
+                // The wave is decorative and OMITTED at AX sizes (the
+                // StreakRing precedent — words and the count carry meaning).
+                // Reduce Motion → static crest with a slow opacity breath.
+                if !dynamicTypeSize.isAccessibilitySize {
+                    WaveTimerView(
+                        startedAt: model.timerStartedAt,
+                        reduceMotion: reduceMotion,
+                        pauseDate: pauseDate
+                    )
+                }
+                elapsedLine(label: step?.elapsedLabel)
+            }
         }
+        // The ride clock starts when the step's first frame is ON SCREEN —
+        // never at flow construction (the pacer's exact discipline). Zero
+        // entry-frame cost: this runs on the timer step only, post-pacer.
+        .task { model.markTimerStarted() }
+    }
+
+    /// Elapsed ride time, counting UP in monospaced digits ("2:31" + the
+    /// DRAFT "riding it" label). System-ticking `Text(timerInterval:)` —
+    /// `countsDown: false` is load-bearing, and VoiceOver reads it on focus
+    /// only (never an automatic announcement — §8: nothing counts against the
+    /// user, in audio either). Before the ride starts (initial frame) the
+    /// figure renders frozen at zero.
+    private func elapsedLine(label: String?) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: Theme.space.s2) {
+            if let start = model.timerStartedAt {
+                // A generous fixed span is the system ticker's ceiling — the
+                // figure only ever counts UP inside it. `pauseTime` freezes it
+                // for the goldens only (production passes nil).
+                Text(
+                    timerInterval: start...start.addingTimeInterval(12 * 3_600),
+                    pauseTime: pauseDate,
+                    countsDown: false,
+                    showsHours: false
+                )
+                .font(.title3.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(Theme.color.brandPrimary.color)
+            } else {
+                // Pre-start frame (and the goldens): the ride at zero — a
+                // literal zero FIGURE (data, not copy), byte-stable.
+                Text(verbatim: "0:00")
+                    .font(.title3.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.color.brandPrimary.color)
+            }
+            if let label, !label.isEmpty {
+                Text(label)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityIdentifier("panic.flow.timer.elapsed")
     }
 }
 
