@@ -401,13 +401,73 @@ final class A11yAuditUITests: XCTestCase {
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
-    // The SETTINGS audit leg is DEFERRED (UIR-5a run 29623574788): its first audit fired
-    // `.dynamicType` ("partially unsupported") + `.textClipped` on the navigation-bar LARGE
-    // TITLE ("Discreet Mode") — a SYSTEM large-title behavior (the large title does not fully
-    // scale with Dynamic Type and clips), not the themed content. The themed List cells + the
-    // resources row are clean. Fixing it means a custom title / `.inline` display mode (which
-    // re-records the settings golden), owned by name for a follow-up. The mount + env-var are
-    // removed with the leg (no dead code).
+    /// The SETTINGS leg — **back after three reverts**, because ME-7 (S50) removed the
+    /// thing that kept failing. History, so nobody re-litigates it: S38 (`3053b06`) added
+    /// the leg and reverted it (`513edcb`) when the nav-bar LARGE title fired
+    /// `.dynamicType` "partially unsupported" + `.textClipped`; S39 (`0a4bcda`) moved the
+    /// title to a free-standing `Text` and reverted (`56eb13d`) when the `List` section
+    /// FOOTERS clipped instead; S40 (`7d861d5`) added `.fixedSize` to every header/footer
+    /// and reverted (`52eafa6`) when the "Support & resources" row would not settle —
+    /// `Label` truncated, `HStack{Image;Text}` read "partially unsupported", and the
+    /// hidden-icon variant failed too (run 4, `bfe36ee`). Seven billed runs.
+    ///
+    /// Every one of those failures happened inside a `List` ROW or a `Section(footer:)`
+    /// slot, whose height iOS caps — which is exactly why the SHORT `iconRow` labels
+    /// passed on the same screen while the longer resources label did not. ME-7 rebuilt
+    /// the screen with no `List` at all, so a row is free to grow, and this leg is the
+    /// evidence for that claim rather than an assertion of it.
+    ///
+    /// R28.6 valve-eligible; not a rule-11 safety path. Gates on `settings.resources.row`
+    /// — a real `Button`, never a `.contain` container id (R36.4).
+    ///
+    /// SCOPE (do not overclaim): the `UITEST_SETTINGS` mount injects no repository, so
+    /// this audits the two repository-FREE sections — *Panic access* and *Support &
+    /// resources* — plus the free-standing screen title. The per-quit toggles, icon
+    /// picker, Breathing caption and Your-plan row are not in this render; their
+    /// invariant is held by `SettingsSourceLintTests`, and full-section coverage waits on
+    /// a mock `QuitRepository`.
+    func test_a11yAudit_settings_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_SETTINGS"] = "1"
+        app.launch()
+
+        let row = app.descendants(matching: .any)["settings.resources.row"]
+        XCTAssertTrue(
+            row.waitForExistence(timeout: 15),
+            "the UITEST_SETTINGS direct mount renders the rebuilt DiscreetSettingsView"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
+    /// The ERASE-CONFIRM leg — NEW in S50, and the S49 audit's own prescription. That
+    /// audit found a HIGH-severity defect in the erase confirm's assistive gate and then
+    /// named the reason it had shipped: *"the erase surface is not one of the 8 CI-audited
+    /// surfaces, so no lane can ever catch this."* This leg is the lane.
+    ///
+    /// A DIRECT mount is the only deterministic path: the settings erase row is gated on
+    /// `provider?.repository != nil`, and no `UITEST_*` mount injects a repository.
+    ///
+    /// Gates on `erase.cancel` — a standard `Button`, unconditionally present and enabled
+    /// on the confirm stage. Deliberately NOT `erase.flow` (a `.contain` container,
+    /// R36.4), and deliberately NOT `erase.confirm.hold`: that element now surfaces
+    /// through `.accessibilityRepresentation` and carries `.disabled(isErasing)`, so it
+    /// is both type-changed and state-dependent — a poor gate on either count.
+    ///
+    /// R28.6 valve-eligible; not a rule-11 safety path (it is a data-destruction confirm,
+    /// not a crisis surface). The mount's `EraseFlow` closures are no-ops, so the audit
+    /// cannot erase anything.
+    func test_a11yAudit_eraseConfirm_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_ERASE_FLOW"] = "1"
+        app.launch()
+
+        let cancel = app.descendants(matching: .any)["erase.cancel"]
+        XCTAssertTrue(
+            cancel.waitForExistence(timeout: 15),
+            "the UITEST_ERASE_FLOW direct mount renders EraseEverythingView's confirm stage"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
 
     /// The paywall leg — NEW in UIR-5. R28.6 valve-eligible. Gates on `paywall.cta` (a real
     /// Button). Mounted via UITEST_PAYWALL_DIRECT → the hard-variant `PaywallView` over a

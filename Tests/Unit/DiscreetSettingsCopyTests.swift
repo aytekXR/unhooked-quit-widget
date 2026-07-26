@@ -86,14 +86,20 @@ struct DiscreetSettingsCopyTests {
             )
         }
 
-        // Non-vacuity floor: DiscreetSettingsCopy is a STRUCT of 12 STORED strings (8 +
-        // the E7.3 winbackRowLabel, R26.9, + the E9.1 resourcesRowLabel, R27.10, + the
-        // E9.3 hapticPacerRowLabel & hapticPacerFooter, R28.3), never a computed-property
-        // enum whose Mirror yields nothing — a collapse below 12 means the walk (or the
-        // type's shape) silently broke and the scan is vacuous.
+        // Non-vacuity floor: DiscreetSettingsCopy is a STRUCT of STORED strings, never a
+        // computed-property enum whose Mirror yields nothing — a collapse means the walk
+        // (or the type's shape) silently broke and the scan is vacuous.
+        //
+        // S50 (S49 audit §3.3) — this floor read `>= 12` while the struct had grown to 20
+        // (QW-2 added 8 erase strings), so the collapse detector had gone blind to any of
+        // those 8. ME-7 then added 4 more (the section headers + the panic-access row
+        // label), so the true count is 24:
+        //     12 original + 8 QW-2 erase + 4 ME-7 = 24
+        // (the `widgetsHeader` → `discreetModeSectionHeader` rename is net zero).
+        // Verify with: `grep -c "^    let " App/Sources/DiscreetSettingsCopy.swift` == 24.
         #expect(
-            collected.count >= 12,
-            "the Mirror walk collapsed (<12 strings) — a computed-property style would scan nothing and pass forever"
+            collected.count >= 24,
+            "the Mirror walk collapsed (<24 strings) — a computed-property style would scan nothing and pass forever"
         )
     }
 }

@@ -34,7 +34,21 @@ struct DashboardCopyTests {
 
     /// QW-4 — the support lines carry the copy doc §6 bytes verbatim: hedged
     /// ("About"), urgency-free, and the discreet line habit-context-free.
-    @Test func test_panicEntrySupportLines_carryTheSignedBytes() {
+    ///
+    /// S50 (S49 audit §3.2) — the discreet line is now CROSS-PINNED to the panic script,
+    /// not just literal-pinned. `DashboardCopy.panicEntryDiscreetSupportLine`'s own
+    /// docstring claims it is "byte-identical to the panic script's discreet entry title
+    /// — one phrase, both surfaces", and nothing enforced that: editing
+    /// `panicScript.json` would redden `PanicFlowTests` while leaving the dashboard
+    /// button silently divergent. The sibling `panicEntryDiscreetLabel` test above
+    /// already does both (cross-pin to `PanicControlStyle.discreet.title` AND literal);
+    /// this now matches it.
+    @Test func test_panicEntrySupportLines_carryTheSignedBytes() throws {
+        let script = try #require(
+            PanicScript.loadShipping(),
+            "the shipping panicScript.json must bundle and decode for the cross-pin"
+        )
+        #expect(DashboardCopy.panicEntryDiscreetSupportLine == script.entryTitleDiscreet)
         #expect(DashboardCopy.panicEntrySupportLine == "One tap. About 90 seconds.")
         #expect(DashboardCopy.panicEntryDiscreetSupportLine == "Take a moment.")
     }

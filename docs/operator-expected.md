@@ -42,12 +42,41 @@ then the final golden batch + LB-5 screenshots.
       `_meta` kept DRAFT): `widgetMomentCopy.json`, `StreakDetailCopy`, `panicSupport` in
       `safetyCopy.json`, the summary `footer`/`cta`, the erase dialog strings, the dashboard
       panic-entry labels, the wave timer's `elapsedLabel`.
+- [ ] **Wave 3 / ME-7 adds FIVE strings to that same pass** (Session 50, `DiscreetSettingsCopy`).
+      Deliberately small: the S46 copy pass CLOSED this table, so every byte it signed is
+      verbatim — including `hapticPacerRowLabel` "Breathe with taps", which §7 below tells you to
+      toggle by name. Only what the new IA genuinely required changed:
+
+      | Field | Was | Now | Why it had to move |
+      |---|---|---|---|
+      | `screenTitle` | "Discreet Mode" | **"Settings"** | the screen IS Settings now; Discreet Mode is one section inside it. This also aligns §7, which already says "Settings → …". |
+      | `discreetModeSectionHeader` (was `widgetsHeader`) | "Widgets" | **"Discreet Mode"** | the section carries the feature's own name |
+      | `panicAccessSectionHeader` | — | **"Panic access"** | new first section |
+      | `widgetAdoptionRowLabel` | — | **"Add the lock-screen button"** | its one row (re-opens the widget-adoption moment) |
+      | `privacyDataSectionHeader` | — | **"Privacy & Data"** | new section (hosts erase; consent + "what leaves this device" join it later) |
+      | `breathingSectionHeader` | — | **"Breathing"** | new section |
+
+      Three things an agent deliberately did NOT do, so you can overrule any of them:
+      **(a)** the per-quit toggle label stays the QUIT's own name (or "Tracked goal" when
+      discreet) rather than a shared "Show numbers only" — with up to three quits, one shared
+      label renders three indistinguishable switches, and the neutral-identity rule is a privacy
+      panel amendment; **(b)** the `eye.slash` glyph was dropped from those toggle rows (the
+      section header now carries the meaning); **(c)** no "Your plan" section header was invented
+      — that byte is not drafted, so the win-back row sits in an unlabelled card.
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).
 - [ ] **Eyeball builds 125 + the wave-2 build on your device** — the operator half of accepting the
       redesign (the session verified simulator goldens + CI; your thumb on the real widget flow is
       the missing evidence).
+- [ ] **Glance at the rebuilt Settings screen (~2 min, wave 3 / ME-7).** It looks different on
+      purpose: the system `List` is gone, replaced by a scrolling column of themed cards, and the
+      title moved out of the navigation bar into the content. That change is what finally retires
+      the parked AX5 accessibility defect (see the note below), so the visual delta is the fix, not
+      a side effect. Four goldens were eyeballed before adoption, including both at the largest
+      accessibility size — but goldens cannot tell you whether it FEELS like a settings screen.
+      While you are there, tap **Panic access → "Add the lock-screen button"** and confirm it
+      re-opens the widget-adoption moment.
 
 ## 1. E0.3 panic-latency — PARTLY MEASURED (S48). What is left is one 15-minute pass.
 

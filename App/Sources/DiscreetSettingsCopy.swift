@@ -6,11 +6,38 @@ import Foundation
 /// STORED properties, NOT a computed-property enum — the R9 Mirror-vacuity rule: the
 /// S1 lexicon walk (shame + habit-leak, non-vacuity floor) scans exactly these
 /// members, and `Mirror` yields nothing over computed members.
+///
+/// ME-7 (S50) — the screen became a real Settings screen with the redesign §6.11
+/// canonical section order, so it gained four SECTION headers and one row label, and
+/// `screenTitle`/`widgetsHeader` were re-pointed at the new IA. **Every S46-final byte
+/// on this table was left VERBATIM** (`widgetsFooter`, `hapticPacerRowLabel`,
+/// `hapticPacerFooter`, `iconHeader`, and all eight QW-2 erase strings): the §3 copy
+/// pass closed them, they are founder-owned, and `operator-expected.md` §7's device
+/// matrix quotes "Breathe with taps" by name. The five S50 deltas are DRAFT and are
+/// queued on the §0 founder copy pass.
 struct DiscreetSettingsCopy: Sendable {
-    /// Navigation title of the one settings screen (mvp feature 9's literal clause).
+    /// Title of the one settings screen (mvp feature 9's literal clause). ME-7: the
+    /// screen is "Settings" and Discreet Mode is a SECTION inside it — the whole point
+    /// of the split (redesign §6.11: "a settings screen wearing a privacy feature's
+    /// name"). DRAFT/§3.
     let screenTitle: String
-    /// Section header over the per-quit discreet toggles.
-    let widgetsHeader: String
+    /// ME-7 — section header over the per-quit discreet toggles + the icon picker.
+    /// Was `widgetsHeader` ("Widgets") when the toggles were the whole screen; the
+    /// section now carries the feature's own name. DRAFT/§3.
+    let discreetModeSectionHeader: String
+    /// ME-7 (redesign §6.11) — the FIRST section: panic-access re-entry. Settings
+    /// order restates product values, so the panic surfaces come before admin.
+    /// DRAFT/§3.
+    let panicAccessSectionHeader: String
+    /// ME-7 (copy doc §11) — the panic-access row that re-opens the widget-adoption
+    /// moment (ME-1). Habit-name-free by the shoulder-surface discipline. DRAFT/§3.
+    let widgetAdoptionRowLabel: String
+    /// ME-7 (redesign §6.11) — the section that hosts the erase row (and, when QW-8
+    /// lands, the consent toggle + the "what leaves this device" screen). DRAFT/§3.
+    let privacyDataSectionHeader: String
+    /// ME-7 (redesign §6.11) — the section header over the haptics-only pacer toggle.
+    /// NEVER framed as an accommodation (brandkit §8). DRAFT/§3.
+    let breathingSectionHeader: String
     /// Section footer — deliberately OBSERVABLE copy ("show numbers only" = exactly
     /// what the toggle does); no unverifiable privacy claim (the S19 "anonymous"
     /// strike precedent: promise nothing the payload audit can't prove).
@@ -78,8 +105,12 @@ struct DiscreetSettingsCopy: Sendable {
     let eraseAssistiveHint: String
 
     static let shipping = DiscreetSettingsCopy(
-        screenTitle: "Discreet Mode",
-        widgetsHeader: "Widgets",
+        screenTitle: "Settings",
+        discreetModeSectionHeader: "Discreet Mode",
+        panicAccessSectionHeader: "Panic access",
+        widgetAdoptionRowLabel: "Add the lock-screen button",
+        privacyDataSectionHeader: "Privacy & Data",
+        breathingSectionHeader: "Breathing",
         widgetsFooter: "Widgets for this streak show numbers only.",
         iconHeader: "App Icon",
         iconRowDefault: "Default",

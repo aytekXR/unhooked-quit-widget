@@ -174,6 +174,46 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// ME-7 (S50) — the a11y-audit SETTINGS leg's mount, on the UITEST_RESOURCES
+    /// precedent: a DEBUG-only launch-env switch, inert in every release build BY
+    /// CONSTRUCTION.
+    ///
+    /// This leg existed and was reverted THREE times (S38 `3053b06`/`513edcb`,
+    /// S39 `0a4bcda`/`56eb13d`, S40 `7d861d5`/`52eafa6`) because the screen it audited
+    /// could not pass inside a `List`. ME-7 removed the `List`, so it comes back.
+    ///
+    /// SCOPE, stated so it is never overclaimed: the mount injects no
+    /// `RepositoryProvider`, so only the two repository-FREE sections render — *Panic
+    /// access* and *Support & resources*. Those two happen to carry the free-standing
+    /// screen title (R39.1) and the "Support & resources" row that defeated five S40
+    /// runs, which is the coverage that matters most here. The per-quit toggles, icon
+    /// picker, Breathing caption (R39.2) and Your-plan row are NOT in this render;
+    /// `SettingsSourceLintTests` is what holds their invariant instead.
+    private static var uiTestSettingsMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_SETTINGS"] == "1"
+        #else
+        false
+        #endif
+    }
+
+    /// S50 (S49 audit §1) — the a11y-audit ERASE-CONFIRM leg's mount. The erase surface
+    /// was the S49 audit's HIGH finding AND its structural lesson: erase is not one of
+    /// the audited surfaces, so no CI lane could ever have caught the defect. It is a
+    /// DIRECT mount because the settings erase row is repository-gated, so no
+    /// `UITEST_*` settings render can reach the sheet.
+    ///
+    /// Inert by construction: the `EraseFlow` closures are no-ops, so the audit can
+    /// never destroy data even if something drove the hold — the `#Preview` /
+    /// `EraseEverythingSnapshotTests` fixture, verbatim.
+    private static var uiTestEraseMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_ERASE_FLOW"] == "1"
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ZStack {
             content
@@ -269,6 +309,10 @@ struct PostGateRootView: View {
             debugPaywallDirectMount
         } else if Self.uiTestWidgetMomentMount {
             debugWidgetMomentMount
+        } else if Self.uiTestSettingsMount {
+            debugSettingsMount
+        } else if Self.uiTestEraseMount {
+            debugEraseMount
         } else if let paywall, let paywallData {
             PaywallView(
                 data: paywallData,
@@ -522,6 +566,35 @@ struct PostGateRootView: View {
     @ViewBuilder private var debugResourcesMount: some View {
         #if DEBUG
         SafetyResourcesView(source: .settings, analytics: .disabled)
+        #else
+        EmptyView()
+        #endif
+    }
+
+    /// ME-7 (S50) — the settings leg's frame, compiled out of release ENTIRELY. The real
+    /// rebuilt `DiscreetSettingsView`. BOTH repository-free closures are wired: with only
+    /// `onResourcesRowTap` the *Panic access* section does not render at all, and the leg
+    /// would audit one row — the shape the three reverted attempts had. Every hand-off is
+    /// a no-op, so the mount opens no path to habit content and fires nothing.
+    @ViewBuilder private var debugSettingsMount: some View {
+        #if DEBUG
+        DiscreetSettingsView(onResourcesRowTap: {}, onAddWidgetRowTap: {})
+        #else
+        EmptyView()
+        #endif
+    }
+
+    /// S50 (S49 §1) — the erase-confirm leg's frame, compiled out of release ENTIRELY.
+    /// The real `EraseEverythingView` on its confirm stage (`startOnCompletionFrame`
+    /// defaults to `false`) over an inert `EraseFlow` whose closures do nothing: the
+    /// `EraseEverythingSnapshotTests` fixture verbatim. No data write, no icon reset, no
+    /// repository — an audit run cannot erase anything.
+    @ViewBuilder private var debugEraseMount: some View {
+        #if DEBUG
+        EraseEverythingView(
+            flow: EraseFlow(erase: {}, applyIcon: { _ in }),
+            onErased: {}
+        )
         #else
         EmptyView()
         #endif

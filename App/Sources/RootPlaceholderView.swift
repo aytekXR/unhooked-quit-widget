@@ -36,6 +36,8 @@ struct RootPlaceholderView: View {
     @State private var warmHapticsOnlyPacer = false
     /// E6.3 — the discreet-settings sheet (mvp feature 9's "one settings screen").
     @State private var showsDiscreetSettings = false
+    /// ME-7 — the Settings *Panic access* row's re-entry into the ME-1 adoption moment.
+    @State private var showsWidgetAdoption = false
     /// E7.3 (R26.6) — the settings win-back row's tap-through: the host
     /// (PostGateRootView) owns the ONE paywall mount, so the row dismisses
     /// the sheet and hands off here. nil (the default) hides the row —
@@ -117,6 +119,24 @@ struct RootPlaceholderView: View {
             SafetyResourcesView(
                 source: presented.source,
                 analytics: provider?.repository?.analyticsService ?? .disabled
+            )
+        }
+        // ME-7 (§6.11 "Panic access") — the widget-adoption moment is re-enterable
+        // from Settings forever, which is the redesign's own promise for §6.15. Mounted
+        // HERE, beside the resources sheet, rather than on the toolbar button: the
+        // settings row dismisses its own sheet first (the resources-row pattern), and a
+        // sheet anchored to the dismissed subtree could not then present.
+        //
+        // ME-1's fire-point discipline is preserved: `widget_added` is fired by the
+        // adoption view's own app-group handshake, which is idempotent and stamped, so
+        // a re-entry from Settings cannot double-count the north-star metric.
+        .sheet(isPresented: $showsWidgetAdoption) {
+            WidgetAdoptionView(
+                copy: WidgetMomentCopy.loadShipping() ?? .degraded,
+                feed: WidgetStateStore.appGroup()?.read(),
+                now: LiveClock().now,
+                analytics: provider?.repository?.analyticsService ?? .disabled,
+                onContinue: { showsWidgetAdoption = false }
             )
         }
         .onChange(of: scenePhase) { _, phase in
@@ -318,6 +338,12 @@ struct RootPlaceholderView: View {
                 Text(discreet ? DashboardCopy.panicEntryDiscreetSupportLine : DashboardCopy.panicEntrySupportLine)
                     .font(.footnote)
                     .multilineTextAlignment(.center)
+                    // S50 (S49 audit §3.1) — the R33.12 item-4 invariant. This line
+                    // wraps inside a `maxWidth: .infinity` column, and neither the
+                    // free layout lint (its scope is App/Sources/{AgeGate,Quiz,
+                    // Dashboard,Monetization} — not root) nor any audit leg reaches
+                    // this view, so nothing else would have caught it.
+                    .fixedSize(horizontal: false, vertical: true)
             }
             // R33.5: the 56pt-plus panic target rides PADDING, never a height
             // floor — the capsule grows with the text at accessibility sizes.
@@ -440,6 +466,10 @@ struct RootPlaceholderView: View {
             DiscreetSettingsView(
                 onWinbackRowTap: onWinbackRowTap,
                 onResourcesRowTap: { resources = ResourcesPresentation(source: .settings) },
+                // ME-7 — the *Panic access* section's row. Same dismiss-then-hand-off
+                // shape as the resources row: the settings sheet closes and the host
+                // presents the ONE adoption mount.
+                onAddWidgetRowTap: { showsWidgetAdoption = true },
                 // QW-2 — the completion frame's door: restart the normal root
                 // over the fresh (empty) store. This subtree — and both sheets
                 // riding it — unmounts, and the fresh age gate stands.

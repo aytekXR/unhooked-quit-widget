@@ -74,6 +74,9 @@ struct EraseEverythingView: View {
                     Text(copy.eraseConfirmTitle)
                         .font(.title2.weight(.semibold))
                         .multilineTextAlignment(.center)
+                        // S50 (S49 audit §3.4) — the R33.12 item-4 invariant. The
+                        // sibling body Text below already carries it.
+                        .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("erase.confirm.title")
                     Text(copy.eraseConfirmBody)
                         .font(.body)
