@@ -2,8 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v7.0 |
-| Last updated | 2026-07-26 (**Session 48 — the golden batch was SCOPED END-TO-END and then deliberately NOT minted. ZERO billed runs, docs-only. THE PROJECT IS BLOCKED ON ONE OPERATOR DECISION: `operator-expected.md` §0.**) The §3 copy pass closing in 46B was exactly the trigger `golden-batch.md` had waited for since S40, so S48 opened to mint it — the last agent task on the launch path. It stopped for **two independent reasons, either sufficient.** **(1)** The operator's own `redesign/design-roadmap.md`, committed in the SAME 46B session that unblocked the batch, schedules changes to **all four** surfaces the batch covers: QW-6 crest on the age gate (Phase 2), ME-8's waterline field behind the quiz + "warmer keyboard steps (spend/custom-name)" (Phase 3), **ME-4 "Summary payoff redesign"** and **ME-9 "Paywall goldens + reachable polish"** (Phase 4) — and Phase 4's own text says goldens "re-record once … screenshots can shoot against final UI", with Phases 1–4 framed as "to launch-ready … ~7 weeks". Meanwhile `critical-path-post-uir.md`, ALSO operator-updated in 46B, says the batch is mintable now. **Two operator-authored documents disagree and only the operator can say which governs.** **(2)** The batch requires PRODUCTION seams on exactly the views the redesign rewrites — including `QuizSummaryView`, which IS ME-4. **The scoping (`wf_37cf6604-562`, 6 agents) paid for itself regardless:** it proved a CERTAIN silent failure — `QuizSummaryView` renders `.opacity(revealed ? 1 : 0)` and sets `revealed` inside `.onAppear { withAnimation { … } }`, so **every summary golden would have been a BLANK PNG**; the critic additionally caught a FATAL seam-label mismatch between two agents' proposals (would not compile, would record nothing), a fixture approach that would have left goldens GREEN when copy changed, and a scope blowup of 51 proposed goldens against a 12–20 budget (cut to **22** with per-golden rationale). **The whole mint plan is BANKED** — seams, 22-golden matrix, a two-run split isolating the one risky seam, verified-by-quote initializers, and two open risks (the age-gate UIPickerView's 122 rows may not populate synchronously; CI pins no locale/timezone) — in the S48 ledger entry and in `golden-batch.md`. **Answering §0 (A) or (C) starts the mint immediately with zero re-scoping.** Superseded S47 header below.) |
+| Document | Resume Prompt v8.0 |
+| Last updated | 2026-07-26 (**Session 50 — ME-7: the Settings rebuild, and the accessibility item that had been parked for TEN sessions is CLOSED. 2 billed runs, both legs of the diagnosis paid for.** The project is no longer operator-blocked: §0 was answered **(B)** — the redesign runs before launch — and waves 1–2 landed in a parallel session, so the agent workstream is now `redesign/design-roadmap.md` itself. S50 is wave 3. **The session's real finding is that the S40 diagnosis was right about the symptoms and WRONG about the cure, and that error cost seven billed runs.** QW-9 had been attacked three times (S38 `3053b06`/`513edcb`, S39 `0a4bcda`/`56eb13d`, S40 `7d861d5`/`52eafa6`), each time hunting a row SHAPE that would satisfy Apple's audit — `Label` truncated, `HStack{Image;Text}` read "partially unsupported", the hidden-icon variant failed too — and it was finally parked as *Mac-gated, needs the Accessibility Inspector*. The shape was never the variable: **every failure happened inside a `List` row or a `Section(footer:)` slot, whose height iOS caps.** The tell had been in the ledger all along — the SHORT icon-picker labels PASSED on the same screen where the longer "Support & resources" label failed, and `.fixedSize` on the haptic caption changed nothing because the constraint was never the text's. **ME-7's §6.11 rebuild removes the `List`, so the class is retired by construction**, and the AX5 golden is the proof seven runs never got: "Add the lock-screen button" now wraps to FOUR full lines with its glyph co-scaled, where it used to truncate. **10 surfaces now carry the full 7-type audit** — settings is back after three reverts, and **erase confirm is new**, which was the S49 audit's own prescription (it found a HIGH assistive-activation defect and named the reason it shipped: erase was not an audited surface, so no lane could catch it). That defect is fixed STRUCTURALLY: `HoldToConfirmButton` chose its safe branch by reading two `@Environment` flags, an enumeration that can never be completed because **Voice Control and Full Keyboard Access are not reportable by ANY Apple API** (`accessibilityFullKeyboardAccessEnabled` → HTTP 404, confirming S49 §6's correlated-hallucination finding first-hand); `.accessibilityRepresentation` (docs JSON 200, iOS 15.0+, label `representation:` — the audit's own `content:` is a 404) replaces detection so every AT, including the unreportable ones, sees one standard Button. **THREE new born-green lints, each PROVEN by an executed Linux harness, and two of them caught real defects before they cost anything:** `SettingsSourceLintTests` (bans the height-capped containers; its harness caught a false positive — a plain-substring `Section(` matched the new file's own `discreetModeSection(`/`breathingSection(`/`yourPlanSection(` method names, which would have reddened the unit lane on a billed run); the `DiscreetSettingsCopy` lexicon harness (the plan's free check was IMPOSSIBLE — it prescribed `Packages/AppTests`, which does not exist, and a `--filter` on a test whose own header says it cannot run locally); and `UITestMountCoherenceTests`, written because **run 1's two new legs both failed at their GATE, not their audit** — `AgeGateContainerView.uiTestOnboardingMount` is a hand-maintained allow-list that is the SECOND HALF of every direct mount, and a missing entry reports a 15s timeout that blames the view. `UITEST_WIDGET_MOMENT` had been missing since wave 2 for the same reason. **Four of the plan's own load-bearing claims were overruled** — see the ledger; the most consequential was a proposed style rewrite of S46-FINAL founder-owned copy, including "Breathe with taps", which `operator-expected.md` §7 tells the operator to toggle BY NAME. Copy delta: 5 DRAFT strings, not 11. **NO operator action is required to continue; the next wave is ME-3.** Superseded S48 header below.) |
+| _superseded_ | 2026-07-26 (**Session 48 — the golden batch was SCOPED END-TO-END and then deliberately NOT minted. ZERO billed runs, docs-only. THE PROJECT IS BLOCKED ON ONE OPERATOR DECISION: `operator-expected.md` §0.**) The §3 copy pass closing in 46B was exactly the trigger `golden-batch.md` had waited for since S40, so S48 opened to mint it — the last agent task on the launch path. It stopped for **two independent reasons, either sufficient.** **(1)** The operator's own `redesign/design-roadmap.md`, committed in the SAME 46B session that unblocked the batch, schedules changes to **all four** surfaces the batch covers: QW-6 crest on the age gate (Phase 2), ME-8's waterline field behind the quiz + "warmer keyboard steps (spend/custom-name)" (Phase 3), **ME-4 "Summary payoff redesign"** and **ME-9 "Paywall goldens + reachable polish"** (Phase 4) — and Phase 4's own text says goldens "re-record once … screenshots can shoot against final UI", with Phases 1–4 framed as "to launch-ready … ~7 weeks". Meanwhile `critical-path-post-uir.md`, ALSO operator-updated in 46B, says the batch is mintable now. **Two operator-authored documents disagree and only the operator can say which governs.** **(2)** The batch requires PRODUCTION seams on exactly the views the redesign rewrites — including `QuizSummaryView`, which IS ME-4. **The scoping (`wf_37cf6604-562`, 6 agents) paid for itself regardless:** it proved a CERTAIN silent failure — `QuizSummaryView` renders `.opacity(revealed ? 1 : 0)` and sets `revealed` inside `.onAppear { withAnimation { … } }`, so **every summary golden would have been a BLANK PNG**; the critic additionally caught a FATAL seam-label mismatch between two agents' proposals (would not compile, would record nothing), a fixture approach that would have left goldens GREEN when copy changed, and a scope blowup of 51 proposed goldens against a 12–20 budget (cut to **22** with per-golden rationale). **The whole mint plan is BANKED** — seams, 22-golden matrix, a two-run split isolating the one risky seam, verified-by-quote initializers, and two open risks (the age-gate UIPickerView's 122 rows may not populate synchronously; CI pins no locale/timezone) — in the S48 ledger entry and in `golden-batch.md`. **Answering §0 (A) or (C) starts the mint immediately with zero re-scoping.** Superseded S47 header below.) |
 | _superseded_ | 2026-07-26 (**Session 47 — the LOCALE axis: 46A found ONE device-settings defect; S47 swept the CLASS and found two more, both in the money path. 1 billed run.** **Session-open (three commands, not an eighth plan-audit):** `git fetch` → `41cc162`, clean; CI `30173055411` SUCCESS per-job (10/10); free lanes first-hand **121 pass**; `roadmap.md` re-checked independently — **zero unchecked boxes**, Phase 4/5 post-launch-gated. **The axis:** R46.1 was treated by 46A as one bug; it is a CLASS — a device *Settings* value silently changing behaviour, invisible to a suite and 107 goldens that are always `en_US`. A hand probe confirmed the axis before any agent spend: all three money formatters leave `formatter.locale` at the device default, and the app declares **no localizations at all**. `wf_716e9226-b8c` ran **13 adversarial agents** (6 dimension finders, each required to EXECUTE a Swift probe over the exact shipping bytes rather than reason → an independent refuter per finding, default-REFUTED → a completeness critic). **6 findings → 2 actioned, 2 refuted, 2 downgraded; TWO dimensions CLEAN.** **R47.1 (FIXED):** `spend` and `allowance` are both `decimalInput`, rendering a `.decimalPad` whose separator iOS draws from the user's Region — so a comma-decimal user (most of Europe, Turkey, Brazil, Indonesia) typing **"12,50" had it stored as 12**; **"0,50" became 0**, which hides the money feature app-wide via the `spend > 0` guards on summary, dashboard AND widget; an Arabic-Indic entry became 0 outright. `weeklySpend` is written at `createQuit` and has **NO edit path**, so the wrong value is permanent. **Passing `Locale.current` is NOT the fix** — measured, `en_DE` reports `,` (the REGION drives it) but then `Decimal(string:"6.50", locale:)` is **6**, merely inverting the truncation; Apple's forums report keyboard language and region routinely disagree. NEW `DecimalInputParser` is separator-AGNOSTIC (folds non-Latin digits, drops grouping spaces, reads the final separator's role from grouping SHAPE: `1.250` ⇒ 1250 on de_DE, 1.25 on en_US). **The harness caught THREE bugs in the parser itself** before it was wired in — the session's methodological point. **R47.1b:** the audit agent called `allowance` a "stepper"; it is not, and bare `Int()` returned nil for ANY separator, so a reduce goal silently lost its limit. **R47.2 (FIXED):** `savingsDisplay` guarded `savings > 0` BEFORE the floor-to-ten, so any projection under ten units floored ONTO zero and rendered the fabricated "~$0/year" AC4 forbids. **R47.3 (FIXED):** 46A's own `CalendarSourceLintTests` claimed "ALL shipping code" and named the timeline planner as what it protects, but `scopedRoots` omitted `Packages/` — the two files that actually do the calendar math were never opened by the walk (now 143 files). **CLEAN:** crash safety (every trapping construct proven unreachable) and helpline region resolution (4 probes — now evidence for the paste-to-Apple "region-aware" claim). **Batched R46.6.** **REBASED mid-flight onto the operator's 46B copy-pass commits** — zero file overlap; their in-flight CI run was allowed to finish first so this run isolates these changes. **NO operator action for the code**; two items added to `operator-expected.md` (a free ITMS-9105 inbox check §8; the beta-tester geography decision §5). **46B closing §3 means the FINAL GOLDEN BATCH is UNBLOCKED — that is the next session.** Superseded 46B header below.) |
 | _superseded_ | 2026-07-26 (**Session 46B — THE OPERATOR SHOWED UP AND THE §3 COPY PASS IS CLOSED.** The five-session terminal-state loop (S41–S45) ended: the operator opened with "operator expected dosyasında benim üzerime düşen işleri yapmaya geldim" and worked the critical path's **step 1**, its longest-lead item, end-to-end in one sitting. A 14-agent workflow (`wf_e323a333-604`, ~928k subagent tokens, 0 errors) read every shipping copy table in parallel — one agent per file, plus external helpline verification and a cross-file consistency critic — and the operator then made **~20 decisions** across four rounds. **18 string edits + 5 code changes landed, all verified green locally before commit:** 121 free-lane package tests, 404 unit in 64 suites, 35 snapshot in 8 suites, and the UI-smoke/a11y-audit lane, run with the CI invocations byte-for-byte on an iPhone 17 Pro simulator (Xcode 26.6); 12 goldens re-recorded (107 total, unchanged). **THE SESSION'S MOST IMPORTANT FINDING: `operator-expected.md` §3 had been instructing, since S27, to verify ALO 182 and flip `verified: true` — following that instruction would have shipped a life-safety defect.** ALO 182 is Turkey's **hospital appointment booking line** (MHRS); the Ministry of Health's own page is titled "Alo 182 - Merkezi Hastane Randevu Sistemi". The `helplines.json` row claimed the name "Yaşam Hattı" and described psychologist support for suicidal ideation — both fabricated — and its own source URL pointed at findahelpline.com, not any official page. A Turkish user in crisis dialling 182 would have reached an appointment IVR; `verified: false` was the only thing protecting them. The row is corrected in place, stays `verified: false` **permanently**, and carries an explicit "ASLA verified: true YAPMAYIN" note with the evidence so no future session repeats it. **SECOND: a real safety gap was fixed, not accepted** — the alcohol withdrawal notice mounted ONLY on the dashboard, so an alcohol user who hit the HARD paywall and did not convert never reached it and never saw the notice; it now also mounts on the SUMMARY (pre-paywall), sharing one extracted `AlcoholNoticeCard`, with the dashboard mount kept as the fallback (the durable `recordAlcoholNoticeShown()` stamp makes double-presentation impossible). **THIRD: OQ-1 resolved toward brandkit §1.2** ("Adult content"/"Cannabis") — and the documented scope was wrong: the words rendered on **5** surfaces, not 2, because two views called `rawValue.capitalized` and never touched `displayLabel`, also shipping "Vape"/"Doomscroll"/"Custom"; all five now read `HabitCategory.displayNoun`. **FOURTH: the Schedule 2 legal rider is CLOSED in code** — Terms/Privacy were inert `Text` labels and are now real `Link`s to `beyondkaira.com/terms` + `/privacy` (constants in `AppIdentifiers.swift`); making them interactive immediately failed the a11y audit with `Hit area is too small` ×2, fixed with 44pt targets. Also: the paywall promised a **journal** that `mvp.md:68` puts out of MVP scope (now "notes and reflections"); `review-notes.md` cited a notification test **that does not exist** (now code-absence verification); three milestone bodies softened off medical adjacency; the panic entry title shortened — and the AX5 goldens proved the docs' "it truncates" claim wrong while revealing something worse they had never recorded: the long title pushed the **breath bloom entirely off-screen** at max Dynamic Type. **NEXT SESSION: the operator selected FOUR tracks and only §3 was worked — device sitting #1, the §8 keys, and §5/§6 TestFlight+Slack housekeeping are still open and were left with parallel-homework instructions.** The final golden batch is now UNBLOCKED. **READ FIRST: `docs/critical-path-post-uir.md`, then `docs/operator-expected.md` §3 for the external gates.** RAN CONCURRENTLY WITH SESSION 46A (the autonomous pre-launch defect hunt — the 17+ age-gate calendar fix + the redesign blueprint); the two were merged after the fact and did not collide, the only code overlap being the same stale "15 goldens" comment both fixed identically. 46A's header is immediately below. Superseded S45 header beneath that.) |
 | _superseded_ | 2026-07-25 (**Session 46 — the PRE-LAUNCH DEFECT HUNT: a REAL 17+ age-gate compliance defect found and FIXED. 1 billed run, CI green.** This is the first session since S40 to change shipping code, and the first EVER to audit the CODE rather than the plan. **Session-open (three commands, not a sixth audit):** `git fetch` → local == `origin/main` at `77b7c44`, clean; the only two commits after the S45 ledger are AGENT docs-declutter commits (operator asked for open-items-only in `operator-expected.md`; now recorded in the ledger — they had been missed); last code CI run `29679913441` SUCCESS per-job (10/10); free lanes re-run first-hand = **121 pass**; **no unblock trigger fired**; `roadmap.md:252-256` confirms Phase 4/5 are post-launch-gated, so no roadmap item exists for an agent to start. **The new axis:** S41–S45 all asked *"is any PLANNED work left?"*; none asked *"is the SHIPPED CODE correct?"* — 121 tests + 107 goldens passing is not the same claim as correct, and external beta + App Review are next. So `wf_e3149939-8ad` ran **12 adversarial agents** (6 read-only dimension finders → an independent refuter per dimension told to REFUTE and default-to-refuted → a completeness critic) over the 119 shipping files. **Result: 5 findings, 5 CONFIRMED, 0 refuted; privacy/consent and app-flows/concurrency came back CLEAN** (meaningful negative results — the ADR-8 double gate and the §10 absence set survived an adversarial read). **R46.1 (HIGH, FIXED, `0cec0bf`):** `AgeGateContainerView:136` derived `currentYear` via **`Calendar.current`** — the device's Language & Region calendar. MEASURED with an executed Linux probe, not reasoned: on an Islamic-calendar device the 17+ boundary's youngest passer is **16.60 solar years** (vs 17.57 Gregorian) — an ~11.7-month hole in a legally load-bearing gate; and under the **Japanese** calendar `component(.year:)` returns the ERA year (8), collapsing the birth-year wheel to **`-112...8`**. Nothing caught it because `Calendar.current` IS Gregorian on every simulator — the suite and every golden are structurally blind to the class. Decisive: `StreakCardModel:54`, `AdherenceCalculator:27`, `StreakTimelinePlanner:114` ALL already pin `.gregorian` — **the gate was the single dissenting site.** Fixed via `AgeGate.calendar`/`currentYear(at:)` + NEW `CalendarSourceLintTests` (born-green PROVEN by an executed Linux harness: 119 files, 0 violations, fire-on-mutation on both idioms) + a semantic pin in `AgeGateTests` written RELATIONALLY so an ICU revision can't redden it + the `review-notes.md:69` paste-to-Apple rider. Byte-identical on CI/Gregorian devices ⇒ zero golden churn. **R46.2 (MEDIUM, DOCUMENTED not fixed):** `EntitlementModel`'s own contract promises refresh on construction/purchase/foreground; **only construction exists** — `makeOnPurchaseCompleted` receives the fresh state and discards it. Live-path only (dormant builds unaffected), so it is a **named rider on the operator's §8 key step**, deliberately not blind-fixed (Architect-gated + unverifiable without the RC key — the R41.1 lesson). **R46.3 (LOW):** launch-time `refreshPanicSnapshot()` skips `scheduleWidgetReload()` — owner tradeoff (reload budget), recorded. **R29.4 independently rediscovered** — already known/deferred, no action. Batched the banked `StreakWidgetStyle` 15→29 comment. **NO NEW operator action required.** READ FIRST next session: `docs/critical-path-post-uir.md`. Superseded S45 header below.) |
@@ -21,8 +22,8 @@
 | _superseded_ | (Session 36 close: **UIR-4a DONE in exactly 2 billed runs** — the two DEFECT surfaces regenerated: **RESOURCES** (safety) — `.background(.quaternary)` → `themedCard`, the R33.10 DIAL link (44pt floor + "Call <name>" label), 2 goldens + a new audit leg that passed the full 7-type set CLEAN on run 1 (the THIRD consecutive clean first-audit); **PAYWALL** — 3 R32.9 disabled-`.plain` fixes (`PrimaryButtonStyle`/`QuietButtonStyle` + the new pass-through `PlanCardButtonStyle`) + a pre-existing caution-on-caution contrast bug, no goldens (draft copy, verified by the QuizFunnelUITests smoke). **SETTINGS DEFERRED to UIR-4b** (the List→ScrollView restyle — the biggest structural risk, cleanly separable; full spec preserved in `scratchpad/uir4-step0.md` + workflow journal wf_b91f1762-aff). New contrast pair (34 total, Linux-verified). **R36.4 = the mount-gate lesson: a full-screen `.accessibilityElement(children: .contain)` container id does NOT surface as a queryable element (unlike a bounded card) — gate an audit leg on a real CHILD element.** Superseded S35 header below.) |
 | _superseded_ | (Session 35 close: **UIR-3 DONE in exactly 2 billed runs** — the panic + slip flows (rule-11 SAFETY surfaces) are regenerated on the Theme layer with a PM+Brand+QA pre-code sign-off, copy byte-identical. **The `.dynamicType`/`.textClipped` exclusion list is CLOSED to ZERO** — all 8 `minHeight: 56` floors became growing PADDING (the exact S28 mechanism), `StepScaffold`/`confirmStage` scroll with pinned actions (R33.5), the reasons text moved off a `@ScaledMetric` point size onto `.largeTitle` (R33.12), both audit legs joined the full 7-type set and `safetyAuditTypes` is deleted. **The rule-11 panic/slip legs passed CLEAN on run 1** (the SECOND consecutive clean first-audit — the ledger a prior run wrote is the current run's free coverage). 64 class-A goldens re-recorded + visually verified; total unchanged at 103. STEP-0: did NOT grow the lint scope to panic/slip (would force a shape-changing `.buttonStyle(.plain)` refactor on safety surfaces — the full-set audit legs are the gate instead; deferred to UIR-5). Carried: the reasons-frame AX5 title truncation (R35.6, a UIR-5 AX-axis item) and the `.plain`→ButtonStyle refactor. Superseded S34 header below.) |
 | _superseded_ | (Session 34 close: **UIR-2 DONE in exactly 2 billed runs** — the 2 planned, contingency UNUSED, ZERO burned. The **real `StreakDashboardCard` + `StreakRing`** are built on the Theme layer — the `RootPlaceholderView` "walking skeleton" that had stood in for the dashboard since Session 18 is RETIRED, replaced by one card per active quit (streak-day hero, flame + momentum figure, the momentum ring, money saved, next-milestone bar). **Copy is byte-identical** (R34.2, copyBlockerFound=FALSE): every string is audited (`"saved"`/`"next milestone"`, pinned byte-identical to `StreakWidgetStyle`) or pure ADR-11 data; the §3-blocked polish strings ship empty-guarded. **The dashboard is AUDITED FOR THE FIRST TIME and its first audit passed CLEAN** (R34.3) — the first UIR surface to fire nothing, because R33.12 was already known and the card was built to it from the first byte (the free layout lint pre-empted every `.dynamicType` idiom; `children:.contain` + 4.5-clean tokens pre-empted the rest). **Widgets were DEFERRED at STEP-0** (R34.7): the 5 families are on-spec bar two minor brandkit-§3 typography defects; `StreakWidgetViews.swift` was UNTOUCHED so the 29 widget goldens stay byte-stable and no golden churn entered the budget. 8 dashboard goldens minted (95 → 103); the a11y exclusion list did not shrink this session (panic + slip remain, UIR-3's job).) |
-| Phase | **The build side is agent-complete; the OPERATOR'S critical-path step 1 (§3 copy pass) is now DONE too, which UNBLOCKS the final golden batch — the next agent session.** UIR-0…5c DONE (8 a11y-audited surfaces). Sessions 41–45 verified the terminal state five times; **46A** ran the first CODE audit (R46.1, the 17+ age-gate calendar defect, fixed); **46B** was the operator closing the §3 copy pass end-to-end (~20 decisions, 18 string edits + 5 code changes, 12 goldens re-recorded, ALO 182 corrected from a fabricated crisis-line row to the hospital-appointment line it actually is, the alcohol notice made reachable pre-paywall, OQ-1 resolved to clinical nouns across 5 surfaces, Terms/Privacy made real links); **47** swept the locale/device-settings CLASS 46A's defect belonged to and fixed two more money-path defects (R47.1 comma-decimal spend truncation, R47.2 the fabricated "~$0/year") plus a scope hole in 46A's own calendar lint (R47.3). All lanes green; 107 goldens stable; TestFlight live. Remaining operator work: clinician+counsel sign-off, the two legal pages, G0 trademark clearance, device sitting #1, §8 keys, external beta, submission. |
-| Next session objective | **⛔ BLOCKED — read `docs/operator-expected.md` §0 FIRST.** The only remaining agent task (the final golden batch) is paused on one operator decision: does the `redesign/` program run BEFORE launch? **If the operator has answered (A) "ship the current UI" or (C) "freeze these surfaces" → EXECUTE THE BANKED PLAN** in `docs/golden-batch.md` (22 goldens, 2 runs; run 1 = age gate + quiz + paywall, run 2 = summary alone; the two production seams; `_snapshotRevealed` as the agreed label; `SummaryPresentation.make(… locale: Locale(identifier: "en_US"))` for fixtures; NEW goldens are red→adopt-from-artifact→green with **every PNG visually verified**, never born-green per R32.4; eyeball the age-gate picker wheel specifically). **If the operator answered (B) "redesign first" → the golden batch is DEFERRED by the redesign's own sequencing**, and ask whether an agent should begin executing `redesign/design-roadmap.md` Phase 1 ("Truth & instrumentation — do this before any pixel moves"; note QW-7 already landed in 46B) — that is a ~7-week program and a much larger scope commitment than anything taken on autonomously so far, so do not start it unasked. **If the operator has NOT answered → do NOT mint, do NOT invent substitute work, and do NOT re-run a defect hunt on unchanged bytes** (S46 spent the code axis, S47 the locale axis). Report blocked and stop. Other triggers remain live and are independent of §0: the **§8 RevenueCat key** → land R46.2 in one run (+ batch the banked win-back repository-tier tests and the banked QW-1 brandkit `tokens.json` regeneration, which is data-only and must never be spent standalone); an **ITMS-9105 reply** → the manifest edit or delete the checkbox. |
+| Phase | **The redesign program IS the agent workstream now** (operator §0 = (B), pre-launch). Waves 1–2 landed in a parallel session; **wave 3 = S50 (ME-7 Settings + the a11y closures)**. UIR-0…5c DONE. **10 surfaces** carry the full 7-type audit (settings + erase confirm added S50) and the `.dynamicType`/`.textClipped` exclusion list is ZERO. **The last Mac-gated item is CLOSED** — no Accessibility Inspector session is needed. Sessions 41–45 verified the old terminal state five times; 46/47 audited the shipped CODE and fixed three defects no test could see (the 17+ age gate on the device calendar; comma-decimal money truncation; a fabricated "~$0/year"); 46B was the operator closing the §3 copy pass; 48B took RevenueCat LIVE and bound the paywall to Apple's real per-territory price; 49 audited 48B's wave. **Remaining redesign items: ME-3, ME-8, ME-4, ME-9, then the final golden batch + LB-5.** Remaining OPERATOR work: clinician + counsel sign-off, the two legal pages published, G0 trademark clearance, device sitting #1, the sandbox purchase matrix, Superwall + TelemetryDeck keys, external beta, submission. |
+| Next session objective | **ME-3 — milestone unlock moments** (`redesign/design-roadmap.md` Phase 3; UX blueprint §6.20 + §6.17). NOT blocked, no operator input needed: the 43 milestone bodies already ship in `App/Resources/Content/milestones.json`, are lexicon-gated, and `StreakDetailView` (wave 2) already renders the catalog — so ME-3 is the *unlock moment* (a quiet Ember-lit card on Home + the waterline-rise motion, 600ms, one soft haptic, never confetti) plus the discreet variant (time-only title, no Ember). **Read `docs/past-prompts.md` Session 50 FIRST** — four of its rulings generalize: (1) a plan's "free" verification step is a claim to CHECK, not trust (`Packages/AppTests` does not exist, and `Tests/Unit` cannot run on Linux at all — write an executed harness over bytes PARSED FROM SOURCE); (2) any new `uiTest…Mount` needs its env var in `AgeGateContainerView`'s allow-list or its leg times out blaming the view — `UITestMountCoherenceTests` now catches that for free; (3) S46-final copy is founder-owned and `operator-expected.md` §7 quotes some of it BY NAME, so never restyle it; (4) verify every proposed Apple API against the docs JSON yourself — S49's finder AND its refuter invented the same property, and S49's own recommended fix had the wrong argument label. Milestone copy is DRAFT/founder-owned → append to §0's pass. **Other live triggers, independent of ME-3:** the **Superwall key** → variant mapping + dashboard placements; the **TelemetryDeck app ID** → wake the transport (+ the banked QW-1-class win-back repository-tier tests, which must never be spent standalone); an **ITMS-9105 reply** → the manifest edit or delete the checkbox. |
 
 > **What changed in Session 46 — the first session to audit the CODE instead of the plan, and it found a real
 > defect.** Five sessions had verified "no PLANNED work is left." None had ever verified "the shipped code is
@@ -235,20 +236,58 @@
 - **uipro:** present as an npm CLI (`which uipro`; nvm node v20.20.2). Domain
   searches as generator input; the brandkit + tokens-v2 canon OVERRIDE it.
 
+### S50 additions (permanent)
+
+- **A plan's "free verification" step is a CLAIM, not a fact — check it before you rely on it.**
+  S50's plan prescribed `swift test --package-path Packages/AppTests` (no such package) and a `--filter` on
+  a test whose own header says *"This lane CANNOT run locally (@testable app import)"*. Only three SwiftPM
+  packages exist (StreakEngine / WidgetToolkit / PaywallKit); **everything under `Tests/` is an Xcode target
+  and cannot run on the Linux box at all.** The substitute is the standing rule-4 technique: an executed
+  harness that replicates the test's matcher over bytes **PARSED FROM SOURCE**, never a hand transcription,
+  proving pass-on-real-bytes AND fire-on-mutation.
+- **Every `uiTest…Mount` is TWO edits in TWO files.** `PostGateRootView` declares the branch;
+  `AgeGateContainerView.uiTestOnboardingMount` is the allow-list that lets the launch reach it on a FRESH
+  install. Miss the second and the leg times out after 15s with a message that blames the VIEW.
+  `UITestMountCoherenceTests` now catches it for free — but know the coupling.
+- **Apply the docs-JSON oracle to AGENT-PROPOSED fixes, not just to hand-written code.** S49's finder and
+  its adversarial refuter independently invented `accessibilityFullKeyboardAccessEnabled` (404), and S49's
+  own recommended fix named `accessibilityRepresentation(content:)` — also a 404; the real label is
+  `representation:`. Two agents from the same distribution confirm each other's plausible fiction. Check it
+  from the orchestrator, first-hand.
+- **When a defect has resisted several runs, suspect the CONTAINER, not the element.** QW-9 burned seven
+  billed runs on row shapes because everyone read the audit's complaint as being about the row. The evidence
+  that it was the `List` was already in the ledger: short labels passed where long ones failed, on the same
+  screen, in the same shape.
+- **A source LINT can be a stronger guarantee than an audit leg, and it is free.** An audit checks one
+  render of one mount; the `UITEST_SETTINGS` mount injects no repository, so it cannot render four of the
+  six settings sections. A lint reads every line of every shipping file, including the ones no lane mounts.
+
 ## Where we are
 
-- **The pre-UIR build side is 100% DONE.**
-- **Phase 2.5 — Epic UIR: COMPLETE.** UIR-0 (S32) … UIR-5c (S40) all DONE; 8 surfaces carry
-  Apple's full 7-type accessibility audit and the `.dynamicType`/`.textClipped` exclusion list
-  is CLOSED to ZERO (`safetyAuditTypes` is deleted). ONE item stays MAC-GATED (the
-  settings-content audit — the Accessibility Inspector, not CI; the hidden-icon candidate is a
-  KNOWN-FAILED shape).
-- **The §3 copy pass is CLOSED (46B).** Copy is no longer byte-frozen-pending-review — it is
-  FINAL, and still founder-owned (never edit it to make a golden convenient). **This unblocks
-  the final golden batch**, which is the next session's whole objective. Remaining binding
-  constraints: no red anywhere, a11y only strengthens, privacy surfaces untouched, ADR-6 panic
-  latency, safety surfaces keep the stricter pre-code sign-off loop, goldens are adopted from
-  run artifacts and **every new PNG is visually verified** before adoption.
+- **The pre-UIR build side is 100% DONE.** **Phase 2.5 — Epic UIR: COMPLETE** (UIR-0 S32 … UIR-5c S40).
+- **The agent workstream is now the REDESIGN program** (`redesign/design-roadmap.md`), because the operator
+  answered `operator-expected.md` §0 with **(B) — it runs before launch** — as a standing instruction
+  ("take all the designs live, don't wait for my approval"). Three waves have landed; that file's new
+  **Execution status** table is the authoritative per-item state. **Next: ME-3.**
+- **10 surfaces carry Apple's full 7-type accessibility audit** (age gate, quiz, summary, dashboard, panic,
+  slip, resources, paywall, **settings**, **erase confirm**) and the `.dynamicType`/`.textClipped` exclusion
+  list is CLOSED to ZERO. **NOTHING is Mac-gated any more** — the settings-content audit that stood parked
+  from S40 to S50 is closed, and the reason it stayed open for ten sessions is worth carrying: the fix was
+  never a row shape, it was removing the height-capped container. Three source lints now hold the invariants
+  a runtime audit cannot see: `SettingsSourceLintTests` (no `List`/`Section` in shipping source),
+  `UITestMountCoherenceTests` (every `uiTest…Mount` is hooked through the age gate),
+  `CalendarSourceLintTests` (no ambient calendar), plus `ThemeSourceLintTests` and
+  `OnboardingLayoutLintTests`.
+- **The §3 copy pass is CLOSED (46B) and its bytes are FINAL and founder-owned.** Never restyle them —
+  `operator-expected.md` §7 quotes some of them BY NAME in a checklist a human executes. New surfaces ship
+  DRAFT strings appended to §0's founder pass; safety-adjacent strings additionally need the clinician +
+  counsel loop and an agent may never author them. Other binding constraints unchanged: no red anywhere,
+  a11y only strengthens, privacy surfaces untouched, ADR-6 panic latency, goldens adopted from run artifacts
+  with **every new PNG visually verified** before adoption.
+- **Monetization is LIVE** (48B): RevenueCat key in, all three products READY_TO_SUBMIT across 175
+  territories, the paywall bound to Apple's real `localizedPriceString` per storefront (it had shown one
+  hardcoded price to 174 of 175), purchase failures logged to `os_log` category `Purchase`. Superwall +
+  TelemetryDeck stay dormant behind their keys.
 - **StreakEngine 1.2.0 / WidgetToolkit 1.1.0 / PaywallKit 1.0.0 untouched.**
   purchases-ios 5.80.3 + SuperwallKit 4.16.1 + SnapshotTesting 1.19.3 +
   TelemetryDeck 2.14.1 exact-pinned. TestFlight LIVE.
@@ -311,76 +350,65 @@
   so it carries red-run risk, and it is non-launch. **Its natural home is now the R46.2 fix
   session** — that session will be exercising exactly this path with a live key.
 
-## Next session objective — ⛔ BLOCKED on ONE operator decision (`operator-expected.md` §0)
+## Next session objective — ME-3, milestone unlock moments (NOT blocked)
 
-**Read `docs/operator-expected.md` §0 before anything else.** The final golden batch — the last agent
-task on the launch path — is scoped, planned and ready, and deliberately NOT executed. Two
-operator-authored documents disagree about whether it should be minted now, and only the operator can
-resolve it:
+**§0 is answered.** The operator chose **(B) — the redesign runs before launch** — and said so as a
+standing instruction: *"take all the designs live, don't wait for my approval."* Waves 1–2 landed in a
+parallel session, wave 3 is S50. **There is no operator gate on continuing.** The authoritative per-item
+state is the **Execution status** table at the top of `redesign/design-roadmap.md`.
 
-| Document | Says |
-|---|---|
-| `docs/critical-path-post-uir.md` (operator-updated, 46B) | step 1 DONE, batch unblocked, "an agent can mint it whenever you want it" |
-| `redesign/design-roadmap.md` (operator-added, 46B) | goldens "re-record once" at **Phase 4**, after **ME-4 "Summary payoff redesign"** and **ME-9 "Paywall goldens"**; Phases 1–4 are "to launch-ready … ~7 weeks" |
+### What ME-3 is, and why it is cheap
 
-The redesign schedules changes to **all four** surfaces the batch covers (QW-6 age gate, ME-8 quiz,
-ME-4 summary, ME-9 paywall), and the batch needs **production seams on those same views**. Minting now
-risks 12–20 thrown-away goldens plus seam churn on views scheduled for rewrite.
+Almost all of it already exists. **43 milestone bodies ship** in
+`App/Resources/Content/milestones.json`, lexicon-gated and pinned by `MilestoneCopyTests`; wave 2's
+`StreakDetailView` already renders the catalog as a timeline. What is missing is the *moment*:
 
-### Your objective is conditional on §0's answer
+- a quiet **unlock card** on Home (UX §6.20): raised card → the milestone glyph in **Ember**
+  (`#E8833A` light / `#F29D5C` dark — the sanctioned SECOND spend of Ember, which is what warms a palette
+  the brief calls "cooler than intended") → title → the "commonly reported" body → a quiet "See all" into
+  Streak Detail's timeline;
+- the **waterline rise** motion: the crest lifting over the horizon line in ONE 600ms breath
+  (`Theme.motion.calm`) + one soft haptic. **Never confetti, never sound, never a modal.** Reduce Motion →
+  it simply appears already-risen;
+- the **discreet variant**: time-only catalog title + "A marker worth noting. Your numbers tell the story."
+  (copy doc §9), and **no Ember** — a discreet surface names nothing and celebrates nothing loudly;
+- appears once per unlock, dismisses on tap or next visit.
 
-1. **(A) "ship the current UI" or (C) "freeze these surfaces" → EXECUTE THE BANKED PLAN.** It is written
-   in full in `docs/golden-batch.md` and the S48 ledger entry; no re-scoping is needed. Summary:
-   - **Two production seams, each in the SAME commit as the tests using it.**
-     `AgeGateBlockedView.init(model:blocked:)` (2 lines; bypasses its `Locale.current` read — the
-     `ResourcesSnapshotTests` precedent, and do NOT add a `footerDisclaimer:` parameter, its inline
-     default is correct). `QuizSummaryView` explicit production init + test-internal init taking
-     **`_snapshotRevealed: Bool`** (that exact label — two agents proposed different ones and a mismatch
-     would compile-fail and record nothing) assigning `_revealed = State(initialValue: _snapshotRevealed)`,
-     both inits in the struct body before `body`.
-   - **WHY that seam is mandatory:** `QuizSummaryView` renders `.opacity(revealed ? 1 : 0)` and sets
-     `revealed` in `.onAppear { withAnimation { … } }`. Without the seam **every summary golden is a
-     BLANK PNG** — certain, not speculative, confirmed independently by two agents.
-   - **22 goldens:** AgeGate entry (4 axes) + blocked (2); Quiz habit (4) + consent (2); Summary
-     fullData (4) + savingsAbsent (2) + withAlcoholNotice (2); Paywall hard_annual (2) + teaser_annual (2).
-     Config identical to the shipped suites. **AX5 only where a real layout pivot exists** (the summary
-     hero's HStack→VStack per R33.12, the age-gate entry, the one quiz step); the paywall scrolls, so no AX5.
-   - **Two runs, split to isolate risk:** run 1 = age gate + quiz + paywall (18 goldens, no/trivial
-     seam); run 2 = summary alone (4, the complex seam). A seam error then cannot destroy the other 18.
-   - **Fixtures:** `SummaryPresentation.make(inputs:copy: SummaryCopy.loadShipping() ?? .degraded, locale: Locale(identifier: "en_US"))`
-     — NOT hand-built literals, which would leave the golden GREEN when copy changes.
-   - **Mechanics (R32.4):** NEW goldens are NOT born-green. `record: .missing` WRITES-then-FAILS. Run
-     records → RED → `gh run download <id> -n test-outputs` → **VISUALLY VERIFY EVERY PNG** → adopt only
-     new/changed → next run GREEN.
-   - **Two risks to watch:** the age-gate **UIPickerView** has 122 rows and may not populate
-     synchronously — eyeball that golden specifically and do NOT adopt a blank/centre-row-only wheel;
-     and **CI pins no locale or timezone** for the snapshot lane, worth pinning while writing these.
-   - `UITraitCollection(traitsFrom:)` is DEPRECATED and fails under `-warnings-as-errors` (it burned a
-     billed run once) — closure-init form only.
-2. **(B) "the redesign runs before launch" → the batch is DEFERRED** by the redesign's own sequencing.
-   Ask whether an agent should begin `redesign/design-roadmap.md` Phase 1 ("Truth & instrumentation —
-   do this before any pixel moves"; QW-7 already landed in 46B). **Do not start that program unasked** —
-   it is ~7 weeks and a far larger scope commitment than anything taken on autonomously so far.
-3. **No answer yet → report blocked and stop.** Do NOT mint, do NOT manufacture substitute work, and do
-   NOT re-run a general defect hunt on unchanged bytes (S46 spent the code axis; S47 spent the locale
-   axis — re-run either only over code that has CHANGED).
+**Milestone text must never reach the widget feed** — `Shared/Sources/WidgetFeed.swift` is a §10
+pre-unlock-readable surface.
 
-### Triggers that are INDEPENDENT of §0 and still live
-- **§8 RevenueCat key pasted → land R46.2 in ONE run** (`EntitlementModel` refreshes only at
-  construction though its contract promises purchase/restore/foreground). **Batch into that same run**
-  the banked win-back repository-tier tests AND **QW-1** (regenerate `brandkit/branding-assets/tokens.json`
-  from `Theme.swift` — it carries stale pre-correction hexes that are a live trap for any parallel
-  workstream; data-only, but `brandkit/**` is NOT in CI's `paths-ignore`, so it must never be spent standalone).
-- **An ITMS-9105 reply** (`operator-expected.md` §8, first box) → add the named Required-Reason category
-  + code to both manifests plus the `PrivacyManifestTests` pin; if the operator reports nothing arrived,
-  DELETE that checkbox — the question is closed permanently.
+### Read these first, in this order
 
+1. **`docs/past-prompts.md` Session 50** — four of its rulings generalize, and three of them are about
+   not trusting a plan (see the S50 additions under the standing rules above).
+2. `redesign/ui-ux-redesign.md` §6.20 (the unlock card) and §6.17 (Streak Detail, already built).
+3. `redesign/design-roadmap.md` — the Execution status table, then ME-3's row.
+4. `docs/operator-expected.md` §0 — append every DRAFT string you ship to the founder pass list. Do not
+   author safety-adjacent copy.
 
----
+### Budget shape that has worked twice now
 
-_The UIR-5c section below is the Session 40 ARCHIVE (every item DONE — widget typography R34.7, reasons
-AX5 R35.6, StreakRing motion, golden-batch prep; the settings-content audit MAC-GATED). Retained for
-reference; not a live objective._
+Two billed runs, planned as: **run 1** lands the code plus any new goldens (record-missing writes-then-fails
+— NEW goldens are never born-green, R32.4) and, in the SAME run, any new audit leg, because the snapshot and
+UI-smoke lanes are independent steps in one job and one run therefore buys both the recorded PNGs and the
+full audit ledger (the S40 enumerate-all-from-one-run rule). **run 2** adopts the goldens after visually
+verifying every PNG, plus whatever run 1's ledger named. Everything provable on Linux — parse gate, executed
+harnesses over real bytes, lint-idiom greps, the three free package lanes — is done BEFORE run 1.
+
+### Triggers that are live and independent of ME-3
+
+- **The Superwall key** → create the app, then two placements (`quiz_completed`, `winback`), the
+  teaser-vs-hard and the $29.99-vs-$39.99 experiments, then hand an agent the variant ids for
+  `SuperwallPlacement.variantMapping`. Also assign the review build to the TEASER arm — that is the
+  dashboard setting that makes the S46-ratified 3.1.2 posture true.
+- **The TelemetryDeck app ID** → wakes the transport (today it is a Noop sink; zero bytes leave any build).
+  Batch the banked win-back repository-tier integration tests into that run — they must never be spent
+  standalone.
+- **An ITMS-9105 reply** → land the named category + reason code (a two-line XML edit plus its
+  `PrivacyManifestTests` pin), or delete the §8 checkbox if the operator confirms no email ever arrived.
+- **QW-3** (the remaining dormant analytics fire-points) and **QW-8** (the consent revisit toggle, whose
+  home — *Privacy & Data* — ME-7 just built) are both small and unblocked if a session wants a smaller unit
+  of work than ME-3.
 
 ### [ARCHIVE] Session 40 — UIR-5c: the remaining UIR polish (all DONE)
 
@@ -466,80 +494,59 @@ external beta, submission) — see the operator-owned blockers below.
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app **Ballast**, org `com.beyondkaira`).
-> **⛔ READ `docs/operator-expected.md` §0 FIRST — the one remaining agent task is blocked on a single
-> operator decision, and your objective depends entirely on the answer there.**
-> Sessions 0–31 built the functional app; 32–40 (the UI Reactor) regenerated every screen onto the design
-> system; 41–45 verified the terminal state five times; **46A** ran the first audit of the shipped CODE
-> and fixed a real 17+ compliance defect (the age gate read the DEVICE's calendar, admitting
-> 16.60-year-olds on Islamic-calendar devices); **46B was the OPERATOR closing the §3 copy pass**
-> (~20 decisions; ALO 182 corrected from a fabricated "crisis line" to the hospital-appointment line it
-> actually is — the old instruction would have shipped a life-safety defect; the alcohol notice made
-> reachable pre-paywall; OQ-1 resolved to clinical nouns; Terms/Privacy made real links); **47** swept the
-> locale/device-settings CLASS and fixed two more money-path defects (comma-decimal spend stored "12,50"
-> as 12 and "0,50" as 0, permanently, no edit path; and a fabricated "~$0/year"); **48** scoped the final
-> golden batch end-to-end and then deliberately did NOT mint it.
-> **WHY 48 STOPPED (two independent reasons):** the operator's own `redesign/design-roadmap.md` — added
-> in the same 46B session that unblocked the batch — schedules changes to **all four** surfaces the batch
-> covers (QW-6 age gate, ME-8 quiz, **ME-4 "Summary payoff redesign"**, **ME-9 "Paywall goldens"**) and
-> puts the re-record at its Phase 4, with Phases 1–4 framed as "to launch-ready … ~7 weeks"; while
-> `critical-path-post-uir.md`, also operator-updated in 46B, says the batch is mintable now. And the batch
-> needs **production seams on exactly the views the redesign rewrites**. Only the operator can say which
-> document governs.
-> **YOUR OBJECTIVE IS CONDITIONAL:**
-> **(A) or (C) in §0 → EXECUTE THE BANKED PLAN** (`docs/golden-batch.md` + the S48 ledger; no re-scoping).
-> 22 goldens, two runs: run 1 = age gate + quiz + paywall (18), run 2 = summary alone (4), so a seam error
-> cannot destroy the rest. **Two production seams, each in the same commit as its tests:**
-> `AgeGateBlockedView.init(model:blocked:)` (2 lines; no `footerDisclaimer:` parameter — its inline default
-> is correct), and `QuizSummaryView` explicit + test-internal inits taking **`_snapshotRevealed: Bool`**
-> (that exact label) assigning `_revealed = State(initialValue: _snapshotRevealed)`. **That seam is
-> mandatory, not optional:** the view renders `.opacity(revealed ? 1 : 0)` and sets `revealed` in
-> `.onAppear { withAnimation { … } }`, so without it **every summary golden is a BLANK PNG** — certain,
-> confirmed by two independent agents. Fixtures use
-> `SummaryPresentation.make(inputs:copy: SummaryCopy.loadShipping() ?? .degraded, locale: Locale(identifier: "en_US"))`,
-> never hand-built literals (those stay GREEN when copy changes, defeating the point). NEW goldens are
-> **NOT born-green** (R32.4): record → RED → `gh run download <id> -n test-outputs` → **VISUALLY VERIFY
-> EVERY PNG** → adopt → GREEN. **Eyeball the age-gate picker specifically** — 122 rows, may not populate
-> synchronously; do not adopt a blank or centre-row-only wheel. CI pins no locale/timezone for the
-> snapshot lane — worth pinning while you are in there. `UITraitCollection(traitsFrom:)` is DEPRECATED and
-> fails under `-warnings-as-errors`; closure-init form only.
-> **(B) → the batch defers** to the redesign's Phase 4. Ask before starting that roadmap; it is ~7 weeks
-> and a far larger scope commitment than anything an agent has taken autonomously here.
-> **No answer → report blocked and stop.** Do not mint, do not manufacture substitute work, and **do not
-> re-run a general defect hunt on unchanged bytes** — S46 spent the code axis, S47 the locale axis; re-run
-> either only over code that has CHANGED.
-> **Independent of §0, still live:** (a) **§8 RevenueCat key → land R46.2 in ONE run**, and batch into it
-> the banked win-back repository-tier tests AND **QW-1** (regenerate `brandkit/branding-assets/tokens.json`
-> from `Theme.swift`; stale pre-correction hexes are a live trap — data-only, but `brandkit/**` is NOT in
-> CI's `paths-ignore`, so never spend it standalone); (b) an **ITMS-9105 reply** → the manifest edit, or
-> delete that checkbox if nothing arrived.
-> **Already deep-audited CLEAN — do not redo:** `QuitRepository` end-to-end + erase completeness (46A);
-> crash safety, helpline region resolution, the widget timeline across DST/exotic offsets, and the
-> widget-feed privacy invariant (47). **Do NOT re-attempt the settings-content audit on CI** — Mac session
-> with the Accessibility Inspector; the hidden-icon candidate is a KNOWN-FAILED shape.
-> Local Swift toolchain: `. ~/.local/share/swiftly/env.sh`.
-> **Session-open (three commands, not a workflow):** `git fetch` + `gh run list`. **The operator commits
-> mid-session — they did exactly that during S47** — so rebase onto their work before pushing, and let any
-> in-flight run of theirs finish first so your run isolates your changes.
-> **Standing gates (any code touched):** CodeGraph query-first + `codegraph sync` at close; `swiftc -parse`
-> every touched file + neighbour import/annotation coverage + the deprecation gate + per-member platform
-> availability; the FIVE burn gates; UIKit app-only APIs never in Shared/Sources; access-level scan + a
-> Linux harness RUN empirically; JSON pins key-SET; docs-only commits carry the CI-skip directive — and
-> **never write that literal token anywhere in a commit that needs its run, body included** (S47 nearly
-> shipped it inside a sentence explaining it); check the STAGED set; critics WRITE findings to files;
-> NEVER `git stash`; `git fetch` before every push; artifact-first diagnosis before ANY billed hypothesis
-> run. PLUS the Theme rules and the **R33.12 Dynamic-Type contract**.
-> **The methodological lesson S47+S48 both earned:** when a claim is about arithmetic, formatting, parsing
-> — or about what a snapshot will actually render — EXECUTE or SCOPE it before spending a billed run.
-> S47's harness caught three bugs in its own fix; S48's scoping caught a certain blank-PNG failure, a
-> fatal seam-label mismatch, and a 51-vs-20 scope blowup, all before a byte was written.
-> READ: `docs/operator-expected.md` §0 (FIRST), `docs/golden-batch.md`, `docs/critical-path-post-uir.md`,
-> the Session 48 + 47 + 46B ledgers in `docs/past-prompts.md`, `docs/session-rules.md`, and — only if §0
-> says (B) — `redesign/design-roadmap.md`.
-> **At session end:** update `docs/operator-expected.md` + `docs/critical-path-post-uir.md` +
-> `docs/golden-batch.md`, append a ledger entry to `docs/past-prompts.md`, regenerate this resume prompt,
-> `codegraph sync`, commit, push. If a billed run was spent, verify via `gh run view --json` per-job (the
-> watcher's exit code lies) AND read the run log back to prove new tests EXECUTED rather than compiled out.
-
+> **You are NOT blocked. Your objective is ME-3 (milestone unlock moments).**
+>
+> **Where the project is.** Sessions 0–31 built the functional app; 32–40 (the UI Reactor) regenerated every
+> screen onto the design system; 41–45 verified that terminal state five times; **46/47 were the first
+> sessions to audit the shipped CODE rather than the plan** and found three defects no test could see — the
+> 17+ age gate derived its year from the DEVICE's calendar (admitting 16.60-year-olds on an Islamic-calendar
+> device), the quiz's money fields dropped everything after a comma so a European user's "12,50" was stored
+> as 12 (and "0,50" as 0, which hides the money feature app-wide, permanently — spend has no edit path), and
+> a projection under ten units floored onto the fabricated "~$0/year" the app's own rules forbid. **46B was
+> the OPERATOR closing the §3 copy pass** (~20 decisions; ALO 182 corrected from a fabricated "crisis line"
+> to the hospital-appointment line it actually is — the standing instruction to mark it verified would have
+> shipped a life-safety defect; the alcohol notice made reachable pre-paywall; Terms/Privacy made real
+> links). **48/48B/49/50 are the redesign program**, which the operator put ahead of launch in
+> `operator-expected.md` §0 with a standing "take all the designs live, don't wait for my approval": waves
+> 1–2 shipped the icon set, the erase UI, panic in-flow support, the widget-adoption moment with
+> `widget_added` finally wired, Streak Detail, the panic wave timer and the Home shell — and took RevenueCat
+> LIVE end-to-end. **Wave 3 (S50) rebuilt Settings (ME-7) and closed the last Mac-gated accessibility item.**
+>
+> **Your objective: ME-3.** `redesign/design-roadmap.md` (start at its **Execution status** table) + UX
+> blueprint **§6.20** (the unlock card) and **§6.17** (Streak Detail — already built in wave 2). Most of ME-3
+> exists: 43 milestone bodies already ship in `milestones.json`, lexicon-gated, and the catalog already
+> renders. What is missing is the moment — a quiet Ember-lit unlock card on Home with the **waterline rise**
+> (one 600ms `Theme.motion.calm` breath + one soft haptic; **never confetti, never sound, never a modal**;
+> Reduce Motion → already-risen), plus the discreet variant (time-only title, no Ember). Milestone text must
+> **never** reach `Shared/Sources/WidgetFeed.swift` (a §10 pre-unlock-readable surface).
+>
+> **READ FIRST: `docs/past-prompts.md` Session 50.** Four of its rulings will save you a billed run:
+> **(1)** a plan's "free verification" step is a claim to CHECK — there is no `Packages/AppTests`, and
+> *nothing* under `Tests/` runs on the Linux box (Xcode targets); write an executed harness over bytes
+> **parsed from source**, proving pass-on-real-bytes AND fire-on-mutation. **(2)** every new
+> `uiTest…Mount` in `PostGateRootView` needs its env var in `AgeGateContainerView.uiTestOnboardingMount`'s
+> allow-list, or the leg times out after 15s with a message that blames the view;
+> `UITestMountCoherenceTests` now catches that for free. **(3)** the §3 copy is FINAL and founder-owned, and
+> `operator-expected.md` §7 quotes some strings BY NAME in a checklist a human executes — never restyle
+> them; new strings ship DRAFT and get appended to §0's founder pass, and safety-adjacent strings are never
+> agent-authored. **(4)** verify every proposed Apple API against the docs JSON **yourself** — S49's finder
+> and its adversarial refuter invented the same nonexistent property, and S49's own recommended fix carried
+> the wrong argument label.
+>
+> **Budget shape that has now worked twice.** Two billed runs: run 1 lands the code + records new goldens
+> (record-missing writes-then-FAILS; new goldens are never born-green, R32.4) **and** ships any new audit leg
+> in the SAME run — the snapshot and UI-smoke lanes are independent steps of one job, so one run buys both
+> the PNGs and the full audit ledger. Run 2 adopts the goldens after **visually verifying every PNG** plus
+> whatever the ledger named. Do every free check first: `swiftc -parse` on each touched file, executed
+> harnesses, lint-idiom greps, and the three free package lanes (`swift test --package-path Packages/*` →
+> 121 pass).
+>
+> **10 surfaces carry Apple's full 7-type accessibility audit** and five source lints gate every merge
+> (Theme, layout, calendar, height-capped containers, mount coherence). Nothing is Mac-gated. **No operator
+> action is required for you to proceed** — the remaining human work (clinician + counsel sign-off, the two
+> published legal pages, G0 trademark clearance, device sitting #1, the sandbox purchase matrix, the
+> Superwall + TelemetryDeck keys, external beta, submission) is sequenced in
+> `docs/critical-path-post-uir.md` and runs on its own clock.
 
 ## Standing rules reminders (do not relearn these)
 

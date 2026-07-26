@@ -31,6 +31,21 @@ struct DiscreetSettingsCopy: Sendable {
     let panicAccessSectionHeader: String
     /// ME-7 (copy doc §11) — the panic-access row that re-opens the widget-adoption
     /// moment (ME-1). Habit-name-free by the shoulder-surface discipline. DRAFT/§3.
+    ///
+    /// **AUDIT-FORCED deviation from copy doc §11, flagged to the operator in §0.** The
+    /// doc drafts "Add the lock-screen **button**", and Apple's `.trait` audit fails that
+    /// with *"Label duplicates traits"* — the row IS a Button, so a label containing the
+    /// word "button" restates its own trait (run `30220337353`). The word was meant to
+    /// name the WIDGET's panic button, a different object, but the check is a machine one
+    /// and it gates every merge. Fixed with the SMALLEST faithful edit — one word,
+    /// `button` → `widget` — which is also the more accurate noun: what the user adds is
+    /// the widget, and the widget is what carries the button.
+    ///
+    /// The rejected alternative was keeping the visible bytes and overriding
+    /// `.accessibilityLabel`. That trades a real accessibility property for a green
+    /// check: WCAG 2.5.3 (Label in Name) wants the accessible name to CONTAIN the visible
+    /// text, so a Voice Control user saying "tap Add the lock-screen button" would no
+    /// longer match the control. This project's rule is that a11y only strengthens.
     let widgetAdoptionRowLabel: String
     /// ME-7 (redesign §6.11) — the section that hosts the erase row (and, when QW-8
     /// lands, the consent toggle + the "what leaves this device" screen). DRAFT/§3.
@@ -108,7 +123,7 @@ struct DiscreetSettingsCopy: Sendable {
         screenTitle: "Settings",
         discreetModeSectionHeader: "Discreet Mode",
         panicAccessSectionHeader: "Panic access",
-        widgetAdoptionRowLabel: "Add the lock-screen button",
+        widgetAdoptionRowLabel: "Add the lock-screen widget",
         privacyDataSectionHeader: "Privacy & Data",
         breathingSectionHeader: "Breathing",
         widgetsFooter: "Widgets for this streak show numbers only.",

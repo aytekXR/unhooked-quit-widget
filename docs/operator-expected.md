@@ -52,7 +52,7 @@ then the final golden batch + LB-5 screenshots.
       | `screenTitle` | "Discreet Mode" | **"Settings"** | the screen IS Settings now; Discreet Mode is one section inside it. This also aligns §7, which already says "Settings → …". |
       | `discreetModeSectionHeader` (was `widgetsHeader`) | "Widgets" | **"Discreet Mode"** | the section carries the feature's own name |
       | `panicAccessSectionHeader` | — | **"Panic access"** | new first section |
-      | `widgetAdoptionRowLabel` | — | **"Add the lock-screen button"** | its one row (re-opens the widget-adoption moment) |
+      | `widgetAdoptionRowLabel` | — | **"Add the lock-screen widget"** | its one row (re-opens the widget-adoption moment). ⚠️ **ONE WORD DEVIATES FROM YOUR COPY DOC — read the note below** |
       | `privacyDataSectionHeader` | — | **"Privacy & Data"** | new section (hosts erase; consent + "what leaves this device" join it later) |
       | `breathingSectionHeader` | — | **"Breathing"** | new section |
 
@@ -63,6 +63,22 @@ then the final golden batch + LB-5 screenshots.
       panel amendment; **(b)** the `eye.slash` glyph was dropped from those toggle rows (the
       section header now carries the meaning); **(c)** no "Your plan" section header was invented
       — that byte is not drafted, so the win-back row sits in an unlabelled card.
+
+      **⚠️ One byte deviates from `redesign/product-copy.md` §11, and Apple forced it.** The doc
+      drafts the panic-access row as **"Add the lock-screen button"**. That fails Apple's
+      accessibility audit — *"Label duplicates traits"* — because the row IS a button, so a label
+      containing the word "button" restates its own trait. It is a real CI failure, not a warning
+      (it reddened run `30220337353`). The word was clearly meant to name the WIDGET's panic
+      button, a different object, but the check is a machine one and it gates every merge. The
+      shipped byte changes exactly one word: **"Add the lock-screen widget"** — which is arguably
+      the truer noun anyway, since what you add is the widget and the widget is what carries the
+      button. **The rejected shortcut is worth knowing:** the bytes could have been kept by
+      overriding the VoiceOver label instead, and that was refused — it would break WCAG 2.5.3
+      (Label in Name), so a Voice Control user saying "tap Add the lock-screen button" would no
+      longer match the control. Trading a real accessibility property for a green check is not a
+      trade this project makes. **If you want different bytes, any wording without a control-type
+      noun works** ("button", "image", "icon", "switch", "toggle"); a unit test now states this in
+      one line if a future edit reintroduces one, so nobody rediscovers it from a red UI lane.
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).

@@ -102,4 +102,56 @@ struct DiscreetSettingsCopyTests {
             "the Mirror walk collapsed (<24 strings) — a computed-property style would scan nothing and pass forever"
         )
     }
+
+    /// S50 — the trait-duplication guard, and it exists to make a specific future mistake
+    /// legible instead of mysterious.
+    ///
+    /// Apple's `.trait` accessibility audit fails an element whose LABEL restates a trait
+    /// the element already has: a `Button` labelled "…button" reports
+    /// **"Label duplicates traits"**. Every row on the rebuilt settings screen is a
+    /// `Button`, so no row label may contain a control-type noun.
+    ///
+    /// This fired for real on run `30220337353`: copy doc §11 drafts the panic-access row
+    /// as "Add the lock-screen **button**" — meaning the WIDGET's panic button, a
+    /// different object — and the audit failed the whole settings leg. The shipped byte is
+    /// "Add the lock-screen **widget**" instead (see `DiscreetSettingsCopy`), and the
+    /// deviation is flagged to the operator in `operator-expected.md` §0.
+    ///
+    /// The founder pass may well try to restore the doc's wording. When it does, this test
+    /// says why it cannot in one line, on the unit lane — rather than the UI-smoke lane
+    /// failing with a bare "Label duplicates traits" 20 minutes into a billed macOS run.
+    /// If the founder wants those exact bytes anyway, the fix is a design change (drop the
+    /// glyph and make the row a non-Button disclosure, or re-word), never an
+    /// `.accessibilityLabel` override — that would break WCAG 2.5.3 (Label in Name) for
+    /// Voice Control users to satisfy a machine check.
+    @Test func test_settingsRowLabels_doNotRestateAControlTrait() {
+        /// The control-type nouns Apple's `.trait` audit treats as trait duplication.
+        let traitNouns = ["button", "image", "picture", "graphic", "icon", "switch", "toggle"]
+        /// Only the strings that render AS a Button's label on the settings screen. Section
+        /// headers, captions and the erase DIALOG's own strings are not row labels.
+        let rowLabels: [(name: String, value: String)] = [
+            ("widgetAdoptionRowLabel", DiscreetSettingsCopy.shipping.widgetAdoptionRowLabel),
+            ("resourcesRowLabel", DiscreetSettingsCopy.shipping.resourcesRowLabel),
+            ("winbackRowLabel", DiscreetSettingsCopy.shipping.winbackRowLabel),
+            ("eraseRowLabel", DiscreetSettingsCopy.shipping.eraseRowLabel),
+            ("iconRowDefault", DiscreetSettingsCopy.shipping.iconRowDefault),
+            ("iconRowCalendar", DiscreetSettingsCopy.shipping.iconRowCalendar),
+            ("iconRowTimer", DiscreetSettingsCopy.shipping.iconRowTimer),
+        ]
+        for row in rowLabels {
+            let haystack = Self.folded(row.value)
+            for noun in traitNouns {
+                #expect(
+                    !haystack.contains(noun),
+                    """
+                    `\(row.name)` = "\(row.value)" contains the control-type noun \
+                    '\(noun)'. Every settings row renders as a Button, so Apple's .trait \
+                    audit will fail the settings leg with "Label duplicates traits" \
+                    (run 30220337353 — this is not hypothetical). Re-word the label; do \
+                    NOT paper over it with .accessibilityLabel, which breaks WCAG 2.5.3.
+                    """
+                )
+            }
+        }
+    }
 }
