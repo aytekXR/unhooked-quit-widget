@@ -23,8 +23,23 @@ struct EraseEverythingView: View {
     let onErased: () -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var stage: Stage = .confirm
+    @State private var stage: Stage
     @State private var isErasing = false
+
+    /// `startOnCompletionFrame` is the snapshot seam for the DONE stage (the
+    /// `StreakDetailView.animateHeader` pattern: an always-present parameter
+    /// whose default keeps every live call site byte-identical). The stage enum
+    /// stays private — production code can only land here through a completed
+    /// `EraseFlow.run()`.
+    init(
+        flow: EraseFlow,
+        onErased: @escaping () -> Void,
+        startOnCompletionFrame: Bool = false
+    ) {
+        self.flow = flow
+        self.onErased = onErased
+        _stage = State(initialValue: startOnCompletionFrame ? .done : .confirm)
+    }
 
     private let copy = DiscreetSettingsCopy.shipping
 

@@ -40,6 +40,12 @@ struct QuizSummaryView: View {
     /// only mount. Defaulted so no existing call site changes, and nil for
     /// every non-alcohol completer (`AlcoholNoticePolicy` decides upstream).
     var alcoholNotice: AlcoholNoticeSlot? = nil
+    /// The `StreakDetailView.animateHeader` seam, inverted for the default: live
+    /// mounts keep the one `motion/calm` reveal (`true`, every existing call
+    /// site), while a snapshot capture passes `false` so the card renders
+    /// revealed on frame zero — the goldens must never depend on whether
+    /// `.onAppear` runs inside the offscreen renderer.
+    var animateReveal: Bool = true
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// brandkit §8's stacked-at-accessibility-sizes rule, read from the environment
@@ -65,9 +71,10 @@ struct QuizSummaryView: View {
             .buttonStyle(PrimaryButtonStyle())
             .accessibilityIdentifier("summary.cta")
         }
-        .opacity(revealed ? 1 : 0)
+        .opacity(animateReveal && !revealed ? 0 : 1)
         .onAppear {
             model.onSummaryAppear()
+            guard animateReveal else { return }
             withAnimation(.easeInOut(
                 duration: reduceMotion ? Theme.motion.quick : Theme.motion.calm
             )) {
