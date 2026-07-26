@@ -44,3 +44,9 @@ AuthKey_*.p8
 # `uipro init -a claude` (operator-expected §9, resolved Session 32); third-party
 # generated assets, re-installable, never committed (the .codegraph precedent).
 .claude/skills/
+
+# S49 — build/CI logs are never build inputs. `ci-mirror-full.log` (1778 lines of
+# another machine's xcodebuild output, leaking its absolute paths and username)
+# was committed in 152890b and, being unignored by CI's paths-ignore, triggered a
+# full billed macOS run. Ignored here AND added to paths-ignore in ci.yml.
+*.log

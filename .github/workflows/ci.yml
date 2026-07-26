@@ -15,10 +15,28 @@ on:
     paths-ignore:
       - "docs/**"
       - "**.md"
+      # S49 — `redesign/**` is a docs-class tree (blueprints, HTML design cards,
+      # preview renders) that no lane builds, and a stray `.log` is never a build
+      # input. Both were unignored, so either one reached `main` and burned a FULL
+      # billed macOS run (private repo ⇒ 10x minutes). `ci-mirror-full.log` did
+      # exactly that in 152890b; the redesign commits were spared only because
+      # someone remembered `[skip ci]` — a person-dependent guard on a structural
+      # leak.
+      - "redesign/**"
+      - "**.log"
   pull_request:
     paths-ignore:
       - "docs/**"
       - "**.md"
+      # S49 — `redesign/**` is a docs-class tree (blueprints, HTML design cards,
+      # preview renders) that no lane builds, and a stray `.log` is never a build
+      # input. Both were unignored, so either one reached `main` and burned a FULL
+      # billed macOS run (private repo ⇒ 10x minutes). `ci-mirror-full.log` did
+      # exactly that in 152890b; the redesign commits were spared only because
+      # someone remembered `[skip ci]` — a person-dependent guard on a structural
+      # leak.
+      - "redesign/**"
+      - "**.log"
 
 # Cancel superseded runs on branches/PRs, but never cancel main (a second merge must
 # not abort an in-flight TestFlight upload once that lane activates).
