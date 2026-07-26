@@ -34,6 +34,15 @@ struct MilestoneCatalog: Sendable {
         (tables[category.rawValue]?.milestones.map(\.afterHours) ?? []).sorted()
     }
 
+    /// P2 (redesign §6.17) — the quit's FULL ladder (titles + "commonly
+    /// reported" bodies), ascending: Streak Detail is the catalog's first
+    /// renderer. In-app only — hours-only continues to be the widget feed's
+    /// ceiling (§10: titles/bodies never reach the pre-unlock file). Unknown
+    /// category ⇒ empty (no timeline — never a guess).
+    func milestones(for category: HabitCategory) -> [Milestone] {
+        (tables[category.rawValue]?.milestones ?? []).sorted { $0.afterHours < $1.afterHours }
+    }
+
     /// Dynamic-key decode of `{"_meta": …, "<category>": MilestoneTable, …}`, skipping
     /// `_meta` (its free-text audit note must never be decoded — the QuizConfig rule).
     private struct CategoryTables: Decodable {

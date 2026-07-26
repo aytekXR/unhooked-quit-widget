@@ -594,6 +594,20 @@ final class QuitRepository {
         // so nothing widget- or cache-visible changed.
     }
 
+    /// P2 (redesign §5.4/§6.17) — the quit's slip reflections, newest first:
+    /// Streak Detail's private notes list is the written-but-never-resurfaced
+    /// notes' first reader. Store-only by design (§10: notes live ONLY in the
+    /// store, never in any App Group file); empty notes never surface.
+    func reflectionNotes(for quitID: UUID) throws -> [ReflectionNote] {
+        let quit = try fetchQuit(quitID)
+        return (quit.slips ?? [])
+            .compactMap { slip -> ReflectionNote? in
+                guard let note = slip.note, !note.isEmpty else { return nil }
+                return ReflectionNote(id: slip.id, at: slip.at, text: note)
+            }
+            .sorted { $0.at > $1.at }
+    }
+
     /// The normal route's undo-banner source: the one still-pending slip, if any
     /// (one reversible slip at a time — §9 rule 3). Backed by the E4.1
     /// `#Index<Slip>([\.isPendingUndo])`.
