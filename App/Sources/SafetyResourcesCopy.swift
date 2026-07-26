@@ -41,8 +41,29 @@ struct SafetyCopy: Codable, Equatable, Sendable {
         )
     }
 
+    /// QW-10 (redesign §5.2/§6.8; copy doc §7) — the panic flow's quiet in-flow
+    /// support affordance strings: "More support" on the post-pacer steps and
+    /// the full-sentence helpline link on the redirect step. OPTIONAL SECTION
+    /// for decode tolerance (the AlcoholNotice precedent); safety-panel-gated
+    /// like everything in this table (`_meta.review_status`). The JSON
+    /// `context` key is authoring metadata, deliberately undecoded.
+    struct PanicSupport: Codable, Equatable, Sendable {
+        var moreSupportLabel: String
+        var redirectFooterLabel: String
+
+        /// The §9 fail-safe floor: a decode failure must never REMOVE a path to
+        /// help (crisis-safety surfaces only ever become more reachable), so
+        /// the affordance renders these bytes when the table is unreadable.
+        /// Lexicon-scanned beside the shipping table.
+        static let degraded = PanicSupport(
+            moreSupportLabel: "More support",
+            redirectFooterLabel: "Or talk to someone — free, confidential helplines"
+        )
+    }
+
     var resourcesScreen: ResourcesScreen
     var alcoholWithdrawalNotice: AlcoholNotice?
+    var panicSupport: PanicSupport?
     var notMedicalCareDisclaimer: String?
 
     /// Decodes the shipping file from the app bundle. `nil` when missing or

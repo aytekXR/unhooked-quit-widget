@@ -12,6 +12,11 @@
     "primaryActionLabel": "See resources",
     "dismissLabel": "Got it"
   },
+  "panicSupport": {
+    "context": "QW-10 — the quiet in-flow support affordance: a footnote-weight link on the panic flow's post-pacer steps (wave timer, reasons) and a full-sentence footer on the redirect step, opening the resources screen as a sheet INSIDE the flow. Never on the pacer frame (latency budget). Safety-content panel must sign placement before ship.",
+    "moreSupportLabel": "More support",
+    "redirectFooterLabel": "Or talk to someone — free, confidential helplines"
+  },
   "resourcesScreen": {
     "title": "Support, whenever you want it",
     "intro": "These are free, confidential lines. You don't have to be in crisis to call.",

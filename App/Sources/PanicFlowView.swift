@@ -14,6 +14,10 @@ struct PanicFlowView: View {
     /// appears (never per render) and then model-state-driven from there. Nil = the
     /// panic steps show; non-nil = the real slip flow is mounted over them.
     @State private var slipModel: SlipFlowModel?
+    /// QW-10 (redesign §5.2) — the in-flow resources sheet: a person mid-crisis
+    /// gets a path to a helpline WITHOUT exiting the flow. Mounted from the
+    /// post-pacer support affordances only; the entry frame never carries it.
+    @State private var showsResources = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(model: PanicFlowModel) {
@@ -57,6 +61,14 @@ struct PanicFlowView: View {
                     slipModel = Self.makeColdSlipModel(handoff: handoff, card: model.quit)
                 }
             }
+            // QW-10 — the resources sheet INSIDE the flow. `SafetyResourcesView`
+            // is store-free by construction (bundled JSON only — R27.11), so the
+            // cold route's store-free contract holds. Source nil: an in-crisis
+            // open is honest-by-omission (R27.4's closed analytics domain keeps
+            // its shape; safety surfaces are exempt from performance judgment).
+            .sheet(isPresented: $showsResources) {
+                SafetyResourcesView(source: nil, analytics: .disabled)
+            }
     }
 
     @ViewBuilder
@@ -66,9 +78,9 @@ struct PanicFlowView: View {
         } else {
             switch model.stage {
             case .breath: BreathStepView(model: model, reduceMotion: reduceMotion)
-            case .timer: TimerStepView(model: model)
-            case .reasons: ReasonsStepView(model: model)
-            case .redirect: RedirectStepView(model: model)
+            case .timer: TimerStepView(model: model, onMoreSupport: { showsResources = true })
+            case .reasons: ReasonsStepView(model: model, onMoreSupport: { showsResources = true })
+            case .redirect: RedirectStepView(model: model, onMoreSupport: { showsResources = true })
             case .exits: ExitsView(model: model)
             case .celebration: CelebrationView(model: model)
             }
@@ -116,6 +128,12 @@ private struct StepScaffold<Content: View>: View {
     /// reasons step manages its OWN paging scroll, so it passes `false` to avoid a
     /// gesture-fighting nested scroll (its content fills the frame instead).
     var scrollsContent: Bool = true
+    /// QW-10 — the quiet in-flow support affordance (copy doc §7): footnote-weight,
+    /// bottom-trailing, PINNED beside the skip so help never scrolls away. nil (the
+    /// default, and always the pacer step) renders nothing — the entry frame stays
+    /// byte-identical.
+    var supportLabel: String? = nil
+    var onSupport: (() -> Void)? = nil
     @ViewBuilder var content: () -> Content
 
     var body: some View {
@@ -125,6 +143,27 @@ private struct StepScaffold<Content: View>: View {
                     .scrollBounceBehavior(.basedOnSize)
             } else {
                 scaffoldBody
+            }
+            // QW-10: the quiet support link sits bottom-trailing, ABOVE the skip —
+            // a deliberate door to a helpline from inside the flow (crisis-safety
+            // surfaces only ever become MORE reachable).
+            if let supportLabel, let onSupport {
+                HStack {
+                    Spacer()
+                    Button(action: onSupport) {
+                        Text(supportLabel)
+                            .font(.footnote.weight(.medium))
+                            .foregroundStyle(Theme.color.contentSecondary.color)
+                            // 44pt-class target via PADDING (R33.5 — never a
+                            // height floor near the label's AX height).
+                            .padding(.vertical, Theme.space.s4)
+                            .padding(.horizontal, Theme.space.s2)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("panic.flow.moreSupport")
+                }
+                .padding(.horizontal, 20)
             }
             // R33.5 one-hand rule: skip is PINNED below the scroll, never scrolls off.
             SkipButton(label: skipLabel, action: onSkip)
@@ -316,10 +355,21 @@ private struct BreathBloomView: View {
     }
 }
 
+// MARK: - QW-10 · the in-flow support copy (safety-panel-gated table)
+
+/// Loaded on first access — a Swift static initializes lazily, and the first
+/// access is a POST-pacer step's render, so the panic entry frame never pays
+/// for the read (the affordance is banned from the pacer frame outright).
+@MainActor
+private enum PanicSupportAffordance {
+    static let copy = SafetyCopy.loadShipping()?.panicSupport ?? .degraded
+}
+
 // MARK: - Step 2 · urge timer
 
 private struct TimerStepView: View {
     let model: PanicFlowModel
+    let onMoreSupport: () -> Void
 
     var body: some View {
         let step = model.script.step(.timer)
@@ -329,7 +379,9 @@ private struct TimerStepView: View {
             instruction: step?.instruction ?? "",
             subtext: step?.subtext,
             skipLabel: step?.skipLabel ?? "",
-            onSkip: { model.skip() }
+            onSkip: { model.skip() },
+            supportLabel: PanicSupportAffordance.copy.moreSupportLabel,
+            onSupport: onMoreSupport
         ) {
             Image(systemName: "timer")
                 .font(.system(size: 56, weight: .light))
@@ -343,6 +395,7 @@ private struct TimerStepView: View {
 
 private struct ReasonsStepView: View {
     let model: PanicFlowModel
+    let onMoreSupport: () -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
@@ -365,7 +418,9 @@ private struct ReasonsStepView: View {
             instruction: step?.instruction ?? "",
             skipLabel: step?.skipLabel ?? "",
             onSkip: { model.skip() },
-            scrollsContent: isAX
+            scrollsContent: isAX,
+            supportLabel: PanicSupportAffordance.copy.moreSupportLabel,
+            onSupport: onMoreSupport
         ) {
             if model.reasons.isEmpty {
                 // Never blank: the script's fallback line stands in.
@@ -411,6 +466,7 @@ private struct ReasonsStepView: View {
 
 private struct RedirectStepView: View {
     let model: PanicFlowModel
+    let onMoreSupport: () -> Void
 
     var body: some View {
         let step = model.script.step(.redirect)
@@ -443,6 +499,26 @@ private struct RedirectStepView: View {
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("panic.flow.redirect.option.\(option.id)")
                 }
+                // QW-10 (copy doc §7) — the full-sentence support footer: NOT a
+                // fifth tile — help sits BELOW the choices, always present, never
+                // alarming. Same door as "More support", given room to be a
+                // sentence where the redirect step has room.
+                Button {
+                    onMoreSupport()
+                } label: {
+                    Text(PanicSupportAffordance.copy.redirectFooterLabel)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Theme.color.brandPrimary.color)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        // 44pt-class target via PADDING (R33.5).
+                        .padding(.vertical, Theme.space.s4)
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("panic.flow.redirect.support")
+                .padding(.top, Theme.space.s2)
             }
             .frame(maxWidth: .infinity)
         }
