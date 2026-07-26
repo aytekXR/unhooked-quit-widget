@@ -20,7 +20,11 @@ carries the keywords ("Quit Vaping, Porn & Alcohol").
 ## 3. Color
 Calm, low-arousal. Primary = deep teal (cool water). One hot color (ember flame) reserved
 for the streak glyph only. **No red anywhere** — cautions and errors are amber.
-Full token values in `tokens.json`. Dark mode is the primary design target.
+**Source of truth: `App/Sources/DesignSystem/Theme.swift`** (the machine-verified token
+registry; human record `docs/design/tokens-v2.md`). `tokens.json` is regenerated FROM that
+registry — never edit its hexes by hand, and never source color from anything else: the
+pre-correction light hexes (`#0E7A6F` etc.) were WCAG-unverified and are retired.
+Dark mode is the primary design target.
 
 ## 4. Typography
 SF Pro (system) everywhere; SF Pro Rounded for streak numerals only. No custom fonts,
