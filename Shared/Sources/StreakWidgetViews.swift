@@ -43,7 +43,15 @@ enum StreakWidgetDisplay {
         formatter.currencyCode = quit.currencyCode
         formatter.maximumFractionDigits = 0
         formatter.minimumFractionDigits = 0
-        return formatter.string(from: saved as NSDecimalNumber)
+        guard let text = formatter.string(from: saved as NSDecimalNumber) else { return nil }
+        // ME-1 (redesign §6.15 "zero-suppressed money line"): a positive figure
+        // that ROUNDS to the locale's zero (the first hours of a real streak,
+        // e.g. $0.16 → "$0") renders nothing rather than "$0 saved" — the
+        // never-"$0" rule was always the intent of the `saved > 0` guard, and
+        // rounding was quietly defeating it. Locale-safe: compared against the
+        // same formatter's rendering of zero, never a hardcoded "$0".
+        guard text != formatter.string(from: 0) else { return nil }
+        return text
     }
 
     /// Progress toward the next milestone rung at `date`, 0...1 — through the engine's

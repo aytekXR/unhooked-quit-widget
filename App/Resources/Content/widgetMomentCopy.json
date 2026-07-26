@@ -1,0 +1,21 @@
+{
+  "_meta": {
+    "version": 1,
+    "audit": "DRAFT — founder copy pass required (operator-instructed, founder pass pending; operator-expected §3). This file is the widget-adoption moment's ONE audited copy table (ADR-9; the summaryCopy.json precedent — its own file, never a quizConfig steps[] entry). Bytes are verbatim from redesign/product-copy.md §4 'The widget moment': the north-star surface (panic widget added by D1 ≥ 40%) finally gets its screen. Register rules honored: no exclamation marks, no urgency, no countdown language, no fabricated statistic; 'reset' is the sanctioned discreet vocabulary; the guided steps are honest about iOS's manual add flow (Ballast cannot programmatically install accessory widgets). Lexicon-scanned by SlipLexiconTests on every CI run, shipping AND degraded. The preview accessibility label frames a LIVE preview whose content is pure widget-feed data (Day N / money / Reset), so the label itself stays data-free.",
+    "review_status": "DRAFT — founder copy pass pending. Redesign wave 2 (operator-instructed): ME-1, ui-ux §6.15."
+  },
+  "eyebrow": "Before the first hard moment",
+  "title": "Put help on your lock screen",
+  "body": "The panic button works before you even unlock your phone. Add the Ballast widget, and a 90-second reset is one tap away — right when an urge shows up.",
+  "visualCaption": "This is what it looks like. Numbers only, if you prefer — it never names the habit.",
+  "previewAccessibilityLabel": "Preview of your lock screen widget",
+  "primaryCTA": "Show me how",
+  "guideSteps": [
+    "Press and hold your lock screen",
+    "Tap Customize, then the widget area",
+    "Choose Ballast."
+  ],
+  "guideDismiss": "Done",
+  "secondaryCTA": "Maybe later",
+  "discreetFootnote": "Prefer quieter? The Reset button in Control Center does the same job and carries no name at all."
+}

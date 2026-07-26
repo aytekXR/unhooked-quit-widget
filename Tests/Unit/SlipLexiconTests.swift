@@ -314,6 +314,36 @@ struct SlipLexiconTests {
         }
     }
 
+    // MARK: - The ME-1 widget-moment gate (Session 49 — widgetMomentCopy.json is
+    // the widget-adoption moment's audited copy table, its own file + type (the
+    // summaryCopy precedent); every string DRAFT/founder-owned (operator-
+    // instructed, founder pass pending); shipping AND degraded both walked, so a
+    // new field can never dodge the scan.)
+
+    @Test func test_widgetMomentStrings_containNoForbiddenLexicon() throws {
+        let copy = try #require(
+            WidgetMomentCopy.loadShipping(),
+            "the audited widget-moment table is the shipping widgetMomentCopy.json — it must be bundled and decode as-is (§3.2)"
+        )
+        let corpus = Self.reflectedStrings(of: copy) + Self.reflectedStrings(of: WidgetMomentCopy.degraded)
+
+        // Non-vacuity floor: 12 shipping strings today (eyebrow, title, body,
+        // caption, preview label, primary CTA, 3 guide steps, guide dismiss,
+        // secondary CTA, discreet footnote).
+        #expect(
+            Self.reflectedStrings(of: copy).count >= 12,
+            "the reflected widget-moment corpus collapsed — the scan would be vacuous"
+        )
+
+        for string in corpus {
+            let violation = Self.firstViolation(in: string)
+            #expect(
+                violation == nil,
+                "forbidden lexicon '\(violation ?? "?")' must never appear on the widget-adoption moment — the north-star surface is an offer of help, never a verdict (brandkit §1.2): \(string)"
+            )
+        }
+    }
+
     // MARK: - Table completeness (the audit-found inline strings, byte-exact)
 
     @Test func test_slipTable_carriesDashboardStrings_byteExactWithRenderedCopy() throws {

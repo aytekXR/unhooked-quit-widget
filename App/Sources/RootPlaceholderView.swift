@@ -109,8 +109,13 @@ struct RootPlaceholderView: View {
             }
             if phase == .active {
                 presentWarmPanicIfRequested()
+                sweepWidgetAdoptions()
             }
         }
+        // ME-1 — the DURABLE `widget_added` fire point: a widget added any time
+        // after the adoption screen is gone (Settings re-entry, a later gallery
+        // add) still lands on the next dashboard appearance/foreground.
+        .task { sweepWidgetAdoptions() }
         .onReceive(
             NotificationCenter.default
                 .publisher(for: PanicLaunchFlag.warmLaunchRequested)
@@ -309,6 +314,16 @@ struct RootPlaceholderView: View {
         .frame(maxWidth: .infinity)
         // NEUTRAL — secondary fill, never amber/red (same as the slip flow's banner).
         .background(Theme.color.surfaceSunken.color, in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    /// ME-1 — consume any rendered-but-unfired widget-adoption stamps through
+    /// the ONE consent-gated service. Repository-gated: acknowledging with a
+    /// `.disabled` fallback while the store is still opening would silently
+    /// swallow a consented user's event, so a nil repository defers to the next
+    /// sweep instead.
+    private func sweepWidgetAdoptions() {
+        guard let repository = provider?.repository else { return }
+        WidgetAdoptionWiring.firePendingAdoptions(analytics: repository.analyticsService)
     }
 
     /// E9.1 (R27.6) — the once-per-process notice consideration: runs when the

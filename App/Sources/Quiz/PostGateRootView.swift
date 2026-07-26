@@ -32,6 +32,19 @@ struct PostGateRootView: View {
     /// row is the persistent path back to the offer. Teaser-expiry
     /// re-presents keep their E7.2 cadence (unguarded).
     @State private var didAutoPresentWinback = false
+    /// ME-1 (redesign §5.1/§6.15) — the widget-adoption moment, mounted once per
+    /// funnel completion, immediately post-entitlement-resolution: after the
+    /// ONBOARDING paywall resolves (unlocked or teaser taken) on live-key
+    /// builds, straight after the summary CTA on dormant ones. In-memory only —
+    /// the summary itself is summary-once by construction, so this can never
+    /// re-prompt on a later launch; the persistent re-entry is the Settings
+    /// panic-access row (ME-7's rebuilt Settings, deferred).
+    @State private var showsWidgetAdoption = false
+    /// ME-1 — which surface the mounted paywall was presented FOR: only the
+    /// `.onboarding` presentation routes into the adoption moment on dismissal
+    /// (win-back and teaser-expiry re-presents return to the dashboard as
+    /// before). Set beside `paywallData`, cleared in `dismissPaywall`.
+    @State private var presentedPaywallSource: PaywallSource?
     /// S46 (operator §3) — the alcohol withdrawal notice on the SUMMARY, the
     /// screen every completer meets BEFORE the paywall. Same once-per-process
     /// consideration latch as the dashboard mount (`RootPlaceholderView`); the
@@ -146,6 +159,21 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// ME-1 — the a11y-audit/operator-eyeball WIDGET-MOMENT direct mount, on the
+    /// UITEST_SUMMARY precedent: a DEBUG-only launch-env switch, inert in every
+    /// release build BY CONSTRUCTION. The adoption screen is reachable in
+    /// production only through the whole funnel, so the audit needs a mount. It
+    /// renders the real view over the shipping copy table and a deterministic
+    /// fixture feed, with `.disabled` analytics and NO handshake suite — it
+    /// opens no path to habit content and fires nothing.
+    private static var uiTestWidgetMomentMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_WIDGET_MOMENT"] == "1"
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ZStack {
             content
@@ -239,15 +267,21 @@ struct PostGateRootView: View {
             debugResourcesMount
         } else if Self.uiTestPaywallDirectMount {
             debugPaywallDirectMount
+        } else if Self.uiTestWidgetMomentMount {
+            debugWidgetMomentMount
         } else if let paywall, let paywallData {
             PaywallView(
                 data: paywallData,
                 model: paywall,
                 onUnlocked: {
-                    // Entitled (purchase or restore) — fall through to the
-                    // dashboard immediately: the user just paid, nothing should
-                    // stand between them and the app.
+                    // Entitled (purchase or restore) — fall through immediately:
+                    // the user just paid, nothing should stand between them and
+                    // the app. ME-1: the ONBOARDING route continues into the
+                    // widget-adoption moment (post-entitlement-resolution, §5.1);
+                    // every other presentation returns to the dashboard as before.
+                    let fromOnboarding = presentedPaywallSource == .onboarding
                     dismissPaywall()
+                    if fromOnboarding { showsWidgetAdoption = true }
                     // R46.2 FIX (S48). The comment that used to sit here claimed
                     // "the entitlement model already adopted the post-purchase
                     // state" — it did not. `PaywallModel.purchase`/`restore` call
@@ -275,13 +309,31 @@ struct PostGateRootView: View {
                 onTeaserDismiss: {
                     // R25.7: the take already fired teaser_entered + stamped
                     // the grant (single-use); the day of access begins here.
+                    // ME-1: the onboarding teaser-take is entitlement-resolution
+                    // too — the adoption moment follows (never on the
+                    // teaser-EXPIRY re-present, whose source is .teaserExpiry).
+                    let fromOnboarding = presentedPaywallSource == .onboarding
                     dismissPaywall()
+                    if fromOnboarding { showsWidgetAdoption = true }
                 },
                 onWinbackDismiss: {
                     // R26.6: the offer never traps — "Not now" returns to
                     // the dashboard, wordlessly (no event fires).
                     dismissPaywall()
                 }
+            )
+        } else if showsWidgetAdoption {
+            // ME-1 — the widget-adoption moment (§6.15): the funnel's
+            // post-entitlement step. The preview renders the TRUE App Group
+            // feed (the repository's launch/summary writes already produced
+            // it), the analytics service is the ONE repository-vended gated
+            // facade, and the continue seam lands on the dashboard branch.
+            WidgetAdoptionView(
+                copy: WidgetMomentCopy.loadShipping() ?? .degraded,
+                feed: WidgetStateStore.appGroup()?.read(),
+                now: LiveClock().now,
+                analytics: provider?.repository?.analyticsService ?? .disabled,
+                onContinue: { showsWidgetAdoption = false }
             )
         } else if let model {
             if model.isComplete {
@@ -309,7 +361,11 @@ struct PostGateRootView: View {
                             // event tail stays true for release builds).
                             presentDebugPaywall(variant: debugVariant)
                         } else {
+                            // ME-1 (§5.1): dormant builds resolve entitlement by
+                            // fall-through — the adoption moment mounts here, and
+                            // its own continue lands on the dashboard.
                             self.model = nil
+                            showsWidgetAdoption = true
                         }
                     },
                     alcoholNotice: alcoholNoticeSlot
@@ -425,6 +481,41 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// ME-1 — the widget-moment leg's frame, compiled out of release ENTIRELY.
+    /// The real view over the shipping copy table and a deterministic fixture
+    /// feed (pure ADR-11 data — a Day-1 quit with a small spend), `.disabled`
+    /// analytics, and a nil handshake suite so detection/fire are structurally
+    /// inert. No habit content: the feed is label-free by design (§10).
+    @ViewBuilder private var debugWidgetMomentMount: some View {
+        #if DEBUG
+        WidgetAdoptionView(
+            copy: WidgetMomentCopy.loadShipping() ?? .degraded,
+            feed: WidgetFeed(
+                generatedAt: Date(timeIntervalSince1970: 1_783_425_600),
+                quits: [
+                    WidgetQuitState(
+                        id: UUID(uuidString: "0E32C0DE-0000-4000-8000-000000000001")!,
+                        streakStart: Date(timeIntervalSince1970: 1_783_425_600 - 3_600),
+                        timeZoneIdentifier: "America/New_York",
+                        weeklySpend: "26.50",
+                        currencyCode: "USD",
+                        bankedCleanSeconds: 0,
+                        momentumPercent: 100,
+                        milestoneHours: [12, 24, 72],
+                        discreet: nil
+                    ),
+                ]
+            ),
+            now: Date(timeIntervalSince1970: 1_783_425_600),
+            analytics: .disabled,
+            handshakeDefaults: nil,
+            onContinue: {}
+        )
+        #else
+        EmptyView()
+        #endif
+    }
+
     /// R36 — the resources leg's frame, compiled out of release ENTIRELY. Renders the
     /// real `SafetyResourcesView` (store-free) with `.disabled` analytics; the `.settings`
     /// source fires nothing on this inert mount.
@@ -499,6 +590,7 @@ struct PostGateRootView: View {
             source: source,
             prices: await RevenueCatPurchaser.displayPrices()
         )
+        presentedPaywallSource = source // ME-1: onboarding-only adoption routing
         let firePaywallViewed = PaywallPresenter.makeFirePaywallViewed(
             assignment: assignment,
             source: source,
@@ -550,6 +642,7 @@ struct PostGateRootView: View {
             variant: variant,
             source: .onboarding
         )
+        presentedPaywallSource = .onboarding // ME-1: same routing as the live path
         paywall = PaywallModel(
             purchase: { _ in .failed },
             restore: { .failed },
@@ -585,6 +678,7 @@ struct PostGateRootView: View {
     private func dismissPaywall() {
         paywall = nil
         paywallData = nil
+        presentedPaywallSource = nil
         model = nil
     }
 

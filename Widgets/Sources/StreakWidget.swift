@@ -64,6 +64,16 @@ struct StreakWidgetProvider: AppIntentTimelineProvider {
             now: now,
             horizonDays: 2
         )
+        // ME-1 (redesign §6.15) — the widget-adoption handshake's WRITE side:
+        // `timeline(for:in:)` runs only for an ADDED widget instance (the gallery
+        // renders placeholder/snapshot, which never touch this), so the first call
+        // per family IS the "widget added" fact. Write-once App Group defaults
+        // stamp; the APP fires the consent-gated `widget_added` from it — this
+        // extension still fires no analytics, ever (ADR-6/ADR-8).
+        WidgetAdoptionHandshake.recordFirstRender(
+            family: Self.adoptionFamily(for: context.family),
+            discreet: composition.quit?.discreet == true
+        )
         let boxes = composition.plan.entries.map {
             StreakTimelineBox(date: $0.date, widgetEntry: $0, quit: composition.quit)
         }
@@ -72,6 +82,19 @@ struct StreakWidgetProvider: AppIntentTimelineProvider {
         // moment a write produces a feed again.
         let policy: TimelineReloadPolicy = composition.plan.refreshAfter.map { .after($0) } ?? .never
         return Timeline(entries: boxes, policy: policy)
+    }
+
+    /// The handshake's family mapping — mirrors `StreakWidgetEntryView.mapped`
+    /// (same default arm: an unknown future family stamps as the flagship it
+    /// would render as).
+    private static func adoptionFamily(for family: WidgetFamily) -> StreakWidgetFamily {
+        switch family {
+        case .accessoryCircular: .circular
+        case .accessoryInline: .inline
+        case .systemSmall: .small
+        case .systemMedium: .medium
+        default: .rectangular
+        }
     }
 
     private func box(for configuration: SelectStreakQuitIntent, at now: Date) -> [StreakTimelineBox] {
