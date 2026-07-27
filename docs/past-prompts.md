@@ -6670,3 +6670,98 @@ goldens. Mounting on Home instead avoided it entirely — the run-1 artifact dif
 standing rule that it never rides one. Reverted in `60e4d35` with `[skip ci]` — `.claude/**`
 is not in the workflow's `paths-ignore`, so a bare config commit would otherwise burn a full
 billed macOS run. Stage explicit paths, not `-A`.
+
+---
+
+## Session 52 — TestFlight initial-testing readiness: the pack, and the finding that writing it produced (0 billed runs, docs-only) (2026-07-27)
+
+**Objective (operator-set): "get ready for the TestFlight initial testings."** Not the roadmap's
+next item (ME-8) — a deliberate operator redirect toward critical-path step 10.
+
+**Session-open state, verified first-hand, not from the ledger.** `git fetch` → local == `origin/main`
+at `8eec8fc`, tree clean. Last code run `30228460322` SUCCESS verified **per-job: 10/10**, including
+`TestFlight upload (fastlane beta)` — so a current build is sitting in App Store Connect. Free lanes
+RE-RUN locally: StreakEngine 84 / WidgetToolkit 21 / PaywallKit 16 = **121 pass**.
+
+### The finding: RevenueCat going live changed what a TESTER meets, and nobody had noticed
+
+S48B took RevenueCat live, and the ledger recorded it as a monetization milestone. It was also,
+silently, a **beta-testing** change. The branch is exact:
+
+- `PostGateRootView.swift:412-413` — a non-nil `entitlementModel` (i.e. the RC key is present) routes
+  every non-entitled user from the summary CTA into the paywall. Before the key, that CTA fell through
+  to the dashboard.
+- `PaywallPresentationComposition.swift:21` — an empty Superwall key takes `BundledVariantAssigner`.
+- `PaywallVariant.swift:47-50` — that assigner returns `.hard` unconditionally, and the hard arm
+  composes no `teaserEscape`.
+
+**So the first thing a TestFlight tester meets after onboarding is a subscription screen with no close
+button.** Three consequences, each checked rather than assumed:
+
+1. **Not a permanent trap.** `PaywallRouting.swift:55` — `reentryDestination` returns `.dashboard`
+   whenever no teaser grant exists, and a tester who never took a teaser never has one. Force-quit →
+   relaunch → dashboard. The wall gates the onboarding path once, not the app.
+2. **The intended path works and is free.** TestFlight transacts in the sandbox, so the purchase costs
+   the tester nothing — and it doubles as critical-path step 5 evidence. The failure mode is purely
+   informational: an unbriefed tester refuses the purchase sheet and reports "the app won't let me in."
+3. **A non-purchaser silently skips ME-1.** The widget-adoption moment mounts after the onboarding
+   paywall *resolves* on a live-key build, so force-quitting past the wall skips the north-star metric's
+   only surface. Mitigated in the script by routing testers to Settings → Panic access → "Add the
+   lock-screen widget" (the ME-7 row built for exactly this re-entry).
+
+**Recommendation: brief around it** (zero cost, and it is what the pack now does). The stronger fix —
+paste the Superwall key and assign the teaser arm — is already the decided posture for the *review*
+build (`review-notes.md` §3 item 1), so it is a "before external beta" item, not a blocker for internal.
+A code change to the wall was considered and rejected: R24.9 ratified the close-free hard wall, the
+teaser fork exists for precisely this, and a monetization-surface change is Architect-gated.
+
+### An external-oracle check that overturned the assumption I would have written
+
+The reflex claim is "sandbox compresses subscriptions to minutes." Checked against Apple's own
+TestFlight page rather than asserted: **TestFlight is not the Sandbox environment's rate.** Every
+subscription duration — 1 week through 1 year alike — renews **once per 24 hours**, for a maximum of
+**6 renewals**, after which auto-renewal is disabled. Writing the minute-scale numbers would have had
+the operator brief testers with a false expectation and mis-plan the week. Second check, same page:
+testers use their **normal Apple Account** and need no Sandbox Apple Account (that is optional, is for
+specific purchase scenarios, and only works inside one's own developer account) — a setup step the
+pack would otherwise have invented.
+
+**The day-7 lapse is an asset, not a nuisance.** It is the only free way to observe a real lapse, which
+is the one test that proves the R46.2 foreground-refresh fix. A week-one tester reopening the app
+around day 7 should meet the dashboard or a *dismissible* win-back offer, never a wall.
+
+### Four more pre-flight facts, each verified against source
+
+| Fact | Anchor | Why it matters to the sitting |
+|---|---|---|
+| Minimum **iOS 26.0** | `project.yml:18-19` | Older devices are never offered the build; reads as a broken invite. Constrains recruiting the ≥15 |
+| **No permission prompts at all** | Grep-verified absence: no `UserNotifications`, `CoreLocation`, `AVFoundation` capture, `AuthenticationServices` import in any shipping source | Makes "if anything asks for a permission, that is a bug" a briefable invariant |
+| **Erase → relaunch = fresh install** | `QuitRepository.swift:671-707` + `EraseFlow` | One tester can run the funnel more than once, and the icon disguise resets too |
+| Public link exposes an **uncleared name** | `project.yml:190` `CFBundleDisplayName: Ballast`; G0 trademark half still open | Email-invite external testers are fine; hold the public link |
+
+### What landed (docs-only, `[skip ci]`, ZERO billed runs)
+
+- **NEW `docs/testflight-beta-kit.md`** — the pack: §0 pre-flight (the five above), §1 paste-ready ASC
+  fields ("What to Test", beta app description, Beta App Review notes + the "no demo account, and here
+  is why" answer), §2 the tester invite, §3 a 20-minute test script with per-persona and discreet
+  passes, §4 known issues, §5 what signal to collect. Tester-facing prose is written to
+  `review-notes.md` §4's register bans (hand-enforced — docs bypass the CI lexicon gates).
+- **`testflight-tester-guide.md`** — scope split stated (it is ASC mechanics; the kit is content), three
+  stale facts corrected ("8-screen accessibility audit" → the 10-surface audit + waves 1–3 + live RC),
+  the iOS 26 floor added, the public-link/G0 caution added, and **why CI cannot set build notes**
+  recorded (`pilot` runs `skip_waiting_for_build_processing: true`; Apple cannot take a note before
+  processing completes).
+- **`operator-expected.md` §5** — four new checkboxes ahead of the carried ones.
+- **`critical-path-post-uir.md`** — step 10 rewritten around the pack; a Session 52 header row; **the
+  internal beta moved up to third in "Do next"**, on the same logic as the clinician letter and G0:
+  it runs on someone else's clock and the gate wants ≥1 week, so every day unstarted is a day added.
+
+### A judgment call worth recording
+
+**Wiring build notes into the fastlane lane was considered and rejected.** `pilot`'s
+`skip_waiting_for_build_processing: true` is what keeps the macOS runner from idling through Apple's
+processing wait, and the changelog field cannot be set without that wait. Turning it on would add
+Apple-side idle minutes to **every** green merge, on the priciest runner in the matrix, to fill a field
+the operator visits anyway when attaching the build to a group — and verifying the change would itself
+cost a billed run. Left manual, and the reasoning is now recorded in the tester guide so it is not
+re-litigated.

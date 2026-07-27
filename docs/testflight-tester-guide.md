@@ -5,7 +5,8 @@
 | Document | Operator guide (requested 2026-07-11, Session 16) |
 | App | Ballast — `com.beyondkaira.ballast`, team `UH7MXG7Z94` |
 | Audience | Operator only — everything here happens in App Store Connect, which agents never touch (agent-workflows §2.3) |
-| Related | `operator-expected.md` §5 (add internal testers) · `docs/critical-path-post-uir.md` (the full launch sequence) |
+| Scope | **This doc is the ASC mechanics: how to create groups and get builds to people.** What to *tell* those people, what to ask them to test, and the five things to know before you invite anyone live in **`docs/testflight-beta-kit.md`** — read its §0 first, because one of them changes what you put in the invite |
+| Related | `testflight-beta-kit.md` (the pre-flight + paste-ready invite/ASC text + the test script) · `operator-expected.md` §5 (add internal testers) · `docs/critical-path-post-uir.md` (the full launch sequence) |
 
 ## How builds get to TestFlight today (context you already own, for reference)
 
@@ -17,10 +18,23 @@ lane (`fastlane/Fastfile`). Two properties of that lane matter for testers:
 - Build number = the GitHub run number, so newest run = highest build. Always
   distribute the **most recent build listed in App Store Connect → Ballast →
   TestFlight → iOS Builds** — every green `main` run uploads a newer one, and
-  the current build carries the complete UI-Reactor redesign, the real
-  dashboard, the 8-screen accessibility audit, and the privacy manifests.
+  the current build carries the complete UI-Reactor redesign plus redesign waves
+  1–3 (the Surfaced Breath icon set, the erase UI, the widget-adoption moment,
+  Streak Detail, the rebuilt Settings), the real dashboard, live RevenueCat
+  billing, the **10-surface** accessibility audit, and the privacy manifests.
   (Historical note: the first genuinely testable build was `8a0c469` back in
   Session 15; that reference is long superseded — just take the newest.)
+
+**One thing this lane does NOT do: build notes.** `pilot` runs with
+`skip_waiting_for_build_processing: true` (it keeps the macOS runner from idling
+through Apple's processing wait on every merge), and Apple cannot accept a
+"What to Test" note until a build has finished processing. So the notes field is
+always yours to fill, in the same visit where you attach the build. Paste-ready
+text: `testflight-beta-kit.md` §1.1.
+
+**Minimum OS is iOS 26.0** (`project.yml`). Anyone older cannot install the
+build — TestFlight simply will not offer it, which reads to a tester as a broken
+invite. Check before spending one.
 
 Uploaded builds sit in **App Store Connect → Ballast → TestFlight → iOS Builds**
 until a tester group exists. That is why nobody has received anything yet.
@@ -66,11 +80,16 @@ builds of the same version usually clear instantly).
    - **Public link**: open the group → **Public Link** → Enable. Share the URL
      anywhere; optionally cap the tester count or disable the link later. Anyone
      with the link can join — treat it as public the moment you send it.
+     ⚠️ **Hold the public link until Gate G0 clears.** The build wears the name
+     "Ballast" and the trademark / App-Store-name clearance is still open
+     (`critical-path-post-uir.md` step 7), so a public link is an indexable
+     public exposure of an uncleared name. Email-invited external testers are
+     fine; the link can wait.
 3. **Attach a build to the group**: the group's Builds tab → **+** → pick the
    build → answer the compliance/review prompts → Submit for Beta App Review.
-   Review-notes tip for this category: mention the app is a 17+ habit tracker,
-   no account or demo login needed, and that onboarding is quiz-gated (the
-   same notes the roadmap plans for App Store submission).
+   **The Beta App Review fields are drafted and paste-ready in
+   `testflight-beta-kit.md` §1.2/§1.3** — beta app description, the review-notes
+   block, and the "no demo account, and here is why" answer.
 4. Once approved, the build distributes automatically and the group's testers
    are notified.
 

@@ -212,8 +212,35 @@ the 10/10 evidence MVP §7 asks for.
 
 ## 5. TestFlight housekeeping — carried from Sessions 07–09; NOW TIMELY
 
-> Step-by-step walkthrough: `docs/testflight-tester-guide.md` (internal group setup, external groups/public link).
+> **Read `docs/testflight-beta-kit.md` §0 before you invite anyone (~5 min).** It is the pre-flight for the
+> initial sitting: what a tester actually meets, what to put in the invite, and the paste-ready ASC fields.
+> Step-by-step ASC mechanics stay in `docs/testflight-tester-guide.md` (internal group setup, external
+> groups/public link).
 
+- [ ] **⚠️ Brief testers about the close-free paywall, or the sitting stalls there (S52/O52.1, the one that matters).**
+      RevenueCat going live in 48B flipped the summary CTA: every non-entitled user now routes into the paywall
+      (`PostGateRootView.swift:412`), and with Superwall still dormant the variant is always the **hard** arm
+      (`PaywallVariant.swift:47`) — **no close button.** Nobody is permanently stuck (force-quit → relaunch lands on
+      the dashboard, `PaywallRouting.swift:55`), and in TestFlight the purchase is **free** (sandbox), so the intended
+      path works and doubles as your §8 sandbox evidence. But a tester who is not told will refuse the purchase sheet
+      and report "the app won't let me in". Beta-kit §2 and §4.1 are written to prevent exactly that. **Two notes:**
+      a non-purchaser silently skips the ME-1 widget-adoption moment (the north-star metric's only surface) — the
+      script routes them back via Settings → Panic access instead; and if testers do stall, that is the argument for
+      pasting the Superwall key and assigning the teaser arm (§8), which is already the decided posture for the
+      *review* build.
+- [ ] **Know what TestFlight does to subscriptions before a tester reports it as a bug (S52).** Verified against
+      Apple's own page: in TestFlight **every** subscription duration renews once per **24 hours** — a 1-year plan
+      renews daily just like a 1-week plan — up to **6 renewals**, after which auto-renewal is disabled. (This is
+      NOT the minute-scale compression the Sandbox environment uses; do not brief the sandbox numbers.) So a tester
+      who subscribes on day 1 lapses around day 7 — which is the **only free way to watch a real lapse**, i.e. the
+      one test that proves the R46.2 foreground-refresh fix. Ask a week-one tester to reopen the app around day 7:
+      correct is the dashboard or a *dismissible* win-back offer, never a wall.
+- [ ] **Check the OS floor before spending an invite (~1 min).** Minimum is **iOS 26.0** (`project.yml`). Older
+      devices are not offered the build at all, which reads as a broken invite. Relevant to recruiting the ≥15
+      external testers the beta gate wants.
+- [ ] **Do NOT enable the TestFlight public link yet.** The build wears "Ballast" and G0 trademark/name clearance is
+      still open (critical path step 7); a public link is an indexable public exposure of an uncleared name.
+      Email-invited external testers are fine.
 - [ ] **Decide beta-tester GEOGRAPHY before you recruit (S47/O47.1, ~2 min).** Verified helpline rows exist for
       **US and TR only**. Every other region resolves to the GLOBAL bucket, which by your own number-free ruling
       shows text guidance ("…call your local emergency number… visit findahelpline.com") and **no tappable
