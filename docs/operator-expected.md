@@ -193,14 +193,31 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       mode). It names no technique and makes no claim; if the clinician wants the counts
       de-emphasized, that is a one-line edit with no golden impact.
       (c) `docs/review-notes.md` — read top to bottom; its factual claims are source-verified.
-- [ ] **Publish the two legal pages — A HARD DEPENDENCY (~30 min + your counsel's text).**
-      The paywall's Terms of Use / Privacy Policy are real tappable links pointing at
-      **`https://beyondkaira.com/terms`** and **`https://beyondkaira.com/privacy`**
+- [ ] **Stand up `ballast.beyondkaira.com` AND publish the two legal pages — A HARD DEPENDENCY.**
+      **Runbook: `docs/public-site-deploy.md`** (nginx server block + certbot, written out and
+      ready to paste; the deploy itself needs your server access, so an agent cannot do it).
+      The paywall's Terms of Use / Privacy Policy are real tappable links, repointed in S56 to
+      **`https://ballast.beyondkaira.com/terms`** and **`https://ballast.beyondkaira.com/privacy`**
       (constants in `Shared/Sources/AppIdentifiers.swift` — change them there if you host
       elsewhere). Apple Schedule 2 requires the links to WORK; a reviewer tapping through to a
-      404 is a rejection, so the pages must be live before submission. The privacy policy is
-      also where the sensitive-class habit-category disclosure lives (see
-      `docs/app-privacy-label.md`).
+      broken link is a rejection. The privacy policy is also where the sensitive-class
+      habit-category disclosure lives (see `docs/app-privacy-label.md`).
+
+      **Two things were MEASURED while making this change, and the second one is worse than the
+      first:**
+
+      1. **`ballast.beyondkaira.com` resolves but has no certificate.** A wildcard `A` record
+         already points it at the same origin as the apex (`161.97.172.146`), so DNS is done —
+         but an HTTPS request fails the hostname check outright, because the installed
+         certificate does not cover the subdomain. Until certbot issues for it, the app's legal
+         links fail at TLS.
+      2. **The OLD apex URLs were never real pages, and they returned HTTP 200.** `/terms`,
+         `/privacy` and *every other path* on `beyondkaira.com` return a **16-byte body reading
+         "beyondkaira.com"**. That is a catch-all, not a site. So the previous state was not
+         "links 404 until you publish" — it was **links that a link-checker would call healthy
+         while a reviewer met a blank placeholder.** No automated 404 sweep could ever have
+         caught it; only fetching the body does. Worth knowing because the old docs described
+         this as a 404 risk, and a 404 would have been the safer failure.
 - [ ] **YEDAM 115 operating hours (~5 min, `helplines.json`).** The row ships with
       `hoursVerified: false` and the honest placeholder "Bilinmiyor — yayına almadan
       doğrulayın". Confirm the real hours on yedam.org.tr and replace the string.
@@ -236,6 +253,34 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
 > Step-by-step ASC mechanics stay in `docs/testflight-tester-guide.md` (internal group setup, external
 > groups/public link).
 
+- [ ] **Create the TestFlight group named exactly `Friends` (~2 min) — CI now distributes to it
+      automatically, and will FAIL LOUDLY until it exists.** S56 wired automatic distribution: every
+      successful upload now attaches its build to that group, so testers get each build without you
+      touching App Store Connect. Two things to know:
+
+      **(a) Why it is a separate CI job rather than a fastlane option.** The upload lane runs
+      `pilot(skip_waiting_for_build_processing: true)`, and fastlane's own docs for that flag say
+      *"the distribute_external option won't work and no build will be distributed to testers"* — it
+      exists to avoid paying for CI minutes while Apple processes the build. On this private repo
+      macOS minutes bill at **10×**, and S52 already refused to hold the runner for the changelog for
+      exactly that reason. So the flag stays, and a **free ubuntu job** does the waiting and the
+      attaching afterwards via the App Store Connect API (`scripts/testflight_distribute.py`).
+      Zero macOS minutes.
+
+      **(b) It fails the pipeline if the group is missing, on purpose.** The job runs after the
+      upload has already succeeded, so a failure here means precisely "the build did not reach
+      testers" — which should be loud, and is wired into the Slack notification. The error message
+      lists the groups that DO exist, so a name mismatch is self-diagnosing. If you name the group
+      something else, set the repo Variable **`TESTFLIGHT_GROUP`** instead of editing code.
+
+      **(c) Internal vs external.** An **internal** group (up to 100 testers who are Users on your
+      ASC account) receives builds immediately — that is what you want for "Friends". An **external**
+      group also works, but builds only reach testers after Beta App Review; the script detects this
+      and warns rather than silently implying delivery.
+
+      **To back-fill the builds already uploaded** — including the latest — run the
+      **"TestFlight distribute (manual)"** workflow from the Actions tab with `sweep` set to the
+      number of recent builds to attach. It needs no new build and costs no macOS minutes.
 - [ ] **⚠️ Brief testers about the close-free paywall, or the sitting stalls there (the one that matters).**
       RevenueCat going live flipped the summary CTA: every non-entitled user now routes into the paywall
       (`PostGateRootView.swift:412`), and with Superwall still dormant the variant is always the **hard** arm

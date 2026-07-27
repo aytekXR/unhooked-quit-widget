@@ -340,7 +340,7 @@ The shipped sheet is titled "Discreet Mode" while hosting unrelated rows — IA 
 | Your plan | Winback row | "See your plan options" | **Keep** (conditional). |
 | Your plan | Subscriber row | "Manage subscription" | **New.** Links to App Store management; the honest counterpart to "cancel in one tap." |
 | Support | Resources row | "Support & resources" | **Keep.** |
-| About | Rows | "Terms of Use" · "Privacy Policy" · "Version {{n}}" | Labels **Keep**. **S46: the PAYWALL's Terms/Privacy are now live `Link`s** to `beyondkaira.com/terms` + `/privacy` (constants in `AppIdentifiers.swift`) — this Settings row should reuse those same constants, never re-declare URLs. Both need a 44pt target: making the paywall labels interactive immediately failed the a11y audit with `Hit area is too small`. **The two pages themselves are still unpublished** — that is the remaining blocker, not the wiring. |
+| About | Rows | "Terms of Use" · "Privacy Policy" · "Version {{n}}" | Labels **Keep**. **S46: the PAYWALL's Terms/Privacy are now live `Link`s** to `ballast.beyondkaira.com/terms` + `/privacy` (constants in `AppIdentifiers.swift`) — this Settings row should reuse those same constants, never re-declare URLs. Both need a 44pt target: making the paywall labels interactive immediately failed the a11y audit with `Hit area is too small`. **The two pages themselves are still unpublished** — that is the remaining blocker, not the wiring. |
 
 ### Privacy dashboard ("What leaves this device")
 

@@ -500,6 +500,51 @@ jobs:
           MATCH_BOOTSTRAP: ${{ vars.MATCH_BOOTSTRAP }}
         run: fastlane beta
 
+  # ── TestFlight distribution (S56) ───────────────────────────────────────────
+  # Makes every uploaded build available to the tester group automatically.
+  #
+  # WHY THIS IS A SEPARATE JOB AND NOT `pilot(groups:)`. The lane above uploads with
+  # `skip_waiting_for_build_processing: true`, and fastlane's own docs for that option
+  # say: "If set to true, the distribute_external option won't work and NO BUILD WILL BE
+  # DISTRIBUTED TO TESTERS. (You might want to use this option if you are using this
+  # action on CI and have to pay for 'minutes used' on your CI plan.)" So group
+  # distribution is structurally impossible while that flag is set — and the flag earns
+  # its place: this is a private repo (macOS minutes bill at 10x) and Apple's processing
+  # wait is pure idling. S52 made this same call for the build changelog and refused to
+  # hold the runner for it.
+  #
+  # So: keep the fast upload, and do the waiting HERE on ubuntu, where minutes are free.
+  # Zero macOS minutes are spent polling.
+  testflight-distribute:
+    name: TestFlight distribution (tester group)
+    needs: [testflight-gate, testflight]
+    if: needs.testflight-gate.outputs.enabled == 'true' && needs.testflight.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ASC API deps
+        run: pip install --quiet pyjwt cryptography
+      - name: Attach the new build to the tester group
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_API_KEY_P8_BASE64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
+          # A repo Variable, so the group can be renamed in App Store Connect without a
+          # code change. An unset Variable expands to "", which the `:-` default catches.
+          TESTFLIGHT_GROUP: ${{ vars.TESTFLIGHT_GROUP }}
+        run: |
+          python3 scripts/testflight_distribute.py \
+            --bundle-id com.beyondkaira.ballast \
+            --group "${TESTFLIGHT_GROUP:-Friends}" \
+            --sweep 1
+      # Note: this job intentionally does NOT gate the build. The upload already
+      # succeeded by the time it runs; a failure here means "the build did not reach
+      # testers", which is exactly what should be loud in Slack below.
+
   slack-notify:
     name: Slack notification
     runs-on: ubuntu-latest
@@ -507,7 +552,7 @@ jobs:
     # when TestFlight is dormant (no ASC secrets → testflight is `skipped`, not `failure`, so a
     # lint failure would NOT cascade through it). Without the three lints here, that state could
     # send a false-green Slack success while an account/monetization-import violation shipped.
-    needs: [streakengine-release-gate, package-units, swiftdata-importer-lint, monetization-importer-lint, account-absence-lint, app, testflight-gate, testflight]
+    needs: [streakengine-release-gate, package-units, swiftdata-importer-lint, monetization-importer-lint, account-absence-lint, app, testflight-gate, testflight, testflight-distribute]
     if: always()
     steps:
       - name: Notify Slack on success

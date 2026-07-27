@@ -25,12 +25,37 @@ enum AppIdentifiers {
 
     // MARK: - Legal destinations (Apple Schedule 2 / guideline 3.1.2(c))
 
+    /// The product's public host. Split out as a constant so the legal
+    /// destinations below cannot drift apart, and so a future page (support,
+    /// marketing) inherits the same origin.
+    ///
+    /// **Moved from the apex `beyondkaira.com` to the product subdomain in S56**,
+    /// at the operator's instruction: Ballast is one product under the
+    /// `com.beyondkaira` org, and its public pages belong on its own host rather
+    /// than the org apex.
+    ///
+    /// ⚠️ **This host is NOT serving yet, and that is a submission blocker, not a
+    /// nicety.** Verified at the time of the change: `ballast.beyondkaira.com`
+    /// RESOLVES (a wildcard A record points it at the same origin as the apex) but
+    /// presents no matching TLS certificate, so an HTTPS request fails the
+    /// hostname check outright. See `docs/public-site-deploy.md` for the nginx +
+    /// certbot runbook that closes it.
+    ///
+    /// Worth knowing about what it replaced, because it is worse than it looks:
+    /// the old apex URLs returned **HTTP 200 with a 16-byte body reading
+    /// "beyondkaira.com"** — for `/terms`, `/privacy`, and every other path alike.
+    /// They were never real pages; the origin answers 200 to everything. A
+    /// link-checker would have called them healthy while a reviewer tapping
+    /// "Terms of Use" met a blank placeholder — an Apple Schedule 2 / 3.1.2(c)
+    /// rejection that no automated 404 sweep could ever have caught.
+    static let publicSiteHost = "ballast.beyondkaira.com"
+
     /// Terms of Use (EULA). Every subscription purchase screen MUST link to a
-    /// FUNCTIONAL URL — a plain label is a rejection. Operator-owned destination
-    /// on the registered domain; the page itself is published separately.
-    static let termsOfUseURL = URL(string: "https://beyondkaira.com/terms")!
+    /// FUNCTIONAL URL — a plain label is a rejection. Operator-owned destination;
+    /// the page itself is published separately (see the runbook above).
+    static let termsOfUseURL = URL(string: "https://\(publicSiteHost)/terms")!
 
     /// Privacy Policy. Same Schedule 2 requirement as the Terms link above, and
     /// the destination the App Privacy label's sensitive-class disclosure points at.
-    static let privacyPolicyURL = URL(string: "https://beyondkaira.com/privacy")!
+    static let privacyPolicyURL = URL(string: "https://\(publicSiteHost)/privacy")!
 }
