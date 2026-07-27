@@ -607,18 +607,24 @@ struct PostGateRootView: View {
     /// never a mid-rise frame, which is the same contract the goldens rely on.
     @ViewBuilder private var debugMilestoneUnlockMount: some View {
         #if DEBUG
-        MilestoneUnlockCard(
-            row: MilestoneRowModel(
-                afterHours: 72,
-                title: "Three days",
-                body: "Three days in. This is commonly reported as the toughest window — and you are through it.",
-                state: .unlocked
-            ),
-            isDiscreet: false,
-            onDone: {},
-            onSeeAll: {}
-        )
-        .padding(Theme.space.s5)
+        // In a ScrollView, matching Home: at accessibility sizes this card exceeds the
+        // device frame, and the audit should read the shape production renders.
+        ScrollView(.vertical) {
+            MilestoneUnlockCard(
+                row: MilestoneRowModel(
+                    afterHours: 72,
+                    title: "Three days",
+                    body: "Three days in. This is commonly reported as the toughest window — and you are through it.",
+                    state: .unlocked
+                ),
+                isDiscreet: false,
+                onDone: {},
+                onSeeAll: {}
+            )
+            .padding(Theme.space.s5)
+            .frame(maxWidth: .infinity, alignment: .top)
+        }
+        .scrollBounceBehavior(.basedOnSize)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .themedScreenSurface()
         #else

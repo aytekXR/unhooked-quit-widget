@@ -40,13 +40,22 @@ struct MilestoneUnlockSnapshotTests {
     )
 
     private func makeView(discreet: Bool) -> some View {
-        MilestoneUnlockCard(
-            row: Self.row,
-            isDiscreet: discreet,
-            onDone: {},
-            onSeeAll: {}
-        )
-        .padding(Theme.space.s5)
+        // Wrapped in a ScrollView because HOME is a ScrollView: at AX5 this card is
+        // taller than the device frame, and an unscrolled fixture captured a MIDDLE
+        // SLICE — crest, title and both actions all cut off — which pins nothing and
+        // would churn on any copy edit. Anchored at the top, the golden shows the
+        // elements most likely to clip and stays stable. R33.12 item 4: content scrolls.
+        ScrollView(.vertical) {
+            MilestoneUnlockCard(
+                row: Self.row,
+                isDiscreet: discreet,
+                onDone: {},
+                onSeeAll: {}
+            )
+            .padding(Theme.space.s5)
+            .frame(maxWidth: .infinity, alignment: .top)
+        }
+        .scrollBounceBehavior(.basedOnSize)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .themedScreenSurface()
     }
