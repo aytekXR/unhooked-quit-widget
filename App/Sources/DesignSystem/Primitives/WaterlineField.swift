@@ -88,9 +88,39 @@ struct WaterlineField: View {
     /// | standard 0.060 | 1.044× | light caution on water, 4.70 |
     /// | ceiling 0.080 | 1.018× | light caution on water, 4.58 |
     ///
-    /// `opacityCeiling` is enforced in `body`, not documented and trusted: it is
-    /// the highest value at which EVERY registered pair still passes, so a future
-    /// caller cannot open a contrast hole by passing a bolder number.
+    /// `opacityCeiling` is enforced in `body`, not documented and trusted, so a
+    /// future caller cannot open a contrast hole by passing a bolder number.
+    ///
+    /// **S54 CORRECTION — this comment used to claim the ceiling was "the highest
+    /// value at which EVERY registered pair still passes". That was overstated, and
+    /// the correction is the same lesson this file already teaches, turned on its
+    /// own number.** Re-measured in ME-4 by compositing every band over
+    /// `surface/base` and re-running all 32 pairs: the true figure for EVERY
+    /// registered pair is **0.0391**, not 0.08. The three that break above it are
+    /// all **doubly translucent** — a tinted fill (`caution@10%`, `primary@12%`)
+    /// composited over a base the field has ALREADY tinted, so the field compounds
+    /// through a second layer, and those pairs start with the least headroom in the
+    /// registry (4.90 and 4.83 untinted). S53 measured the pairs whose background
+    /// IS `surface/base`, which is why they were missed.
+    ///
+    /// **The shipped values are nevertheless correct, because the governing claim is
+    /// per-surface, not universal.** Measured against what each consumer actually
+    /// renders behind the field:
+    ///
+    /// | surface | exposed pairs | true ceiling | ships at |
+    /// |---|---|---|---|
+    /// | quiz (ME-8) | 7 — all opaque chips/wells, no tint | **0.0934** | 0.06 / 0.045 |
+    /// | summary (ME-4) | 3 — the alcohol notice's caution tint | **0.0695** | 0.06 |
+    ///
+    /// So 0.08 stays: it is safe for both live consumers, and lowering it to 0.0391
+    /// would dim the quiz for a hazard the quiz does not have. What a new consumer
+    /// owes is the check, not the constant: **before putting a field behind any
+    /// TRANSLUCENT fill, re-measure that fill's pairs over the tinted base.** ME-4's
+    /// own answer was to remove the exposure structurally rather than document it —
+    /// `AlcoholNoticeCard` now pins an opaque `surface/base` beneath its tint, so the
+    /// registered composite is the one that renders whatever sits behind the card.
+    /// That matters because nothing in CI can catch this class: no golden renders
+    /// that card, and the summary audit mount does not construct one.
     ///
     /// The default field weight.
     static let standardOpacity: Double = 0.06

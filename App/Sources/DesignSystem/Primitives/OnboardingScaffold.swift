@@ -127,11 +127,17 @@ struct OnboardingScaffold<Header: View, Content: View, Actions: View>: View {
 }
 
 extension OnboardingScaffold where Header == EmptyView {
+    /// ME-4 (S54) forwards `field:` here too. The slot existed only on the PRIMARY
+    /// init, and the quiz summary — the field's second consumer — is a header-less
+    /// screen, so it reaches the scaffold through THIS init and could not have
+    /// passed a field at all. Defaulted to `nil`, so the age gate, the blocked
+    /// screen and the widget moment keep the byte-identical no-field path.
     init(
+        field: AnyView? = nil,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder actions: @escaping () -> Actions
     ) {
-        self.init(header: { EmptyView() }, content: content, actions: actions)
+        self.init(field: field, header: { EmptyView() }, content: content, actions: actions)
     }
 }
 

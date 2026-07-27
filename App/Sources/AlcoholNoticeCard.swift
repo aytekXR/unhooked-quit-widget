@@ -72,6 +72,29 @@ struct AlcoholNoticeCard: View {
         .frame(maxWidth: .infinity)
         // Amber semantic/caution ONLY — never red (§2 hard rule), calm typography.
         .background(Theme.color.caution.color.opacity(Theme.alpha.cautionTint), in: RoundedRectangle(cornerRadius: 16))
+        // ME-4 (S54) — the OPAQUE floor under that 10% tint, and it is load-bearing
+        // rather than cosmetic.
+        //
+        // The three pairs this card renders are registered as "caution@10% over
+        // surface/BASE". That was true while every mount sat on a flat base. ME-4
+        // puts a full-bleed `WaterlineField` behind the summary, where S46 also
+        // mounts this notice (so a hard-wall non-converter still meets it) — and a
+        // translucent fill over a TINTED base composites to something else. Measured
+        // on the shipping tokens: light `brand/primary` on this tint drops 4.900 →
+        // 4.554 against its 4.5 floor at the field's standard 0.06, and to 4.442 —
+        // a real WCAG failure — at the field's own 0.08 ceiling.
+        //
+        // Nothing in CI could catch that: no golden renders this card, and
+        // `PostGateRootView.debugSummaryMount` passes no notice, so the runtime
+        // .contrast audit never sees it either. So the fix is structural rather
+        // than a note asking future callers to be careful — pinning an opaque
+        // surface/base directly beneath the tint makes the REGISTERED composite the
+        // one that actually renders, whatever is behind the card.
+        //
+        // Byte-identical everywhere the field is absent: the dashboard already
+        // mounts this on `.themedScreenSurface()`, i.e. surface/base over
+        // surface/base. Zero goldens move.
+        .background(Theme.color.surfaceBase.color, in: RoundedRectangle(cornerRadius: 16))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("alcoholNotice.card")
     }

@@ -21,12 +21,39 @@ import UIKit
 // The full 4-axis matrix pins the two wave-1 strings in both palettes AND the
 // brandkit §8 stacked-hero rule at AX5 (the figure and "/year" stack; the
 // layout, not the glyph, gives way).
+//
+// ME-4 (S54) re-records all four and adds a second case. What moved: the
+// full-bleed `WaterlineField` backdrop, the 16→24pt card radius, the Moss
+// numeral, "/year" promoted to `.title2`, the `WaterlineRule` horizon under the
+// figure with 32pt clearspace bracketing the stage, the risk window in its own
+// sunken well, and motivations at `.title2`.
+//
+// Two riders worth stating, because both were checked rather than assumed:
+//
+// 1. **The field renders in an offscreen snapshot.** It is a `Canvas`, and the
+//    question "does Canvas draw in an image snapshot" is the kind of claim that
+//    otherwise costs a billed run to answer. It does not need one: the adopted
+//    `PanicFlowSnapshotTests.snapshot_timerStep` goldens already render
+//    `WaveTimerView`'s Canvas crest. Precedent, on disk.
+// 2. **No freeze seam is needed.** `WaterlineField` takes no clock input at all
+//    (no `TimelineView`, no `Date`), which is exactly why ME-8 built it that way —
+//    unlike the wave timer above, which needs `pauseDate`. A golden containing the
+//    field is byte-stable by construction.
+//
+// The NEW case is the zero-spend state. UX blueprint §6.5 names it ("zero-spend
+// users see the risk-window + motivations composition with no money block — never
+// '$0'") and ME-4 restructured it: `heroStage` now branches, so the absent variant
+// renders the reframe plus the horizon rule and NO caption. Nothing pinned that
+// branch before, and AC4 — no fabricated "~$0/year" — is a product rule worth a
+// golden. Two axes rather than four: the branch is a composition change, not a
+// Dynamic-Type one, and the AX5 behaviour it would exercise is already pinned by
+// the four full-data axes.
 
 @MainActor
 @Suite(.snapshots(record: .missing))
 struct QuizSummarySnapshotTests {
 
-    private func makeView() throws -> QuizSummaryView {
+    private func makeView(savings: Decimal = 1350) throws -> QuizSummaryView {
         let copy = try #require(
             SummaryCopy.loadShipping(),
             "the audited summaryCopy.json must be bundled — the goldens render the REAL CTA + footer signature"
@@ -39,7 +66,7 @@ struct QuizSummarySnapshotTests {
             model: QuizFlowModel(config: config, analytics: .disabled),
             data: SummaryPresentation.make(
                 inputs: QuizSummaryInputs(
-                    savings: 1350,
+                    savings: savings,
                     currencyCode: "USD",
                     riskToken: "evenings",
                     motivations: ["Energy", "Money"]
@@ -76,6 +103,34 @@ struct QuizSummarySnapshotTests {
                         traits.preferredContentSizeCategory = axis.ax5
                             ? .accessibilityExtraExtraExtraLarge
                             : .large
+                    }
+                ),
+                named: axis.name
+            )
+        }
+    }
+
+    /// AC4 / §6.5's zero-spend state. `savings: 0` drives
+    /// `SummaryFormatter.savingsDisplay` to nil, so `heroParts` is nil and the card
+    /// renders the `savingsAbsent` reframe instead of a figure — the branch that
+    /// exists so the screen never shows a fabricated "~$0/year".
+    ///
+    /// Deliberately built through the SHIPPING formatter rather than by handing the
+    /// view a nil `savingsLine`: the point is to pin that a zero spend PRODUCES the
+    /// absent variant, which a hand-built fixture would assume rather than prove.
+    @Test func snapshot_summaryCard_savingsAbsent() throws {
+        let view = try makeView(savings: 0)
+        let axes: [(name: String, dark: Bool)] = [("light", false), ("dark", true)]
+        for axis in axes {
+            assertSnapshot(
+                of: view,
+                as: .image(
+                    precision: 0.99,
+                    perceptualPrecision: 0.98,
+                    layout: .device(config: .iPhone13),
+                    traits: UITraitCollection { traits in
+                        traits.userInterfaceStyle = axis.dark ? .dark : .light
+                        traits.preferredContentSizeCategory = .large
                     }
                 ),
                 named: axis.name

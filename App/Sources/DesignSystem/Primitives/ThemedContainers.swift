@@ -5,14 +5,20 @@ import SwiftUI
 extension View {
     /// Level-0 card: `surface/raised` fill, `radius/m`, hairline border (dark
     /// mode relies on surface-tone steps, not shadows — brandkit §5).
-    func themedCard() -> some View {
+    ///
+    /// ME-4 (S54) adds the radius parameter, DEFAULTED to `radius/m` so all
+    /// thirteen existing call sites are byte-identical and no card golden can
+    /// move. Only the quiz summary passes `radius/l` — UX blueprint §6.5 asks the
+    /// payoff card, and only it, for 24pt. The alternative (changing the constant
+    /// here) would have re-radiused every card in the app to satisfy one screen.
+    func themedCard(cornerRadius: CGFloat = Theme.radius.m) -> some View {
         self
             .background(
                 Theme.color.surfaceRaised.color,
-                in: RoundedRectangle(cornerRadius: Theme.radius.m)
+                in: RoundedRectangle(cornerRadius: cornerRadius)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: Theme.radius.m)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .strokeBorder(Theme.color.borderHairline.color, lineWidth: 1)
             )
     }
