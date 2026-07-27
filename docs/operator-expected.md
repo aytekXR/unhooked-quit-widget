@@ -32,10 +32,10 @@ paywall ME-9) stay deferred to the redesign's own Phase 3–4 sequencing, exactl
 it. Re-scope the final batch AFTER ME-4/ME-8/ME-9 land — the S48 banked scoping still applies, minus
 the surfaces waves 1–2 already covered.
 
-**What the redesign program still owes (next agent session):** ME-7 Settings rebuild (canonical
-section order + panic-access re-entry rows + the widget-moment "Maybe later" nudge), ME-3 milestone
-unlock moments, ME-8 quiz continuous field + interstitials, ME-4 summary payoff, ME-9 paywall polish,
-then the final golden batch + LB-5 screenshots.
+**What the redesign program still owes (next agent session):** ME-8 quiz continuous field +
+interstitials, ME-4 summary payoff, ME-9 paywall polish, then the final golden batch + LB-5
+screenshots. **Landed since this list was written:** ME-7 Settings rebuild (S50) and ME-3 milestone
+unlock moments (S51).
 
 **NEW operator items this created (add to your §3 reading list):**
 - [ ] **Founder copy pass** over the wave-1/2 DRAFT tables (all shipped operator-instructed, every
@@ -91,8 +91,10 @@ then the final golden batch + LB-5 screenshots.
       the parked AX5 accessibility defect (see the note below), so the visual delta is the fix, not
       a side effect. Four goldens were eyeballed before adoption, including both at the largest
       accessibility size — but goldens cannot tell you whether it FEELS like a settings screen.
-      While you are there, tap **Panic access → "Add the lock-screen button"** and confirm it
-      re-opens the widget-adoption moment.
+      While you are there, tap **Panic access → "Add the lock-screen widget"** and confirm it
+      re-opens the widget-adoption moment. (This instruction said *"button"* until S52 — the very
+      word the table above explains was changed to *"widget"* because Apple's audit rejected it.
+      The shipped byte is `DiscreetSettingsCopy.swift:126`.)
 
 ## 1. E0.3 panic-latency — PARTLY MEASURED (S48). What is left is one 15-minute pass.
 

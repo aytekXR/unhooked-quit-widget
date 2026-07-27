@@ -29,17 +29,23 @@ landed on `main`, all green through CI.
 | **QW-6** Crest at the age gate | ⬜ open | Phase 2 |
 | **QW-8** Consent revisit toggle | ⬜ open | ME-7 built its home (*Privacy & Data*); the toggle + §6.22 are the next increment |
 | **QW-11** Social PNG re-render | ⬜ open | marketing, gated on G0 |
-| **ME-3** Milestone unlock moments | ⬜ open | **next** — Phase 3 |
+| **ME-3** Milestone unlock moments | ✅ **done — S51** | `30beabe` + 6 goldens (`9988ad5`); an 11th audit leg, clean on its first run |
 | **ME-4** Summary payoff redesign | ⬜ open | Phase 4 |
-| **ME-8** Waterline primitive + quiz pass | ⬜ open | Phase 3 |
+| **ME-8** Waterline primitive + quiz pass | ⬜ open | **next** — Phase 3 |
 | **ME-9** Paywall polish + goldens | ⬜ open | Phase 4 |
 | Final golden batch + **LB-5** screenshots | ⬜ open | after ME-4/ME-8/ME-9, exactly as Phase 4 sequences it |
 | LB-1…LB-4, LB-6 | ⬜ open | Phase 5, post-launch |
 
-**Two constraint notes below are now stale in the operator's favour:** hard constraint 5 says "107
-snapshot goldens … 34 WCAG-pinned contrast pairs" — it is **131 goldens** (4 more recording in S50)
-and **32 registered pairs** as of S50, and the audited-surface count is **10**, not 8. The
-substance of the constraint is unchanged: any visual change budgets a golden re-record.
+**Two constraint notes below are stale in the operator's favour, and this correction is itself
+re-counted at S52 rather than carried forward:** hard constraint 5 says "107 snapshot goldens …
+34 WCAG-pinned contrast pairs". Counted from disk and source at S52: **141 goldens across 12
+suites**, **32 registered contrast pairs**, and **11 audited surfaces** (not 8, and no longer the
+10 this note previously claimed — ME-3 added the 11th in S51). **Count these, never quote them** —
+this line has now been wrong twice:
+`find Tests/Snapshot/__Snapshots__ -name '*.png' | wc -l` ·
+`grep -c 'ContrastPair(' App/Sources/DesignSystem/Theme.swift` ·
+`grep -c 'func test_a11yAudit_' Tests/UITests/A11yAuditUITests.swift`.
+The substance of the constraint is unchanged: any visual change budgets a golden re-record.
 
 **One item is worth reading before touching a settings-adjacent surface again.** QW-9 stood parked
 for ten sessions as "Mac-gated, needs Xcode's Accessibility Inspector" after seven billed CI runs
@@ -85,7 +91,7 @@ Item IDs (QW/ME/LB) are referenced by the phase plan, dependency map, and measur
 | QW-6 | Place the crest mark at the age gate and as a watermark on the panic celebration | The brand's first screen has no brand moment; the crest exists only as the app icon. Two of the three sanctioned custom glyphs are unspent in-app | `App/Sources/AgeGate/AgeGateView.swift`, celebration step in `App/Sources/PanicFlowView.swift`; asset from `brandkit/branding-assets/icons/` | S | Med |
 | QW-7 | Functional Terms/Privacy links on the paywall (currently dead labels) | Named pre-submission blocker; a 30-minute fix once URLs exist | `App/Sources/Monetization/PaywallView.swift`, `App/Resources/Content/paywallCopy.json` | S | High |
 | QW-8 | Analytics-consent revisit toggle in settings | Consent is asked once in the quiz with no way to change it — a GDPR-hygiene gap and a cheap proof of the privacy story | `App/Sources/DiscreetSettingsView.swift`, consent state read by `App/Sources/AnalyticsService.swift` | S | Med |
-| QW-9 | Fix the parked AX5 settings audit defects (nav title, section footers, resources row) | The one open a11y item; Mac-gated diagnosis is already complete | `App/Sources/DiscreetSettingsView.swift` | S | Med |
+| QW-9 | ✅ **DONE — S50.** Retired by construction by the ME-7 rebuild (the height-capped `List` was the variable, not the row shape); NOT Mac-gated, no Inspector session needed. See the Execution status table | — | — | — |
 | QW-10 | Add the quiet in-flow support affordance to the panic flow: "More support" on every step after the pacer, the full "Or talk to someone" footer on the redirect step (copy deck §7) | Someone mid-crisis inside the panic flow has no path to a helpline without exiting. Make reachability a deliberate decision, not an accident. Link only — nothing on the entry frame (latency budget), and safety surfaces are never weakened | Post-pacer steps and exit states in `App/Sources/PanicFlowView.swift` → `App/Sources/SafetyResourcesView.swift`; copy → founder + clinician review of `App/Resources/Content/safetyCopy.json` | S | High |
 | QW-11 | Re-render all four social PNGs on Inter Display / Inter; delete the "VAPE-FREE" lock-screen mock | Current exports use a Segoe-class fallback and one violates the brand's own habit-leak rule while fabricating a widget state the app deliberately cannot render | `brandkit/branding-assets/social/` (rebuild from the `.dc.html` templates) | S | High (marketing) |
 

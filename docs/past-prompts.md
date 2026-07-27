@@ -6765,3 +6765,62 @@ Apple-side idle minutes to **every** green merge, on the priciest runner in the 
 the operator visits anyway when attaching the build to a group — and verifying the change would itself
 cost a billed run. Left manual, and the reasoning is now recorded in the tester guide so it is not
 re-litigated.
+
+### S52 addendum — the handoff-document sweep (still zero billed runs)
+
+**Prompted by the operator asking a one-line question: "have you updated the handoff documents".**
+The honest answer was *partially*, and checking properly turned up far more than the S52 delta.
+
+**What had actually happened.** S52 updated `resume-prompt.md`'s **header table** (the `Last updated`,
+`Phase` and `Next session objective` rows) and left its **body** alone. S51 had done the same thing.
+The result: the table said ME-8 while the body — including the **copy-paste "Resume prompt for next
+session" blockquote, the single most load-bearing continuity artifact in the repo** — still said
+*"Your objective is ME-3"* and specced ME-3 as future work, sixty lines of it. A session handed that
+block would have re-planned finished work.
+
+**The audit.** `wf_5b09ef39-b3d` — 6 self-verifying readers (one per handoff doc/section, each required
+to produce a file:line or command-output anchor for both the doc's claim and current reality) → 3
+adversarial refuter batches told to default to REFUTED and to explicitly reject findings sitting inside
+`[ARCHIVE]` / `_superseded_` blocks, since historical records are *supposed* to be stale. **27
+CONFIRMED, 2 refuted.** Every count was then re-verified by hand before editing — agent-reported
+numbers are exactly the class of claim not to take on trust.
+
+**What the counts actually are (measured at S52, and both of the previously-documented figures for
+contrast pairs were wrong):**
+
+| Thing | Docs said | Actually | Command |
+|---|---|---|---|
+| Snapshot goldens | 107 / 131 | **141** across **12** suites | `find Tests/Snapshot/__Snapshots__ -name '*.png' \| wc -l` |
+| Audited surfaces | 10 (in 5 places) | **11** (ME-3 added the 11th in S51) | `grep -c 'func test_a11yAudit_' Tests/UITests/A11yAuditUITests.swift` |
+| `Theme.contrastPairs` | 33 *and* 34 | **32** | `grep -c 'ContrastPair(' App/Sources/DesignSystem/Theme.swift` |
+| Layout-lint scope | "UIR-3 adds panic/slip" | AgeGate, Quiz, Dashboard, Monetization — **panic/slip were never added** | `OnboardingLayoutLintTests.swift:51-54` |
+
+**The four highest-value corrections, each of which would have misdirected real work:**
+
+1. **The copy-paste handoff block** rewritten for ME-8, plus the whole `## Next session objective`
+   section (60 lines of ME-3 spec) replaced.
+2. **R46.2 was described as open and "NOT fixed by design"** in three places, with instructions to land
+   it in a future keyed run. It was FIXED in S48B by the same commit that took RevenueCat live
+   (`644c04d`), and the source says so at `PostGateRootView.swift:346` and `:460`. A session could have
+   spent a billed run re-fixing it.
+3. **"The settings-content audit is MAC-GATED"** survived in two documents *and* directly contradicted
+   a sentence three bullets above it in the same section ("NOTHING is Mac-gated any more"). It also
+   still sat in `design-roadmap.md`'s backlog table as "the one open a11y item" while that same file's
+   Execution status table marked QW-9 ✅ done. Closed in S50.
+4. **`golden-batch.md`'s "current goldens" table was missing FIVE entire suites** (erase,
+   widget-adoption, Streak Detail, milestone unlock, quiz summary) and had two wrong counts — and it is
+   the first document ME-8 is told to read before budgeting the widest golden blast radius left.
+
+**Two smaller ones with teeth:** `operator-expected.md` told the operator to tap **"Add the lock-screen
+button"** — the exact word the *same document* explains, forty lines earlier, was changed to "widget"
+because Apple's audit rejected it; and the budget-shape guidance still claimed the two-run shape "has
+now worked twice" when S50 took 4 runs and S51 took 3, so it now reads as a target with an expected
+third run rather than a track record.
+
+**The generalizable rule, added because this failure mode is structural:** *updating a document's
+summary table is not updating the document.* This project's handoff docs carry the same facts in a
+header row, a body section, and a copy-paste block, and sessions have repeatedly updated one of the
+three. **Counts must be COUNTED at session end, never quoted** — the commands are now inline in every
+doc that carries a count, next to the number. Where a claim was struck, the strike says so in place
+rather than deleting silently, because "this sentence was true for ten sessions after it stopped being
+true" is the reason it survived.

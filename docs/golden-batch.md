@@ -123,23 +123,36 @@ finding is settled on a device.
   fell inside the 1% tolerance. Both readings matter here: this suite's precision may be less
   sensitive to an added control than assumed, so **visually verify, never trust green alone.**
 
-## Where the 107 current goldens stand
+## Where the 141 current goldens stand
+
+> **Re-counted from disk at S52 — this table had been wrong since wave 1.** It claimed 107 goldens
+> across 7 suites and was missing FIVE suites entirely (erase, widget-adoption, Streak Detail,
+> milestone unlock, quiz summary) plus two wrong counts. It is the first thing ME-8 is told to read,
+> so it was actively misleading the biggest remaining golden budget. **Count, never quote:**
+> `find Tests/Snapshot/__Snapshots__ -name '*.png' | sed 's|.*/__Snapshots__/\([^/]*\)/.*|\1|' | sort | uniq -c`
 
 Every golden below is **GREEN and STABLE on the finished design system** (tokens-v2 palette,
-UIR-regenerated layouts). None of these move on the §3 copy pass **unless** the operator changes the
+UIR-regenerated layouts). None of these move on a copy pass **unless** the operator changes the
 copy/palette that surface renders.
 
-| Suite | Goldens | Copy source | In the §3 batch? |
+| Suite | Goldens | Copy source | In the deferred final batch? |
 |---|---:|---|---|
-| `DashboardSnapshotTests` | 8 | audited labels + pure data (ADR-11) | **No** — copy is final/data (R34.2) |
 | `PanicFlowSnapshotTests` | 40 | script + verbatim user words | **No** — copy byte-identical |
-| `SlipFlowSnapshotTests` | 24 | script | **No** — copy byte-identical |
 | `StreakWidgetSnapshotTests` | 29 | luminance-only (no Theme); labels from `StreakWidgetStyle` | **No** — no palette; DRAFT widget strings could re-shoot if reworded |
-| `ResourcesSnapshotTests` | 2 | safety copy (operator-verified helplines) | **Maybe** — if the §3 safety-copy items (alcohol notice / GLOBAL fallback wording) change |
-| `SettingsSnapshotTests` | 2 | audited settings strings | **Maybe** — re-records if the DEFERRED settings-content audit fix lands (see below) |
+| `SlipFlowSnapshotTests` | 24 | script | **No** — copy byte-identical |
+| `DashboardSnapshotTests` | 10 | audited labels + pure data (ADR-11) | **No** — copy is final/data (R34.2) |
+| `WidgetAdoptionSnapshotTests` | 8 | `widgetMomentCopy.json` (**DRAFT**) | **Maybe** — rides the founder pass on §0's DRAFT list |
+| `StreakDetailSnapshotTests` | 6 | `StreakDetailCopy` (**DRAFT**) + the 43-body milestone catalog | **Maybe** — same DRAFT list |
+| `MilestoneUnlockSnapshotTests` | 6 | milestone catalog + ME-3 frame (**DRAFT**) | **Maybe** — same DRAFT list |
+| `EraseEverythingSnapshotTests` | 6 | `DiscreetSettingsCopy` erase strings (**DRAFT**) | **Maybe** — same DRAFT list |
+| `SettingsSnapshotTests` | 4 | `DiscreetSettingsCopy` (5 S50 strings are DRAFT) | **Maybe** — same DRAFT list |
+| `QuizSummarySnapshotTests` | 4 | `SummaryCopy` | **YES** — ME-4 rewrites this surface |
+| `ResourcesSnapshotTests` | 2 | safety copy (operator-verified helplines) | **Maybe** — if the safety-copy items change |
 | `PrivacyOverlaySnapshotTests` | 2 | none (hardcoded hexes) | **No** — until the overlay is deliberately re-recorded |
-| `SnapshotSmokeTests` | 0 | — | — |
-| **Total** | **107** | | |
+| **Total** | **141** | across **12** suites | |
+
+**The age gate and the paywall still have ZERO goldens** — they are the two surfaces the deferred
+final batch exists for, and QW-6 (age-gate crest) and ME-9 (paywall polish) both still owe work.
 
 ## The FINAL BATCH — what gets MINTED at the §3 sitting
 
