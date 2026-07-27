@@ -257,7 +257,9 @@ for whoever is willing to go around twice.
 2. **Age check.** A birth-year wheel. Enter your real year. *(If you want to see
    the under-17 path, use a recent year — you get a calm resources screen and no
    habit content. Erase and start over afterwards, §3.4.)*
-3. **The questions** — 11 to 13 of them depending on your answers. One asks
+3. **The questions** — 11 to 13 of them depending on your answers. **Note the
+   time when you start and when the summary appears** — roughly is fine, and it
+   is a number I genuinely need. One asks
    whether to share usage data; **either answer is a valid test**, say what you
    would actually say. Two involve typing a number. *If you are outside the US or
    UK, watch the number keys closely — whether a comma or a period appears, and
@@ -352,7 +354,7 @@ is not affected; it lives with your Apple Account.
 | The subscription screen has no close button | **Expected** — §0.1. Purchase (free) or relaunch |
 | Terms and Privacy links 404 | **Known.** The links are real and correct; the pages are not published yet (critical path step 9) |
 | Helplines are US and Turkey only | **By design.** Every other region gets written guidance and no tappable number, because an unverified crisis number is worse than none. Weight recruiting to US/TR or accept it (`operator-expected.md` §5) |
-| The app never asks for notifications | **Correct and deliberate.** Any permission prompt at all is a real bug — no app-target source imports `UserNotifications`, `CoreLocation`, `AVFoundation` capture, or `AuthenticationServices` |
+| The app never asks for notifications | **Correct and deliberate, and structurally so.** Verified on two axes: no shipping source references `UserNotifications`, `CoreLocation`, `AVFoundation` capture, `Photos`, `Contacts`, `HealthKit`, `EventKit` or `AuthenticationServices`; **and** the generated Info.plist declares no `*UsageDescription` key at all (`project.yml`), which is what iOS requires before it will present a prompt. So "any permission prompt is a bug" is a safe thing to tell a tester — the app has no way to raise one |
 | The streak widget shows nothing useful | Ask them to **open the app once** after adding it — the launch pass writes the widget's feed. If it still fails, this is the day-counter report (`operator-expected.md` §7) and you want the build number, what the widget shows, what the in-app screen shows, and whether logging anything updates it within a minute |
 | Anyone who had an older build with a placeholder widget | Must **remove and re-add** "Streak" once — the widget kind changed, and a placed placeholder just disappears |
 | Prices look wrong for their country | Should **not** happen since S48B — the paywall now binds Apple's real storefront price per territory. If a tester sees a price that disagrees with Apple's own purchase sheet, that is a real bug and a high-priority one |
@@ -361,9 +363,22 @@ is not affected; it lives with your Apple Account.
 
 ## §5. What to collect, and the gate it feeds
 
-The beta-hardening gate is **≥15 testers across the three personas, crash-free
-≥99.5% over ≥1 week** (`roadmap.md` §3, critical path step 10). With analytics
-dormant (§0.4), all of it is manual. Watch four things:
+The gate has two halves and it is worth separating them, because one is a
+recruiting target and the other is a measurement:
+
+- **M3 / External TestFlight beta** — **≥15 external testers across the three
+  personas** (`roadmap.md:37`, `:265`), recruited through authentic outreach that
+  doubles as distribution groundwork. Cross-check this against the **geography**
+  decision in `operator-expected.md` §5: verified helplines exist for US and TR
+  only, so where you recruit and what a tester sees on the resources screen are
+  the same decision.
+- **Beta hardening** (`roadmap.md:266`) — **crash-free ≥99.5%**, **quiz median
+  ≤120 s across 5 test users**, MITM payload audit clean, panic-latency signpost
+  within budget. The last two are device/keys work (critical path steps 3 and 6),
+  not beta work.
+
+With analytics dormant (§0.4), the beta half is entirely manual. Watch five
+things:
 
 1. **Crashes** — TestFlight → Crashes. Needs §0.5. This is the gate's numerator.
 2. **Did they get through the paywall?** With no funnel events, the only way to
@@ -374,7 +389,13 @@ dormant (§0.4), all of it is manual. Watch four things:
    Instruments measurement (`operator-expected.md` §1, `spike-panic-latency.md`)
    — that stays yours — but fifteen people saying "instant" or "laggy" is real
    evidence, and it is the claim the marketing copy hangs on.
-4. **Wording.** The copy pass closed in S46 and every string is founder-signed,
+4. **Quiz time — you have to hold a stopwatch.** The gate wants a **median ≤120 s
+   across 5 testers**, and with the analytics transport dormant nothing measures
+   it for you. Ask five testers to note the clock when the age check appears and
+   again when the summary lands, or time it yourself over their shoulder. Do it
+   early: if the quiz is running long, that is a Phase-3 finding (ME-8 is the
+   quiz visual pass) and it is much cheaper to learn before that work than after.
+5. **Wording.** The copy pass closed in S46 and every string is founder-signed,
    so a tester saying "this sentence made me feel judged" is the highest-value
    report in the whole beta. It is also the one thing no test lane, no lint, and
    no golden can produce.
