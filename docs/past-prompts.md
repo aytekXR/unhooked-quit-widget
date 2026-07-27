@@ -7109,3 +7109,209 @@ landing place, per the completeness critic's gap list:
   pass closed in 46B. Not touched — it is founder-owned metadata, and the three "Refine" helper lines the
   copy deck drafts for slots 2/5/7 never landed in the S46 sitting (slots 12 and 13 from the same table
   did). Treated as deliberate; flagged, not edited.
+## Session 54 — ME-4: the summary payoff, and the contrast hole a backdrop opens under a safety notice (2026-07-27)
+
+**Objective (roadmap): ME-4 — the Summary payoff redesign** (`redesign/design-roadmap.md` Phase 4;
+blueprint §6.5, creative §4's Summary row). Phase 4's first item, and the `WaterlineField`
+primitive's second consumer — which is what turns "reusable" from a claim into a fact. §0 is
+answered **(B)** as a standing instruction, so nothing was operator-gated and the session ran
+autonomously.
+
+**Session-open state, verified first-hand rather than quoted.** `git fetch` → local == `origin/main`
+at `003188b`, tree clean. Last code run `30265638543` SUCCESS verified **per-job: 10/10**, including
+the TestFlight upload. Free lanes RE-RUN locally: StreakEngine 84 / WidgetToolkit 21 / PaywallKit 16
+= **121 pass**. Counted from disk, never from a table: **141 goldens**, **11 audit legs**, **32
+contrast pairs** — all three matched. Also checked, per the standing concurrency rule: `ps` showed
+two other `claude` sessions, both in OTHER repos (`hayati`, `ams-pulse`), so the shared tree was
+mine alone.
+
+### The finding: ME-8's own opacity ceiling documented a guarantee it does not provide
+
+`WaterlineField.opacityCeiling` carried this in its doc comment: *"it is the highest value at which
+EVERY registered pair still passes, so a future caller cannot open a contrast hole by passing a
+bolder number."* An executed harness — compiling the exact shipping bytes of `ColorToken.swift`,
+`Theme.swift`, `ThemeMetrics.swift` and `ContrastMath.swift`, with the field's constants **parsed out
+of its source** because it imports SwiftUI and cannot be compiled here — says the true universal
+figure is **0.0391, not 0.08**. Three pairs fall below threshold at the shipped ceiling, all in
+light mode:
+
+| pair | region | ratio | threshold |
+|---|---|---|---|
+| `primary action text on caution tint` (caution@10% over base) | water | **4.442** | 4.5 |
+| `primary action text on selection tint` (primary@12% over base) | sky | **4.456** | 4.5 |
+| `primary action text on selection tint` (primary@12% over base) | water | **4.281** | 4.5 |
+
+**All three are DOUBLY translucent** — a tinted fill composited over a base the field has *already*
+tinted, so the field compounds through a second layer. S53 measured the pairs whose background *is*
+`surface/base`, which is exactly why these were missed.
+
+**This is a coverage gap, not a disagreement about arithmetic, and that distinction is checkable.**
+S53's own published table gives light `caution`-on-water at 4.79 / 4.70 / 4.58 for keyboard /
+standard / ceiling, with margins 1.064× / 1.044× / 1.018×. This harness — written independently from
+the draw code — computes **4.795 / 4.702 / 4.581** and **1.066× / 1.045× / 1.018×** for the same
+pair. Agreement to three significant figures on S53's numbers is what makes the *extra* pairs
+credible: the compositing model was right, it was simply never pointed at the doubly-translucent ones.
+
+**ME-8 nevertheless shipped correctly, and that negative result matters.** The governing claim is
+per-surface, not universal. Measured against what each consumer actually renders behind the field
+(verified by reading source, not assumed — the quiz's chips are OPAQUE fills, its inputs are sunken
+wells, its Continue is an opaque capsule, and the only `.opacity(` in `App/Sources/Quiz/` was the
+summary's own reveal alpha):
+
+| surface | pairs exposed | true ceiling | ships at |
+|---|---|---|---|
+| quiz (ME-8, live) | 7 | **0.0934** | 0.06 / 0.045 — safe, and safe even at 0.08 |
+| summary (ME-4) | 3 | **0.0695** | 0.06 — safe; **UNSAFE at 0.08** |
+
+So 0.08 stays. Lowering it to 0.0391 would dim the live quiz for a hazard the quiz does not have.
+The *comment* is corrected to state what was measured and what a new consumer owes.
+
+### Why it mattered on this screen, and why a comment could not be the fix
+
+S46 mounts `AlcoholNoticeCard` on the summary so a hard-wall non-converter still meets the
+withdrawal notice before the paywall. Its background is `caution @ 10%` — translucent. Behind a
+full-bleed field, light `brand/primary` on that tint drops **4.900 → 4.554** against its 4.5 floor
+at 0.06 (a 1.2% margin, on the app's safety notice) and to **4.442** at 0.08.
+
+**Nothing in CI could ever have caught it.** No golden renders that card — there is no snapshot suite
+for it, and the only tests naming it are unit tests. And `PostGateRootView.debugSummaryMount`
+constructs `QuizSummaryView` with no `alcoholNotice`, so `test_a11yAudit_summary_noViolations` never
+renders it either. Per S53's own ruling a golden proves pixels did not move, which is strictly
+weaker than "the text on them is legible" — so the harness was the only gate that existed.
+
+The fix is structural rather than documentary: the notice now pins an **opaque `surface/base`
+beneath its tint**, so the registered composite is the one that actually renders whatever sits behind
+the card. Byte-identical everywhere the field is absent (the dashboard already mounts it on
+`.themedScreenSurface()`), and zero goldens move.
+
+### The deliberate deviation: §6.5's 24-hour band cannot be built honestly
+
+§6.5 asks the risk window to become "a 24-hour horizontal band with the user's likely hard window
+rendered as a deeper indigo segment". Two independent reasons it did not ship that way:
+
+1. **Four of the six tokens carry no clock meaning.** `SummaryDerivation.precedence` is
+   `["evenings","afterWork","social","alone","boredom","stress"]`, and the shipped phrases for the
+   last four are "around social plans", "in quiet moments alone", "when things get idle", "when
+   stress spikes". Shading an hour for those users asserts a time-of-day finding the derivation
+   never made — which `mvp.md` §7 forbids ("no fabricated statistics") and which
+   `SummaryDerivation`'s own contract already refuses. **And no range exists to source even for
+   "evenings"**: `quizConfig.json` carries `{"id":"evenings","label":"Evenings"}` — a label, no
+   hours. The operator's own copy deck corroborates the split: its evening check-in triggers on
+   "quiz triggers include evenings/after-work", i.e. the temporal subset.
+2. **There is no copy for it.** The copy deck's summary table lists the six window lines as "Keep.
+   Same six" and drafts no axis labels; copy is founder-owned and an agent may not author it.
+
+Shipped instead: the window in its own sunken well with an indigo marker — emphasis, not a meter, so
+it implies no quantity and no hour. The arc is carved out as **ME-4b** on the roadmap and recorded in
+`operator-expected.md` §0 with the two decisions it needs.
+
+A second, smaller deviation: `WaterlineRule` is a `brand/primary` gradient rather than creative §2's
+white Foam. Every Foam instance the spec names is drawn over the field's DARK bands; this rule sits
+on `surface/raised`, which is `#FFFFFF` in light mode, where Foam is a white line on a white card.
+Measured, the shipped form reads at 2.44:1 light / 3.38:1 dark against the card — about 2× the plain
+hairline it replaces, present but quiet.
+
+### What the 12-agent scoping workflow bought, and where arithmetic overruled it
+
+`wf_d906b715-88f`, 12 agents, 0 errors, ~1.06M subagent tokens: 5 read-only finders → 3 independent
+plans from different lenses → a judge → 3 adversarial critics each told to default to REFUTING.
+
+**It converged on the implementation and independently reached both spec departures with the same
+reasoning** — which is the useful kind of agreement, because the finders were pointed at the specs
+and the source rather than at my conclusions. Its judge also **independently refuted its own
+contrast finder**, computing the same number I had.
+
+**The one thing it got wrong is the one arithmetic caught.** The contrast finder reported that the
+redesign "introduces one genuinely unregistered contrast pair: `surfaceSunken` (band-track fill) vs
+`surfaceRaised` (card background) at the 3.0 UI threshold", and said an entry was owed in the same
+diff. That pair computes **1.18:1** in both appearances — it could never pass 3.0, and registering it
+would have guaranteed a red unit lane. The project's own precedent settles it: `ThemedProgressBar`
+pins **fill-vs-track** only (4.64 L / 7.82 D, and its doc comment says so), the existing progress
+track sits on `surface/base` at 1.09:1 unregistered, and `border/hairline` is declared
+"1.4.11-exempt BY DESIGN" at 1.32:1. A track/surface boundary is not a pinned pair in this codebase.
+
+**All three critics returned `plan-is-sound` with ZERO defects.**
+
+### Free verification, all executed before the push
+
+- `swiftc -parse` on all seven touched files.
+- **The contrast gate** (8 checks → restructured to 7 assertions plus an evidence section). It
+  **FAILED on its first run**, which is how the ceiling finding surfaced, and it proves
+  fire-on-mutation: at the creative doc's rejected 0.12 the quiz's own inventory breaks.
+- **A lint replication whose banned lists AND scoped directories are parsed out of each lint's own
+  source** — `ThemeSourceLint` over 101 files, `OnboardingLayoutLint` over 56, both clean; the layout
+  lint's own five-idiom calibration fixture reproduced exactly; fire-on-mutation proven on a raw
+  `Color.white` in a screen file. It also proved the `DesignSystem/` exclusion is load-bearing
+  (`WaterlineField` WOULD fire on `Color.white` unexcluded; `WaterlineRule` needs no exclusion).
+  **It too crashed on its first run** — `scopedDirectories` has no `: [String]` annotation, so the
+  parser found nothing. Both harnesses failing first is the rule working, not a nuisance.
+- The **money path** executed against the real `SummaryFormatter` bytes: `0 → nil` (so the new
+  zero-spend golden fixture genuinely drives the absent branch), `9 → nil` (the S47 floor-onto-zero
+  guard still holds), `1350 → "~$1,350/year"`, `10 → "~$10/year"`.
+- **Apple docs JSON checked from the orchestrator** for every API introduced:
+  `LinearGradient(stops:startPoint:endPoint:)`, `Gradient.Stop`, `overlay(alignment:content:)` — all
+  iOS 13/15, none deprecated.
+- The three free package lanes: **121**.
+
+Two risks were retired by evidence rather than assumption: **`Canvas` renders in an offscreen
+snapshot** (the adopted `PanicFlowSnapshotTests.snapshot_timerStep` goldens already carry
+`WaveTimerView`'s crest), and **a new source file needs no `project.yml` edit** (S53 added
+`WaterlineField.swift` without touching it — `sources:` globs the directory).
+
+### A forecast handed to ME-9 rather than left to be discovered
+
+Blueprint §6.6 gives the paywall a Waterline backdrop, and the paywall renders **both** translucent
+forms — the selected plan card (`primary@12%`) and the failure banner (`themedCautionCard`). Its true
+max safe field opacity is **0.0391 — below the field's own standard 0.06** — so a full-bleed field
+there fails light `primary action text on selection tint` (4.387) immediately. Three honest routes
+are on the ME-9 roadmap row; the opaque-floor pattern used here is the one that generalises. Note
+also that no golden and no audit mount renders the failure banner, so only a harness can check it.
+
+### The two billed runs
+
+**Run 1 — `30305679654`, RED exactly and only as designed.** 6 issues, all 6 the summary goldens
+(`snapshot_summaryCard()` ×4 re-recorded, `snapshot_summaryCard_savingsAbsent()` ×2 new) under
+record-missing's write-then-fail. No compile error (the single `error:` string in the log is a
+RevenueCat offerings line, routine since RC went live). And the run bought two things beyond the
+PNGs, which is the enumerate-all-from-one-run rule working: **unit lane 465 tests / 72 suites
+PASSED**, so every source lint agreed with the free replication; and **all 11 accessibility audit
+legs PASSED, `test_a11yAudit_summary` among them** — Apple's own runtime `.contrast` set ran over
+the redesigned card, with the field, the Moss numeral, the horizon rule and the new sunken well, and
+found nothing. That is the gate a golden cannot be, and it agreed with the contrast solve.
+
+**Run 2 — `30307591760`, SUCCESS per-job 10/10 including the TestFlight upload.** Unit 465 / 72
+PASSED, snapshot **46 tests in 13 suites PASSED** (was the 6-issue red), all **11 audit legs PASSED**
+again, and both `snapshot_summaryCard()` and `snapshot_summaryCard_savingsAbsent()` green. All six
+goldens were VISUALLY VERIFIED before adoption, none inferred:
+
+- `light` / `dark` — the composition lands; the field's crest reads as a faint arc at the card's
+  left and right edges, clearer in dark than in light.
+- `light-ax5` / `dark-ax5` — **top-anchored, not a middle slice**, which is the S51 failure mode
+  checked for by name. The hero STACKS (`~$1,350` over `/year`): brandkit §8's rule working, the
+  layout giving way rather than the glyph. Nothing clipped; content scrolls, CTA stays pinned.
+- `savingsAbsent.light` / `.dark` — **no money block and no "$0"**, AC4 proven in pixels.
+
+Counted at session end, never quoted: **143 goldens** (141 − 4 + 6), **32 contrast pairs**
+(unchanged — ME-4 registered none), **11 audit legs** (unchanged).
+
+### Disclosed rather than quietly shipped
+
+In the zero-spend variant the horizon rule has no caption beneath it, so the gap before the
+risk-window well is airier than in the money variant. It reads as generous whitespace rather than a
+broken layout and the card ends at a comparable height, so tightening it was not worth a third
+billed run. It is on the operator's eyeball list.
+
+Also stated plainly in `operator-expected.md` because the goldens show it: **on this screen the
+field is largely OCCLUDED by the full-width card**, so what reaches the eye is a margin tint plus
+the area below the card. That is what §6.5 asks for (a card over a field), but it is not the drama
+the phrase "full-bleed Waterline field" might promise, and the operator should judge it on a device
+rather than be told it works. If it reads as nothing, the fix is a bolder MOTIF, never a bolder
+opacity — and on this screen the ceiling is tighter than the quiz's (0.0695 vs 0.0934).
+
+### Operator action
+
+**None is required to continue.** One new OPTIONAL item was recorded — **ME-4b**, the 24-hour
+risk-window band, which needs axis copy plus a product decision about the four trigger tokens that
+carry no clock meaning. It gates nothing; if the operator declines it, the shipped sunken-well
+treatment is the final answer and the row closes. The next objective is **ME-9**, and its roadmap
+row now carries the measured warning above.

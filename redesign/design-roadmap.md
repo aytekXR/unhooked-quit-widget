@@ -4,11 +4,12 @@ A prioritized implementation plan for the Ballast redesign, grounded in the ship
 
 ---
 
-## Execution status (updated Session 50, 2026-07-26)
+## Execution status (updated Session 54, 2026-07-27)
 
 The operator answered `operator-expected.md` §0 with **(B) — the redesign runs before launch** —
-as a direct instruction ("take all the designs live, don't wait for my approval"). Three waves have
-landed on `main`, all green through CI.
+as a direct instruction ("take all the designs live, don't wait for my approval"). Waves 1–3 landed
+on `main`, and sessions 51/53/54 then landed ME-3, ME-8 and ME-4 individually — all green through CI.
+**Phase 4's remaining build item is ME-9**, after which the final golden batch fires.
 
 | Item | State | Landed in |
 |---|---|---|
@@ -39,11 +40,13 @@ landed on `main`, all green through CI.
 | LB-1…LB-4, LB-6 | ⬜ open | Phase 5, post-launch |
 
 **Two constraint notes below are stale in the operator's favour, and this correction is itself
-re-counted at S52 rather than carried forward:** hard constraint 5 says "107 snapshot goldens …
-34 WCAG-pinned contrast pairs". Counted from disk and source at S52: **141 goldens across 12
+re-counted at S54 rather than carried forward:** hard constraint 5 says "107 snapshot goldens …
+34 WCAG-pinned contrast pairs". Counted from disk and source at S54: **143 goldens across 13
 suites**, **32 registered contrast pairs**, and **11 audited surfaces** (not 8, and no longer the
-10 this note previously claimed — ME-3 added the 11th in S51). **Count these, never quote them** —
-this line has now been wrong twice:
+10 this note previously claimed — ME-3 added the 11th in S51). **The suite count was ALREADY 13
+before ME-4**, not the 12 the S52 figure claimed; ME-4 added two axes to an existing suite, no new
+suite, no new leg and no new pair. **Count these, never quote them** — this line has now been wrong
+three times, including in the very correction that replaced the S52 numbers:
 `find Tests/Snapshot/__Snapshots__ -name '*.png' | wc -l` ·
 `grep -c 'ContrastPair(' App/Sources/DesignSystem/Theme.swift` ·
 `grep -c 'func test_a11yAudit_' Tests/UITests/A11yAuditUITests.swift`.
