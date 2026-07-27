@@ -71,6 +71,55 @@
       One known-cosmetic item while you are there: the field's advance between steps may read as a
       soft drift or as a clean cut, depending on how SwiftUI treats the layer. Either is acceptable
       and the settled picture is identical; if the cut looks abrupt to you, that is worth reporting.
+- [ ] **ME-4 adds NO new strings either** — the summary redesign touches no founder-owned byte, so
+      there is nothing here for your copy pass. **But one decision is genuinely yours, because it
+      needs copy AND a product call, and an agent may make neither.**
+
+      **Your UX blueprint §6.5 asks the risk window to become "a 24-hour horizontal band with the
+      user's likely hard window (e.g. evenings) rendered as a deeper indigo segment". It shipped as
+      a designed sunken well with an indigo marker instead — emphasis, not a scale.** Two reasons,
+      either sufficient on its own:
+
+      1. **Four of your six trigger tokens have no clock meaning.** The shipped phrases for
+         `social` / `alone` / `boredom` / `stress` are "around social plans", "in quiet moments
+         alone", "when things get idle" and "when stress spikes". Shading an hour of a 24-hour axis
+         for those users asserts a time-of-day finding the derivation never made — which `mvp.md`
+         §7 forbids outright ("no fabricated statistics") and which `SummaryDerivation`'s own
+         contract already refuses ("insufficient data shows nothing, not guesses"). And there is no
+         range to source even for "evenings": `quizConfig.json` carries
+         `{"id":"evenings","label":"Evenings"}` — a label, no hours. An 18:00–23:00 bracket would be
+         invented precision on a screen whose copy you deliberately hedged to "likely".
+      2. **There is no copy for it.** Your copy deck §4 lists the six window lines as "Keep. Same
+         six" and drafts no axis labels. A clock needs them, and copy is yours.
+
+      **If you want the arc, it needs exactly two things from you** — the axis labels as DRAFT
+      strings for `summaryCopy.json`, and a decision on what the four non-temporal tokens should
+      render (no band at all, or something else). It is a small self-contained follow-up, tracked as
+      **ME-4b** on the design roadmap. If you would rather not, say so and ME-4b closes: the
+      sunken-well treatment is then the final answer.
+
+      **While you are on that screen, two things only your eye can settle** — and the first comes
+      with a caveat an agent should state rather than let you discover:
+
+      **(a) The field is mostly HIDDEN on this screen, by design, and that is worth a look.** §6.5
+      puts a full-bleed Waterline field behind a full-width card — so the card occludes most of it
+      and what actually reaches you is a tint in the side margins plus the area below the card. In
+      the recorded goldens the crest reads as a faint arc at the card's left and right edges; it is
+      clearer in dark mode than in light. That is the honest picture at the measured-safe 6%. **If
+      it reads as nothing at all on your device, the fix is a bolder MOTIF — a taller water band, a
+      stronger waterline — never a bolder opacity**, because the opacity is what keeps the text
+      legible (and on THIS screen the ceiling is tighter than the quiz's: 0.0695 vs 0.0934).
+
+      **(b) Does the number read as the hero?** The savings figure is now Moss green with the
+      luminous horizon rule beneath it and 32pt of clearspace bracketing the stage. That is the
+      whole of §6.5's "drama recovered through composition, colour and the motif, never point
+      sizes", so it either works or the composition needs another pass.
+
+      One cosmetic item disclosed rather than quietly shipped: in the **zero-spend** variant (no
+      money block) the horizon rule has no caption beneath it, so there is a visibly airier gap
+      before the risk-window well than in the money variant. It reads as generous whitespace rather
+      than a broken layout and the card still ends at a comparable height, so it was not worth a
+      billed run to tighten — but if it looks wrong to you, say so and it rides the next pass.
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).

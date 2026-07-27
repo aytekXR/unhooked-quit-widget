@@ -2,7 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status (Session 53) | **ME-8 LANDED, and it changed this batch's economics in the batch's favour — read this before re-planning.** The quiz surface is now Waterline-final (`8345e74`), so the 6 quiz/age-gate goldens in the banked plan can be minted whenever the batch fires, and their FIRST capture will already carry the field: **zero re-record cost, ever**. Two riders that would otherwise be discovered mid-mint: (1) **`QuizFlowView` has no goldens at all today** — confirmed on disk, there is no `QuizFlowSnapshotTests` directory — so nothing about ME-8 invalidated an existing PNG; the batch is still a MINT for that surface, not a re-record. (2) **No `pauseDate`/freeze seam is needed for the field.** `WaterlineField` takes no clock input by design (no `TimelineView`, no `Date`), so a quiz golden is byte-stable by construction — unlike `WaveTimerView`, which needs its seam. **Still open before firing: ME-4 (summary) and ME-9 (paywall)**, exactly as Phase 4 sequences them; the summary's `_snapshotRevealed` seam and its BLANK-PNG trap below remain live and remain ME-4's to resolve. |
+| Status (Session 54) | **ME-4 LANDED (`0482e56`) and the SUMMARY IS OFF THIS BATCH'S BOOKS — including the blank-PNG trap, which is now smaller rather than merely avoided.** Three things changed for the batch: (1) **the summary's 4 goldens were re-recorded and 2 zero-spend axes minted**, so the batch owes that surface nothing; (2) **the reveal seam moved.** The trap below is written against a root-level `.opacity(animateReveal && !revealed ? 0 : 1)` — that is gone. §6.5 puts the 600ms fade on the savings FIGURE, so the seam now governs one element and everything else on the card renders unconditionally. `animateReveal: false` still forces it settled, and `QuizSummarySnapshotTests` still passes it; a future mint that forgets the seam now loses a numeral, not a screen. The banked plan's `_snapshotRevealed` initializer is therefore obsolete — the shipped seam is `animateReveal`, and it already exists. (3) **`Canvas` is PROVEN to render offscreen** — the adopted `PanicFlowSnapshotTests.snapshot_timerStep` goldens carry `WaveTimerView`'s crest, so the batch's quiz/age-gate mints will capture the Waterline field without a seam or a doubt. **Still open before firing: ME-9 (paywall) only** — and read its roadmap row first, because a field there is measured UNSAFE at the field's own standard opacity. |
+| _superseded_ | **(Session 53)** **ME-8 LANDED, and it changed this batch's economics in the batch's favour — read this before re-planning.** The quiz surface is now Waterline-final (`8345e74`), so the 6 quiz/age-gate goldens in the banked plan can be minted whenever the batch fires, and their FIRST capture will already carry the field: **zero re-record cost, ever**. Two riders that would otherwise be discovered mid-mint: (1) **`QuizFlowView` has no goldens at all today** — confirmed on disk, there is no `QuizFlowSnapshotTests` directory — so nothing about ME-8 invalidated an existing PNG; the batch is still a MINT for that surface, not a re-record. (2) **No `pauseDate`/freeze seam is needed for the field.** `WaterlineField` takes no clock input by design (no `TimelineView`, no `Date`), so a quiz golden is byte-stable by construction — unlike `WaveTimerView`, which needs its seam. **Still open before firing: ME-4 (summary) and ME-9 (paywall)**, exactly as Phase 4 sequences them; the summary's `_snapshotRevealed` seam and its BLANK-PNG trap below remain live and remain ME-4's to resolve. |
 | _superseded_ | **§0 ANSWERED (A) "ship the current UI, mint now" — and the plan below is now RE-VERIFIED against the S48B redesign wave (`852bd76`), with the one ambiguity that would have cost a billed run RESOLVED. See "Session 49 re-verification" immediately below. NOT YET MINTED, for a NEW reason that is not §0: the S48B session pushed 9 commits in ~2 hours touching ALL FOUR surfaces this batch covers — the paywall as recently as `852bd76` and the summary twice (`8ef20b9` added the footer, `5d83646` fixed its ink). A mint is a record→adopt→green cycle across 2 billed macOS runs that only yields valid PNGs if the bytes hold still. The operator has been asked for a "wave is done" signal; on that signal this fires immediately with zero further scoping.** |
 | _superseded_ | **SCOPED AND READY — but PAUSED on one operator decision (`operator-expected.md` §0).** The §3 gate cleared in 46B, so this batch is technically unblocked. Session 48 then scoped it end-to-end and stopped, because the operator's own `redesign/design-roadmap.md` schedules changes to **all four** surfaces this batch covers (QW-6 age gate, ME-8 quiz, **ME-4 "Summary payoff redesign"**, **ME-9 "Paywall goldens"**) and puts the re-record at its Phase 4. Minting now risks 12–20 goldens thrown away within weeks, plus production snapshot seams added to views scheduled for rewrite. **One short answer in §0 resumes it with zero re-scoping.** |
 | The banked plan (Session 48) | **22 goldens, 2 billed runs, split to isolate risk.** Suites: AgeGate entry (4 axes) + blocked (2); Quiz habit (4) + consent (2); Summary fullData (4) + savingsAbsent (2) + withAlcoholNotice (2); Paywall hard_annual (2) + teaser_annual (2). **Run 1** = age gate + quiz + paywall (18 goldens; no or trivial seam). **Run 2** = summary alone (4; the one complex seam), so a seam error cannot destroy the other 18. **Two production seams required, each in the same commit as its tests:** `AgeGateBlockedView.init(model:blocked:)` (2 lines, bypasses its `Locale.current` read — the `ResourcesSnapshotTests` precedent), and `QuizSummaryView` explicit + test-internal inits taking `_snapshotRevealed: Bool` assigning `_revealed = State(initialValue:)`. **THE TRAP that seam exists for:** `QuizSummaryView` renders `.opacity(revealed ? 1 : 0)` and sets `revealed` in `.onAppear { withAnimation { … } }` — without the seam **every summary golden is a BLANK PNG**, certain, not speculative. Fixtures must use `SummaryPresentation.make(inputs:copy: SummaryCopy.loadShipping() ?? .degraded, locale: Locale(identifier: "en_US"))` — hand-built literal strings would leave the golden GREEN when copy changes, defeating the point. Paywall needs NO seam (pure renderer, settled at construction, constructible with zero RevenueCat symbols). **Watch on run 1:** the age-gate UIPickerView has 122 rows and may not populate synchronously — eyeball that golden before adopting; and CI pins no locale/timezone for the snapshot lane (worth pinning while writing these). Full write-ups + quoted initializers are in the Session 48 ledger entry in `docs/past-prompts.md`. |
@@ -17,11 +18,17 @@ claim below was checked by reading the file, not inferred.
 
 ### Still valid, unchanged
 
-- **The `QuizSummaryView` seam is still MANDATORY.** `@State private var revealed = false` (line 48),
-  `.opacity(revealed ? 1 : 0)` (line 68), `revealed = true` only inside
-  `.onAppear { model.onSummaryAppear(); withAnimation { … } }` — all unchanged. **And the new
-  `summary.footer` block added in `8ef20b9` sits INSIDE that opacity scope**, as does the CTA (it is
-  in the scaffold's `actions:`). So without the seam every summary golden is still a blank PNG.
+- ~~**The `QuizSummaryView` seam is still MANDATORY.**~~ **SUPERSEDED BY ME-4 (S54) — and the
+  summary is off this batch entirely, so this row is now history rather than instruction.** What it
+  used to say: the root carried `.opacity(animateReveal && !revealed ? 0 : 1)`, `revealed` flipped
+  only inside `.onAppear { … withAnimation { … } }`, and the footer block and the CTA both sat
+  inside that opacity scope — so a golden recorded without the seam was a blank PNG of the whole
+  card. **§6.5 moved the 600ms fade onto the savings FIGURE**, which is what the spec asks and which
+  also shrinks the trap: everything except the numeral now renders unconditionally. The seam is
+  unchanged in NAME and still load-bearing (`animateReveal: Bool = true`; `false` forces both the
+  opacity and the fade-up offset settled), and `QuizSummarySnapshotTests` still passes `false` —
+  but forgetting it now costs one element, not a screen. **The banked plan's `_snapshotRevealed`
+  initializer is obsolete: do not add it. The shipped seam is `animateReveal` and it already exists.**
 - **The `AgeGateBlockedView` seam is still MANDATORY and still 2 lines.** `init(model:)` still reads
   `AgeGateResources.region(for: Locale.current, in: directory)`. `copy` and `footerDisclaimer` have
   inline stored initializers and must NOT be added as init parameters; only `model` and `blocked`
@@ -31,9 +38,14 @@ claim below was checked by reading the file, not inferred.
   explicit `locale: Locale(identifier: "en_US")` is load-bearing, not decoration. It now populates
   the new `footer` field automatically from `copy.footer` — **no fixture change needed**, and a
   hand-built literal would still defeat the point.
-- **The two-run split is still the right risk strategy** (run 1 = age gate + quiz + paywall = 18;
-  run 2 = summary alone = 4).
-- **22 goldens, matrix unchanged.**
+- **The two-run split needs re-cutting, because the summary left the batch.** It was run 1 = age
+  gate + quiz + paywall = 18, run 2 = summary alone = 4, and the split existed to isolate the one
+  complex seam — which ME-4 has now resolved and recorded. **The remaining batch is 18 goldens**
+  (age gate 4 + blocked 2, quiz habit 4 + consent 2, paywall hard_annual 2 + teaser_annual 2 — the
+  6 summary rows are DONE and shipped), and none of them carries a seam of the summary's old kind.
+  Re-plan the split when ME-9 lands, since the paywall's own bytes will have just changed.
+- ~~**22 goldens, matrix unchanged.**~~ **18** — the 4 summary rows were re-recorded in ME-4 and 2
+  zero-spend axes were minted there (6 on that surface in total, all already on disk).
 
 ### RESOLVED — the ambiguity that would have burned a run
 
