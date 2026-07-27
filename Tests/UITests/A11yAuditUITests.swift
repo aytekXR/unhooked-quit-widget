@@ -469,6 +469,32 @@ final class A11yAuditUITests: XCTestCase {
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
+    /// The MILESTONE-UNLOCK leg — NEW in S51 (ME-3). Added with the surface rather than
+    /// after it, which is the S50 lesson: settings shipped unaudited for twelve sessions
+    /// and its first real audit immediately found a label restating its own control trait.
+    /// This card is the same risk shape only worse — it carries more text than any other
+    /// card in the app (a catalog body plus the signed not-medical-care hedge), two Button
+    /// labels, and two decorative glyphs.
+    ///
+    /// R28.6 valve-eligible; not a rule-11 safety path. Gates on `milestoneUnlock.done` —
+    /// a real `Button`, unconditionally present, never a `.contain` container id (R36.4;
+    /// `milestoneUnlock.card` IS such a container, so it is deliberately not the gate).
+    ///
+    /// The mount renders with `animateOnAppear` at its default `false`, so the audit reads
+    /// a SETTLED card and can never race a mid-rise frame.
+    func test_a11yAudit_milestoneUnlock_noViolations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_MILESTONE_UNLOCK"] = "1"
+        app.launch()
+
+        let done = app.descendants(matching: .any)["milestoneUnlock.done"]
+        XCTAssertTrue(
+            done.waitForExistence(timeout: 15),
+            "the UITEST_MILESTONE_UNLOCK direct mount renders MilestoneUnlockCard"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
     /// The paywall leg — NEW in UIR-5. R28.6 valve-eligible. Gates on `paywall.cta` (a real
     /// Button). Mounted via UITEST_PAYWALL_DIRECT → the hard-variant `PaywallView` over a
     /// fixture with inert `.failed` closures (no store path). The DRAFT copy is irrelevant —

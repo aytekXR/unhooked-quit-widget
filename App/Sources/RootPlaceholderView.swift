@@ -48,6 +48,10 @@ struct RootPlaceholderView: View {
     /// same-session re-present) + the visible-card flag.
     @State private var didConsiderAlcoholNotice = false
     @State private var showsAlcoholNotice = false
+    /// ME-3 — the once-per-appearance latch and the moment itself. nil = nothing to
+    /// celebrate, which is the steady state.
+    @State private var didConsiderMilestoneUnlock = false
+    @State private var milestoneUnlock: MilestoneUnlockPresentation?
     /// E9.1 (R27.2) — the resources sheet, one mount for both origins: the settings
     /// row injects `.settings`; the alcohol notice's hand-off injects nil (the
     /// out-of-domain open fires nothing, R27.4).
@@ -85,7 +89,14 @@ struct RootPlaceholderView: View {
                                 ))
                             }
                             storeSlipSurface(repository)
-                                .onAppear { considerAlcoholNotice(repository) }
+                                .onAppear {
+                                    considerAlcoholNotice(repository)
+                                    // ME-3 — considered AFTER the notice, deliberately: a
+                                    // withdrawal-safety card must never queue behind a
+                                    // celebration, and the notice latches independently
+                                    // so both can stand in the same appearance.
+                                    considerMilestoneUnlock(repository)
+                                }
                         }
                     }
                     .frame(maxWidth: Theme.layout.contentMaxWidth) // brandkit §5 one-column measure
@@ -190,6 +201,25 @@ struct RootPlaceholderView: View {
     @ViewBuilder private var dashboardSection: some View {
         let quits = (try? provider?.repository?.activeQuits()) ?? []
         VStack(spacing: Theme.space.s4) {
+            // ME-3 (§6.20) — the unlock moment sits ABOVE the streak cards and below the
+            // panic entry: help still outranks it, and it outranks routine progress for
+            // exactly as long as it is on screen. A card, never a modal — it interrupts
+            // nothing, and dismissing it costs the user nothing.
+            if let milestoneUnlock {
+                MilestoneUnlockCard(
+                    row: milestoneUnlock.row,
+                    isDiscreet: milestoneUnlock.isDiscreet,
+                    // The LIVE Home opts into the waterline rise; snapshots and any audit
+                    // mount keep the default settled draw (the StreakRing contract).
+                    animateOnAppear: true,
+                    onDone: { self.milestoneUnlock = nil },
+                    onSeeAll: {
+                        let quitID = milestoneUnlock.quitID
+                        self.milestoneUnlock = nil
+                        detailQuitID = quitID
+                    }
+                )
+            }
             ForEach(quits, id: \.id) { quit in
                 let value = (try? provider?.repository?.streakValue(for: quit.id))
                     ?? StreakValue(elapsedSeconds: 0, moneySaved: 0, momentum: 1.0)
@@ -444,6 +474,44 @@ struct RootPlaceholderView: View {
         showsAlcoholNotice = true
     }
 
+    /// ME-3 (S51) — the unlock moment's once-per-appearance consideration, mirroring
+    /// `considerAlcoholNotice` above: derive from store truth, stamp AT DISPLAY through
+    /// the ONE writer, and latch so a same-session re-render never re-presents.
+    ///
+    /// Deliberately a plain method and NOT `@ViewBuilder`-adjacent: the side effects (the
+    /// stamp write) live here, out of any view builder, because a bare
+    /// `try? repository.recordMilestoneShown(...)` inside a `@ViewBuilder` yields `Void?`
+    /// and does not compile — every `try?` in a builder context in this codebase binds
+    /// with `let`. Cheaper to know that than to spend a billed run on it.
+    ///
+    /// The stamp covers EVERY crossed-but-unseen rung, not just the one shown, which is
+    /// what keeps a backdated quit ("I stopped five days ago" ⇒ several rungs at once)
+    /// from queueing a stale card per visit. A failed stamp write is the silent-recover
+    /// class: the card still shows now, and a fail-open re-show next launch is a repeated
+    /// kindness, never a lost one.
+    private func considerMilestoneUnlock(_ repository: QuitRepository) {
+        guard !didConsiderMilestoneUnlock else { return }
+        didConsiderMilestoneUnlock = true
+        let quits = (try? repository.activeQuits()) ?? []
+        for quit in quits {
+            guard let value = try? repository.streakValue(for: quit.id) else { continue }
+            guard let unlock = StreakDetailComposer.newlyUnlockedMilestone(
+                elapsedSeconds: value.elapsedSeconds,
+                milestones: MilestoneCatalog.shipping.milestones(for: quit.habitCategory),
+                seenHours: repository.shownMilestoneHours(for: quit.id)
+            ) else { continue }
+            try? repository.recordMilestoneShown(quitID: quit.id, afterHours: unlock.hoursToStamp)
+            milestoneUnlock = MilestoneUnlockPresentation(
+                quitID: quit.id,
+                row: unlock.row,
+                isDiscreet: quit.discreetMode
+            )
+            // One moment at a time — a second quit's rung waits for the next appearance
+            // rather than stacking two celebrations on one screen.
+            return
+        }
+    }
+
     /// P2 (redesign §6.7) — the settings entry moves to the shell's single
     /// gearshape toolbar item (admin out-ranks nothing on this screen —
     /// help > progress > admin). The CI-load-bearing identity and the a11y
@@ -495,6 +563,16 @@ struct RootPlaceholderView: View {
 private struct ResourcesPresentation: Identifiable {
     let id = UUID()
     let source: ResourcesSource?
+}
+
+/// ME-3 — the unlock moment, resolved once and held for the appearance. Carries the
+/// quit's id so "See all" pushes the right Streak Detail, and the discreet flag so the
+/// card is composed shoulder-safe without re-reading the store at render time.
+private struct MilestoneUnlockPresentation: Identifiable {
+    let id = UUID()
+    let quitID: UUID
+    let row: MilestoneRowModel
+    let isDiscreet: Bool
 }
 
 /// Identifiable wrapper so the store-route slip flow presents through `.sheet(item:)`

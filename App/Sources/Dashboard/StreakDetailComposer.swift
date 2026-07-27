@@ -94,6 +94,35 @@ enum StreakDetailComposer {
         }
     }
 
+    /// ME-3 (S51) — the unlock MOMENT's derivation, over `milestoneRows` above so
+    /// boundary arithmetic lives in exactly one place.
+    ///
+    /// Returns the **highest** rung that is both `.unlocked` and unseen, plus every
+    /// unlocked rung's `afterHours` for the caller to stamp. Highest, not lowest, and
+    /// the reason is a real first-run shape rather than a preference: the quiz asks
+    /// when the user stopped, so "I quit five days ago" backdates `startAt` and lands
+    /// them past several rungs at once. Lowest-first would greet that user with "First
+    /// stretch done" — twelve hours, days behind where they are — and then hand them
+    /// one stale card per visit until the backlog drained. Highest-with-catch-up shows
+    /// the rung they are standing on and retires the rest silently.
+    ///
+    /// `nil` means nothing to celebrate: no rung crossed, or every crossed rung
+    /// already shown. The common steady-state case (one rung crossed since the last
+    /// visit) makes highest and lowest identical, so this costs nothing there.
+    static func newlyUnlockedMilestone(
+        elapsedSeconds: Int,
+        milestones: [Milestone],
+        seenHours: [Int]
+    ) -> (row: MilestoneRowModel, hoursToStamp: [Int])? {
+        let seen = Set(seenHours)
+        let unlocked = milestoneRows(elapsedSeconds: elapsedSeconds, milestones: milestones)
+            .filter { $0.state == .unlocked }
+        // `milestoneRows` returns ascending order, so `last` IS the highest rung.
+        guard let highestUnseen = unlocked.last(where: { !seen.contains($0.afterHours) })
+        else { return nil }
+        return (highestUnseen, unlocked.map(\.afterHours))
+    }
+
     /// A rung's boundary as a locale-formatted duration — DATA, not copy
     /// ("2 weeks", "12 hours"); composed after the DRAFT "Unlocks at" prefix.
     /// One unit, full style: anticipation reads calm, never clinical.

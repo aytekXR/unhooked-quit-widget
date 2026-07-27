@@ -109,6 +109,27 @@ final class Quit {
     var discreetMode: Bool = false
     var isArchived: Bool = false
     var sortIndex: Int = 0
+    /// ME-3 (S51) — the per-rung "unlock moment already shown" stamp: the
+    /// `afterHours` offsets of every milestone whose card this quit has already
+    /// presented. Per-QUIT by necessity, not by preference — two concurrent quits
+    /// each cross "one day" on their own clock, so a singleton stamp on
+    /// `AppSettings` (the `alcoholNoticeShownAt` shape) would suppress the second
+    /// quit's moment forever.
+    ///
+    /// `[Int] = []` follows the additive-migration convention every property on
+    /// every model here obeys: there is no `VersionedSchema`/`SchemaMigrationPlan`
+    /// in this project, so SwiftData's implicit lightweight migration is what
+    /// carries a schema change — and it does that for an additive property WITH a
+    /// default. Same shape as `triggers`/`motivations` above; the same move has
+    /// shipped three times post-TestFlight (`alcoholNoticeShownAt` cf75ba6,
+    /// `paywallVariantAssigned` 5ce52f0, `lapseObservedAt` b146774).
+    ///
+    /// §10: this NEVER enters the widget feed. `WidgetQuitState.milestoneHours`
+    /// carries the ladder's offsets, which is public ladder shape; which rungs a
+    /// user has been *shown* is not, and `recordMilestoneShown` deliberately does
+    /// no snapshot rebuild. Erase needs no new sweep — `eraseEverything()` deletes
+    /// whole `Quit` rows (`QuitRepository.swift:678`), so this goes with them.
+    var shownMilestoneHours: [Int] = []
     @Relationship(deleteRule: .cascade, inverse: \Slip.quit)
     var slips: [Slip]?
     @Relationship(deleteRule: .cascade, inverse: \UrgeEvent.quit)

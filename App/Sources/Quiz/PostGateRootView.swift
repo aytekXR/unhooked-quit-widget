@@ -214,6 +214,21 @@ struct PostGateRootView: View {
         #endif
     }
 
+    /// ME-3 (S51) — the a11y-audit MILESTONE-UNLOCK leg's mount. The card is reachable in
+    /// production only by actually crossing a rung, so the audit needs a direct mount, and
+    /// it is a new surface carrying more text than any other card (the catalog body plus
+    /// the signed not-medical-care hedge) — exactly the shape S50 proved goes unchecked
+    /// otherwise. Remember this env var is TWO edits: it also belongs in
+    /// `AgeGateContainerView.uiTestOnboardingMount`'s allow-list, or the leg times out on a
+    /// fresh install blaming the view (`UITestMountCoherenceTests` enforces it).
+    private static var uiTestMilestoneUnlockMount: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["UITEST_MILESTONE_UNLOCK"] == "1"
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ZStack {
             content
@@ -311,6 +326,8 @@ struct PostGateRootView: View {
             debugWidgetMomentMount
         } else if Self.uiTestSettingsMount {
             debugSettingsMount
+        } else if Self.uiTestMilestoneUnlockMount {
+            debugMilestoneUnlockMount
         } else if Self.uiTestEraseMount {
             debugEraseMount
         } else if let paywall, let paywallData {
@@ -579,6 +596,31 @@ struct PostGateRootView: View {
     @ViewBuilder private var debugSettingsMount: some View {
         #if DEBUG
         DiscreetSettingsView(onResourcesRowTap: {}, onAddWidgetRowTap: {})
+        #else
+        EmptyView()
+        #endif
+    }
+
+    /// ME-3 (S51) — the milestone-unlock leg's frame, compiled out of release ENTIRELY.
+    /// A value fixture, no repository and no store, so it opens no path to habit content and
+    /// fires nothing. `animateOnAppear` stays default-false: the audit reads a SETTLED card,
+    /// never a mid-rise frame, which is the same contract the goldens rely on.
+    @ViewBuilder private var debugMilestoneUnlockMount: some View {
+        #if DEBUG
+        MilestoneUnlockCard(
+            row: MilestoneRowModel(
+                afterHours: 72,
+                title: "Three days",
+                body: "Three days in. This is commonly reported as the toughest window — and you are through it.",
+                state: .unlocked
+            ),
+            isDiscreet: false,
+            onDone: {},
+            onSeeAll: {}
+        )
+        .padding(Theme.space.s5)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .themedScreenSurface()
         #else
         EmptyView()
         #endif

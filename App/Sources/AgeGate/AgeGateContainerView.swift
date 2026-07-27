@@ -139,6 +139,7 @@ struct AgeGateContainerView: View {
             || environment["UITEST_WIDGET_MOMENT"] == "1"
             || environment["UITEST_SETTINGS"] == "1"
             || environment["UITEST_ERASE_FLOW"] == "1"
+            || environment["UITEST_MILESTONE_UNLOCK"] == "1"
         #else
         return false
         #endif

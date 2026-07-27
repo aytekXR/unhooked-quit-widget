@@ -896,6 +896,44 @@ final class QuitRepository {
         try context.save()
     }
 
+    /// ME-3 (S51) — the ONE writer of `Quit.shownMilestoneHours`: stamps a rung's
+    /// `afterHours` when its unlock card is DISPLAYED. The `recordAlcoholNoticeShown`
+    /// shape above, with one deliberate difference — the stamp is per-QUIT and
+    /// per-RUNG rather than app-wide, because two concurrent quits each cross the
+    /// same rung on their own clock and each deserves the moment.
+    ///
+    /// Takes a SET of rungs, not one, and that is load-bearing rather than
+    /// convenience. A user can be several rungs deep the moment their quit exists —
+    /// the quiz asks when they stopped, so "I quit five days ago" backdates
+    /// `startAt` and unlocks 12h, 24h and 72h simultaneously. Stamping only the rung
+    /// whose card was shown would leave the skipped ones unseen, and they would
+    /// surface as one stale card per visit for days. The caller therefore stamps
+    /// every rung already crossed, and the composer picks the HIGHEST to celebrate:
+    /// the moment shown is the one the user is actually standing on.
+    ///
+    /// Idempotent per rung by the `contains` guard, so a re-render, a scene-phase
+    /// bounce, or two callers in one session write nothing the second time; one
+    /// `save()` for the whole set. Feeds NO cache and deliberately does NOT
+    /// `rebuildSnapshots()` — which rungs a user has been SHOWN is not ladder shape,
+    /// so it never enters a pre-unlock file (§10).
+    func recordMilestoneShown(quitID: UUID, afterHours: [Int]) throws {
+        let quit = try fetchQuit(quitID)
+        let fresh = afterHours.filter { !quit.shownMilestoneHours.contains($0) }
+        guard !fresh.isEmpty else { return }
+        quit.shownMilestoneHours.append(contentsOf: Set(fresh).sorted())
+        try context.save()
+    }
+
+    /// ME-3 (S51) — fetch-only read for the unlock-card present-decision (the
+    /// `alcoholNoticeShownAt()` twin). Returns `[]` for an unknown id rather than
+    /// throwing: a missing quit means nothing to celebrate, which is the same
+    /// answer as "nothing shown yet" for the caller's purposes.
+    func shownMilestoneHours(for quitID: UUID) -> [Int] {
+        var descriptor = FetchDescriptor<Quit>(predicate: #Predicate { $0.id == quitID })
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor).first?.shownMilestoneHours) ?? []
+    }
+
     /// E9.1 (R27.5) — fetch-only read for the notice present-decision
     /// (`nil` = never shown; the `lapseObservedAt()` twin).
     func alcoholNoticeShownAt() -> Date? {
