@@ -6879,3 +6879,58 @@ both 3-day trials, the `winback_annual` offer, localizations, review screenshots
   read, both of which still apply.
 - Plus: the Status row's stale session stamp, §0's "NEW operator items" (present since S47), and
   §3's title suffix.
+
+### S52 addendum 3 — the cold-start rehearsal, and a CI leak it exposed
+
+Prompted by "are we ready for the next session". Rather than assert it, the handoff was **rehearsed**:
+`wf_3f7b1b52-268` — one agent roleplaying a brand-new session handed *only* the copy-paste block and
+told to grade it harshly; one walking the whole citation chain; one verifying the repo is resumable;
+one adversarially hunting for how the next session burns a billed run. **Repo state came back
+READY** (clean, in sync, last code run 10/10 per job, 121 free-lane tests). The handoff did not.
+
+**The headline, and it was mine.** The resume prompt sent ME-8 to **UX blueprint §6.8/§6.11**. Those
+are the **Panic flow** and **Settings**. §6.8 explicitly *bans* the Waterline motif from the panic
+path's first frame, and §6.11 is ME-7, which shipped in S50. The actual ME-8 spec is **§6.3
+(Onboarding quiz)** — the Waterline-behind-`OnboardingScaffold` spec, the keyboard-step echoes, the
+two interstitials, the CommitmentSlider detents — and **§6.5 (Quiz summary)**. A fresh session would
+have opened two wrong sections, read that its own motif was banned and that its screen was already
+built, and never found the spec. It came from S51's header-table row and **S52 propagated it into
+three more places** while "re-truing" the document — a stale pointer copied faithfully is still
+stale. Fixed in all four, each now carrying an explicit "not §6.8/§6.11" so the error cannot
+silently return.
+
+**A structural CI cost leak, closed.** `.claude/settings.json` is git-**tracked**, is not gitignored,
+and `.claude/**` was absent from both `paths-ignore` blocks — so any commit touching it triggers the
+full 10×-billed macOS matrix. This is not hypothetical: S51's `git add -A` swept the machine-local
+subagent-model pin into a feature commit, and the revert (`60e4d35`) only avoided a burned run
+because someone hand-wrote `[skip ci]`. That is precisely the "person-dependent guard on a structural
+leak" the S49 note in that same file complains about. `.claude/**` now joins `docs/**`, `**.md`,
+`redesign/**` and `**.log`. YAML re-validated (9 jobs, all retain `runs-on` and `steps` — the S42
+check), and this commit carries `[skip ci]`, so the fix costs nothing and protects every commit after
+it.
+
+**R46.6 was closed two sessions ago and the doc never noticed.** It was carried as a "ready-to-ride,
+MILDLY DANGEROUS if left" item instructing a future session to reword `PersistentStore.swift`'s
+header comment. That reword landed in S47 (`b8c91de`); the comment already reads "a settled decision,
+NOT a pending to-do". The bullet now records the closure and keeps only the invariant that still
+binds (`cloudKitDatabase` stays `.none`; enabling CloudKit re-derives the privacy label and both
+manifests).
+
+**Line-number citations are now symbol citations, because this is the third time they rotted.** The
+rehearsal found `QuitRepository.swift:1380` (`refreshPanicSnapshot` is at 1432), `:681` for
+`trialDedupeStore.clear()` (it is 695, and 681 is a blank line), `StreakCardModel:54` (59),
+`project.yml:18` (19), `PaywallVariant.swift:47` (49). Every one has been rewritten to name the
+**symbol** — `QuitRepository.eraseEverything()`, `BundledVariantAssigner`,
+`deploymentTarget.iOS` — which cannot drift when a file is edited above it. **Standing rule: cite a
+symbol, not a line, unless the line is the point.** Where a line ref genuinely is the point (the two
+`// R46.2 FIX (S48)` markers), it was re-verified rather than removed.
+
+**Also:** `golden-batch.md`'s correction banner was worded so alarmingly ("actively misleading") that
+the rehearsal agent distrusted the now-correct table — reworded to say it is correct and to keep the
+history subordinate. And ME-8's file locations are now explicit, because `OnboardingScaffold.swift`
+lives in `DesignSystem/Primitives/`, not `Quiz/`, which the roadmap's "Where" clause leaves implicit.
+
+**The lesson worth keeping: a handoff is not verified by reading it — it is verified by trying to
+use it cold.** Two rounds of careful re-truing (S52 addendum 1) left a wrong section pointer in the
+single most-read paragraph in the repo. Only an agent that actually opened §6.8 and found the Panic
+flow caught it.

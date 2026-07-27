@@ -24,6 +24,14 @@ on:
       # leak.
       - "redesign/**"
       - "**.log"
+      # S52 — `.claude/**` is machine-local agent config (settings.json carries a
+      # per-machine subagent-model pin). It is git-TRACKED, is not gitignored, and
+      # was absent here, so a commit touching it triggered the full billed macOS
+      # matrix. That already happened: S51's `git add -A` swept the pin into a
+      # feature commit and the revert (`60e4d35`) needed a hand-written `[skip ci]`
+      # to avoid burning a run — the same person-dependent guard the S49 note above
+      # calls out. No lane reads this tree.
+      - ".claude/**"
   pull_request:
     paths-ignore:
       - "docs/**"
@@ -37,6 +45,14 @@ on:
       # leak.
       - "redesign/**"
       - "**.log"
+      # S52 — `.claude/**` is machine-local agent config (settings.json carries a
+      # per-machine subagent-model pin). It is git-TRACKED, is not gitignored, and
+      # was absent here, so a commit touching it triggered the full billed macOS
+      # matrix. That already happened: S51's `git add -A` swept the pin into a
+      # feature commit and the revert (`60e4d35`) needed a hand-written `[skip ci]`
+      # to avoid burning a run — the same person-dependent guard the S49 note above
+      # calls out. No lane reads this tree.
+      - ".claude/**"
 
 # Cancel superseded runs on branches/PRs, but never cancel main (a second merge must
 # not abort an in-flight TestFlight upload once that lane activates).

@@ -125,10 +125,10 @@ finding is settled on a device.
 
 ## Where the 141 current goldens stand
 
-> **Re-counted from disk at S52 — this table had been wrong since wave 1.** It claimed 107 goldens
-> across 7 suites and was missing FIVE suites entirely (erase, widget-adoption, Streak Detail,
-> milestone unlock, quiz summary) plus two wrong counts. It is the first thing ME-8 is told to read,
-> so it was actively misleading the biggest remaining golden budget. **Count, never quote:**
+> **✅ This table is CORRECT as of S52 — re-counted from disk, and it matches.** Trust it, and
+> re-count before you rely on it. (History, so nobody re-derives the fix: it had been wrong since
+> wave 1 — 107 goldens across 7 suites, missing FIVE suites entirely and two counts wrong. It is
+> the first thing ME-8 is told to read, which is why it was worth fixing.) **Count, never quote:**
 > `find Tests/Snapshot/__Snapshots__ -name '*.png' | sed 's|.*/__Snapshots__/\([^/]*\)/.*|\1|' | sort | uniq -c`
 
 Every golden below is **GREEN and STABLE on the finished design system** (tokens-v2 palette,
