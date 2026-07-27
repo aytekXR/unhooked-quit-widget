@@ -461,35 +461,52 @@ authoritative per-item state is the **Execution status** table at the top of `re
 plan-card visual pass (Waterline restraint, the trial badge in `semantic/positive`), the deferred
 paywall goldens, and a generic "See your plan options" settings row for never-paid users.
 
-**⚠️ READ THIS BEFORE PUTTING A FIELD ON THE PAYWALL — it is measured, not predicted.** §6.6 asks for
-"a Waterline backdrop (subdued, ≤ top third; 55% scrim floor before any text overlays)". The paywall
-is the ONE surface that renders **both** translucent fills the app has: the selected plan card
-(`brand/primary @ Theme.alpha.selectionTint`, `PaywallView.swift:180`) and the failure banner
-(`themedCautionCard`, `:238`). A translucent fill over a base a backdrop has ALREADY tinted
-composites through two layers, and those pairs start with the least headroom in the registry.
-Bisected over the paywall's 6 exposed pairs:
+**⚠️ THE FIELD QUESTION IS ALREADY MEASURED — and the S54 warning needs one correction, made in a
+follow-up scoping pass and recorded here so nobody acts on the blunter version.** S54's roadmap note
+said "a field on the paywall is unsafe at the field's own standard opacity". That is true of a
+**FULL-BLEED** field, and §6.6 never asked for one. It asks for "a Waterline backdrop (subdued,
+**≤ top third**; 55% scrim floor before any text overlays)" — and read literally, that is not merely
+the prettier route, it is the SAFE one:
 
-| | value |
-|---|---|
-| true max safe field opacity | **0.0391** |
-| binding pair | light [water] `primary action text on selection tint` = 4.500 vs 4.5 |
-| at `WaterlineField.standardOpacity` 0.06 | **UNSAFE** — 4.387 |
-| at `opacityCeiling` 0.08 | **UNSAFE** — 4.281 |
+| reading of §6.6 | what sits over the field | true max safe opacity | at standard 0.06 |
+|---|---|---|---|
+| **"≤ top third", literal** | the header only — headline + subhead + eyebrow/winback lines, all directly on `surface/base` | **0.2140** | **SAFE** (3.5× headroom, and safe past the rejected 12%) |
+| full-bleed | + the selected plan card (`primary@12%`) and the failure banner (`themedCautionCard`) | **0.0391** | **UNSAFE** — 4.387 vs 4.5 |
 
-Three honest routes, and pick one before writing code:
+The full-bleed number is low because those two are **doubly translucent** — a tinted fill over a base
+the field has already tinted. Confine the field to the top third and neither is ever involved.
 
-1. **Honour "≤ top third" literally** and keep the field off the plan cards entirely.
-2. **Apply S54's opaque-floor pattern** — pin an opaque `surface/base` beneath each tinted fill, so
-   the REGISTERED composite is the one that renders whatever sits behind it. One line per surface,
-   byte-identical wherever no field exists, and it is what ME-4 did to `AlcoholNoticeCard`. **This
-   is the recommendation:** it generalises, and it decouples a screen's legibility from a backdrop
-   constant permanently.
-3. Ship the paywall field at **≤ 0.039**, below every other consumer's weight.
+**So: honour "≤ top third" literally.** Optionally also pin S54's opaque-floor pattern under those two
+fills (one line each, byte-identical today since the backdrop already IS `surface/base`) so a future
+full-bleed change cannot silently re-open the hole. **And note what cannot check you: no golden and
+no audit mount renders the failure banner**, so only an executed harness can verify that composite.
+`scratchpad/me4/` carries the one S54 used — it compiles `ColorToken`/`Theme`/`ThemeMetrics`/
+`ContrastMath` directly and parses `WaterlineField`'s constants out of source.
 
-**And note what cannot check you here:** no golden and no audit mount renders the failure banner, so
-only an executed harness can verify that composite. `scratchpad/me4/` carries the one S54 used —
-it compiles `ColorToken`/`Theme`/`ThemeMetrics`/`ContrastMath` directly and parses `WaterlineField`'s
-constants out of source.
+**FOUR MORE THINGS THE SAME PASS VERIFIED, so do not re-derive them:**
+
+1. **Two of ME-9's own spec items ALREADY SHIPPED in UIR-4 (S36).** The trial badge is already
+   `Theme.color.positive` on a deliberately NEUTRAL sunken capsule — and the comment at
+   `PaywallView.swift:170` records why the fill is neutral (positive-on-positive-tint computes
+   4.29:1, sub-WCAG). The plan cards are already `Theme.radius.l` (24pt). The roadmap row's "apply
+   the plan-card visual pass" is therefore mostly done; check before re-doing it.
+2. **The "See your plan options" row needs NO new copy and NO new row.** The string already exists as
+   `DiscreetSettingsCopy.winbackRowLabel` (`:135`) and `yourPlanSection` already renders it
+   (`DiscreetSettingsView.swift:280`) — but it is gated on `repository.winbackEligible(state:)`, so
+   only LAPSED users see it. ME-9's ask is to widen that gate to never-paid users. That is a
+   condition change, not a feature.
+3. **Widening it moves ZERO settings goldens.** `SettingsSnapshotTests`' fixture is repository-LESS
+   and `yourPlanSection` takes a `QuitRepository`, so it structurally cannot render in that golden.
+   ME-9's entire golden churn is the **4 NEW paywall goldens** — no re-records anywhere.
+4. **A feathered top-band crop cannot be written in `PaywallView`.** `ThemeSourceLintTests` bans
+   `Color.black` / `Color.white` everywhere in `App/Sources` **except** `DesignSystem/`, and a
+   gradient mask needs one. So the crop belongs in a small DesignSystem primitive (which is the right
+   home anyway — creative §2 also wants field crops for empty states and milestone cards).
+   `mask(alignment:_:)` is docs-verified iOS 15.0, not deprecated, and has **no in-repo precedent**,
+   so treat it as new-API surface. The paywall fixture itself needs **no seam and zero RevenueCat
+   symbols**: `PaywallPresentation.make(copy:variant:source:)` +
+   `PaywallModel(purchase:restore:)`, exactly as `debugPaywallDirectMount` builds it
+   (`PostGateRootView.swift:655`).
 
 **What S54 hands you, all free:**
 

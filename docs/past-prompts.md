@@ -7315,3 +7315,45 @@ risk-window band, which needs axis copy plus a product decision about the four t
 carry no clock meaning. It gates nothing; if the operator declines it, the shipped sunken-well
 treatment is the final answer and the row closes. The next objective is **ME-9**, and its roadmap
 row now carries the measured warning above.
+
+### Addendum — the ME-9 scoping pass, and a correction to this session's own warning
+
+S54 closed green and then scoped its successor before stopping, which surfaced one correction worth
+making loudly: **the warning this session wrote into the roadmap was blunter than the measurement
+supported.** It said "a field on the paywall is unsafe at the field's own standard opacity". That is
+true of a FULL-BLEED field — and §6.6 never asked for one. It asks for "≤ top third", and read
+literally that is not merely the prettier route, it is the safe one:
+
+| reading of §6.6 | what sits over the field | true ceiling | at standard 0.06 |
+|---|---|---|---|
+| "≤ top third", literal | the header only (headline, subhead, eyebrow/winback lines, all on `surface/base`) | **0.2140** | **SAFE**, 3.5× headroom |
+| full-bleed | + the selected plan card and the failure banner, both doubly translucent | **0.0391** | **UNSAFE**, 4.387 vs 4.5 |
+
+The lesson generalises past this screen: **when a spec constrains WHERE a decorative layer may go,
+that constraint may be doing contrast work, not just visual work.** Reading "≤ top third" as a
+stylistic suggestion and shipping full-bleed would have broken WCAG; obeying it literally clears the
+floor with room to spare. Both roadmap and resume-prompt now carry the corrected two-row version.
+
+Four more things the same pass verified, banked so ME-9 does not re-derive them:
+
+1. **Two of ME-9's own spec items already shipped in UIR-4 (S36).** The trial badge is already
+   `semantic/positive` on a deliberately NEUTRAL sunken capsule — `PaywallView.swift:170` records
+   why the fill is neutral (positive-on-positive-tint is 4.29:1, sub-WCAG) — and the plan cards are
+   already `Theme.radius.l`. "Apply the plan-card visual pass" is mostly already done.
+2. **The "See your plan options" row needs no new copy and no new row.** The string exists as
+   `DiscreetSettingsCopy.winbackRowLabel`; `yourPlanSection` already renders it, gated on
+   `repository.winbackEligible(state:)`. ME-9 widens a condition so never-paid users reach it.
+3. **That widening moves ZERO settings goldens** — `SettingsSnapshotTests`' fixture is
+   repository-LESS and the section takes a `QuitRepository`, so it cannot render there. ME-9's whole
+   golden churn is the 4 NEW paywall goldens; nothing is re-recorded.
+4. **A feathered top-band crop cannot live in `PaywallView`.** `ThemeSourceLintTests` bans
+   `Color.white`/`Color.black` everywhere in `App/Sources` except `DesignSystem/`, and a gradient
+   mask needs one — so the crop belongs in a DesignSystem primitive, which is also where creative §2
+   wants it (empty states and milestone cards want field crops too). `mask(alignment:_:)` is
+   docs-verified iOS 15.0, not deprecated, with NO in-repo precedent. The paywall fixture needs no
+   seam and zero RevenueCat symbols.
+
+Also re-confirmed rather than assumed: **ME-9's "gated on founder copy" gate is genuinely clear.**
+`3a10442` — the operator's §3 closing commit — edited `paywallCopy.json` in three places, including
+the MVP-scope fix ("journal" → "notes and reflections"). The table's `_meta.status` still reads
+DRAFT, but that marker tracks the separate §0 acceptance checkbox, not the §3 pass.
