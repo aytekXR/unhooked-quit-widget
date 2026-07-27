@@ -23,6 +23,34 @@ import SwiftUI
 struct QuizFlowView: View {
     @Bindable var model: QuizFlowModel
 
+    /// ME-8: the field's advance is the only motion this screen owns, so Reduce
+    /// Motion is honoured HERE rather than inside `WaterlineField` — the primitive
+    /// is a pure function of `progress` and animates nothing by itself.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// How far through the visible steps the user is, 0...1. The SAME source the
+    /// progress bar reads, deliberately: the horizon and the bar must never
+    /// disagree about how far along the user is (creative §4 calls the field "the
+    /// emotional twin of the progress bar").
+    private var progressFraction: Double {
+        let position = model.progressPosition
+        guard position.total > 0 else { return 0 }
+        return Double(position.index) / Double(position.total)
+    }
+
+    /// Creative §4, steps 2 / 5: "field dims to 6% under keyboard" — on the two
+    /// steps that raise a keyboard the typed value is the subject and the field
+    /// yields to it. `allowance` is excluded on purpose: it is a Stepper on a
+    /// sunken well, not a keyboard step, however its `kind` is spelled.
+    private var isKeyboardStep: Bool {
+        guard let step = model.currentStep else { return false }
+        switch step.kind {
+        case .freeText: return true
+        case .decimalInput: return step.id != "allowance"
+        default: return false
+        }
+    }
+
     var body: some View {
         // The step id is the SCROLL VIEW's identity, not the question's: on a step
         // change the scaffold rebuilds its scroll view, so the next question opens at
@@ -32,7 +60,38 @@ struct QuizFlowView: View {
         // step's transient controls re-hydrate with it (Back re-creates the content
         // from the preserved answer — AC5). The progress bar and Continue keep stable
         // identity outside it, so the bar still animates its fill instead of jumping.
-        OnboardingScaffold(contentID: model.currentStep?.id) {
+        // ME-8: the continuous Waterline field. `field:` is passed INSIDE the
+        // parentheses, never as a trailing closure — with several trailing
+        // closures in play, an unlabelled one binds by position, and `field` and
+        // `header` are both Views, so the mistake would compile and silently swap
+        // the progress bar with the backdrop.
+        OnboardingScaffold(
+            contentID: model.currentStep?.id,
+            field: AnyView(
+                WaterlineField(
+                    progress: progressFraction,
+                    maxOpacity: isKeyboardStep
+                        ? WaterlineField.keyboardOpacity
+                        : WaterlineField.standardOpacity
+                )
+                // The horizon advances with the step, at the same motion/standard
+                // the step transition uses, and Reduce Motion opts out.
+                //
+                // Stated honestly: this tween is BEST-EFFORT. `AnyView` erases
+                // structural identity, so SwiftUI may treat each step's field as a
+                // new view and cut rather than interpolate. That is why the
+                // animation is not load-bearing anywhere — the SETTLED frame is
+                // the whole design, it is identical either way, and a 300ms tween
+                // on a 6%-opacity backdrop is polish, not meaning. Claiming a
+                // smooth tween would be asserting rendered behaviour that no free
+                // check on this box can verify; whether it reads as a drift or a
+                // cut is on the operator's device-eyeball list.
+                .animation(
+                    reduceMotion ? nil : .easeInOut(duration: Theme.motion.standard),
+                    value: progressFraction
+                )
+            )
+        ) {
             progressBar
         } content: {
             if let step = model.currentStep {
@@ -195,9 +254,9 @@ private struct QuizStepContent: View {
                 // A placeholder is not a name once typing clears it — label the field
                 // with the question already on screen (its title, else its helper).
                 label: step.title ?? step.helper ?? "",
-                identifier: "quiz.customNameField"
+                identifier: "quiz.customNameField",
+                submit: .done
             )
-            .submitLabel(.done)
             .onChange(of: freeText) { _, text in
                 model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: text))
             }
@@ -229,9 +288,13 @@ private struct QuizStepContent: View {
                 // Label with the question already on screen (its title, else its
                 // helper) — the placeholder stops being the field's only name.
                 label: step.title ?? step.helper ?? "",
-                identifier: "quiz.spendField"
+                identifier: "quiz.spendField",
+                // UNCHANGED BEHAVIOUR, moved one level in: the decimal pad is what
+                // makes this the S47 locale surface (iOS draws its separator from
+                // the user's Region), so it now sits ON the TextField rather than
+                // on a container that has to forward it.
+                keyboard: .decimalPad
             )
-            .keyboardType(.decimalPad)
             .onChange(of: freeText) { _, text in
                 model.record(QuizAnswer(stepID: step.id, choiceIDs: [], freeText: text))
             }
@@ -249,35 +312,82 @@ private struct QuizStepContent: View {
     /// The app's ONE input well (UIR-1): a sunken field with a hairline edge — the
     /// same recessed language the unselected chips and the year wheel speak. The
     /// system `.roundedBorder` was the last un-themed control in onboarding.
+    /// ME-8 warms this step: above the well sits a `.largeTitle` Rounded LIVE ECHO
+    /// of what the user has typed, under a waterline hairline (blueprint §6.3, and
+    /// creative §2's "hairline divider under hero numbers" — the motif's reuse at
+    /// UI scale). The step stops being a bare keyboard and starts being designed.
+    ///
+    /// Three deliberate details:
+    /// - **The echo is the RAW typed text, never a parse or a format.** The spend
+    ///   step is the S47 defect surface — a comma-decimal user typing "12,50" had
+    ///   it stored as 12, permanently, with no edit path. `DecimalInputParser`
+    ///   owns that conversion and this view must not second-guess it. Echoing the
+    ///   bytes back is the one display that cannot be wrong.
+    /// - **`keyboardType` / `submitLabel` moved INTO this function**, onto the
+    ///   `TextField` itself. They used to be chained on the call site's result;
+    ///   now that the result is a container, leaving them there would rely on
+    ///   those modifiers propagating down to a nested text input. They do — but
+    ///   "they do" is unverifiable on this box and the failure mode is the wrong
+    ///   keyboard on the money step, so the modifier stays welded to the field.
+    /// - **The echo is `accessibilityHidden`.** VoiceOver already reads the
+    ///   field's own value; announcing it twice is the exact duplication the
+    ///   commitment slider's word echo avoids.
+    @ViewBuilder
     private func themedField(
         placeholder: String,
         text: Binding<String>,
         label: String,
-        identifier: String
+        identifier: String,
+        keyboard: UIKeyboardType = .default,
+        submit: SubmitLabel = .return
     ) -> some View {
-        TextField(placeholder, text: text)
-            .textFieldStyle(.plain)
-            .font(.body)
-            .foregroundStyle(Theme.color.contentPrimary.color)
-            // Label + id sit on the FIELD, before any chrome: the element XCUITest
-            // queries and VoiceOver speaks must be the TextField itself, never the
-            // decorated container around it.
-            .accessibilityLabel(label)
-            .accessibilityIdentifier(identifier)
-            // The 44pt floor likewise sits on the FIELD, not on a wrapper: the
-            // hit-region audit measures the element's own frame (brandkit §5 motor
-            // floor). 44 stays BELOW the label's accessibility-size height, so it is
-            // a floor the text grows past — never a cap it is trapped under.
-            .frame(maxWidth: .infinity, minHeight: Theme.touch.minTarget)
-            .padding(.horizontal, Theme.space.s4)
-            .background(
-                Theme.color.surfaceSunken.color,
-                in: RoundedRectangle(cornerRadius: Theme.radius.s)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.radius.s)
-                    .strokeBorder(Theme.color.borderHairline.color, lineWidth: 1)
-            )
+        VStack(spacing: Theme.space.s3) {
+            if !text.wrappedValue.isEmpty {
+                VStack(spacing: Theme.space.s2) {
+                    Text(text.wrappedValue)
+                        // A TEXT STYLE with a design + weight — never a point size.
+                        // R33.12: `.font(.system(size:))` reports "User will not be
+                        // able to change the font size" to Apple's audit, and
+                        // `@ScaledMetric` does not rescue it. `.largeTitle` scales.
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .foregroundStyle(Theme.color.contentPrimary.color)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Rectangle()
+                        .fill(Theme.color.borderHairline.color)
+                        .frame(height: 1)
+                        .frame(maxWidth: Theme.layout.contentMaxWidth)
+                }
+                .frame(maxWidth: .infinity)
+                .accessibilityHidden(true)
+            }
+
+            TextField(placeholder, text: text)
+                .textFieldStyle(.plain)
+                .keyboardType(keyboard)
+                .submitLabel(submit)
+                .font(.body)
+                .foregroundStyle(Theme.color.contentPrimary.color)
+                // Label + id sit on the FIELD, before any chrome: the element XCUITest
+                // queries and VoiceOver speaks must be the TextField itself, never the
+                // decorated container around it.
+                .accessibilityLabel(label)
+                .accessibilityIdentifier(identifier)
+                // The 44pt floor likewise sits on the FIELD, not on a wrapper: the
+                // hit-region audit measures the element's own frame (brandkit §5 motor
+                // floor). 44 stays BELOW the label's accessibility-size height, so it is
+                // a floor the text grows past — never a cap it is trapped under.
+                .frame(maxWidth: .infinity, minHeight: Theme.touch.minTarget)
+                .padding(.horizontal, Theme.space.s4)
+                .background(
+                    Theme.color.surfaceSunken.color,
+                    in: RoundedRectangle(cornerRadius: Theme.radius.s)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.radius.s)
+                        .strokeBorder(Theme.color.borderHairline.color, lineWidth: 1)
+                )
+        }
     }
 
     /// E8.2 — the calm two-choice consent control: both choices are the SAME
@@ -350,8 +460,21 @@ private struct QuizStepContent: View {
                 // The word echo is the Slider's own a11y VALUE below — hide this
                 // sibling Text so VoiceOver reads the commitment once, not twice.
                 .accessibilityHidden(true)
-            Slider(value: $sliderValue, in: 0...1)
+            Slider(value: $sliderValue, in: 0...1, step: detentStep)
                 .tint(Theme.color.brandPrimary.color)
+                // ME-8 — the spec'd haptic detents (blueprint §6.3). The tick fires
+                // on the ECHO INDEX, not on `sliderValue`: the words are what the
+                // detents exist to land on, so the feedback and the visible change
+                // are the same event by construction.
+                //
+                // `.sensoryFeedback` deliberately, NOT the app's `LiveHapticsEngine`.
+                // That engine exists to schedule a multi-event CoreHaptics pattern
+                // across the 19-second 4-7-8 breath cycle; a detent is one discrete
+                // tick. Reusing it would drag a `CHHapticEngine` lifecycle onto the
+                // quiz path — and would mean touching `HapticsPlaying`, whose fake
+                // is shared with the panic tests — to buy nothing. This modifier
+                // renders no pixels, so it is golden-neutral.
+                .sensoryFeedback(.selection, trigger: currentEchoIndex)
                 .onChange(of: sliderValue) { _, value in
                     model.record(QuizAnswer(
                         stepID: step.id, choiceIDs: [],
@@ -366,11 +489,36 @@ private struct QuizStepContent: View {
         }
     }
 
+    /// ME-8 — the detent spacing: one stop per echo, so every word the table
+    /// carries is reachable and none is reachable twice.
+    ///
+    /// **The arithmetic is the whole point, because the obvious value is wrong.**
+    /// With the shipped four echoes, `step: 0.25` looks right and is not: it places
+    /// FIVE stops (0, .25, .5, .75, 1.0) for FOUR words, and `currentEcho`'s
+    /// `Int(sliderValue * count)` maps both 0.75 and 1.0 onto index 3 — a detent the
+    /// user can FEEL but not see, at the most meaningful end of the scale. The
+    /// correct spacing is `1/(count-1)`: stops at 0, ⅓, ⅔, 1 map to 0, 1, 2, 3.
+    /// (Checked at the boundary, including the float: `Int(0.666… * 4)` is 2, and
+    /// 1.0 lands on 4 → clamped to 3 by the `min` below, which is exactly why that
+    /// clamp is load-bearing and must not be "simplified" away.)
+    private var detentStep: Double {
+        let count = step.sliderEchoes?.count ?? 0
+        guard count > 1 else { return 1 }
+        return 1 / Double(count - 1)
+    }
+
+    /// Which echo the current value lands on. Extracted so the haptic tick and the
+    /// visible word are driven by ONE derivation — they can never disagree.
+    private var currentEchoIndex: Int {
+        let echoes = step.sliderEchoes ?? []
+        guard !echoes.isEmpty else { return 0 }
+        return min(echoes.count - 1, Int(sliderValue * Double(echoes.count)))
+    }
+
     private var currentEcho: String {
         let echoes = step.sliderEchoes ?? []
         guard !echoes.isEmpty else { return "" }
-        let index = min(echoes.count - 1, Int(sliderValue * Double(echoes.count)))
-        return echoes[index]
+        return echoes[currentEchoIndex]
     }
 
     private var selectedIDs: [String] {
