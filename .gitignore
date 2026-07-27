@@ -2,9 +2,9 @@
 # The plists/entitlements are written from project.yml's info/entitlements properties.
 *.xcodeproj
 App/Info.plist
-App/Unhooked.entitlements
+App/Ballast.entitlements
 Widgets/Info.plist
-Widgets/UnhookedWidgets.entitlements
+Widgets/BallastWidgets.entitlements
 
 # Build products / caches
 DerivedData/
@@ -50,3 +50,7 @@ AuthKey_*.p8
 # was committed in 152890b and, being unignored by CI's paths-ignore, triggered a
 # full billed macOS run. Ignored here AND added to paths-ignore in ci.yml.
 *.log
+
+# Python bytecode from the CI helper scripts (scripts/*.py)
+__pycache__/
+*.pyc

@@ -15,7 +15,7 @@ enum AnalyticsConfiguration {
 /// The production transport: TelemetryDeck, the SOLE analytics (ADR-8), SDK pinned
 /// exact at 2.14.1 in project.yml (docs-checked Session 15 — 3.0.0 is beta-only).
 ///
-/// LAZY init on first `receive` — never in `UnhookedApp.init`: analytics must never
+/// LAZY init on first `receive` — never in `BallastApp.init`: analytics must never
 /// run pre-frame on the panic path (ADR-6 thinness), and the SDK asserts on
 /// pre-init signals in DEBUG, so the init rides the first post-frame, post-consent
 /// fire instead. The SDK's on-disk `SignalCache` (10k cap, retry + exponential

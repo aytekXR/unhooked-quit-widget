@@ -4,7 +4,7 @@ import Foundation
 /// decision (ADR-6) cannot cover: a control/widget panic launch that lands while the
 /// app is ALREADY running. With the intents compiled into both targets, iOS runs
 /// `perform()` in the app's own process when the app is alive, and merely foregrounds
-/// us when it ran in the extension — either way `UnhookedApp.init` never re-runs, so
+/// us when it ran in the extension — either way `BallastApp.init` never re-runs, so
 /// the flag must be consumed post-frame. Pure and I/O-free except the flag read (the
 /// InAppPanicEntry precedent) so the unit lane can pin it.
 enum WarmPanicEntry {

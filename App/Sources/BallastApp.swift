@@ -8,7 +8,7 @@ import SwiftUI
 /// RevenueCat, Superwall, analytics) initializes on this path — those SDKs arrive in
 /// later epics and must stay off the pre-frame path (architecture §11).
 @main
-struct UnhookedApp: App {
+struct BallastApp: App {
     private let rootKind: RootKind
     private let panicPresentation: PanicPresentation
     private let panicSource: PanicSource

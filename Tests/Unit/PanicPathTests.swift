@@ -412,7 +412,7 @@ struct PanicPathTests {
         )
         #expect(
             spy.opens == 0,
-            "constructing the provider happens in UnhookedApp.init — pre-frame — and must open nothing (ADR-6)"
+            "constructing the provider happens in BallastApp.init — pre-frame — and must open nothing (ADR-6)"
         )
 
         provider.startIfNeeded(for: .panicPlaceholder)

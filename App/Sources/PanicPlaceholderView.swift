@@ -12,13 +12,13 @@ struct PanicPlaceholderView: View {
     let presentation: PanicPresentation
 
     /// The launch's TRUE origin (E3.3), captured BEFORE `onAppear` consumes the flag
-    /// keys: pre-frame by UnhookedApp on the cold route, `.inApp` from the dashboard
+    /// keys: pre-frame by BallastApp on the cold route, `.inApp` from the dashboard
     /// entry. Threaded into every flow mount so `UrgeEvent.source` records the real
     /// entry point.
     let source: PanicSource
 
     /// E9.3 (R28.2) — the device-global eyes-free pacer preference, read off the
-    /// pre-cache ENVELOPE by the mount (UnhookedApp cold / RootPlaceholderView warm +
+    /// pre-cache ENVELOPE by the mount (BallastApp cold / RootPlaceholderView warm +
     /// in-app) and threaded into the flow's model. Defaulted false so #Previews and
     /// every pre-E9.3 mount compile and behave identically; the store never opens here.
     var hapticsOnlyPacer: Bool = false

@@ -9,7 +9,7 @@ import Testing
 // the executable or dynamic library needs to include a privacy manifest file that
 // reports the API." Both of our executables use one:
 // - APP: UserDefaults via `.standard` (TrialAnalyticsDedupeStore/QuizProgressStore/
-//   UnhookedApp erase sweep → CA92.1) AND via the App-Group suite (launch paths,
+//   BallastApp erase sweep → CA92.1) AND via the App-Group suite (launch paths,
 //   panic witness, repository, PanicLaunchFlag → 1C8F.1).
 // - WIDGET .appex: App-Group UserDefaults ONLY, reached via Shared/PanicLaunchFlag
 //   from the extension-side panic intents → 1C8F.1 alone; CA92.1 must NEVER appear

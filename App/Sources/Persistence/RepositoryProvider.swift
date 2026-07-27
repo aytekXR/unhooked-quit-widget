@@ -7,7 +7,7 @@ import SwiftData
 /// from "a frame is on screen" to "the store is open, the repository exists, and the
 /// launch-time derived-state pass has run". Lives in App/Sources/Persistence because
 /// it imports SwiftData (the sole-importer lint allowlists exactly this directory);
-/// `UnhookedApp` references the type without the import and calls `startIfNeeded(for:)`
+/// `BallastApp` references the type without the import and calls `startIfNeeded(for:)`
 /// from the root view's `.task` — which runs after the first frame commits — never
 /// from `init` (constructing the provider does zero work, pinned by the init-order
 /// spy in PanicPathTests).

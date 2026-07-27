@@ -1,4 +1,4 @@
-# Agent Workflows: Unhooked — Agent-Driven Development Process
+# Agent Workflows: Ballast — Agent-Driven Development Process
 
 | Field | Value |
 |---|---|
@@ -7,7 +7,7 @@
 | Inputs | PRD v1.0, MVP Definition v1.0, Architecture v1.0, Feasibility Report v1.0 |
 | Scope | How specialized AI agents build the v1.0 MVP (and v1.1/v1.2 follow-ons) under a solo human operator |
 
-> **Context that shapes everything below:** Unhooked is a **local-first iOS app with zero owned backend at launch**, whose product surface is mostly *outside* the app binary (lock-screen widgets, interactive AppIntents, Control Center, Action button, StandBy). Its category is emotionally sensitive (addiction recovery, adult content, alcohol), privacy-positioned, and App-Review-fragile. The process therefore over-weights three things most app processes under-weight: **(1) device-matrix widget QA** — widgets cannot be meaningfully tested in simulators alone; **(2) copy-tone and safety gates** — "zero shame language" and "no medical claims" are release-blocking acceptance criteria, not style preferences; **(3) privacy auditability** — the analytics payload audit and the mirrored-store privacy discipline (nothing forbidden reaches the CloudKit mirror or any network payload) are marketing claims that must be re-verified every session, because a single careless `track()` call falsifies the App Store positioning.
+> **Context that shapes everything below:** Ballast is a **local-first iOS app with zero owned backend at launch**, whose product surface is mostly *outside* the app binary (lock-screen widgets, interactive AppIntents, Control Center, Action button, StandBy). Its category is emotionally sensitive (addiction recovery, adult content, alcohol), privacy-positioned, and App-Review-fragile. The process therefore over-weights three things most app processes under-weight: **(1) device-matrix widget QA** — widgets cannot be meaningfully tested in simulators alone; **(2) copy-tone and safety gates** — "zero shame language" and "no medical claims" are release-blocking acceptance criteria, not style preferences; **(3) privacy auditability** — the analytics payload audit and the mirrored-store privacy discipline (nothing forbidden reaches the CloudKit mirror or any network payload) are marketing claims that must be re-verified every session, because a single careless `track()` call falsifies the App Store positioning.
 
 ---
 
@@ -53,7 +53,7 @@ A note on repo layout assumed throughout: `prds/unhooked-quit-widget/` holds the
 - Own interface contracts: `StreakCalculating`, `QuitRepository`, `WidgetRefreshing`, the `AnalyticsEvent` enum, the `PanicIntent` surface. Changes to these are Architect-gated PRs.
 - Guard the four hard invariants in review: (1) nothing forbidden can reach the CloudKit-mirrored store or any network payload; (2) derived values (streak days, money saved, momentum %) are computed, never stored; (3) `logSlip` stays synchronous-local, never network-gated; (4) monotonic fields (`bestStreakSeconds`, `totalCleanSeconds`) never decrease.
 - Design the week-0 spike: the on-device lock-to-panic latency measurement that validates the <2s claim before marketing copy commits (ADR-6).
-- Define the portfolio-package split (what lands in StreakEngine/WidgetToolkit vs app code) since Unhooked is the anchor consumer for StreakEngine.
+- Define the portfolio-package split (what lands in StreakEngine/WidgetToolkit vs app code) since Ballast is the anchor consumer for StreakEngine.
 
 **Inputs.** `architecture.md` (canonical), PM specs, Frontend PRs, QA performance/edge-case reports, DevOps CI signals, portfolio strategy docs.
 
@@ -118,7 +118,7 @@ A note on repo layout assumed throughout: `prds/unhooked-quit-widget/` holds the
 
 ### 1.5 Brand Agent
 
-**Mission.** Make Unhooked *feel* like its positioning — calm, forgiving, private, never clinical, never preachy — across UI, icons, widgets, screenshots, and ASO, in a category whose incumbents are resented precisely for shame and dark-pattern paywalls.
+**Mission.** Make Ballast *feel* like its positioning — calm, forgiving, private, never clinical, never preachy — across UI, icons, widgets, screenshots, and ASO, in a category whose incumbents are resented precisely for shame and dark-pattern paywalls.
 
 **Responsibilities.**
 - Design system: color/type/spacing tokens, the streak ring and milestone-bar visual language, quiet-celebration motion specs (no confetti explosions on urge-averted — "celebrate quietly" is a PRD requirement).
@@ -249,7 +249,7 @@ PM refines spec ──► Architect technical review ──► QA writes failing
                                     updates bundle cross-refs and session log
 ```
 
-Step details and Unhooked-specific rules:
+Step details and Ballast-specific rules:
 
 1. **PM refines.** Spec written with ACs, copy table (normal + discreet variants), analytics events, exclusions. For anything touching slip/relapse/safety copy, PM runs the tone checklist *at spec time*, not review time.
 2. **Architect reviews.** Layers the work, names interfaces, states privacy-surface and latency impact. Features touching the panic path get an explicit "latency plan" line.
@@ -337,7 +337,7 @@ Maintenance rules: `resume-prompt.md` always ends with the standing-rules remind
 
 ## Part 3: Risk-Tailored Emphases (summary)
 
-Because process documents get skimmed, the five Unhooked-specific emphases in one place:
+Because process documents get skimmed, the five Ballast-specific emphases in one place:
 
 1. **Widget-heavy → device-matrix QA is a first-class release gate**, operator-executed on physical hardware; simulators never sign off lock-screen interactivity, StandBy, Action button, or the <2s panic claim.
 2. **Sensitive category → safety-content sign-off happens *before* implementation** (PM+Brand+QA jointly), and all crisis/duty-of-care questions escalate to the human, always.

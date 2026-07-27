@@ -30,7 +30,7 @@ struct PanicFlowView: View {
     }
 
     /// Production wiring for the cold panic route. E3.3: the launch's TRUE origin
-    /// threads in from the pre-frame capture (UnhookedApp → PanicPlaceholderView) or the
+    /// threads in from the pre-frame capture (BallastApp → PanicPlaceholderView) or the
     /// in-app entry — the `.lockscreenWidget` hardcode is dead. E9.3 (R28.2):
     /// `hapticsOnlyPacer` is the persisted preference read off the pre-cache ENVELOPE
     /// by the mount (the store stays off-limits on this path — the settings writer

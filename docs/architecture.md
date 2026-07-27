@@ -1,4 +1,4 @@
-# Architecture: Unhooked — The Quit-Anything Streak Widget
+# Architecture: Ballast — The Quit-Anything Streak Widget
 
 | Field | Value |
 |---|---|
@@ -8,7 +8,7 @@
 | Portfolio cluster | A2 — Native Swift, local-first, no backend |
 | Platforms | iOS 26+ (iPhone only, v1) |
 
-> **Naming note:** per the feasibility report, "Unhooked" is a pre-build rename gate. This document uses the working title. Nothing in the architecture depends on the name; the bundle ID, App Group ID, and CloudKit container ID must be created **after** the rename to avoid burning identifiers.
+> **Naming note — RESOLVED.** The feasibility report made "Unhooked" a pre-build rename gate; the product shipped as **Ballast** and Gate G0 cleared 2026-07-08. The bundle ID (`com.beyondkaira.ballast`), App Group and iCloud container were all registered under the final name, exactly as this note required — no identifier was burned. The name "Unhooked" now survives only as the Xcode target/module and the git repo slug, neither of which a user ever sees.
 
 ---
 

@@ -188,6 +188,16 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: Ballast
+        # S56 — pin CFBundleName explicitly. XcodeGen's generated plist defaults it to
+        # $(PRODUCT_NAME), which resolves to the TARGET name — and the target is still
+        # called "Unhooked" internally. So while the home-screen name has always been
+        # Ballast (CFBundleDisplayName, above), the bundle NAME still read "Unhooked",
+        # and CFBundleName is what surfaces wherever DisplayName is absent or truncated.
+        # It is the last customer-reachable trace of the old name; the rest of the
+        # remaining "Unhooked" references are the Xcode target/module identity, which no
+        # user ever sees. Pinning it here decouples the shipped name from the target name
+        # entirely, so an internal rename can never change what a user reads.
+        CFBundleName: Ballast
         # XcodeGen hardcodes CFBundleVersion "1" in generated plists unless told
         # otherwise, silently swallowing gym's CURRENT_PROJECT_VERSION xcargs — the
         # first TestFlight build shipped as bundle version '1' and every later upload
@@ -204,7 +214,7 @@ targets:
         UIRequiresFullScreen: true
         ITSAppUsesNonExemptEncryption: false
     entitlements:
-      path: App/Unhooked.entitlements
+      path: App/Ballast.entitlements
       properties:
         com.apple.security.application-groups:
           - group.com.beyondkaira.ballast.shared
@@ -244,6 +254,10 @@ targets:
       path: Widgets/Info.plist
       properties:
         CFBundleDisplayName: Ballast Widgets
+        # S56 — same fix as the app target: unset, this defaulted to $(PRODUCT_NAME)
+        # and read "UnhookedWidgets". The widget gallery falls back to CFBundleName in
+        # places CFBundleDisplayName does not reach.
+        CFBundleName: Ballast Widgets
         # Same version routing as the app target — App Store validation requires the
         # extension's CFBundleVersion to match its host app's.
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
@@ -251,7 +265,7 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
-      path: Widgets/UnhookedWidgets.entitlements
+      path: Widgets/BallastWidgets.entitlements
       properties:
         com.apple.security.application-groups:
           - group.com.beyondkaira.ballast.shared

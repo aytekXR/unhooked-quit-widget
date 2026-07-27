@@ -13,7 +13,7 @@ import Testing
 //      (UnhookedTests links the app target only — the constraint PanicEntryPointTests
 //      documents), so these references FAIL TO COMPILE if either intent ever moves
 //      back out of the app target.
-//   2. WARM CONSUMPTION: the app read the launch flag only in `UnhookedApp.init`
+//   2. WARM CONSUMPTION: the app read the launch flag only in `BallastApp.init`
 //      (ADR-6 cold route), so a panic launch landing on a RUNNING app was never
 //      consumed. `WarmPanicEntry.resolve` is the post-frame gate; its pins are below.
 //

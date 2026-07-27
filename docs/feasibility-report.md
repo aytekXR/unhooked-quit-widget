@@ -1,5 +1,11 @@
 # Feasibility Report: Unhooked (App Store name: "Unhooked: Quit Vaping, Porn & Alcohol")
 
+> **HISTORICAL DOCUMENT — the name in this title is the one it recommends REJECTING.**
+> Kept verbatim on purpose: its finding ("the name is burned — rename before build") is why the
+> product is called **Ballast**, and rewriting the name out of it would erase the reasoning.
+> Read every "Unhooked" below as the pre-rename working title. Gate G0 cleared 2026-07-08 and the
+> registered identity is `com.beyondkaira.ballast`.
+
 **Document date:** 2026-07-07 · **Inputs:** PRD v1.0 (`prd.md`), competitor research (2026-07-07), market research (2026-07-07). Competitor revenue figures are third-party estimates (Sensor Tower, BoringCashCow, founder posts) unless noted.
 
 ---

@@ -4,7 +4,7 @@ import XCTest
 /// pre-cache — never the store (ADR-6). A seeded multi-quit snapshot with no
 /// selection must land on the quit picker (placeholder-grade; the real flow UI is
 /// E3.2). This is the one smoke that exercises the real wiring end to end:
-/// seed hook → snapshot read in `UnhookedApp.init` → resolver → picker rendering.
+/// seed hook → snapshot read in `BallastApp.init` → resolver → picker rendering.
 /// The selection matrix itself is pinned at the unit tier (PanicPathTests).
 @MainActor
 final class PanicRouteUITests: XCTestCase {

@@ -9,7 +9,7 @@ import UIKit
 /// snapshot sees. App-target-only (UIKit; never Shared — the extension cannot compile
 /// `UIApplication`).
 ///
-/// Lifecycle: `UnhookedApp` drives `update(covered:)` from its top-level scene-phase
+/// Lifecycle: `BallastApp` drives `update(covered:)` from its top-level scene-phase
 /// observer through the pure `PrivacyOverlayPolicy` (unit-pinned, O1). The window is
 /// created lazily on the first cover and then only toggles `isHidden` — no per-event
 /// allocation, nothing pre-frame (at cold launch the phase is `.active`, so the first

@@ -2,7 +2,7 @@ import SwiftUI
 import WidgetKit
 
 @main
-struct UnhookedWidgetBundle: WidgetBundle {
+struct BallastWidgetBundle: WidgetBundle {
     var body: some Widget {
         // E6.2: StreakWidget (kind "StreakWidget") replaces E0.2's SkeletonWidget —
         // the placeholder is RETIRED (step-0 R12, operator-vetoable: testers re-add
