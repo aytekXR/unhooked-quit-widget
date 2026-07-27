@@ -54,6 +54,23 @@
       trade this project makes. **If you want different bytes, any wording without a control-type
       noun works** ("button", "image", "icon", "switch", "toggle"); a unit test now states this in
       one line if a future edit reintroduces one, so nobody rediscovers it from a red UI lane.
+- [ ] **ME-8 adds NO new strings** — the Waterline field, the keyboard-step echo and the slider
+      detents are all visual. Nothing joins your copy pass from this wave.
+      **But two ME-8 judgments are yours, because no CI gate can make them:**
+      **(a) Does the field READ?** The quiz now has a horizon behind it that advances as you answer
+      (teal-over-indigo bands, a luminous waterline, one soft bloom that surfaces as you go). It ships
+      at **6% opacity**, not the 12% the creative doc specifies — and that is not timidity, it is
+      arithmetic: compositing the field over `surface/base` and re-measuring every text token puts
+      dark-mode `content/tertiary` at **2.63:1 against its 3.0 WCAG floor** at 12%. The hard ceiling
+      is now 8%, with 6% the default. **If it reads as invisible on your device, say so** — the honest
+      fix is a bolder MOTIF (a taller water band, a stronger waterline), never a bolder opacity,
+      because the opacity is what keeps the text legible. Worth checking in **both appearances and
+      outdoors**, where a 6% tint can vanish entirely.
+      **(b) The slider detents.** "How ready do you feel?" now snaps to four stops with a haptic tick
+      on each, one per word. Judge the feel: too sticky, too loose, or right.
+      One known-cosmetic item while you are there: the field's advance between steps may read as a
+      soft drift or as a clean cut, depending on how SwiftUI treats the layer. Either is acceptable
+      and the settled picture is identical; if the cut looks abrupt to you, that is worth reporting.
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).

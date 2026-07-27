@@ -31,9 +31,10 @@ landed on `main`, all green through CI.
 | **QW-11** Social PNG re-render | ⬜ open | marketing, gated on G0 |
 | **ME-3** Milestone unlock moments | ✅ **done — S51** | `30beabe` + 6 goldens (`9988ad5`); an 11th audit leg, clean on its first run |
 | **ME-4** Summary payoff redesign | ⬜ open | Phase 4 |
-| **ME-8** Waterline primitive + quiz pass | ⬜ open | **next** — Phase 3 |
+| **ME-8** Waterline primitive + quiz pass | ✅ **done — S53** | `8345e74`. The `WaterlineField` primitive + the continuous quiz field, the keyboard-step live echo, and the haptic-detent slider. **Two spec deviations, both forced and both recorded:** the field ships at 6% opacity with an 8% hard ceiling, NOT the creative doc's "≤12%" — at 12% dark-mode `content/tertiary` computes 2.63:1 against its 3.0 floor; and the field takes no clock input, because both specs ask for state that advances with PROGRESS, not perpetual motion. **Carried to ME-8b:** the two §3 interstitials, the crest keyed to the slider, the step eyebrow, the 2-column chip grid, the 300ms step transition |
 | **ME-9** Paywall polish + goldens | ⬜ open | Phase 4 |
-| Final golden batch + **LB-5** screenshots | ⬜ open | after ME-4/ME-8/ME-9, exactly as Phase 4 sequences it |
+| **ME-8b** Quiz interstitials + the remaining §6.3 items | ⬜ open | **NEW, carved out of ME-8 in S53 and named rather than dropped.** The copy deck §3 drafts both interstitials verbatim, so no founder round-trip is needed — but they are the expensive half: `QuizFunnelUITests` taps a hard-coded `0..<11` loop, `QuizFlowModelTests` pins `visibleSteps.map(\.slot)` as two exact arrays plus `count == 11/13`, and a new informational surface owes a 12th audit leg. A **view-layer** overlay keyed off the current step leaves `visibleSteps` — and therefore the fixed analytics slots (R1) — untouched, which is the route to take |
+| Final golden batch + **LB-5** screenshots | ⬜ open | after ME-4/ME-9, exactly as Phase 4 sequences it. **ME-8 improved its economics:** `QuizFlowView` has zero goldens today, so the batch's 6 quiz/age-gate goldens will capture the Waterline field on their FIRST mint — no re-record, and no `pauseDate` seam to thread, because the field reads no clock |
 | LB-1…LB-4, LB-6 | ⬜ open | Phase 5, post-launch |
 
 **Two constraint notes below are stale in the operator's favour, and this correction is itself

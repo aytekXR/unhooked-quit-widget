@@ -393,8 +393,12 @@ things:
    across 5 testers**, and with the analytics transport dormant nothing measures
    it for you. Ask five testers to note the clock when the age check appears and
    again when the summary lands, or time it yourself over their shoulder. Do it
-   early: if the quiz is running long, that is a Phase-3 finding (ME-8 is the
-   quiz visual pass) and it is much cheaper to learn before that work than after.
+   early: if the quiz is running long, that is a finding worth having quickly.
+   (**Updated S53:** ME-8, the quiz visual pass, has now LANDED, so this is no
+   longer a "learn it before that work" item — it is a "learn it before **ME-8b**",
+   which is the increment that would add two interstitial screens to the quiz. A
+   quiz already running long is an argument for placing those two screens
+   carefully, or not at all.)
 5. **Wording.** The copy pass closed in S46 and every string is founder-signed,
    so a tester saying "this sentence made me feel judged" is the highest-value
    report in the whole beta. It is also the one thing no test lane, no lint, and

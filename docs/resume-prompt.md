@@ -2,8 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Document | Resume Prompt v9.0 — **the BODY was re-trued in S52, not just the header table.** S51 and S52 had each updated only the table rows, so the body (and the copy-paste block below) still specced ME-3 as future work. A 6-reader/3-refuter audit (`wf_5b09ef39-b3d`) found 27 confirmed stale or self-contradictory claims across five handoff docs; all are fixed. **Standing rule from it: updating a summary table is not updating the document, and every count is COUNTED at session end, never quoted** — the counting command now sits inline next to each number. |
-| Last updated | 2026-07-27 (**Session 52 — TestFlight initial-testing readiness. ZERO billed runs, docs-only — and writing the pack surfaced a real finding nobody had noticed.** Objective was operator-set and OFF the roadmap: "get ready for the TestFlight initial testings", i.e. critical-path step 10, not ME-8. **Session-open verified first-hand:** local == `origin/main` at `8eec8fc`, clean; last code run `30228460322` SUCCESS **per-job 10/10** including the TestFlight upload, so a current build is already in App Store Connect; free lanes re-run locally = **121 pass** (84/21/16). **THE FINDING: S48B taking RevenueCat live silently changed what a TESTER meets, and it was recorded only as a monetization milestone.** The branch is exact — `PostGateRootView`'s summary-CTA branch routes every non-entitled user from the summary CTA into the paywall once an `entitlementModel` exists (before the key it fell through to the dashboard); `PaywallPresentationComposition.makeAssigner` takes `BundledVariantAssigner` while the Superwall key is empty; `BundledVariantAssigner` (`PaywallVariant.swift`) returns `.hard` unconditionally, and the hard arm composes NO `teaserEscape`. **So the first thing a TestFlight tester meets after onboarding is a subscription screen with no close button.** Three consequences, each CHECKED rather than assumed: **(1)** it is not a permanent trap — `PaywallRouting.reentryDestination` returns `.dashboard` whenever no teaser grant exists, so force-quit → relaunch escapes; the wall gates the onboarding path once, not the app; **(2)** the intended path works and is FREE (TestFlight transacts in the sandbox) and doubles as critical-path step-5 evidence — the failure mode is purely informational, an unbriefed tester refuses the purchase sheet and reports the app as broken; **(3)** a non-purchaser **silently skips ME-1**, since the widget-adoption moment mounts only after the onboarding paywall RESOLVES on a live-key build — the north-star metric's only surface, now recovered in the script via Settings → Panic access. Briefing is the recommendation (zero cost); pasting the Superwall key + assigning the teaser arm is the stronger fix and is ALREADY the decided posture for the review build, so it is a before-EXTERNAL-beta item, not an internal blocker. A code change to the wall was considered and REJECTED: R24.9 ratified it, the teaser fork exists for exactly this, and monetization surfaces are Architect-gated. **AN EXTERNAL-ORACLE CHECK OVERTURNED THE CLAIM I WOULD OTHERWISE HAVE WRITTEN:** the reflex is "sandbox compresses subscriptions to minutes" — Apple's own TestFlight page says TestFlight is NOT the Sandbox rate: every duration, 1 week through 1 year alike, renews once per **24 hours**, max **6 renewals**, then auto-renew is disabled. The minute-scale numbers would have had the operator brief a false expectation and mis-plan the week. Same page, second correction: testers use their **normal Apple Account** and need no Sandbox Apple Account — a setup step the pack would otherwise have invented. **The day-7 lapse is an ASSET: it is the only free way to observe a real lapse, which is the one test that proves the R46.2 foreground-refresh fix.** Four more pre-flight facts verified against source: minimum **iOS 26.0** (`project.yml`, `deploymentTarget.iOS`) so older devices are never offered the build; **zero permission prompts anywhere** (grep-verified absence of `UserNotifications`/`CoreLocation`/`AVFoundation` capture/`AuthenticationServices`), which makes "any permission prompt is a bug" a briefable invariant; **erase → relaunch = fresh install** (`QuitRepository.eraseEverything()`) so one tester can run the funnel twice; and the TestFlight **public link would expose the uncleared G0 name** (`project.yml:190`), so email-invite only. **LANDED:** NEW `docs/testflight-beta-kit.md` (pre-flight · paste-ready "What to Test" + beta app description + Beta App Review notes + the no-demo-account answer · the tester invite · a 20-minute test script with per-persona and discreet passes · known issues · what signal to collect), plus `testflight-tester-guide.md` (scope split, three stale facts fixed, and WHY CI cannot set build notes), `operator-expected.md` §5 (four new checkboxes), `critical-path-post-uir.md` (step 10 rewritten; **the internal beta moved up to THIRD in "Do next"** — it runs on someone else's clock and the gate wants ≥1 week). **A judgment call recorded rather than left implicit:** wiring build notes into the fastlane lane was rejected — `pilot`'s `skip_waiting_for_build_processing: true` is what keeps the macOS runner from idling through Apple's processing wait, the changelog cannot be set without that wait, and verifying the change would itself cost a billed run, to fill a field the operator visits anyway. **NO agent work is blocked; the next objective is still ME-8.** Superseded S50 header below.) |
+| Document | Resume Prompt v10.0 — regenerated in S53. The S52 standing rule still governs and was obeyed here: **updating a summary table is not updating the document, and every count is COUNTED at session end, never quoted.** |
+| Last updated | 2026-07-27 (**Session 53 — ME-8: the Waterline field ships, and the spec number it shipped with is not the spec's number.** Objective was the roadmap's own next item, §0 answered **(B)** as a standing instruction, so nothing was operator-gated and the session ran autonomously. **Session-open verified first-hand:** local == `origin/main` at `05e41b3`, clean; last code run `30228460322` SUCCESS **per-job 10/10**; free lanes re-run locally = **121 pass** (84/21/16); and 141 goldens / 11 audit legs / 32 contrast pairs COUNTED from disk, all three matching. **THE FINDING: creative §4's "≤12% opacity behind content … so all 34 WCAG-pinned pairs hold" is an assertion, and it is false.** Compositing every band and light-form the field draws over `surface/base` and re-measuring each token: at 12% dark-mode `content/tertiary` lands at **2.63:1 against its 3.0 floor**. Two details make it worth carrying rather than just fixing — **the binding pair INVERTS at ~9%** (above it, tertiary lightened by the Foam stroke; below it, light-mode `caution` darkened by the water band, which is the quiz's own save-retry note), so optimising against either alone ships the other broken; and **no golden could ever have caught it**, because a golden proves pixels did not move, which is a different claim from "the text on them is legible". The gate that would have caught it is the runtime `.contrast` audit — i.e. after a billed run. Shipped: standard **0.06**, keyboard **0.045**, hard ceiling **0.08** (not 0.12), bloom 0.75→0.55 to move the constraint off the light-form, and the ceiling **clamped in `body`** rather than documented, because a comment cannot stop a future caller. **SECOND DEVIATION, deliberate: the field reads no clock.** The scoping plan and the `WaveTimerView` precedent both put it inside `TimelineView(.animation)` with a `pauseDate` seam; rejected because neither spec asks for perpetual motion (both say state advances with PROGRESS), because a time-free view makes every future quiz golden byte-stable, and because a full-screen `Canvas` redrawing at display rate sits behind the most-traversed surface in the app. The seam it was meant to buy **did not exist anyway** — `QuizFlowView` builds the field internally, so no snapshot host could reach it. **The 20-agent scoping workflow (`wf_09283866-6c8`) earned its keep and was overruled four times.** It caught the `themedField` compile error, the extension break, `QuizFlowView` having ZERO goldens, and the exact test pins that make the interstitials expensive. But its lint "safety proofs" were partly fiction (`.font(.system(size:` is not an `OnboardingLayoutLintTests` idiom; `DesignSystem/` is excluded from that lint AND from `ThemeSourceLintTests` by design); it deferred the haptic detents over a `CHHapticEngine` problem that `.sensoryFeedback` simply does not have; its AnyView-vs-generics reasoning was inverted (a default-less `field:` puts five call sites' overload resolution at risk, and **none of that is checkable on Linux**); and its `ZStack` body rewrite risked 12 goldens where branching to the literal `themedScreenSurface()` call makes movement impossible. **Also fixed:** the trailing-closure hazard (`field:` and `header:` are both View closures — an unlabelled trailing closure would bind wrong and compile silently, swapping the progress bar with the backdrop), and the detent arithmetic (`step: 0.25` places FIVE stops for FOUR echoes and collapses 0.75 and 1.0 onto the same word — a detent you can feel but not see, at the most meaningful end of the scale; `1/(count-1)` is correct). **FREE VERIFICATION:** `swiftc -parse` ×3 (the gate the plan omitted); an executed **35-check harness** over real shipping bytes with fire-on-mutation against `step: 0.25` and the opacity constants READ BACK out of source; and a **lint replication whose matchers are parsed out of each lint's own source** — 4 lints, 0 violations, fire-on-mutation and comment-exemption both proven. **Running the harness caught two bugs in the harness**, which is the point of the rule: the clock check fired on `WaterlineField`'s own doc comment explaining why it rejects `TimelineView` (the S50 false-positive class), and the geometry check reused the global failure list. **DEFERRED AND NAMED, not dropped — all to a new ME-8b row on the roadmap:** the two §3 interstitials (the copy deck drafts them verbatim, but `QuizFunnelUITests` taps a hard-coded `0..<11`, `QuizFlowModelTests` pins `visibleSteps.map(\slot)` as exact arrays, and a new surface owes a 12th audit leg — the route is a **view-layer overlay** that leaves `visibleSteps` and the R1-fixed slots untouched), the slider-keyed crest, the step eyebrow, the 2-column chip grid, the 300ms step transition, and creative §4's per-step field variations. The summary backdrop goes to **ME-4**, which already re-records those goldens. **ONE billed run — `30265638543`, SUCCESS per-job 10/10 including the TestFlight upload, green on the first attempt with ZERO golden churn** (141 compared and matched; the scaffold's `nil` branch takes the literal `themedScreenSurface()` call, so the 12 goldens on scaffold-based screens could not move). Unit 465/72, snapshot 45/13, and — the one that matters — **`test_a11yAudit_quizFlow_noViolations` PASSED in 17.4 s**, i.e. Apple's own `.contrast` audit ran over the quiz WITH the field rendering and agreed with the solve. **NO operator action is required; the next objective is ME-4.** Superseded S52 header below.) |
+| _superseded_ | 2026-07-27 (**Session 52 — TestFlight initial-testing readiness. ZERO billed runs, docs-only — and writing the pack surfaced a real finding nobody had noticed.** Objective was operator-set and OFF the roadmap: "get ready for the TestFlight initial testings", i.e. critical-path step 10, not ME-8. **Session-open verified first-hand:** local == `origin/main` at `8eec8fc`, clean; last code run `30228460322` SUCCESS **per-job 10/10** including the TestFlight upload, so a current build is already in App Store Connect; free lanes re-run locally = **121 pass** (84/21/16). **THE FINDING: S48B taking RevenueCat live silently changed what a TESTER meets, and it was recorded only as a monetization milestone.** The branch is exact — `PostGateRootView`'s summary-CTA branch routes every non-entitled user from the summary CTA into the paywall once an `entitlementModel` exists (before the key it fell through to the dashboard); `PaywallPresentationComposition.makeAssigner` takes `BundledVariantAssigner` while the Superwall key is empty; `BundledVariantAssigner` (`PaywallVariant.swift`) returns `.hard` unconditionally, and the hard arm composes NO `teaserEscape`. **So the first thing a TestFlight tester meets after onboarding is a subscription screen with no close button.** Three consequences, each CHECKED rather than assumed: **(1)** it is not a permanent trap — `PaywallRouting.reentryDestination` returns `.dashboard` whenever no teaser grant exists, so force-quit → relaunch escapes; the wall gates the onboarding path once, not the app; **(2)** the intended path works and is FREE (TestFlight transacts in the sandbox) and doubles as critical-path step-5 evidence — the failure mode is purely informational, an unbriefed tester refuses the purchase sheet and reports the app as broken; **(3)** a non-purchaser **silently skips ME-1**, since the widget-adoption moment mounts only after the onboarding paywall RESOLVES on a live-key build — the north-star metric's only surface, now recovered in the script via Settings → Panic access. Briefing is the recommendation (zero cost); pasting the Superwall key + assigning the teaser arm is the stronger fix and is ALREADY the decided posture for the review build, so it is a before-EXTERNAL-beta item, not an internal blocker. A code change to the wall was considered and REJECTED: R24.9 ratified it, the teaser fork exists for exactly this, and monetization surfaces are Architect-gated. **AN EXTERNAL-ORACLE CHECK OVERTURNED THE CLAIM I WOULD OTHERWISE HAVE WRITTEN:** the reflex is "sandbox compresses subscriptions to minutes" — Apple's own TestFlight page says TestFlight is NOT the Sandbox rate: every duration, 1 week through 1 year alike, renews once per **24 hours**, max **6 renewals**, then auto-renew is disabled. The minute-scale numbers would have had the operator brief a false expectation and mis-plan the week. Same page, second correction: testers use their **normal Apple Account** and need no Sandbox Apple Account — a setup step the pack would otherwise have invented. **The day-7 lapse is an ASSET: it is the only free way to observe a real lapse, which is the one test that proves the R46.2 foreground-refresh fix.** Four more pre-flight facts verified against source: minimum **iOS 26.0** (`project.yml`, `deploymentTarget.iOS`) so older devices are never offered the build; **zero permission prompts anywhere** (grep-verified absence of `UserNotifications`/`CoreLocation`/`AVFoundation` capture/`AuthenticationServices`), which makes "any permission prompt is a bug" a briefable invariant; **erase → relaunch = fresh install** (`QuitRepository.eraseEverything()`) so one tester can run the funnel twice; and the TestFlight **public link would expose the uncleared G0 name** (`project.yml:190`), so email-invite only. **LANDED:** NEW `docs/testflight-beta-kit.md` (pre-flight · paste-ready "What to Test" + beta app description + Beta App Review notes + the no-demo-account answer · the tester invite · a 20-minute test script with per-persona and discreet passes · known issues · what signal to collect), plus `testflight-tester-guide.md` (scope split, three stale facts fixed, and WHY CI cannot set build notes), `operator-expected.md` §5 (four new checkboxes), `critical-path-post-uir.md` (step 10 rewritten; **the internal beta moved up to THIRD in "Do next"** — it runs on someone else's clock and the gate wants ≥1 week). **A judgment call recorded rather than left implicit:** wiring build notes into the fastlane lane was rejected — `pilot`'s `skip_waiting_for_build_processing: true` is what keeps the macOS runner from idling through Apple's processing wait, the changelog cannot be set without that wait, and verifying the change would itself cost a billed run, to fill a field the operator visits anyway. **NO agent work is blocked; the next objective is still ME-8.** Superseded S50 header below.) |
 | _superseded_ | 2026-07-26 (**Session 50 — ME-7: the Settings rebuild, and the accessibility item that had been parked for TEN sessions is CLOSED. 4 billed runs, ALL GREEN at close (`30221833229`, 10/10 jobs incl. the TestFlight upload); each run bought distinct evidence rather than a retry.** The project is no longer operator-blocked: §0 was answered **(B)** — the redesign runs before launch — and waves 1–2 landed in a parallel session, so the agent workstream is now `redesign/design-roadmap.md` itself. S50 is wave 3. **The session's real finding is that the S40 diagnosis was right about the symptoms and WRONG about the cure, and that error cost seven billed runs.** QW-9 had been attacked three times (S38 `3053b06`/`513edcb`, S39 `0a4bcda`/`56eb13d`, S40 `7d861d5`/`52eafa6`), each time hunting a row SHAPE that would satisfy Apple's audit — `Label` truncated, `HStack{Image;Text}` read "partially unsupported", the hidden-icon variant failed too — and it was finally parked as *Mac-gated, needs the Accessibility Inspector*. The shape was never the variable: **every failure happened inside a `List` row or a `Section(footer:)` slot, whose height iOS caps.** The tell had been in the ledger all along — the SHORT icon-picker labels PASSED on the same screen where the longer "Support & resources" label failed, and `.fixedSize` on the haptic caption changed nothing because the constraint was never the text's. **ME-7's §6.11 rebuild removes the `List`, so the class is retired by construction**, and the AX5 golden is the proof seven runs never got: "Add the lock-screen button" now wraps to FOUR full lines with its glyph co-scaled, where it used to truncate. **10 surfaces now carry the full 7-type audit** — settings is back after three reverts, and **erase confirm is new**, which was the S49 audit's own prescription (it found a HIGH assistive-activation defect and named the reason it shipped: erase was not an audited surface, so no lane could catch it). That defect is fixed STRUCTURALLY: `HoldToConfirmButton` chose its safe branch by reading two `@Environment` flags, an enumeration that can never be completed because **Voice Control and Full Keyboard Access are not reportable by ANY Apple API** (`accessibilityFullKeyboardAccessEnabled` → HTTP 404, confirming S49 §6's correlated-hallucination finding first-hand); `.accessibilityRepresentation` (docs JSON 200, iOS 15.0+, label `representation:` — the audit's own `content:` is a 404) replaces detection so every AT, including the unreportable ones, sees one standard Button. **THREE new born-green lints, each PROVEN by an executed Linux harness, and two of them caught real defects before they cost anything:** `SettingsSourceLintTests` (bans the height-capped containers; its harness caught a false positive — a plain-substring `Section(` matched the new file's own `discreetModeSection(`/`breathingSection(`/`yourPlanSection(` method names, which would have reddened the unit lane on a billed run); the `DiscreetSettingsCopy` lexicon harness (the plan's free check was IMPOSSIBLE — it prescribed `Packages/AppTests`, which does not exist, and a `--filter` on a test whose own header says it cannot run locally); and `UITestMountCoherenceTests`, written because **run 1's two new legs both failed at their GATE, not their audit** — `AgeGateContainerView.uiTestOnboardingMount` is a hand-maintained allow-list that is the SECOND HALF of every direct mount, and a missing entry reports a 15s timeout that blames the view. `UITEST_WIDGET_MOMENT` had been missing since wave 2 for the same reason. **Four of the plan's own load-bearing claims were overruled** — see the ledger; the most consequential was a proposed style rewrite of S46-FINAL founder-owned copy, including "Breathe with taps", which `operator-expected.md` §7 tells the operator to toggle BY NAME. Copy delta: 5 DRAFT strings, not 11. **THE AUDIT LEG EARNED ITS KEEP IMMEDIATELY: it caught a violation that would otherwise have SHIPPED.** Copy doc §11 drafts the panic-access row as "Add the lock-screen **button**" — and every settings row is a `Button`, so Apple's `.trait` audit fails it with *"Label duplicates traits"*. The word plainly meant the WIDGET's panic button, a different object, and it reads perfectly sensibly in the copy doc; it is invisible to a golden, to every free lint, and to a human review. Fixed with one word (`button` → `widget`, the truer noun anyway) and flagged to the operator as an audit-forced deviation. **The shortcut was refused:** keeping the bytes and overriding `.accessibilityLabel` would buy the green check by breaking WCAG 2.5.3 (Label in Name), so a Voice Control user saying "tap Add the lock-screen button" would stop matching the control — a11y only strengthens. A new `test_settingsRowLabels_doNotRestateAControlTrait` now states this on the unit lane in one line, because the founder pass may well try to restore the doc's wording. **RUN LEDGER: run 1** goldens recorded + the discovery that both new legs never reached their mounts (the age-gate allow-list); **run 2** mount fixed → erase leg PASSED CLEAN on its first audit, settings leg surfaced the trait violation; **run 3** violation fixed, goldens re-recorded, **all 10 legs green**; **run 4** goldens adopted, everything green. **NO operator action is required to continue; the next wave is ME-3.** Superseded S48 header below.) |
 | _superseded_ | 2026-07-26 (**Session 48 — the golden batch was SCOPED END-TO-END and then deliberately NOT minted. ZERO billed runs, docs-only. THE PROJECT IS BLOCKED ON ONE OPERATOR DECISION: `operator-expected.md` §0.**) The §3 copy pass closing in 46B was exactly the trigger `golden-batch.md` had waited for since S40, so S48 opened to mint it — the last agent task on the launch path. It stopped for **two independent reasons, either sufficient.** **(1)** The operator's own `redesign/design-roadmap.md`, committed in the SAME 46B session that unblocked the batch, schedules changes to **all four** surfaces the batch covers: QW-6 crest on the age gate (Phase 2), ME-8's waterline field behind the quiz + "warmer keyboard steps (spend/custom-name)" (Phase 3), **ME-4 "Summary payoff redesign"** and **ME-9 "Paywall goldens + reachable polish"** (Phase 4) — and Phase 4's own text says goldens "re-record once … screenshots can shoot against final UI", with Phases 1–4 framed as "to launch-ready … ~7 weeks". Meanwhile `critical-path-post-uir.md`, ALSO operator-updated in 46B, says the batch is mintable now. **Two operator-authored documents disagree and only the operator can say which governs.** **(2)** The batch requires PRODUCTION seams on exactly the views the redesign rewrites — including `QuizSummaryView`, which IS ME-4. **The scoping (`wf_37cf6604-562`, 6 agents) paid for itself regardless:** it proved a CERTAIN silent failure — `QuizSummaryView` renders `.opacity(revealed ? 1 : 0)` and sets `revealed` inside `.onAppear { withAnimation { … } }`, so **every summary golden would have been a BLANK PNG**; the critic additionally caught a FATAL seam-label mismatch between two agents' proposals (would not compile, would record nothing), a fixture approach that would have left goldens GREEN when copy changed, and a scope blowup of 51 proposed goldens against a 12–20 budget (cut to **22** with per-golden rationale). **The whole mint plan is BANKED** — seams, 22-golden matrix, a two-run split isolating the one risky seam, verified-by-quote initializers, and two open risks (the age-gate UIPickerView's 122 rows may not populate synchronously; CI pins no locale/timezone) — in the S48 ledger entry and in `golden-batch.md`. **Answering §0 (A) or (C) starts the mint immediately with zero re-scoping.** Superseded S47 header below.) |
 | _superseded_ | 2026-07-26 (**Session 47 — the LOCALE axis: 46A found ONE device-settings defect; S47 swept the CLASS and found two more, both in the money path. 1 billed run.** **Session-open (three commands, not an eighth plan-audit):** `git fetch` → `41cc162`, clean; CI `30173055411` SUCCESS per-job (10/10); free lanes first-hand **121 pass**; `roadmap.md` re-checked independently — **zero unchecked boxes**, Phase 4/5 post-launch-gated. **The axis:** R46.1 was treated by 46A as one bug; it is a CLASS — a device *Settings* value silently changing behaviour, invisible to a suite and 107 goldens that are always `en_US`. A hand probe confirmed the axis before any agent spend: all three money formatters leave `formatter.locale` at the device default, and the app declares **no localizations at all**. `wf_716e9226-b8c` ran **13 adversarial agents** (6 dimension finders, each required to EXECUTE a Swift probe over the exact shipping bytes rather than reason → an independent refuter per finding, default-REFUTED → a completeness critic). **6 findings → 2 actioned, 2 refuted, 2 downgraded; TWO dimensions CLEAN.** **R47.1 (FIXED):** `spend` and `allowance` are both `decimalInput`, rendering a `.decimalPad` whose separator iOS draws from the user's Region — so a comma-decimal user (most of Europe, Turkey, Brazil, Indonesia) typing **"12,50" had it stored as 12**; **"0,50" became 0**, which hides the money feature app-wide via the `spend > 0` guards on summary, dashboard AND widget; an Arabic-Indic entry became 0 outright. `weeklySpend` is written at `createQuit` and has **NO edit path**, so the wrong value is permanent. **Passing `Locale.current` is NOT the fix** — measured, `en_DE` reports `,` (the REGION drives it) but then `Decimal(string:"6.50", locale:)` is **6**, merely inverting the truncation; Apple's forums report keyboard language and region routinely disagree. NEW `DecimalInputParser` is separator-AGNOSTIC (folds non-Latin digits, drops grouping spaces, reads the final separator's role from grouping SHAPE: `1.250` ⇒ 1250 on de_DE, 1.25 on en_US). **The harness caught THREE bugs in the parser itself** before it was wired in — the session's methodological point. **R47.1b:** the audit agent called `allowance` a "stepper"; it is not, and bare `Int()` returned nil for ANY separator, so a reduce goal silently lost its limit. **R47.2 (FIXED):** `savingsDisplay` guarded `savings > 0` BEFORE the floor-to-ten, so any projection under ten units floored ONTO zero and rendered the fabricated "~$0/year" AC4 forbids. **R47.3 (FIXED):** 46A's own `CalendarSourceLintTests` claimed "ALL shipping code" and named the timeline planner as what it protects, but `scopedRoots` omitted `Packages/` — the two files that actually do the calendar math were never opened by the walk (now 143 files). **CLEAN:** crash safety (every trapping construct proven unreachable) and helpline region resolution (4 probes — now evidence for the paste-to-Apple "region-aware" claim). **Batched R46.6.** **REBASED mid-flight onto the operator's 46B copy-pass commits** — zero file overlap; their in-flight CI run was allowed to finish first so this run isolates these changes. **NO operator action for the code**; two items added to `operator-expected.md` (a free ITMS-9105 inbox check §8; the beta-tester geography decision §5). **46B closing §3 means the FINAL GOLDEN BATCH is UNBLOCKED — that is the next session.** Superseded 46B header below.) |
@@ -23,8 +24,8 @@
 | _superseded_ | (Session 36 close: **UIR-4a DONE in exactly 2 billed runs** — the two DEFECT surfaces regenerated: **RESOURCES** (safety) — `.background(.quaternary)` → `themedCard`, the R33.10 DIAL link (44pt floor + "Call <name>" label), 2 goldens + a new audit leg that passed the full 7-type set CLEAN on run 1 (the THIRD consecutive clean first-audit); **PAYWALL** — 3 R32.9 disabled-`.plain` fixes (`PrimaryButtonStyle`/`QuietButtonStyle` + the new pass-through `PlanCardButtonStyle`) + a pre-existing caution-on-caution contrast bug, no goldens (draft copy, verified by the QuizFunnelUITests smoke). **SETTINGS DEFERRED to UIR-4b** (the List→ScrollView restyle — the biggest structural risk, cleanly separable; full spec preserved in `scratchpad/uir4-step0.md` + workflow journal wf_b91f1762-aff). New contrast pair (34 total, Linux-verified). **R36.4 = the mount-gate lesson: a full-screen `.accessibilityElement(children: .contain)` container id does NOT surface as a queryable element (unlike a bounded card) — gate an audit leg on a real CHILD element.** Superseded S35 header below.) |
 | _superseded_ | (Session 35 close: **UIR-3 DONE in exactly 2 billed runs** — the panic + slip flows (rule-11 SAFETY surfaces) are regenerated on the Theme layer with a PM+Brand+QA pre-code sign-off, copy byte-identical. **The `.dynamicType`/`.textClipped` exclusion list is CLOSED to ZERO** — all 8 `minHeight: 56` floors became growing PADDING (the exact S28 mechanism), `StepScaffold`/`confirmStage` scroll with pinned actions (R33.5), the reasons text moved off a `@ScaledMetric` point size onto `.largeTitle` (R33.12), both audit legs joined the full 7-type set and `safetyAuditTypes` is deleted. **The rule-11 panic/slip legs passed CLEAN on run 1** (the SECOND consecutive clean first-audit — the ledger a prior run wrote is the current run's free coverage). 64 class-A goldens re-recorded + visually verified; total unchanged at 103. STEP-0: did NOT grow the lint scope to panic/slip (would force a shape-changing `.buttonStyle(.plain)` refactor on safety surfaces — the full-set audit legs are the gate instead; deferred to UIR-5). Carried: the reasons-frame AX5 title truncation (R35.6, a UIR-5 AX-axis item) and the `.plain`→ButtonStyle refactor. Superseded S34 header below.) |
 | _superseded_ | (Session 34 close: **UIR-2 DONE in exactly 2 billed runs** — the 2 planned, contingency UNUSED, ZERO burned. The **real `StreakDashboardCard` + `StreakRing`** are built on the Theme layer — the `RootPlaceholderView` "walking skeleton" that had stood in for the dashboard since Session 18 is RETIRED, replaced by one card per active quit (streak-day hero, flame + momentum figure, the momentum ring, money saved, next-milestone bar). **Copy is byte-identical** (R34.2, copyBlockerFound=FALSE): every string is audited (`"saved"`/`"next milestone"`, pinned byte-identical to `StreakWidgetStyle`) or pure ADR-11 data; the §3-blocked polish strings ship empty-guarded. **The dashboard is AUDITED FOR THE FIRST TIME and its first audit passed CLEAN** (R34.3) — the first UIR surface to fire nothing, because R33.12 was already known and the card was built to it from the first byte (the free layout lint pre-empted every `.dynamicType` idiom; `children:.contain` + 4.5-clean tokens pre-empted the rest). **Widgets were DEFERRED at STEP-0** (R34.7): the 5 families are on-spec bar two minor brandkit-§3 typography defects; `StreakWidgetViews.swift` was UNTOUCHED so the 29 widget goldens stay byte-stable and no golden churn entered the budget. 8 dashboard goldens minted (95 → 103); the a11y exclusion list did not shrink this session (panic + slip remain, UIR-3's job).) |
-| Phase | **The redesign program IS the agent workstream now** (operator §0 = (B), pre-launch). Waves 1–2 landed in a parallel session; **wave 3 = S50 (ME-7 Settings + the a11y closures)**; **S51 = ME-3**. UIR-0…5c DONE. **11 surfaces** carry the full 7-type audit (settings + erase confirm added S50, milestone unlock added S51) and the `.dynamicType`/`.textClipped` exclusion list is ZERO. **The last Mac-gated item is CLOSED** — no Accessibility Inspector session is needed. Sessions 41–45 verified the old terminal state five times; 46/47 audited the shipped CODE and fixed three defects no test could see (the 17+ age gate on the device calendar; comma-decimal money truncation; a fabricated "~$0/year"); 46B was the operator closing the §3 copy pass; 48B took RevenueCat LIVE and bound the paywall to Apple's real per-territory price; 49 audited 48B's wave; **51 landed ME-3** (the milestone unlock moment, 11 audited surfaces); **52 prepped the TestFlight beta end-to-end** (`docs/testflight-beta-kit.md`) and found that RC going live had silently made the close-free hard paywall the first thing a TESTER meets. **Remaining redesign items: ME-8, ME-4, ME-9, then the final golden batch + LB-5.** Remaining OPERATOR work: clinician + counsel sign-off, the two legal pages published, G0 trademark clearance, **the beta itself (fully prepped — nothing left but an ASC group and invites)**, device sitting #1, the sandbox purchase matrix, Superwall + TelemetryDeck keys, submission. |
-| Next session objective | **ME-8 — the Waterline primitive + the quiz visual pass** (`redesign/design-roadmap.md` Phase 3; UX blueprint **§6.3** (onboarding quiz) + **§6.5** (quiz summary) and creative doc §4 — NOT §6.8/§6.11, which are the Panic flow and Settings; that pointer was wrong from S51 until S52 caught it). ME-3 landed in S51, so Phase 3 owes ME-8, then Phase 4 owes ME-4 (summary payoff) and ME-9 (paywall polish), then the final golden batch + LB-5 screenshots. **ME-8 is the biggest remaining visual item and the one with the widest golden blast radius** — it puts a reusable Waterline field behind the quiz, so budget the golden re-record deliberately and check `docs/golden-batch.md` first so the deferred final batch is not duplicated. **S52 was an operator-set detour to critical-path step 10 and changed nothing on the agent path** — the beta pack is written, the build is green, and the beta is now operator-only work; do NOT re-do it, and do NOT re-audit TestFlight readiness (S52 verified it first-hand). One item there may return as an agent ask: if testers stall at the close-free paywall, the operator may want the Superwall key wired and the teaser arm assigned — that is a key-paste plus a dashboard setting (`operator-expected.md` §8), not a code change, and the wall itself is R24.9-ratified and Architect-gated. **Read `docs/past-prompts.md` Sessions 50 AND 51 before planning:** between them they carry six rulings that each cost or nearly cost a billed run — verify a plan's "free check" commands exist (nothing under `Tests/` runs on Linux); a new `uiTest…Mount` needs its `AgeGateContainerView` allow-list entry; S46-final copy is founder-owned and quoted by name in §7; check Apple APIs against the docs JSON yourself; a Button label may not restate its own trait; and **visually verify every golden — S51's AX5 golden was a junk middle slice that no lane could flag.** Stage explicit paths, never `git add -A`. |
+| Phase | **The redesign program IS the agent workstream** (operator §0 = (B), pre-launch, a standing instruction). Waves 1–2 landed in a parallel session; **wave 3 = S50 (ME-7 Settings + the a11y closures)**; **S51 = ME-3**; **S53 = ME-8**. UIR-0…5c DONE. **11 surfaces** carry the full 7-type audit (count it: `grep -c 'func test_a11yAudit_' Tests/UITests/A11yAuditUITests.swift`) and the `.dynamicType`/`.textClipped` exclusion list is ZERO. **Nothing is Mac-gated.** Sessions 41–45 verified the old terminal state five times; 46/47 audited the shipped CODE and fixed three defects no test could see (the 17+ age gate on the device calendar; comma-decimal money truncation; a fabricated "~$0/year"); 46B was the operator closing the §3 copy pass; 48B took RevenueCat LIVE; 49 audited 48B's wave; **51 landed ME-3**; **52 prepped the TestFlight beta end-to-end** and found RC going live had silently made the close-free hard paywall the first thing a TESTER meets; **53 landed ME-8** — the Waterline primitive, and the finding that the creative doc's own "≤12% opacity" breaks WCAG for this palette. **Remaining redesign items: ME-4, ME-9, ME-8b (carved out of ME-8, see the roadmap), then the final golden batch + LB-5.** Remaining OPERATOR work: clinician + counsel sign-off, the two legal pages published, G0 trademark clearance, **the beta itself (fully prepped — nothing left but an ASC group and invites)**, device sitting #1, the sandbox purchase matrix, Superwall + TelemetryDeck keys, submission. |
+| Next session objective | **ME-4 — the Summary payoff redesign** (`redesign/design-roadmap.md` Phase 4; UX blueprint **§6.5**, creative doc §4's Summary row). It is the natural next item for three reasons that compound: it is Phase 4's first, it is **the Waterline primitive's second consumer** — the full-bleed summary backdrop — which is what turns "reusable primitive" from a claim into a fact, and it already owns the re-record of the 4 `QuizSummarySnapshotTests` goldens, so the field lands there without double-recording. **READ `docs/golden-batch.md` FIRST.** It carries the trap that makes this item dangerous: `QuizSummaryView` renders `.opacity(revealed ? 1 : 0)` and sets `revealed` inside `.onAppear { withAnimation { … } }`, so **without a `_snapshotRevealed` seam every summary golden is a BLANK PNG** — certain, not speculative. The suite already passes `animateReveal: false`; verify that seam still covers the redesigned view before recording anything. **ME-8's inheritance, all free:** `WaterlineField` takes no clock input, so no `pauseDate`/freeze seam is needed and a summary golden is byte-stable by construction; its opacity ceiling is a MEASURED 0.08, not the spec's 0.12, and raising it re-opens a real WCAG hole (the derivation is in the S53 ledger — do not re-litigate it from the creative doc's prose). **Read `docs/past-prompts.md` Sessions 50, 51 AND 53 before planning:** verify a plan's "free check" commands actually exist (nothing under `Tests/` runs on Linux; only the 3 SwiftPM packages do); check Apple APIs against the docs JSON **yourself**, from the orchestrator — S53 overruled its own 20-agent workflow four times, and agents from one distribution confirm each other's plausible fiction; S46-final copy is founder-owned and quoted BY NAME in `operator-expected.md` §7; a Button label may not restate its own trait; and **visually verify every golden** — S51's AX5 golden was a junk middle slice no lane could flag. Stage explicit paths, never `git add -A`. |
 
 > **What changed in Session 46 — the first session to audit the CODE instead of the plan, and it found a real
 > defect.** Five sessions had verified "no PLANNED work is left." None had ever verified "the shipped code is
@@ -200,7 +201,7 @@
 - **The Theme layer is load-bearing:** every color in App/Sources rides `Theme`
   (`ThemeSourceLintTests` bans the retired idioms — comment-stripped, grow-only);
   every NEW fg/bg pair a view introduces gets a `Theme.contrastPairs` entry in the
-  SAME diff (**32 pairs in source at S52** — counted directly, `grep -c 'ContrastPair(' App/Sources/DesignSystem/Theme.swift`; earlier "33"/"34" figures in this file and in `redesign/design-roadmap.md` were both wrong, and grow-only means the source count is the record). The
+  SAME diff (**32 pairs in source, re-counted at S53** — ME-8 added none, because a decorative field that never carries text has no pair to pin; counted directly, `grep -c 'ContrastPair(' App/Sources/DesignSystem/Theme.swift`; earlier "33"/"34" figures in this file and in `redesign/design-roadmap.md` were both wrong, and grow-only means the source count is the record). The
   GHOST disabled treatment is the standing disabled form. Raw `.white`/`Color.white`
   on fills is BANNED.
 - **Disabled controls are audited (R32.9):** a disabled CTA rides a custom
@@ -268,13 +269,47 @@
   render of one mount; the `UITEST_SETTINGS` mount injects no repository, so it cannot render four of the
   six settings sections. A lint reads every line of every shipping file, including the ones no lane mounts.
 
+### S53 additions (permanent)
+
+- **A number in a design spec is a PROPOSAL, not a measurement — re-derive it before you ship it.**
+  Creative §4 states the quiz field renders "at ≤12% opacity … so all 34 WCAG-pinned pairs hold". The
+  second clause is an assertion and it is false: at 12% dark-mode `content/tertiary` computes **2.63:1
+  against its 3.0 floor**. The design docs are authoritative about INTENT and unreliable about
+  ARITHMETIC. Where a spec number governs contrast, geometry, or timing, compute it — and note that
+  the binding pair can INVERT across the range (below ~9% the constraint became light-mode `caution`
+  on the water band, a different token in the other appearance).
+- **A golden cannot see a contrast defect.** It proves the pixels did not move, which is a strictly
+  weaker claim than "the text on them is legible". Only the runtime `.contrast` audit catches it — i.e.
+  after a billed run. So contrast is a thing to COMPUTE before the push, never a thing to discover.
+- **Decorative layers add no `ContrastPair`.** A field that never carries text has no pair to pin, and
+  inventing one would claim a guarantee nothing renders against. Keep the registry honest; put the
+  safety in a CLAMP in `body` instead, where no future caller can undo it.
+- **Prefer the boring parameter over the elegant generic when the check is unavailable.** A defaulted
+  `AnyView?` changed zero existing call sites; a fourth generic parameter would have forced surgery on
+  a constrained extension and staked five call sites' overload resolution on a macOS typecheck. On this
+  box `swiftc -parse` is SYNTAX ONLY — it cannot see overload resolution at all, so "it should compile"
+  is a billed-run bet. Take the shape that cannot fail.
+- **Watch multiple trailing closures when two slots take the same type.** `field:` and `header:` are
+  both `() -> some View`; an unlabelled trailing closure binds by position, so the mistake COMPILES and
+  silently swaps the backdrop with the progress bar. Pass such arguments inside the parentheses.
+- **Apply the docs-JSON oracle from the ORCHESTRATOR, and apply it to deferrals too.** The S53 workflow
+  deferred the haptic detents over a `CHHapticEngine`/`HapticsPlaying` coupling that
+  `.sensoryFeedback(.selection, trigger:)` simply does not have. A whole scope cut rested on an
+  unchecked API assumption. (Also: `developer.apple.com/tutorials/data/documentation/...` paths are
+  CASE-SENSITIVE — `SwiftUI/GraphicsContext/Shading` resolves, `swiftui/...` 404s. A 404 is not
+  evidence of absence until the casing is right.)
+- **A harness that has never failed has proven nothing.** S53's caught two bugs in itself before it
+  proved anything about the code: a source check that fired on the doc comment EXPLAINING the rule (the
+  S50 false-positive class — use the comment stripper), and a check that reused the global failure list
+  and so reported an unrelated earlier failure as its own.
+
 ## Where we are
 
 - **The pre-UIR build side is 100% DONE.** **Phase 2.5 — Epic UIR: COMPLETE** (UIR-0 S32 … UIR-5c S40).
 - **The agent workstream is now the REDESIGN program** (`redesign/design-roadmap.md`), because the operator
   answered `operator-expected.md` §0 with **(B) — it runs before launch** — as a standing instruction
   ("take all the designs live, don't wait for my approval"). Three waves have landed; that file's new
-  **Execution status** table is the authoritative per-item state. **Next: ME-8** (ME-3 landed in S51).
+  **Execution status** table is the authoritative per-item state. **Next: ME-4** (ME-3 landed in S51, **ME-8 in S53** — which also carved out a new **ME-8b** row for the quiz interstitials and the remaining blueprint §6.3 items, named rather than silently dropped).
 - **11 surfaces carry Apple's full 7-type accessibility audit** (age gate, quiz, summary, dashboard, panic,
   slip, resources, paywall, **settings**, **erase confirm**, **milestone unlock** — the last added in S51;
   counted from source, `grep -c "func test_a11yAudit_" Tests/UITests/A11yAuditUITests.swift`) and the `.dynamicType`/`.textClipped` exclusion
@@ -353,51 +388,71 @@
   landing plan, so: **batch it into the next billed run that already touches the monetization path**
   (realistically the Superwall-key session), and never spend a run on it standalone.
 
-## Next session objective — ME-8, the Waterline primitive + the quiz visual pass (NOT blocked)
+## Next session objective — ME-4, the Summary payoff redesign (NOT blocked)
 
 **§0 is answered.** The operator chose **(B) — the redesign runs before launch** — as a standing
-instruction: *"take all the designs live, don't wait for my approval."* Waves 1–3 have landed, and
-**ME-3 landed in S51**. There is no operator gate on continuing. The authoritative per-item state is
-the **Execution status** table at the top of `redesign/design-roadmap.md`.
+instruction: *"take all the designs live, don't wait for my approval."* **ME-8 landed in S53**, closing
+Phase 3. There is no operator gate on continuing. The authoritative per-item state is the **Execution
+status** table at the top of `redesign/design-roadmap.md`.
 
-### What ME-8 is, and why it is the expensive one
+### What ME-4 is, and the trap it carries
 
-`redesign/design-roadmap.md` Phase 3; UX blueprint **§6.3** (Onboarding quiz — the Waterline-behind-`OnboardingScaffold` spec, the keyboard-step echoes, the two interstitials, the CommitmentSlider detents) and **§6.5** (Quiz summary — the full-bleed backdrop + savings hero), plus creative doc **§4**. ⚠️ **Not §6.8/§6.11** — those are the Panic flow (which BANS the Waterline from its first frame) and Settings (ME-7, already done). That pointer was wrong from S51 until S52's cold-start rehearsal walked it. It puts a
-reusable **Waterline field** behind the quiz and warms the keyboard steps (spend / custom-name), plus
-the step interstitials.
+`redesign/design-roadmap.md` Phase 4; UX blueprint **§6.5** (Quiz summary — full-bleed Waterline
+backdrop, the savings hero with "/year" as a separate element on its own stage, the horizon rule under
+the number, the new risk-window band, motivations echoed verbatim, the "Steady beats perfect." footer
+signature) and creative doc **§4**'s Summary row. Files: `App/Sources/Quiz/QuizSummaryView.swift`,
+`App/Sources/Quiz/SummaryPresentation.swift`.
 
-**It is the biggest remaining visual item and it has the widest golden blast radius of anything left.**
-The quiz is the most-traversed surface in the app and a field behind it touches every step. So:
+**⚠️ READ `docs/golden-batch.md` BEFORE WRITING ANY SNAPSHOT.** `QuizSummaryView` renders
+`.opacity(revealed ? 1 : 0)` and sets `revealed` inside `.onAppear { withAnimation { … } }`, so without
+a reveal seam **every summary golden is a BLANK PNG** — certain, not speculative; S48's scoping proved
+it. `QuizSummarySnapshotTests` already passes `animateReveal: false`; **re-verify that seam still covers
+the redesigned view** rather than assuming it survived the rewrite.
 
-- **Budget the golden re-record deliberately, before writing code.** Count what moves first.
-- **Where the code goes:** a new `WaterlineField.swift` in `App/Sources/DesignSystem/Primitives/`;
-  its consumers are `App/Sources/Quiz/QuizFlowView.swift` and `OnboardingScaffold.swift` — note
-  the scaffold lives in `App/Sources/DesignSystem/Primitives/` too, NOT in `Quiz/`, which the
-  roadmap's "Where" clause leaves implicit.
-- **Check `docs/golden-batch.md` first** so the deferred final batch is not duplicated. That doc's
-  own "current goldens" table was stale until S52 — trust the disk, not the table:
-  `find Tests/Snapshot/__Snapshots__ -name '*.png' | wc -l`.
-- The quiz already carries an audit leg (`UITEST_QUIZ`) and is inside `OnboardingLayoutLintTests`'
-  scope (`App/Sources/Quiz`), so the free lint pre-empts the `.dynamicType` class before run 1.
+**What ME-8 hands you, all of it free:**
 
-**Watch the money steps.** `spend` and `allowance` are `decimalInput` and carry the S47 locale fix
-(`DecimalInputParser` is separator-agnostic). A "warmer keyboard step" must not disturb that path —
-it is the defect class that silently stored "12,50" as 12, permanently, with no edit path.
+- `WaterlineField` is a finished primitive in `App/Sources/DesignSystem/Primitives/`. Summary is its
+  second consumer — the one that proves "reusable" was a real claim and not a slogan.
+- **It takes no clock input** (no `TimelineView`, no `Date`), so it needs no `pauseDate`/freeze seam and
+  a golden containing it is byte-stable by construction.
+- `OnboardingScaffold` already has an **opt-in** `field: AnyView? = nil` slot; `nil` takes the literal
+  `themedScreenSurface()` path, so adding a field to summary moves only summary's own goldens.
+- **Its opacity ceiling is MEASURED, not quoted.** standard 0.06 / keyboard 0.045 / hard ceiling 0.08.
+  **Do not "restore" the creative doc's 12%**: at 12% dark-mode `content/tertiary` computes 2.63:1
+  against its 3.0 floor, and below ~9% the binding pair inverts to light-mode `caution` on the water
+  band. The full derivation is in the S53 ledger. The ceiling is clamped in `body`; leave it clamped.
+
+**Watch the money path.** The summary's savings hero renders through `SummaryFormatter`, and the S47
+locale work is what stops a fabricated "~$0/year" (the `savings > 0` guard must stay BEFORE, not after,
+the floor-to-ten). A visual pass must not move that guard.
+
+**Also available if ME-4 lands early: ME-8b** — the two §3 interstitials plus the remaining §6.3 items
+(step eyebrow, 2-column chip grid, 300ms step transition, slider-keyed crest). The copy deck drafts both
+interstitial strings verbatim, so no founder round-trip is needed. **The route is a view-layer overlay**,
+NOT new `quizConfig.json` steps: `QuizFlowModelTests` pins `visibleSteps.map(\.slot)` as two exact
+arrays plus `count == 11/13`, `QuizFunnelUITests` taps a hard-coded `0..<11` loop, and the analytics
+slots are R1-fixed. An overlay leaves all of that untouched; a config step breaks six assertions and
+renumbers nothing safely.
 
 ### Read these first, in this order
 
-1. **`docs/past-prompts.md` Sessions 50 AND 51** — between them they carry the rulings that each cost
-   or nearly cost a billed run (enumerated in the header table's objective row).
-2. `redesign/ui-ux-redesign.md` **§6.3** (Onboarding quiz) and **§6.5** (Quiz summary) — these two carry the actual implementation spec — plus `redesign/creative-assets.md` §4.
-3. `redesign/design-roadmap.md` — the Execution status table, then ME-8's row.
+1. **`docs/past-prompts.md` Sessions 50, 51 AND 53** — between them they carry the rulings that each
+   cost or nearly cost a billed run (enumerated in the header table's objective row). S53's matter most
+   here: a spec NUMBER can be wrong, a golden cannot see a contrast defect, and your own scoping agents
+   will confirm each other's fiction unless the orchestrator checks the API itself.
+2. `redesign/ui-ux-redesign.md` **§6.5** (Quiz summary) — the actual implementation spec for ME-4 —
+   plus `redesign/creative-assets.md` §4's Summary row and §2 (the Waterline ingredient rules, which
+   `WaterlineField` already implements). §6.3 is the quiz and is now ME-8b's.
+3. `redesign/design-roadmap.md` — the Execution status table, then ME-4's row (and ME-8b's, new in S53).
 4. `docs/golden-batch.md` — before minting or re-recording anything.
 5. `docs/operator-expected.md` §0 — append every DRAFT string you ship to the founder pass list. Do
    not author safety-adjacent copy.
 
 ### Budget shape
 
-The two-run shape is the TARGET, not a track record: **S50 took 4 billed runs and S51 took 3.** Plan
-two and expect a third if goldens churn. **run 1** lands the code plus any new goldens
+The two-run shape is the TARGET, not a track record: **S50 took 4 billed runs, S51 took 3, S53 took 1**
+(S53 moved no goldens by construction — ME-4 will move at least the 4 summary ones). Plan two and
+expect a third if goldens churn. **run 1** lands the code plus any new goldens
 (record-missing writes-then-fails — NEW goldens are never born-green, R32.4) and, in the SAME run,
 any new audit leg, because the snapshot and UI-smoke lanes are independent steps in one job and one
 run therefore buys both the recorded PNGs and the full audit ledger (the S40
@@ -406,7 +461,7 @@ enumerate-all-from-one-run rule). **run 2** adopts the goldens after **visually 
 named. Everything provable on Linux (parse gate, executed harnesses over real bytes, lint-idiom
 greps, the three free package lanes) is done BEFORE run 1.
 
-### Triggers that are live and independent of ME-8
+### Triggers that are live and independent of ME-4
 
 - **The Superwall key** → create the app, then two placements (`quiz_completed`, `winback`), the
   teaser-vs-hard and the $29.99-vs-$39.99 experiments, then hand an agent the variant ids for
@@ -421,7 +476,7 @@ greps, the three free package lanes) is done BEFORE run 1.
   `PrivacyManifestTests` pin), or delete the §8 checkbox if the operator confirms no email arrived.
 - **QW-3** (the remaining dormant analytics fire-points) and **QW-8** (the consent revisit toggle,
   whose home — *Privacy & Data* — ME-7 built) are both small and unblocked if a session wants a
-  smaller unit of work than ME-8.
+  smaller unit of work than ME-4. **ME-8b** (the quiz interstitials) is the other such unit.
 
 ### [ARCHIVE] Session 40 — UIR-5c: the remaining UIR polish (all DONE)
 
@@ -524,7 +579,7 @@ the RevenueCat key (S48B); the Mac-gated settings-content audit (S50).
 ## Resume prompt (copy-paste for next session)
 
 > You are the lead build agent for **unhooked-quit-widget** (app **Ballast**, org `com.beyondkaira`).
-> **You are NOT blocked. Your objective is ME-8 — the Waterline primitive + the quiz visual pass.**
+> **You are NOT blocked. Your objective is ME-4 — the Summary payoff redesign.**
 >
 > **Where the project is.** Sessions 0–31 built the functional app; 32–40 (the UI Reactor) regenerated
 > every screen onto the design system; 41–45 verified that terminal state five times; **46/47 were the
@@ -535,55 +590,70 @@ the RevenueCat key (S48B); the Mac-gated settings-content audit (S50).
 > permanently — spend has no edit path), and a projection under ten units floored onto the fabricated
 > "~$0/year" the app's own rules forbid. **46B was the OPERATOR closing the §3 copy pass** (~20
 > decisions; ALO 182 corrected from a fabricated "crisis line" to the hospital-appointment line it
-> actually is — the standing instruction to mark it verified would have shipped a life-safety defect;
-> the alcohol notice made reachable pre-paywall; Terms/Privacy made real links). **48–51 are the
-> redesign program**, which the operator put ahead of launch in `operator-expected.md` §0 with a
-> standing "take all the designs live, don't wait for my approval": waves 1–2 shipped the icon set,
-> the erase UI, panic in-flow support, the widget-adoption moment with `widget_added` finally wired,
-> Streak Detail, the panic wave timer and the Home shell, and took **RevenueCat LIVE end-to-end
-> (48B, which also fixed R46.2 — do not re-open it)**; **wave 3 (S50) rebuilt Settings (ME-7) and
-> closed the last Mac-gated accessibility item**; **S51 landed ME-3** (the milestone unlock moment,
-> an 11th audit leg clean on its first run). **S52 was a docs-only operator detour** that prepped
-> TestFlight beta testing end-to-end (`docs/testflight-beta-kit.md`) and swept ~27 stale claims out
-> of the handoff docs — it changed no code and nothing on your path.
+> actually is — the standing instruction to mark it verified would have shipped a life-safety defect).
+> **48–53 are the redesign program**, which the operator put ahead of launch in `operator-expected.md`
+> §0 with a standing "take all the designs live, don't wait for my approval": waves 1–2 shipped the
+> icon set, the erase UI, panic in-flow support, the widget-adoption moment, Streak Detail, the panic
+> wave timer and the Home shell, and took **RevenueCat LIVE end-to-end (48B, which also fixed R46.2 —
+> do not re-open it)**; **S50 rebuilt Settings (ME-7)** and closed the last Mac-gated a11y item;
+> **S51 landed ME-3**; **S52 was a docs-only operator detour** that prepped TestFlight beta testing;
+> **S53 landed ME-8** — the `WaterlineField` primitive and the continuous quiz field.
 >
-> **Your objective: ME-8.** `redesign/design-roadmap.md` (start at its **Execution status** table) +
-> UX blueprint **§6.3** (Onboarding quiz) and **§6.5** (Quiz summary) — **not** §6.8/§6.11, which are the
-> Panic flow and Settings — plus creative doc **§4**. It puts a reusable **Waterline field** behind
-> the quiz, warms the keyboard steps (spend / custom-name), and adds the step interstitials.
-> **It is the widest golden blast radius of anything left** — the quiz is the most-traversed surface
-> in the app. Count what moves BEFORE writing code, and read `docs/golden-batch.md` first so the
-> deferred final batch is not duplicated (trust the disk over that doc's table:
-> `find Tests/Snapshot/__Snapshots__ -name '*.png' | wc -l` → **141** PNGs across 12 suites today (a 13th directory, `SnapshotSmokeTests`, holds none)). **Do not disturb the
-> money path:** `spend`/`allowance` carry the S47 `DecimalInputParser` locale fix, which is the defect
-> class that silently stored "12,50" as 12 forever.
+> **Your objective: ME-4.** `redesign/design-roadmap.md` (start at its **Execution status** table) +
+> UX blueprint **§6.5** and creative doc **§4**'s Summary row. Files:
+> `App/Sources/Quiz/QuizSummaryView.swift`, `App/Sources/Quiz/SummaryPresentation.swift`.
 >
-> **READ FIRST: `docs/past-prompts.md` Sessions 50 AND 51.** Six rulings between them, each of which
-> cost or nearly cost a billed run: **(1)** a plan's "free verification" step is a claim to CHECK —
-> there is no `Packages/AppTests`, and *nothing* under `Tests/` runs on the Linux box (Xcode targets);
-> write an executed harness over bytes **parsed from source**, proving pass-on-real-bytes AND
-> fire-on-mutation. **(2)** every new `uiTest…Mount` in `PostGateRootView` needs its env var in
-> `AgeGateContainerView.uiTestOnboardingMount`'s allow-list, or the leg times out after 15s with a
-> message that blames the view; `UITestMountCoherenceTests` now catches that for free. **(3)** the §3
-> copy is FINAL and founder-owned, and `operator-expected.md` §7 quotes some strings BY NAME in a
-> checklist a human executes — never restyle them; new strings ship DRAFT and get appended to §0's
-> founder pass, and safety-adjacent strings are never agent-authored. **(4)** verify every proposed
-> Apple API against the docs JSON **yourself** — S49's finder and its adversarial refuter invented the
-> same nonexistent property. **(5)** a Button's label may not restate its own trait ("button",
-> "image", "icon", "switch", "toggle") — Apple's audit fails it with *"Label duplicates traits"*.
-> **(6) visually verify EVERY new golden** — S51's AX5 golden was a junk middle slice with the title
-> and both actions outside the frame, and no lane could flag it (`.textClipped` does not fire when the
-> CARD, not the text, exceeds the viewport). **Stage explicit paths, never `git add -A`** — S51 swept
-> a machine-local `.claude/settings.json` pin into a feature commit.
+> **⚠️ THE TRAP, and it is certain rather than speculative — read `docs/golden-batch.md` before you
+> write any snapshot.** `QuizSummaryView` renders `.opacity(revealed ? 1 : 0)` and sets `revealed`
+> inside `.onAppear { withAnimation { … } }`, so **without a reveal seam every summary golden records
+> as a BLANK PNG.** `QuizSummarySnapshotTests` already passes `animateReveal: false`; **re-verify that
+> seam still covers the redesigned view** instead of assuming it survived the rewrite.
 >
-> **Budget shape.** Two billed runs is the TARGET, not a track record — **S50 took 4 and S51 took 3.**
-> Plan two, expect a third if goldens churn. Run 1 lands the code + records new goldens
-> (record-missing writes-then-FAILS; new goldens are never born-green, R32.4) **and** ships any new
-> audit leg in the SAME run — the snapshot and UI-smoke lanes are independent steps of one job, so one
-> run buys both the PNGs and the full audit ledger. Run 2 adopts the goldens after visually verifying
-> every PNG, plus whatever the ledger named. Do every free check first: `swiftc -parse` on each touched
-> file, executed harnesses, lint-idiom greps, and the three free package lanes
-> (`swift test --package-path Packages/*` → 121 pass).
+> **What S53 hands you, all free.** `WaterlineField` is a finished primitive in
+> `App/Sources/DesignSystem/Primitives/`; summary is its SECOND consumer, which is what turns
+> "reusable" into a fact. It **takes no clock input** (no `TimelineView`, no `Date`), so it needs no
+> `pauseDate`/freeze seam and a golden containing it is byte-stable by construction.
+> `OnboardingScaffold` already carries an **opt-in** `field: AnyView? = nil` slot whose `nil` branch
+> takes the literal `themedScreenSurface()` path, so adding a field to summary moves ONLY summary's
+> goldens. **Its opacity ceiling is MEASURED: standard 0.06 / keyboard 0.045 / hard ceiling 0.08.
+> Do NOT "restore" the creative doc's 12%** — at 12% dark-mode `content/tertiary` computes 2.63:1
+> against its 3.0 floor, and below ~9% the binding pair inverts to light-mode `caution` on the water
+> band. The derivation is in the S53 ledger; the ceiling is clamped in `body` and must stay clamped.
+>
+> **Do not disturb the money path.** The savings hero renders through `SummaryFormatter`; the S47 work
+> is what stops a fabricated "~$0/year" (the `savings > 0` guard must stay BEFORE the floor-to-ten).
+> `spend`/`allowance` carry the `DecimalInputParser` locale fix — the defect class that silently stored
+> "12,50" as 12 forever.
+>
+> **READ FIRST: `docs/past-prompts.md` Sessions 50, 51 AND 53.** The rulings that each cost or nearly
+> cost a billed run: **(1)** a plan's "free verification" step is a claim to CHECK — there is no
+> `Packages/AppTests`, and *nothing* under `Tests/` runs on the Linux box; write an executed harness
+> over bytes **parsed from source**, proving pass-on-real-bytes AND fire-on-mutation (and expect the
+> harness's own first failures to be its own bugs — S53 had two). **(2)** every new `uiTest…Mount` in
+> `PostGateRootView` needs its env var in `AgeGateContainerView.uiTestOnboardingMount`'s allow-list.
+> **(3)** the §3 copy is FINAL and founder-owned, and `operator-expected.md` §7 quotes strings BY NAME
+> in a checklist a human executes — never restyle them; new strings ship DRAFT into §0's founder pass.
+> **(4)** verify every proposed Apple API against the docs JSON **yourself, from the orchestrator** —
+> S49's finder and its refuter invented the same nonexistent property, and S53 overruled its own
+> 20-agent workflow four times, once because a whole scope cut rested on an unchecked API assumption.
+> (Those doc URLs are CASE-SENSITIVE: `SwiftUI/GraphicsContext/Shading` resolves, `swiftui/…` 404s.)
+> **(5)** a Button's label may not restate its own trait. **(6) visually verify EVERY new golden** —
+> S51's AX5 golden was a junk middle slice no lane could flag. **(7)** a number in a design spec is a
+> PROPOSAL, not a measurement: where it governs contrast or geometry, re-derive it — S53's headline
+> finding was a spec number that broke WCAG. **Stage explicit paths, never `git add -A`.**
+>
+> **Budget shape.** Two billed runs is the TARGET, not a track record — **S50 took 4, S51 took 3,
+> S53 took 1** (it moved no goldens by construction; ME-4 will move at least the 4 summary ones, so
+> plan two). Run 1 lands the code + records goldens (record-missing writes-then-FAILS; new goldens are
+> never born-green, R32.4) **and** ships any new audit leg in the SAME run. Run 2 adopts the goldens
+> after visually verifying every PNG. Do every free check first: `swiftc -parse` on each touched file,
+> executed harnesses, the lint replication (parse each lint's banned list out of its OWN source), and
+> the three free package lanes (`swift test --package-path Packages/*` → 121 pass).
+>
+> **Count, never quote** (all three have been wrong in this file before):
+> `find Tests/Snapshot/__Snapshots__ -name '*.png' | wc -l` ·
+> `grep -c 'ContrastPair(' App/Sources/DesignSystem/Theme.swift` ·
+> `grep -c 'func test_a11yAudit_' Tests/UITests/A11yAuditUITests.swift`.
 >
 > **11 surfaces carry Apple's full 7-type accessibility audit** (the `.dynamicType`/`.textClipped`
 > exclusion list has been ZERO since UIR-3; `safetyAuditTypes` is deleted from source) and five source
@@ -597,7 +667,7 @@ the RevenueCat key (S48B); the Mac-gated settings-content audit (S50).
 
 - **Theme canon (S32, amended S33/S34/S35):** `docs/design/tokens-v2.md` IS the palette
   record; `Theme.contrastPairs` is the WCAG gate (unit-lane, key-set pinned, grow-only —
-  **32 pairs in source at S52; count it, never quote a doc**: `grep -c 'ContrastPair('
+  **32 pairs in source, re-counted at S53; count it, never quote a doc**: `grep -c 'ContrastPair('
   App/Sources/DesignSystem/Theme.swift`. Two different stale figures, 33 and 34, were
   carried in this file and in `redesign/design-roadmap.md`); **the a11y audit set is ONE
   FULL SET for EVERY leg (UIR-3 closed the exclusion to zero; `safetyAuditTypes` is

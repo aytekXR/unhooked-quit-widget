@@ -6934,3 +6934,178 @@ lives in `DesignSystem/Primitives/`, not `Quiz/`, which the roadmap's "Where" cl
 use it cold.** Two rounds of careful re-truing (S52 addendum 1) left a wrong section pointer in the
 single most-read paragraph in the repo. Only an agent that actually opened §6.8 and found the Panic
 flow caught it.
+
+---
+
+## Session 53 — ME-8: the Waterline field, and the spec number that failed WCAG (2026-07-27)
+
+**Objective (roadmap): ME-8 — the Waterline primitive + the quiz visual pass** (`redesign/design-roadmap.md`
+Phase 3; blueprint §6.3/§6.5, creative §2/§4). The last Phase 3 item; §0 is answered **(B)** as a standing
+instruction, so nothing was operator-gated and the session ran autonomously end to end.
+
+**Session-open state, verified first-hand rather than quoted.** `git fetch` → local == `origin/main` at
+`05e41b3`, tree clean. Last code run `30228460322` SUCCESS verified **per-job: 10/10**, including the
+TestFlight upload. Free lanes RE-RUN locally: StreakEngine 84 / WidgetToolkit 21 / PaywallKit 16 =
+**121 pass**. Counted from disk, never from a table: **141 goldens**, **11 audit legs**, **32 contrast
+pairs** — all three matched the docs, which is worth recording because two of those numbers were wrong
+as recently as S52.
+
+### The finding: creative §4's "≤12% opacity" is not WCAG-safe for this palette
+
+The spec says the quiz field renders "at ≤12% opacity behind content on Canvas `#F7F6F3` / `#121417` so all
+34 WCAG-pinned pairs hold". That last clause is an assertion, and it is false. Compositing every band and
+light-form the field can draw over `surface/base` and re-measuring each token that renders on it:
+
+| field weight | binding pair | ratio | threshold |
+|---|---|---|---|
+| **0.12 (the spec's number)** | dark `content/tertiary` on the waterline stroke | **2.63** | 3.0 ❌ |
+| 0.09 | dark `content/tertiary` on the waterline stroke | 2.95 | 3.0 ❌ |
+| 0.08 | light `caution` on the water band | 4.58 | 4.5 ✅ |
+| 0.06 (shipped default) | light `caution` on the water band | 4.70 | 4.5 ✅ |
+| 0.045 (keyboard steps) | light `caution` on the water band | 4.79 | 4.5 ✅ |
+
+Two things make this worth carrying rather than just fixing. **The binding pair INVERTS at ~9%**: above it
+the constraint is dark-mode tertiary being lightened by the Foam stroke; below it, light-mode `caution`
+being darkened by the water band — and that second one is the quiz's own save-retry note, a string that
+actually renders on this surface. Optimising against either alone would have shipped the other broken.
+And **no golden could ever have caught this**: a golden proves pixels did not move, which is a different
+claim from "the text is legible on them". The gate that would have caught it is Apple's runtime
+`.contrast` audit on the quiz leg — i.e. a billed run, after the fact.
+
+Shipped: `standardOpacity` 0.06, `keyboardOpacity` 0.045, `opacityCeiling` **0.08** (not 0.12), the bloom
+core dropped 0.75 → 0.55 to move the constraint off the light-form, and the ceiling **clamped in `body`**
+rather than documented — a comment cannot stop a future caller, `min(max(maxOpacity, 0), ceiling)` can.
+
+### The second deviation: the field reads no clock, and that was deliberate
+
+The scoping workflow's plan (and the `WaveTimerView` precedent) put the field inside
+`TimelineView(.animation)` with a phase off `context.date`, plus a `pauseDate` seam for golden
+determinism. That was rejected on three independent grounds, any one sufficient:
+
+- **Nothing asks for it.** Blueprint §6.3 and creative §4 both specify a field whose state advances with
+  quiz *progress*. A continuous sine loop is unrequested motion.
+- **It would poison every future quiz golden.** A view with no time input is byte-stable forever.
+- **Cost.** A full-screen `Canvas` redrawing at display rate behind the most-traversed surface in the app.
+
+And the seam it was supposed to buy **did not exist anyway**: `QuizFlowView` constructs the field
+internally, so no snapshot host could have reached a `pauseDate` parameter. The plan's claim that the seam
+"avoids a `WaterlineField` rewrite in the batch" was false as designed. Removing time removed the problem.
+
+### What the scoping workflow bought, and where it was wrong
+
+`wf_09283866-6c8` — 20 agents, 0 errors, ~2.6M subagent tokens: 6 read-only surveys → 3 independent
+designs → 3 adversarial critics each → synthesis + a completeness critic. It earned its keep on facts that
+would each have cost a billed run: the `themedField` compile error (a single-expression non-`@ViewBuilder`
+function cannot take an `if`-block), the `where Header == EmptyView` extension breaking under a
+default-less `field:`, `QuizFlowView` having **zero** goldens, and the exact test pins that make the
+interstitials expensive. The completeness critic caught the missing `swiftc -parse` gate and every
+session-end obligation.
+
+**Four of its conclusions were overruled after first-hand checking**, which is the pattern this project
+keeps re-learning:
+
+1. **Its "lint safety proofs" were partly fiction.** It claimed `.font(.system(size:` is an
+   `OnboardingLayoutLintTests` idiom — it is not; the ban list is five entries and that is not one of them.
+   It also proposed grep checks for `List`/`Section` against a file in `App/Sources/DesignSystem`, which
+   `ThemeSourceLintTests` **excludes by design** and `OnboardingLayoutLintTests` never scoped. Verified by
+   parsing each lint's banned list out of its own source.
+2. **It deferred the haptic detents to a future "ME-8c"** because `FakeHapticsEngine` is Xcode-only and a
+   `HapticsPlaying` change risks `PanicFlowTests`. All true — and all irrelevant, because the right API is
+   `.sensoryFeedback(.selection, trigger:)` (iOS 17, docs-JSON confirmed), which touches no protocol, no
+   engine and no test. The deferral existed only because the plan assumed `CHHapticEngine`.
+3. **Its `AnyView`-vs-generics reasoning was inverted.** It chose a 4th generic parameter for type safety.
+   But a default-less `field:` forces surgery on the constrained extension and puts all five call sites'
+   overload resolution at stake — and **none of that is checkable on Linux**, where `swiftc -parse` is
+   syntax only. One defaulted `AnyView?` changes no existing call site. Cheap runtime cost, near-zero
+   billed-run risk, on a layer that redraws only on step change.
+4. **Its `ZStack` body replacement put the 12 existing goldens at risk for nothing.** Branching on `field
+   == nil` to the literal `themedScreenSurface()` call makes movement impossible rather than unlikely.
+
+### Also fixed, in passing
+
+The **trailing-closure hazard**: `field:` and `header:` are both `View` closures, so an unlabelled trailing
+closure could bind to the wrong one and compile silently, swapping the progress bar with the backdrop.
+`field:` is passed inside the parentheses and the reason is in the source.
+
+The **slider detent arithmetic**: the plausible `step: 0.25` is wrong — with four echoes it places FIVE
+stops and collapses 0.75 and 1.0 onto the same word, a detent the user can feel but not see, at the most
+meaningful end of the scale. `1/(count-1)` is correct. The `min(echoes.count - 1, …)` clamp in
+`currentEcho` is load-bearing (v = 1.0 indexes 4 without it) and is now documented as such.
+
+`keyboardType`/`submitLabel` moved onto the `TextField` itself rather than staying chained on what is now a
+container. They would very likely still propagate; the failure mode is the wrong keyboard on the **S47
+locale surface**, and "very likely" is not a standard that path gets held to. The live echo renders the
+**raw typed text**, never a parse — `DecimalInputParser` owns that conversion.
+
+### Free verification (nothing under `Tests/` runs on Linux)
+
+- `swiftc -parse` on all three touched files — the gate the plan omitted.
+- An **executed 35-check harness** over real shipping bytes: the detent bijection against the four real
+  `sliderEchoes` read from `quizConfig.json`; the boundary sweep incl. v = 1.0; **fire-on-mutation** against
+  `step: 0.25`; field geometry at three canvas sizes including out-of-range progress; the opacity constants
+  **read back out of the source file** rather than transcribed.
+- A **lint replication** whose matchers are *parsed out of each lint's own source* (the S50 substitute):
+  4 lints, 0 violations on the real corpus, with fire-on-mutation and comment-exemption both proven.
+- 121 package tests still green.
+
+**Two harness bugs were caught by running it** — the point of the rule. The clock check fired on
+`WaterlineField`'s own doc comment (which *explains* why it rejects `TimelineView`) — the S50
+false-positive class exactly, fixed with the project's own comment stripper; and the geometry check reused
+the global failure list, so it reported an earlier unrelated failure as a geometry escape.
+
+### CI: ONE billed run, green on the first attempt, zero golden churn
+
+Run **`30265638543`** on `8345e74` — SUCCESS verified **per-job: 10/10**, including the TestFlight
+upload, so a build carrying ME-8 is already in App Store Connect for the operator's eyeball. The run
+log was read back to prove the changed code EXECUTED rather than compiled out (the S46 discipline):
+
+- **Unit lane:** 465 tests in 72 suites passed. **Snapshot lane:** 45 tests in 13 suites passed —
+  meaning all **141 goldens were compared and matched**. **Zero golden churn**, which was the design
+  goal, not luck: the scaffold's `nil` branch takes the literal `themedScreenSurface()` call, so the
+  12 goldens on scaffold-based screens (8 widget-adoption + 4 quiz-summary) could not move.
+- **`test_a11yAudit_quizFlow_noViolations` PASSED in 17.4 s.** This is the important one: it runs
+  Apple's full seven-type audit — including `.contrast` — over the quiz **with the Waterline field
+  rendering behind it**. It is the empirical confirmation of the contrast solve above, and it is the
+  gate that would have caught the 12% figure had the spec's number been taken on trust.
+- **`QuizFunnelUITests … gateToSummary_toPaywallMount` PASSED in 42.3 s** — the full fresh-install walk
+  still works after `themedField` became a container and `keyboardType`/`submitLabel` moved onto the
+  `TextField`, and after the slider gained discrete stops.
+- The eight `failed` strings in the log are simulator/OS noise (AudioConverter, CA launch metrics,
+  IOSurface, a `fopen` on an absent data file) plus one test whose NAME contains "Failure"
+  (`test_paywallModel_purchaseFailure_landsOnFailedSurface_neverTraps`, passed). No real failure.
+
+**One billed run for the biggest remaining visual item** — against a two-run target and a track record
+of S50 = 4 and S51 = 3. The reason is worth keeping rather than filing as luck: every hypothesis that
+could be settled for free WAS settled for free before the push (parse gate, 35-check executed harness,
+lint replication parsed out of the lints' own sources, the WCAG solve, the docs-JSON oracle), and the
+one design decision that could have moved goldens was taken specifically so that it could not.
+
+### Deferred and NAMED, not dropped
+
+The roadmap's ME-8 entry and blueprint §6.3 between them ask for more than shipped. Each item below has a
+landing place, per the completeness critic's gap list:
+
+- **The two §3 interstitials → ME-8b.** The copy deck drafts both verbatim so no founder round-trip is
+  needed, but `QuizFunnelUITests` taps a hard-coded `0..<11` loop, `QuizFlowModelTests` pins
+  `visibleSteps.map(\.slot)` as two exact arrays plus `count == 11/13`, and a new informational surface
+  owes a 12th audit leg. **The route is a view-layer overlay**, which leaves `visibleSteps` — and the
+  R1-fixed analytics slots — untouched.
+- **Crest keyed to the commitment slider → ME-8b.** `sliderValue` is `@State private` inside
+  `QuizStepContent`; bubbling it needs a `Binding` or a model change.
+- **Step eyebrow, 2-column chip grid, 300ms step transition, chip-tap haptic → ME-8b** (blueprint §6.3).
+- **Summary backdrop → ME-4**, which already plans to re-record those 4 goldens; doing it here would
+  double-record them.
+- **Per-step field variations** (consent pauses, longer wavelength at duration, second waterline at prior
+  attempts, split tone at goal — creative §4) **→ ME-8b.** The primitive's current API cannot express them.
+
+### Known limitations
+
+- The field's advance between steps is animated **best-effort**: `AnyView` erases structural identity, so
+  SwiftUI may cut rather than tween. Not load-bearing — the settled frame is the design and is identical
+  either way — and it is on the operator's eyeball list rather than asserted as working.
+- Whether 6% **reads** at all is a design judgment with no CI gate. Recorded in `operator-expected.md` §0
+  with the explicit instruction that the fix for "invisible" is a bolder MOTIF, never a bolder opacity.
+- `quizConfig.json`'s `_meta.review_status` still says "DRAFT — founder copy pass pending" although the §3
+  pass closed in 46B. Not touched — it is founder-owned metadata, and the three "Refine" helper lines the
+  copy deck drafts for slots 2/5/7 never landed in the S46 sitting (slots 12 and 13 from the same table
+  did). Treated as deliberate; flagged, not edited.
