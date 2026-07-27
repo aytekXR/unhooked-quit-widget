@@ -6824,3 +6824,58 @@ three. **Counts must be COUNTED at session end, never quoted** — the commands 
 doc that carries a count, next to the number. Where a claim was struck, the strike says so in place
 rather than deleting silently, because "this sentence was true for ten sessions after it stopped being
 true" is the reason it survived.
+
+### S52 addendum 2 — `operator-expected.md` pruned to open-items-only (operator request)
+
+The file's own header rule has said since S10: *"Keep it OPEN-items-only — when an item closes,
+DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session
+history, closed-section stubs, or FYI narrative."* It had drifted badly — roughly a quarter of it
+was recap of what past sessions shipped.
+
+**Classified before cutting, because the asymmetry is severe:** leaving a closed item costs one
+line; deleting a still-open one silently drops a legal, safety, or submission gate the operator
+then never performs. `wf_e5b2f2e9-9a9` — 5 readers (one per section group, told to DEFAULT TO KEEP
+and that a repo cannot prove a human did a human thing) → 2 adversarial batches whose only job was
+to stop a bad deletion. **Result: 45 KEEP_OPEN, 11 DELETE, 0 rescued** — the attack phase overturned
+nothing, which matched an independent read of the file.
+
+**The key structural finding: every single item in the file was an unchecked `- [ ]`.** Nothing had
+closed and been left behind; the entire violation was *prose between the checkboxes*. So the prune
+removed 11 narrative blocks and kept all 45 actions. **434 → 368 lines**, section numbers 0–8
+preserved (other docs cross-reference §3/§7/§8; the pre-existing §4 gap was kept).
+
+**What was deleted, and where each fact survives:** the "What changed since you last read this
+(Session 48B)" header row and the §0 wave-1/2 recap (→ the S48B/S49 missing-entries note above);
+the §1 "harness could never have run" blockquote and S48 measurement table (→
+`spike-panic-latency.md` §61-87, and the ~104 ms figure is kept inline in §1 because it is what
+makes the remaining item legible); the §3 "copy pass is CLOSED" blockquote; the §8 "DONE in S48"
+and "S48B closed two things" blockquotes (→ this ledger + `critical-path-post-uir.md`). **One
+S48B detail existed in NO ledger entry** — the ASC-side configuration — so it is recorded here and
+kept as a one-line "do not redo" guard in §8: RC project carries entitlement `premium`, all three
+products, an offering and the uploaded In-App Purchase Key; ASC carries the subscription group,
+both 3-day trials, the `winback_annual` offer, localizations, review screenshots and prices across
+**175 territories**, all three products **READY_TO_SUBMIT**.
+
+**Nine stale facts were fixed rather than deleted, three of them wrong about shipped strings:**
+
+- **§7 claimed "the §8 keys are all in."** They are not — `SuperwallConfiguration.swift:18` and
+  `TelemetryDeckSink.swift:12` are both `""`; only RevenueCat is keyed. The conclusion it drew
+  (the sandbox matrix is live work) happens to be right since that needs only RC, but the stated
+  reason would have told the operator the payload audit was unblocked when it is not.
+- **§7's VoiceOver check quoted the wrong string.** It said the breath step *shows* "Breathe with
+  the taps…". That is `instructionNonVisual` — what VoiceOver **speaks**. What renders is
+  `hapticOnlyLabel` = **"Feel the taps — in, hold, out."** (`panicScript.json:15`,
+  `PanicFlowView.swift:281`). Both are now named, correctly attributed.
+- **§7's discreet row** said VoiceOver announces "Reset"; the shipped label is **"Reset — opens a
+  quick exercise"** (`StreakWidgetStyle.swift:81`).
+- §5's escape-path citation named only `PaywallRouting.swift:55` (which proves the wall does not
+  *re-present*); the branch that actually mounts the dashboard is `PostGateRootView.swift:440`.
+  Both are now cited.
+- §0's "Eyeball builds 125 + the wave-2 build" chased a build number that moves on every green
+  merge → "the current TestFlight build".
+- §8's sandbox-retry advice still said "retry ~24 h after creation, Apple-side propagation" —
+  the products were created several sessions ago, so that hypothesis is dead and following it
+  would waste a sitting. Replaced with the one-click offering-badge check and the Console.app
+  read, both of which still apply.
+- Plus: the Status row's stale session stamp, §0's "NEW operator items" (present since S47), and
+  §3's title suffix.
