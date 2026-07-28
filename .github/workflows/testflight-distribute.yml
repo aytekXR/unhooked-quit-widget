@@ -57,4 +57,5 @@ jobs:
           python3 scripts/testflight_distribute.py \
             --bundle-id com.beyondkaira.ballast \
             --group "${{ inputs.group }}" \
+            --create-if-missing \
             --sweep "${{ inputs.sweep }}"

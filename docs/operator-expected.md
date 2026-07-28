@@ -253,10 +253,22 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
 > Step-by-step ASC mechanics stay in `docs/testflight-tester-guide.md` (internal group setup, external
 > groups/public link).
 
-- [ ] **Create the TestFlight group named exactly `Friends` (~2 min) — CI now distributes to it
-      automatically, and will FAIL LOUDLY until it exists.** S56 wired automatic distribution: every
-      successful upload now attaches its build to that group, so testers get each build without you
-      touching App Store Connect. Two things to know:
+- [ ] **Add your testers to the `Friends` group (~2 min) — CI created it and it already receives
+      every build.** You do NOT need to create anything. Two things to know:
+
+      **(0) What the first run found, and what it did.** The distribution job authenticated, resolved
+      the app (`Ballast - Quit`, `com.beyondkaira.ballast`, ASC id `6788964100`) and reported that
+      **no group named `Friends` existed — the only group on the app was `founders`.** It now creates
+      `Friends` as an **internal** group with **`hasAccessToAllBuilds` set**, which is the important
+      part: that flag makes the group receive **every build, past and future, as a property of the
+      group itself** rather than because a CI step remembered to attach each one. It is a structural
+      guarantee, not a procedural one — so "current and future builds are automatically available"
+      is true even if the CI job is later removed. Both attribute names were checked against Apple's
+      own `BetaGroupCreateRequest` schema before being used.
+      **`founders` is untouched** — if that is where your real testers are, either add them to
+      `Friends` too or set the repo Variable `TESTFLIGHT_GROUP=founders` and CI will target that
+      instead. **Internal groups take testers who are Users on your ASC account** (up to 100), which
+      is the trade for builds arriving with no Beta App Review wait.
 
       **(a) Why it is a separate CI job rather than a fastlane option.** The upload lane runs
       `pilot(skip_waiting_for_build_processing: true)`, and fastlane's own docs for that flag say
@@ -267,11 +279,11 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       attaching afterwards via the App Store Connect API (`scripts/testflight_distribute.py`).
       Zero macOS minutes.
 
-      **(b) It fails the pipeline if the group is missing, on purpose.** The job runs after the
-      upload has already succeeded, so a failure here means precisely "the build did not reach
-      testers" — which should be loud, and is wired into the Slack notification. The error message
-      lists the groups that DO exist, so a name mismatch is self-diagnosing. If you name the group
-      something else, set the repo Variable **`TESTFLIGHT_GROUP`** instead of editing code.
+      **(b) It still fails the pipeline if distribution genuinely breaks, on purpose.** The job runs
+      after the upload has already succeeded, so a failure there means precisely "the build did not
+      reach testers" — which should be loud, and is wired into the Slack notification. Errors name
+      the groups that DO exist, so a mismatch is self-diagnosing. To target a different group, set
+      the repo Variable **`TESTFLIGHT_GROUP`** rather than editing code.
 
       **(c) Internal vs external.** An **internal** group (up to 100 testers who are Users on your
       ASC account) receives builds immediately — that is what you want for "Friends". An **external**

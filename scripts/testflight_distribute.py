@@ -119,29 +119,85 @@ def resolve_app(token: str, bundle_id: str) -> str:
     return app["id"]
 
 
-def resolve_group(token: str, app_id: str, name: str) -> str:
+def create_group(token: str, app_id: str, name: str) -> dict:
+    """Create an INTERNAL group with automatic access to every build.
+
+    `hasAccessToAllBuilds` is the important half. On an internal group it means the
+    group receives EVERY build — past, present and future — as a property of the group
+    itself, rather than because something remembered to attach each one. That is a
+    structural guarantee where a CI step is only a procedural one, and it is why this
+    is preferred over attaching build-by-build.
+
+    Both attribute names are verified against Apple's own
+    `BetaGroupCreateRequest.Data.Attributes` schema, not assumed.
+    """
+    log(f"  group   : '{name}' does not exist — creating it (internal, all-builds access)")
+    payload = request(
+        token,
+        "POST",
+        "/betaGroups",
+        body={
+            "data": {
+                "type": "betaGroups",
+                "attributes": {
+                    "name": name,
+                    # Internal: testers are Users on the ASC account, and builds reach
+                    # them with NO Beta App Review wait. That is what makes this usable
+                    # for a friends-and-family ring.
+                    "isInternalGroup": True,
+                    "hasAccessToAllBuilds": True,
+                },
+                "relationships": {"app": {"data": {"type": "apps", "id": app_id}}},
+            }
+        },
+    )
+    group = payload.get("data", {})
+    if not group.get("id"):
+        fail(f"Create succeeded but returned no group id — response: {json.dumps(payload)[:400]}")
+    log(f"  created : '{name}' id={group['id']}")
+    log(
+        "::notice title=TestFlight group created::"
+        f"'{name}' is an INTERNAL group with access to all builds. Add testers in "
+        "App Store Connect > TestFlight > " + name + " (they must be Users on the account)."
+    )
+    return group
+
+
+def resolve_or_create_group(token: str, app_id: str, name: str, allow_create: bool) -> tuple[str, bool]:
+    """Return (groupId, hasAccessToAllBuilds)."""
     payload = request(token, "GET", "/betaGroups", {"filter[app]": app_id, "limit": 200})
     groups = payload.get("data", [])
     for group in groups:
-        if group["attributes"].get("name", "").strip().lower() == name.strip().lower():
-            attrs = group["attributes"]
-            kind = "internal" if attrs.get("isInternalGroup") else "EXTERNAL"
-            log(f"  group   : '{attrs.get('name')}' id={group['id']} ({kind})")
-            if not attrs.get("isInternalGroup"):
+        attrs = group["attributes"]
+        if attrs.get("name", "").strip().lower() == name.strip().lower():
+            internal = bool(attrs.get("isInternalGroup"))
+            all_builds = bool(attrs.get("hasAccessToAllBuilds"))
+            log(
+                f"  group   : '{attrs.get('name')}' id={group['id']} "
+                f"({'internal' if internal else 'EXTERNAL'}, "
+                f"allBuilds={'yes' if all_builds else 'no'})"
+            )
+            if not internal:
                 # External groups need Beta App Review before testers actually receive
-                # a build. Attaching still succeeds, so warn rather than fail.
+                # a build. Attaching still succeeds, so warn rather than imply delivery.
                 log(
                     "::warning title=External beta group::"
                     f"'{name}' is an EXTERNAL group — builds attached here reach testers only "
                     "after Beta App Review approves them."
                 )
-            return group["id"]
+            return group["id"], all_builds
+
     available = ", ".join(sorted(g["attributes"].get("name", "?") for g in groups)) or "(none)"
-    fail(
-        f"No TestFlight beta group named '{name}' on this app. "
-        f"Groups that do exist: {available}. "
-        "Create the group in App Store Connect > TestFlight, or pass --group with the real name."
-    )
+    if not allow_create:
+        fail(
+            f"No TestFlight beta group named '{name}' on this app. "
+            f"Groups that do exist: {available}. "
+            "Create it in App Store Connect > TestFlight, pass --group with the real name, "
+            "or re-run with --create-if-missing."
+        )
+    log(f"  (existing groups: {available})")
+    created = create_group(token, app_id, name)
+    return created["id"], bool(created.get("attributes", {}).get("hasAccessToAllBuilds"))
 
 
 def newest_builds(token: str, app_id: str, limit: int):
@@ -202,12 +258,30 @@ def main() -> None:
         "Use a larger number once to back-fill builds uploaded before this job existed.",
     )
     ap.add_argument("--timeout", type=int, default=1500, help="Seconds to wait for processing.")
+    ap.add_argument(
+        "--create-if-missing",
+        action="store_true",
+        help="Create the group (internal, access to all builds) when it does not exist.",
+    )
     args = ap.parse_args()
 
     log(f"TestFlight distribution -> group '{args.group}' (sweep={args.sweep})")
     token = make_token()
     app_id = resolve_app(token, args.bundle_id)
-    group_id = resolve_group(token, app_id, args.group)
+    group_id, all_builds = resolve_or_create_group(token, app_id, args.group, args.create_if_missing)
+
+    if all_builds:
+        # The group is configured to receive every build as a property of the group.
+        # Attaching individually would be redundant at best and rejected at worst, and
+        # — more to the point — the guarantee the operator asked for ("current AND
+        # future builds automatically available") is already satisfied structurally.
+        # Nothing here needs to run again, ever.
+        log(
+            f"  '{args.group}' has access to ALL builds — every current and future build is "
+            "available to it automatically. No per-build attach needed."
+        )
+        log("Done — distribution is structural, not per-build.")
+        return
 
     builds = newest_builds(token, app_id, args.sweep)
     if not builds:

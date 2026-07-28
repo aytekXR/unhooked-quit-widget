@@ -540,6 +540,7 @@ jobs:
           python3 scripts/testflight_distribute.py \
             --bundle-id com.beyondkaira.ballast \
             --group "${TESTFLIGHT_GROUP:-Friends}" \
+            --create-if-missing \
             --sweep 1
       # Note: this job intentionally does NOT gate the build. The upload already
       # succeeded by the time it runs; a failure here means "the build did not reach
