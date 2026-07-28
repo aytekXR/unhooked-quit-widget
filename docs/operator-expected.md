@@ -256,6 +256,11 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
 - [ ] **Add your testers to the `Friends` group (~2 min) — CI created it and it already receives
       every build.** You do NOT need to create anything. Two things to know:
 
+      **✅ CONFIRMED DONE by run `30317459744` (per-job 10/10).** The group exists:
+      `Friends`, id `60ebfad4-30e8-489c-864d-bbb0378b9194`, internal, **access to all builds**.
+      The same run also uploaded a build, so the latest build is already available to it. Nothing
+      further is needed from you except adding the people.
+
       **(0) What the first run found, and what it did.** The distribution job authenticated, resolved
       the app (`Ballast - Quit`, `com.beyondkaira.ballast`, ASC id `6788964100`) and reported that
       **no group named `Friends` existed — the only group on the app was `founders`.** It now creates

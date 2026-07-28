@@ -7445,6 +7445,30 @@ is deleted. The script short-circuits when it sees that flag rather than issuing
 Both attribute names were checked against Apple's own `BetaGroupCreateRequest` schema first — the
 docs-JSON oracle rule, applied to a third-party API.
 
+### Outcome, proven
+
+Run `30317459744` — SUCCESS per-job **10/10**, including the TestFlight upload and the new
+distribution job. Its own log is the evidence:
+
+```
+TestFlight distribution -> group 'Friends' (sweep=1)
+  app     : Ballast - Quit (com.beyondkaira.ballast) id=6788964100
+  group   : 'Friends' does not exist — creating it (internal, all-builds access)
+  created : 'Friends' id=60ebfad4-30e8-489c-864d-bbb0378b9194
+  'Friends' has access to ALL builds — every current and future build is available to it
+  automatically. No per-build attach needed.
+Done — distribution is structural, not per-build.
+```
+
+Because the same run uploaded a build, **the latest build is already available to the group** — the
+"including the latest available build" half of the request is satisfied without the manual back-fill
+lane, which remains available for any older builds. All that is left is adding the people.
+
+The preceding run `30313937159` is worth keeping in the record too: everything passed *including the
+app lanes and the TestFlight upload*, with the ONLY failure being the distribution job reporting the
+missing group. That is the shape a diagnostic should have — it isolated an external-state question
+without casting doubt on the build.
+
 ### Honest limits
 
 - The site deploy (nginx, certbot, content) needs server access no agent has. Runbook written; the
