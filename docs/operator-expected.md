@@ -2,7 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status | LIVE — **only OPEN items are listed here.** Pruned to open-items-only in Session 52 (2026-07-27): 11 blocks of session narrative removed, all 45 open actions kept. Closed items and the full decision record live in `docs/past-prompts.md` (the append-only ledger). |
+| Status (S56) | LIVE — **only OPEN items are listed here.** **Two things changed this session and both are already reflected below.** (1) A NEW hard dependency: the app's legal links now point at **`ballast.beyondkaira.com`**, which does not serve yet — see §3, and note the finding that the OLD apex URLs returned HTTP 200 with a 16-byte placeholder, so they were never real pages and no status-code check could have told you. (2) One item got SMALLER: CI now creates and feeds the TestFlight group itself, so §5 asks only that you add testers. |
+| _prior_ | LIVE — **only OPEN items are listed here.** Pruned to open-items-only in Session 52 (2026-07-27): 11 blocks of session narrative removed, all 45 open actions kept. Closed items and the full decision record live in `docs/past-prompts.md` (the append-only ledger). |
 | Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook; it sequences this file. For the beta: **`docs/testflight-beta-kit.md`**. |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
