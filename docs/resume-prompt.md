@@ -629,15 +629,23 @@ external beta, submission) — see the operator-owned blockers below.
 
 **Other people's clock — start these first:**
 
-1. **Clinician + counsel sign-off** on `safetyCopy.json`, plus the **two legal pages published**
-   (`beyondkaira.com/terms` + `/privacy`). The paywall links are real and correct in code since
-   46B; a reviewer tapping through to a 404 is a rejection.
+1. **Clinician + counsel sign-off** on `safetyCopy.json`, plus **`ballast.beyondkaira.com` stood up
+   and the two legal pages published** (`/terms` + `/privacy` — repointed off the apex in S56).
+   **Runbook: `docs/public-site-deploy.md`.** DNS already resolves via a wildcard; the gap is a TLS
+   certificate that covers the subdomain. **And the old state was worse than "404 until published":
+   the apex returned HTTP 200 with a 16-byte body reading "beyondkaira.com" for EVERY path**, so a
+   link-checker called the legal links healthy while a reviewer would have met a blank placeholder.
+   The runbook's verification step reads the BODY, not the status code, for exactly that reason.
 2. **G0 trademark / App-Store-name clearance.** G0's technical half closed 2026-07-08
    (`AppIdentifiers.swift:6`); only the legal clearance is open. It also gates the TestFlight
    public link.
-3. **Beta testing (§5)** — fully prepped as of S52: `docs/testflight-beta-kit.md` carries the
-   pre-flight, the paste-ready ASC fields, the invite, the test script and the known-issues list.
-   Nothing is left but an ASC group and invites. The gate wants ≥15 testers and ≥1 week.
+3. **Beta testing (§5)** — fully prepped as of S52, and **S56 removed the group step entirely**:
+   CI now creates the internal `Friends` group with `hasAccessToAllBuilds`, so every build (past and
+   future) is available to it structurally, not per-build. `docs/testflight-beta-kit.md` carries the
+   pre-flight, paste-ready ASC fields, invite, test script and known issues. **All that is left is
+   adding testers** (internal groups take Users on the ASC account). The gate wants ≥15 testers and
+   ≥1 week. Note `founders` also exists and is untouched — retarget with the repo Variable
+   `TESTFLIGHT_GROUP`, never a code edit.
 
 **Operator's own clock:**
 

@@ -7357,3 +7357,97 @@ Also re-confirmed rather than assumed: **ME-9's "gated on founder copy" gate is 
 `3a10442` — the operator's §3 closing commit — edited `paywallCopy.json` in three places, including
 the MVP-scope fix ("journal" → "notes and reflections"). The table's `_meta.status` still reads
 DRAFT, but that marker tracks the separate §0 acceptance checkbox, not the §3 pass.
+
+---
+
+## Session 56 — the rename that was already done, a 200 that was lying, and a TestFlight group that did not exist (2026-07-28)
+
+**Objective (operator-set, off the roadmap):** rename everything customer-facing from "Unhooked" to
+"Ballast"; move user-facing URLs to `ballast.beyondkaira.com` and serve the legal pages there
+(including nginx/SSL/deploy); sweep the repo for stale name references; and make sure the TestFlight
+"Friends" group receives every build, current and future.
+
+**Session-open verified first-hand:** local == `origin/main` at `a7ad024`, clean; last code run
+`30307591760` SUCCESS per-job 10/10; free lanes 84/21/16 = **121**; 143 goldens / 32 pairs / 11 legs.
+
+### Finding 1 — the customer-facing rename was already done, and the one real leak was in a default
+
+Before changing anything: `CFBundleDisplayName` was **already "Ballast"** and the bundle identity was
+**already `com.beyondkaira.ballast`** (+ `.widgets`, App Group, iCloud container), all registered
+under the final name when Gate G0 cleared on 2026-07-08. So the premise "the project has been
+renamed, update the customer-facing references" was largely satisfied before this session started,
+and saying so was more useful than doing a find/replace.
+
+**The bundle identifiers were deliberately NOT touched.** The app is live in TestFlight with
+RevenueCat products configured across 175 territories; changing a bundle ID orphans the app record,
+the products and every tester. There is no version of "sweep the old name" that justifies that.
+
+What *was* still leaking was found by reading the generated-plist contract rather than the source:
+**`CFBundleName` was unset on both shipping targets**, so XcodeGen defaulted it to `$(PRODUCT_NAME)`
+→ the TARGET name → "Unhooked" / "UnhookedWidgets". `CFBundleDisplayName` covers the home screen;
+`CFBundleName` is the fallback everywhere DisplayName is absent or truncated. Pinning it explicitly
+also **decouples the shipped name from the target name**, so a later internal rename can never again
+change what a user reads. Plus `UnhookedApp` / `UnhookedWidgetBundle` (verified first: every other
+reference to those types in the repo is a comment).
+
+**Deliberately NOT renamed: the Xcode target/module.** `Unhooked` → `Ballast` across the project
+name, 5 targets, the scheme, 81 `@testable import` lines, CI and fastlane is mechanical but
+verifiable ONLY by a billed macOS run, and it is invisible to users. Bundling it with the changes
+above would have made any failure ambiguous. Left as its own isolated change.
+
+`feasibility-report.md` was kept **verbatim** with a banner rather than renamed: that document exists
+to argue "the name Unhooked is burned — rename before build", and renaming it to Ballast would erase
+the reasoning that produced the rename. Historical accuracy beat a clean grep.
+
+### Finding 2 — the old legal URLs returned HTTP 200 and were not pages
+
+`AppIdentifiers` now carries a `publicSiteHost` constant and both legal URLs point at
+`ballast.beyondkaira.com`. Two things measured while doing it:
+
+- The subdomain **resolves** (a wildcard A record, same origin as the apex) but has **no matching TLS
+  certificate**, so HTTPS fails the hostname check. DNS was never the gap; the certificate is.
+- **`beyondkaira.com/terms`, `/privacy` and every other path returned HTTP 200 with a 16-byte body
+  reading "beyondkaira.com".** A catch-all, not a site. So the state the docs described as "links
+  404 until you publish" was actually worse: **a 404 would have been the safer failure.** A
+  link-checker, an uptime probe, or any status-code sweep would have called those legal links healthy
+  while a reviewer tapping "Terms of Use" met a blank placeholder — an Apple Schedule 2 / 3.1.2(c)
+  rejection invisible to every form of automation except reading the body.
+
+NEW `docs/public-site-deploy.md` carries the nginx server block, certbot commands, and a verification
+step that reads the **body** — with explicit per-page `location` blocks and a real 404 fallback, so
+the silent-200 class cannot come back. **The deploy itself is operator-owned** (it needs shell access
+to the origin, which no agent has) and the legal TEXT was neither written nor touched —
+`paywallCopy.json`'s own `_meta.legalNote` puts it with counsel.
+
+### Finding 3 — `pilot(groups:)` could not have worked, and the group did not exist
+
+The upload lane sets `skip_waiting_for_build_processing: true`, and fastlane's own docs for that flag
+say verbatim: *"the distribute_external option won't work and NO BUILD WILL BE DISTRIBUTED TO
+TESTERS. (You might want to use this option if you are using this action on CI and have to pay for
+'minutes used' on your CI plan.)"* So group distribution was structurally impossible — and the flag
+earns its place, for exactly the reason S52 refused to hold the runner for the changelog.
+
+Resolution: keep the fast upload, move the waiting to a **free ubuntu job** driving the App Store
+Connect API (`scripts/testflight_distribute.py`) — zero macOS minutes — plus a manual
+`workflow_dispatch` lane for back-filling existing builds.
+
+**Its first run was the diagnostic, and it paid immediately.** Auth succeeded, the app resolved
+(`Ballast - Quit`, ASC id `6788964100`), and it reported: **no group named `Friends` existed; the
+only group was `founders`.** That is a fork an agent should not guess — attaching to `founders` when
+a new ring was meant sends builds to the wrong people; creating an empty `Friends` when `founders`
+holds the real testers delivers to nobody. It was put to the operator, who chose *create `Friends`*.
+
+**The mechanism chosen is better than the one requested.** Rather than attaching each build, the
+group is created internal with **`hasAccessToAllBuilds`** — which makes it receive every build, past
+and future, **as a property of the group itself**. That turns "current and future builds are
+automatically available" from a procedural promise into a structural one: it holds even if the CI job
+is deleted. The script short-circuits when it sees that flag rather than issuing redundant attaches.
+Both attribute names were checked against Apple's own `BetaGroupCreateRequest` schema first — the
+docs-JSON oracle rule, applied to a third-party API.
+
+### Honest limits
+
+- The site deploy (nginx, certbot, content) needs server access no agent has. Runbook written; the
+  act is the operator's.
+- The legal text is counsel's and was not authored.
+- `founders` was left untouched; retargeting is a repo Variable, not a code change.
