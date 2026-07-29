@@ -54,3 +54,15 @@ AuthKey_*.p8
 # Python bytecode from the CI helper scripts (scripts/*.py)
 __pycache__/
 *.pyc
+
+# S57 — TESTER ROSTERS. Other people's names and email addresses, handed over for
+# `scripts/testflight_testers.py --roster`. This is third-party personal data, it
+# has no business in version control, and a private repo is not a justification
+# (git history is forever and the repo is shared with CI). Ignored BY PATTERN so
+# the obvious filenames cannot be swept in by a `git add -A`, which is exactly how
+# `.claude/settings.json` leaked in S51.
+friends.csv
+testers.csv
+*-roster.csv
+*-testers.csv
+roster*.csv

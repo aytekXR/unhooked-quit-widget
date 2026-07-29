@@ -81,7 +81,7 @@ earlier cannot install the build at all — TestFlight will simply not offer it,
 which reads to a tester as a broken invite. Confirm the OS version before you
 spend an invite, especially for the ≥15 external testers the beta gate wants.
 
-### 0.3 Keep the first beta internal — or at least off the public link
+### 0.3 Off the public link — but an EXTERNAL group is what a friends ring needs
 
 Gate G0's technical half is closed (the bundle identity and domain are
 registered), but the **trademark / App-Store-name clearance is still open**
@@ -89,6 +89,24 @@ registered), but the **trademark / App-Store-name clearance is still open**
 Ballast` (`project.yml:190`). A TestFlight **public link** is a public,
 indexable exposure of an uncleared name. Email-invited external testers are
 fine; the public link can wait until G0 clears.
+
+**S57 correction — "keep the first beta internal" is not available for friends.**
+Measured against the live account: the only App Store Connect **User** is the
+operator, and Apple restricts internal groups to team members holding an ASC role
+(Account Holder, Admin, App Manager, Developer, Marketing), max 100. External
+groups take "anyone with an email address", max 10,000, at the price of Beta App
+Review. **An internal group also cannot be converted** — `isInternalGroup` is
+absent from Apple's `BetaGroupUpdateRequest` schema.
+
+So the shape of the first sitting is: **a new external group, invited by email, with
+the public link still off.** `operator-expected.md` §5 carries the two commands;
+`scripts/testflight_testers.py` does the work from a CSV of names and emails and
+dry-runs by default. The Beta App Description and Beta App Review Information that
+external distribution requires are **§1.2 and §1.3 below, paste-ready** — and
+`betaAppLocalizations` came back empty, so they are genuinely unfilled today.
+
+**Email-only.** There is no SMS or phone-number invite path in TestFlight, so a
+phone number cannot be used to invite anyone.
 
 ### 0.4 This beta will produce zero analytics — the signal is manual
 
@@ -212,6 +230,14 @@ runner in the matrix, to fill a field you visit anyway when you attach the build
 
 ## §2. The tester brief — paste into the invite
 
+> **S57: there is now a web page that says all of this**, at
+> **`ballast.beyondkaira.com/beta`** (`site/beta.html`). It carries this brief plus the
+> §3 test script and the §4 known issues, in tester-facing language. Once the site is
+> deployed, the invite can be three lines and a link instead of a wall of text — and a
+> link survives being read on a phone, which this block does not. The page contains **no
+> invite and no build**, so forwarding it leaks nothing. Keep the text below for the
+> invite email itself, or use it as the source if you prefer to paste.
+
 > Thanks for testing Ballast.
 >
 > **What it is.** An app for cutting down or stopping a habit. You pick what you
@@ -268,8 +294,11 @@ for whoever is willing to go around twice.
    words in it, spelled the way you typed them? Is the money figure plausible?
 5. **The subscription screen.** Read it before you tap. Price, trial length, what
    happens when the trial ends, Terms and Privacy links, Restore — is anything
-   missing or confusing? Tap the Terms and Privacy links (**they will 404 for
-   now; that's known and on me**). Then take the free trial.
+   missing or confusing? Tap the Terms and Privacy links. **If you have already
+   deployed the site (`docs/public-site-deploy.md`) these work and are worth
+   checking; if not, they fail and that is known and on you** — say which, so a
+   tester is not asked to report a failure you already know about.
+   Then take the free trial.
 6. **The widget moment** should appear. Follow it and add the **"Streak"** widget
    to your lock screen. Choose the wide rectangular one — it carries the panic
    button.
@@ -352,7 +381,7 @@ is not affected; it lives with your Apple Account.
 | What a tester will hit | Status |
 |---|---|
 | The subscription screen has no close button | **Expected** — §0.1. Purchase (free) or relaunch |
-| Terms and Privacy links 404 | **Known.** The links are real and correct; the pages are not published yet (critical path step 9) |
+| Terms and Privacy links fail | **Known, and now fixable by you.** The links are real and correct; the pages are not published yet. The site's landing + beta pages ship in `site/`; `terms.html`/`privacy.html` are counsel-owned. Deploy per `docs/public-site-deploy.md`, verify with `scripts/verify_public_site.sh`, then **delete this row** — do not leave testers briefed to expect a failure that no longer happens |
 | Helplines are US and Turkey only | **By design.** Every other region gets written guidance and no tappable number, because an unverified crisis number is worse than none. Weight recruiting to US/TR or accept it (`operator-expected.md` §5) |
 | The app never asks for notifications | **Correct and deliberate, and structurally so.** Verified on two axes: no shipping source references `UserNotifications`, `CoreLocation`, `AVFoundation` capture, `Photos`, `Contacts`, `HealthKit`, `EventKit` or `AuthenticationServices`; **and** the generated Info.plist declares no `*UsageDescription` key at all (`project.yml`), which is what iOS requires before it will present a prompt. So "any permission prompt is a bug" is a safe thing to tell a tester — the app has no way to raise one |
 | The streak widget shows nothing useful | Ask them to **open the app once** after adding it — the launch pass writes the widget's feed. If it still fails, this is the day-counter report (`operator-expected.md` §7) and you want the build number, what the widget shows, what the in-app screen shows, and whether logging anything updates it within a minute |

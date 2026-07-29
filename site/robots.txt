@@ -1,0 +1,17 @@
+# Ballast public site — CLOSED TO CRAWLERS ON PURPOSE.
+#
+# App-Store name / trademark clearance for "Ballast" is still open (gate G0,
+# docs/critical-path-post-uir.md step 7). Indexing is a public, effectively
+# permanent exposure of an uncleared name, and search caches outlive a rename.
+#
+# This is belt-and-braces with the <meta name="robots" content="noindex,
+# nofollow"> tag in every page: the meta tag is the one that actually removes a
+# page from an index, while this file asks well-behaved crawlers not to fetch it
+# in the first place. Neither is a security control — the pages are public, they
+# are simply not advertised.
+#
+# ON CLEARANCE: delete this file AND the meta tag in index.html and beta.html.
+# Leaving either behind means the launch site is invisible to search, which is a
+# quiet and expensive failure.
+User-agent: *
+Disallow: /

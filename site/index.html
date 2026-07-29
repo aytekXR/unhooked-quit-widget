@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballast — Steady beats perfect.</title>
+<meta name="description" content="Ballast is the private way to quit anything — with a panic button on your lock screen and a streak that forgives. No account. Nothing leaves your device.">
+
+<!--
+  NOINDEX IS DELIBERATE AND MUST STAY UNTIL GATE G0 CLEARS.
+  App-Store name / trademark clearance for "Ballast" is still open
+  (docs/critical-path-post-uir.md step 7). An indexable page is a public,
+  permanent exposure of an uncleared name. Remove this tag — and the matching
+  robots.txt — on the day clearance lands, not before.
+-->
+<meta name="robots" content="noindex, nofollow">
+
+<!--
+  SELF-CONTAINED BY NECESSITY, not by preference. The origin serves this under
+  Content-Security-Policy: default-src 'none'; style-src 'self' 'unsafe-inline';
+  img-src 'self'  (see docs/public-site-deploy.md §2). That policy blocks
+  external stylesheets, webfonts and ALL JavaScript. So: inline CSS, a system
+  font stack, inline SVG, and no script anywhere. The page is static by design.
+
+  The brand direction asks for Inter Display; a webfont is impossible under this
+  policy and brandkit §4 says "SF Pro (system) everywhere; no custom fonts"
+  anyway, so the system stack is the honest resolution rather than a compromise.
+
+  Palette is docs/design/tokens-v2.md verbatim — the same contrast-verified
+  hexes the app ships, so the ratios published there hold here too.
+-->
+<style>
+  :root {
+    /* Dark is the default: the audience visits at night. */
+    --base:#121417; --raised:#1C1F24; --sunken:#0B0D0F;
+    --brand:#4CC8B9; --on-brand:#08302B; --indigo:#93A0E8;
+    --positive:#6FCE97; --caution:#E5B84B;
+    --text:#F2F1EE; --text-2:#A8AFB8; --text-3:#6E757E;
+    --hairline:#2B3036;
+    --measure:64ch;
+    --radius:24px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --base:#F7F6F3; --raised:#FFFFFF; --sunken:#EEECE7;
+      --brand:#0C6F65; --on-brand:#FFFFFF; --indigo:#5262BC;
+      --positive:#2C774B; --caution:#8C6100;
+      --text:#1A1D21; --text-2:#565D66; --text-3:#80868E;
+      --hairline:#E2E0DB;
+    }
+  }
+
+  *,*::before,*::after { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body {
+    margin:0;
+    background:var(--base);
+    color:var(--text);
+    font:400 17px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    /* Never let the page scroll sideways, whatever a child does. */
+    overflow-x:hidden;
+  }
+
+  /* The Waterline motif: teal-over-indigo bands under a luminous horizon.
+     Held at a low opacity for the same reason the app holds it there — the
+     text above it has to stay legible (docs/design/tokens-v2.md). */
+  .field { position:relative; isolation:isolate; }
+  .field::before {
+    content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(120% 80% at 50% 118%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 70%),
+      linear-gradient(180deg, transparent 55%, color-mix(in srgb, var(--indigo) 10%, transparent));
+  }
+  .rule {
+    height:1px; border:0; margin:0;
+    background:linear-gradient(90deg, transparent, var(--brand), transparent);
+    opacity:.55;
+  }
+
+  .wrap { max-width:1080px; margin:0 auto; padding:0 24px; }
+  section { padding:88px 0; }
+  section + section { border-top:1px solid var(--hairline); }
+
+  h1,h2,h3 { line-height:1.15; letter-spacing:-.02em; margin:0 0 16px; font-weight:600; }
+  h1 { font-size:clamp(34px, 7vw, 60px); }
+  h2 { font-size:clamp(26px, 4.4vw, 38px); }
+  h3 { font-size:19px; letter-spacing:-.01em; }
+  p { margin:0 0 16px; max-width:var(--measure); color:var(--text-2); }
+  .lede { font-size:clamp(18px, 2.2vw, 21px); color:var(--text-2); }
+  strong { color:var(--text); font-weight:600; }
+  a { color:var(--brand); text-decoration-thickness:1px; text-underline-offset:3px; }
+  .eyebrow {
+    font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--text-2); margin:0 0 12px;
+  }
+
+  /* ---- header ---- */
+  header { padding:24px 0; border-bottom:1px solid var(--hairline); }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:600; color:var(--text); text-decoration:none; letter-spacing:-.01em; }
+
+  /* ---- hero ---- */
+  .hero { display:grid; grid-template-columns:1.15fr .85fr; gap:56px; align-items:center; padding-top:72px; }
+  @media (max-width:860px) { .hero { grid-template-columns:1fr; gap:40px; } }
+  .cta-row { display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-top:28px; }
+  .btn {
+    display:inline-block; padding:14px 24px; border-radius:999px;
+    background:var(--brand); color:var(--on-brand);
+    font-weight:600; text-decoration:none; border:1px solid transparent;
+  }
+  .btn-quiet {
+    background:transparent; color:var(--text); border-color:var(--hairline);
+  }
+  .note { font-size:15px; color:var(--text-2); margin-top:16px; }
+
+  /* ---- the lock-screen widget mock (CSS + inline SVG, no image asset) ---- */
+  .phone {
+    margin:0 auto; width:100%; max-width:300px; aspect-ratio:9/17;
+    border-radius:44px; border:1px solid var(--hairline);
+    background:linear-gradient(170deg, var(--sunken), var(--raised));
+    padding:26px 18px; display:flex; flex-direction:column; gap:18px;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.5);
+  }
+  .clock { text-align:center; color:var(--text); }
+  .clock .t { font-size:44px; font-weight:300; letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums; }
+  .clock .d { font-size:13px; color:var(--text-2); margin-top:4px; }
+  .widget {
+    margin-top:auto; background:color-mix(in srgb, var(--raised) 72%, transparent);
+    border:1px solid var(--hairline); border-radius:18px; padding:14px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    backdrop-filter:blur(8px);
+  }
+  .widget .day { font-size:26px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .widget .saved { font-size:13px; color:var(--text-2); font-variant-numeric:tabular-nums; }
+  .wind {
+    flex:0 0 auto; width:46px; height:46px; border-radius:999px;
+    background:var(--brand); color:var(--on-brand);
+    display:grid; place-items:center;
+  }
+  .caption { font-size:13px; color:var(--text-2); text-align:center; margin:14px auto 0; max-width:34ch; }
+
+  /* ---- grids ---- */
+  .steps, .cards, .facts, .prices { display:grid; gap:24px; margin-top:36px; }
+  .steps { grid-template-columns:repeat(3,1fr); }
+  .cards { grid-template-columns:repeat(4,1fr); }
+  .facts { grid-template-columns:repeat(3,1fr); }
+  .prices { grid-template-columns:repeat(2,1fr); max-width:640px; }
+  @media (max-width:900px) { .cards { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:760px) {
+    .steps,.facts,.prices { grid-template-columns:1fr; }
+    section { padding:64px 0; }
+  }
+  .card {
+    background:var(--raised); border:1px solid var(--hairline);
+    border-radius:var(--radius); padding:24px;
+  }
+  .card p { margin:0; font-size:15px; }
+  .card h3 { margin-bottom:8px; }
+  .num {
+    display:inline-grid; place-items:center; width:28px; height:28px; border-radius:999px;
+    background:color-mix(in srgb, var(--brand) 16%, transparent);
+    color:var(--brand); font-size:14px; font-weight:700; margin-bottom:12px;
+    font-variant-numeric:tabular-nums;
+  }
+  blockquote.fact {
+    margin:0; background:var(--sunken); border:1px solid var(--hairline);
+    border-left:3px solid var(--brand); border-radius:14px; padding:20px;
+    font-size:16px; color:var(--text);
+  }
+
+  /* ---- price ---- */
+  .price { background:var(--raised); border:1px solid var(--hairline); border-radius:var(--radius); padding:24px; }
+  .price .amt { font-size:34px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .price .per { font-size:15px; color:var(--text-2); }
+  .price .tag {
+    display:inline-block; margin-top:10px; padding:4px 10px; border-radius:999px;
+    background:color-mix(in srgb, var(--positive) 16%, transparent);
+    color:var(--positive); font-size:13px; font-weight:600;
+  }
+
+  /* ---- faq ---- */
+  .faq { margin-top:32px; display:grid; gap:0; }
+  .qa { padding:22px 0; border-top:1px solid var(--hairline); }
+  .qa:last-child { border-bottom:1px solid var(--hairline); }
+  .qa h3 { margin-bottom:8px; }
+  .qa p { margin:0; font-size:16px; }
+
+  /* ---- safety + footer ---- */
+  .safety {
+    background:color-mix(in srgb, var(--caution) 12%, var(--base));
+    border:1px solid color-mix(in srgb, var(--caution) 34%, transparent);
+    border-radius:var(--radius); padding:22px; margin-top:36px;
+  }
+  .safety h3 { color:var(--text); }
+  .safety p { color:var(--text-2); margin:0; font-size:15px; }
+  footer { padding:56px 0 72px; border-top:1px solid var(--hairline); }
+  .links { display:flex; flex-wrap:wrap; gap:12px 28px; margin:24px 0 0; padding:0; list-style:none; font-size:15px; }
+  .fine { font-size:13px; color:var(--text-2); margin-top:24px; max-width:var(--measure); }
+
+  /* Respect the setting the app respects. */
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M5 9h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 15c2.4 0 2.4 2 4.8 2s2.4-2 4.8-2 2.4 2 4.8 2" stroke="var(--brand)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Ballast
+    </a>
+    <a class="btn btn-quiet" href="/beta">Join the beta</a>
+  </div>
+</header>
+
+<!-- ===================== 1. HERO ===================== -->
+<section class="field" style="border:0">
+  <div class="wrap hero">
+    <div>
+      <h1>Steady beats perfect.</h1>
+      <p class="lede">
+        Ballast is the private way to quit anything — with a panic button on your
+        lock screen and a streak that forgives. No account. Nothing leaves your device.
+      </p>
+      <div class="cta-row">
+        <a class="btn" href="/beta">Join the beta</a>
+        <a class="btn btn-quiet" href="#how">How it works</a>
+      </div>
+      <p class="note">In private beta by invitation. There is no email list to join here.</p>
+    </div>
+
+    <div>
+      <div class="phone" role="img"
+           aria-label="An iPhone lock screen showing a Ballast widget: day 34, $412 saved, and a panic button.">
+        <div class="clock">
+          <div class="t">11:04</div>
+          <div class="d">Tuesday, 12 November</div>
+        </div>
+        <div class="widget">
+          <div>
+            <div class="day">Day 34</div>
+            <div class="saved">$412 saved</div>
+          </div>
+          <div class="wind" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M4 14c2.6 0 2.6 2.2 5.2 2.2S11.8 14 14.4 14s2.6 2.2 5.2 2.2"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 4v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 7l3-3 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <p class="caption">An illustration of the lock-screen widget. Your own numbers, or none at all in discreet mode.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. HOW IT WORKS ===================== -->
+<section id="how">
+  <div class="wrap">
+    <p class="eyebrow">The moment that matters</p>
+    <h2>Help before you even unlock.</h2>
+    <p>Most quit apps help you count days. The hard part is the ninety seconds when an urge arrives.</p>
+    <div class="steps">
+      <div class="card">
+        <span class="num">1</span>
+        <h3>One tap.</h3>
+        <p>The panic button lives on your lock screen, in Control Center, or on your Action button.</p>
+      </div>
+      <div class="card">
+        <span class="num">2</span>
+        <h3>Ninety seconds.</h3>
+        <p>Breathe with the circle — in for 4, hold for 7, out for 8. Urges crest and pass, usually within about 15 minutes.</p>
+      </div>
+      <div class="card">
+        <span class="num">3</span>
+        <h3>Your words.</h3>
+        <p>Then the app shows you your own reasons, in your own words, at the biggest type it has.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3. FORGIVENESS ===================== -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Forgiveness is a mechanic</p>
+    <h2>A slip isn't day zero.</h2>
+    <hr class="rule">
+    <p style="margin-top:24px">
+      Log a slip and your best streak is archived, not erased. Your momentum score
+      survives. Mistapped? Undo stays available for ten minutes. There's no red in
+      this app, no countdowns, and no lecture — just the next hour, starting now.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== 4. PRIVACY ===================== -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Private by architecture, not by promise</p>
+    <h2>Your quit is nobody's business.</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>No account</h3>
+        <p>There's nothing to sign up for. We couldn't read your data if we wanted to — there's no server of ours to send it to.</p>
+      </div>
+      <div class="card">
+        <h3>Discreet mode</h3>
+        <p>Widgets show numbers only. The app disguises itself as a calendar or timer.</p>
+      </div>
+      <div class="card">
+        <h3>Shoulder-proof</h3>
+        <p>The app switcher shows a blank card, never your streak.</p>
+      </div>
+      <div class="card">
+        <h3>You're in control</h3>
+        <p>Analytics are off unless you opt in — and even then, never your answers, notes, or times.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 5. HONEST PROOF ===================== -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Built like we mean it</p>
+    <h2>No testimonials until they're real.</h2>
+    <p>
+      There are no reviews to quote yet, so here are three things about the product
+      instead — each one checkable in the app itself.
+    </p>
+    <div class="facts">
+      <blockquote class="fact">"No red anywhere in the app — errors are amber, because shame doesn't help."</blockquote>
+      <blockquote class="fact">"Milestones say 'commonly reported,' because we won't promise what we can't know."</blockquote>
+      <blockquote class="fact">"The panic button has no disabled state. Help is never turned off."</blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 6. PRICING ===================== -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Pricing</p>
+    <h2>Transparent, like everything else.</h2>
+    <div class="prices">
+      <div class="price">
+        <div class="amt">$6.99</div>
+        <div class="per">per month</div>
+      </div>
+      <div class="price">
+        <div class="amt">$29.99</div>
+        <div class="per">per year</div>
+        <span class="tag">3-day free trial</span>
+      </div>
+    </div>
+    <p style="margin-top:28px">
+      No countdown timers. No fake discounts. Cancel in one tap — Apple handles billing.
+      The free trial is on the annual plan. Prices are in US dollars and may differ in your region.
+    </p>
+    <p class="note">During the beta, everything is free — TestFlight purchases are not real charges.</p>
+  </div>
+</section>
+
+<!-- ===================== 7. FAQ ===================== -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Questions</p>
+    <h2>The things people ask first.</h2>
+    <div class="faq">
+      <div class="qa">
+        <h3>Is this medical treatment?</h3>
+        <p>
+          No. Ballast tracks your progress and helps you through urges; it isn't medical
+          care. If you drink heavily or daily, stopping suddenly can be physically risky —
+          talk to a doctor. Free, confidential helplines are built into the app.
+        </p>
+      </div>
+      <div class="qa">
+        <h3>Do I need an account?</h3>
+        <p>No. There's nothing to create and nothing to log into.</p>
+      </div>
+      <div class="qa">
+        <h3>What data do you collect?</h3>
+        <p>
+          Usage analytics are off unless you opt in — and even then, never your answers,
+          notes, or the times you log. If you subscribe, Apple processes the payment and
+          our billing provider receives your purchase history, which is what lets the app
+          know you're subscribed. Nothing is used to track you across other apps, and
+          there is no advertising identifier anywhere in the app.
+        </p>
+      </div>
+      <div class="qa">
+        <h3>What can I quit?</h3>
+        <p>
+          Vaping, alcohol, adult content, cannabis, doomscrolling, or anything you name
+          yourself. "Cut down" is a valid goal, not a compromise.
+        </p>
+      </div>
+      <div class="qa">
+        <h3>What happens when I slip?</h3>
+        <p>
+          Your best streak is archived, your momentum survives, and you can undo within
+          ten minutes. Never day zero.
+        </p>
+      </div>
+      <div class="qa">
+        <h3>Will people see it on my phone?</h3>
+        <p>
+          Only if you want them to. Discreet mode strips habit words from every widget,
+          and the app icon can look like a calendar or timer.
+        </p>
+      </div>
+    </div>
+
+    <div class="safety">
+      <h3>If you need help right now</h3>
+      <p>
+        Ballast isn't a crisis service. If you're in danger or thinking about harming
+        yourself, contact your local emergency number, or find a free helpline in your
+        country at findahelpline.com. The app carries verified lines for the regions it
+        supports.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 8. FOOTER ===================== -->
+<footer class="field">
+  <div class="wrap">
+    <h2>The next hour starts now.</h2>
+    <p>Ballast is in private beta. If someone sent you here, they can send you an invite too.</p>
+    <div class="cta-row">
+      <a class="btn" href="/beta">Join the beta</a>
+    </div>
+    <ul class="links">
+      <li><a href="/privacy">Privacy Policy</a></li>
+      <li><a href="/terms">Terms of Use</a></li>
+      <li><a href="/beta">Beta guide</a></li>
+    </ul>
+    <p class="fine">
+      This app tracks your progress — it isn't medical care.
+      Ballast is made by Beyond Kaira. © 2026 Beyond Kaira. All rights reserved.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

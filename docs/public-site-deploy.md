@@ -2,10 +2,20 @@
 
 | Field | Value |
 |---|---|
-| Status | **NOT DEPLOYED.** DNS resolves; TLS does not cover the host; nothing is served. |
+| Status | **NOT DEPLOYED.** DNS resolves; TLS does not cover the host; nothing is served. Re-measured 2026-07-30 by `scripts/verify_public_site.sh` — 1 passed, 13 failed, unchanged from S56. |
 | Owner | **Operator.** Every step below needs shell access to the origin host, which no agent has. |
-| Blocks | App Review (Apple Schedule 2 / guideline 3.1.2(c) — the paywall's Terms + Privacy links must work). |
+| Blocks | App Review (Apple Schedule 2 / guideline 3.1.2(c) — the paywall's Terms + Privacy links must work) **and now the external TestFlight ring**, because an external beta group's Test Information carries a privacy-policy URL. |
 | Written | Session 56, from measurements taken the same session (recorded below, so they can be re-checked rather than trusted). |
+| Updated | Session 57 — the pages now EXIST, in `site/`. Two of them (`/` and `/beta`) are agent-authored and ready to copy; `terms.html` and `privacy.html` remain counsel-owned and absent. Verification is now a script rather than a paste-along. |
+
+> **What changed in S57, and why it matters for link-sharing.** The nginx block below
+> serves explicit locations and 404s everything else — which is correct, but it meant
+> **`/` had no `index.html` to serve, so the bare domain was a 404.** Anyone sent
+> `ballast.beyondkaira.com` would have met a dead link. There are now two real pages:
+> the landing page at `/`, and **`/beta` — the page you actually share with testers**
+> (what the app is, how to redeem the invite, the close-free paywall warning, the
+> twenty-minute pass, and the known oddities). Neither carries an invite or a build,
+> so forwarding either one leaks nothing.
 
 ---
 
@@ -91,10 +101,25 @@ server {
     location = /privacy { try_files /privacy.html =404; }
     location = /        { try_files /index.html   =404; }
 
+    # /beta is the page you share with testers. Extensionless to match the others,
+    # and worth a redirect from the .html form because people will type it.
+    location = /beta       { try_files /beta.html =404; }
+    location = /beta.html  { return 301 https://$host/beta; }
+
+    # robots.txt must be reachable, and it is the ONLY file outside the set above
+    # that is. It disallows crawling while trademark clearance (gate G0) is open.
+    location = /robots.txt { try_files /robots.txt =404; }
+
     # Anything else is a REAL 404 — never a friendly 200. See §1 conclusion 3.
     location / { return 404; }
 }
 ```
+
+**Adding a page later means adding a `location` here.** That is the deliberate cost of
+refusing a catch-all: a file copied to `/var/www/ballast` that has no `location` line is
+invisible, which is a loud, findable failure. `scripts/verify_public_site.sh` checks
+every path this block claims to serve, so a forgotten line shows up as a FAIL rather
+than as a page nobody notices is missing.
 
 ## 3. Certificate
 
@@ -117,9 +142,40 @@ Either is fine; a separate cert keeps the product host independent of the org si
 
 ## 4. The pages themselves
 
-**An agent must not write these, and none has.** Terms of Use and Privacy Policy are
-counsel-owned — `paywallCopy.json`'s own `_meta.legalNote` says the destinations and the
-auto-renew boilerplate are "operator/legal-owned". Place your counsel's text at
+### 4.1 The two that are ready — copy them up
+
+They live in **`site/`** in this repo. Static HTML, no build step, no JavaScript.
+
+```bash
+# From a checkout of this repo, on your machine:
+rsync -av --delete-after \
+      --exclude README.md \
+      site/ root@161.97.172.146:/var/www/ballast/
+
+# Or without rsync:
+scp site/index.html site/beta.html site/robots.txt root@161.97.172.146:/var/www/ballast/
+```
+
+`site/README.md` is documentation for you, not a page — exclude it (the nginx block has
+no `location` for it, so serving it would just 404, but there is no reason to ship it).
+
+| Path | File | What it is |
+|---|---|---|
+| `/` | `index.html` | The landing page. Implements `redesign/marketing-strategy.md` §5 |
+| `/beta` | `beta.html` | **The link you share with testers** |
+| `/robots.txt` | `robots.txt` | Blocks crawlers until name clearance |
+
+Both pages are self-contained: inline CSS, a system font stack, inline SVG, zero
+JavaScript, zero external requests. That is not stylistic — the CSP in §2 blocks
+external stylesheets, webfonts and all script, so anything else would silently fail in
+production while looking fine locally. `scripts/site_copy_lint.py` enforces it, along
+with the brand's tone rules.
+
+### 4.2 The two that are NOT here, and must not be agent-written
+
+**Terms of Use and Privacy Policy are counsel-owned, and no agent has written them.**
+`paywallCopy.json`'s own `_meta.legalNote` says the destinations and the auto-renew
+boilerplate are "operator/legal-owned". Place your counsel's text at
 `/var/www/ballast/terms.html` and `/var/www/ballast/privacy.html`.
 
 Two content requirements that come from this repo rather than from counsel, and are easy to miss:
@@ -131,29 +187,56 @@ Two content requirements that come from this repo rather than from counsel, and 
   auto-renew disclosure should be checked against App Store Connect's current wording
   ("Apple Account", not "Apple ID") before submission.
 
-## 5. Verify — the check that would have caught the old failure
+### 4.3 A founder copy pass is owed on the two agent-authored pages
 
-Do not stop at a status code. **Fetch the body**, because the apex proved a 200 can be a lie:
+The words are drafted from already-approved sources rather than invented — the hero,
+headings and FAQ from `redesign/marketing-strategy.md` §5 verbatim where it drafts them,
+and `beta.html` from `docs/testflight-beta-kit.md` §2–§4. **Three deviations were made
+deliberately, and each is yours to overrule** (they are listed with reasoning in
+`site/README.md`): no newsletter field (a form needs script and a POST target, both
+CSP-forbidden, and there is no list to collect into); no product screenshots (the
+lock-screen widget is drawn in CSS, because a stale screenshot makes a false claim the
+day the UI moves and the redesign is still landing waves); and the privacy FAQ answer is
+hedged for RevenueCat, because §5's drafted "None, unless you opt in" predates the live
+key and `app-privacy-label.md` now declares a Purchases › Purchase History row.
+
+## 5. Verify — one command
 
 ```bash
-for p in /terms /privacy; do
-  printf '%-10s ' "$p"
-  curl -sS -o /tmp/body -w 'HTTP %{http_code}  ' "https://ballast.beyondkaira.com$p" \
-    && printf 'bytes=%s  ' "$(wc -c < /tmp/body)" \
-    && grep -qiE 'terms|privacy|policy' /tmp/body && echo 'CONTENT OK' || echo 'SUSPECT — placeholder?'
-done
-
-# And prove a missing path FAILS, so the catch-all class cannot come back:
-curl -sS -o /dev/null -w 'nonsense path -> HTTP %{http_code} (want 404)\n' \
-  https://ballast.beyondkaira.com/definitely-not-a-page
+scripts/verify_public_site.sh
 ```
 
-A healthy result is: both pages HTTP 200 with a body of real size containing real words, **and**
-a nonsense path returning 404. If the nonsense path returns 200, the catch-all is back and the
-legal links are silently broken again.
+It reads response **bodies**, not status codes, because the apex proved a 200 can be a
+lie. Nineteen assertions across five groups: DNS and TLS; that each of `/`, `/beta`,
+`/terms`, `/privacy` returns 200 with a body over 200 bytes containing expected words;
+that a nonsense path returns **404**; that `robots.txt` and both `noindex` tags are in
+place; and that the four security headers from §2 are actually being sent.
+
+Two of those assertions are the non-obvious ones, and they exist because of §1:
+
+- **A body under 200 bytes is reported as the catch-all placeholder, not as a page.** The
+  old apex answered every path with 16 bytes reading `beyondkaira.com`.
+- **A nonsense path returning 200 is a FAIL.** If it ever does, the catch-all is back and
+  every legal link is silently broken again.
+
+Run against any host by passing it: `scripts/verify_public_site.sh staging.example.com`.
+
+**Baseline, measured 2026-07-30 (nothing deployed yet):** `1 passed, 13 failed` — DNS
+resolves, and everything else fails at TLS. That is the expected pre-deploy reading, so a
+first run that looks like this means the script is working, not that you broke something.
 
 ## 6. Once it is live
 
-- Re-run the check in §5 and tick the `operator-expected.md` §3 item.
+- Re-run `scripts/verify_public_site.sh` — it must print **READY**.
+- Tick the `operator-expected.md` §3 item.
 - Nothing in the app needs changing — `AppIdentifiers.publicSiteHost` already points here.
 - `docs/critical-path-post-uir.md` tracks this as a submission dependency; close it there too.
+- **The TestFlight beta kit's "Terms and Privacy links 404" known-issue row stops being
+  true** — it is marked in `docs/testflight-beta-kit.md` §4.2 as pending this deploy, and
+  the tester-facing line in §3.1 step 5 says the links will 404. Both need retiring, or
+  testers will be told to expect a failure that no longer happens.
+- **On name clearance (gate G0), and not before:** delete `site/robots.txt` and the
+  `noindex` meta tag from both pages, then redeploy. Leaving either in place ships a
+  launch site that search engines cannot see — a quiet and expensive failure. The verify
+  script asserts the gate is CLOSED, so it will start failing group 4 by design; flip
+  those two assertions when you flip the gate.

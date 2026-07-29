@@ -32,6 +32,14 @@ on:
       # to avoid burning a run — the same person-dependent guard the S49 note above
       # calls out. No lane reads this tree.
       - ".claude/**"
+      # S57 — `site/**` is the public marketing site (static HTML + inline CSS, no
+      # JavaScript, no build step). It is served by nginx on the origin host and no
+      # lane compiles, links, tests or snapshots it; `project.yml` has no glob that
+      # reaches it, so it cannot even enter the Xcode build. Same docs-class
+      # reasoning as `redesign/**` above, and the same structural fix rather than a
+      # remembered `[skip ci]`. Its own gate is free and runs on Linux:
+      # `scripts/site_copy_lint.py`.
+      - "site/**"
   pull_request:
     paths-ignore:
       - "docs/**"
@@ -53,6 +61,14 @@ on:
       # to avoid burning a run — the same person-dependent guard the S49 note above
       # calls out. No lane reads this tree.
       - ".claude/**"
+      # S57 — `site/**` is the public marketing site (static HTML + inline CSS, no
+      # JavaScript, no build step). It is served by nginx on the origin host and no
+      # lane compiles, links, tests or snapshots it; `project.yml` has no glob that
+      # reaches it, so it cannot even enter the Xcode build. Same docs-class
+      # reasoning as `redesign/**` above, and the same structural fix rather than a
+      # remembered `[skip ci]`. Its own gate is free and runs on Linux:
+      # `scripts/site_copy_lint.py`.
+      - "site/**"
 
 # Cancel superseded runs on branches/PRs, but never cancel main (a second merge must
 # not abort an in-flight TestFlight upload once that lane activates).

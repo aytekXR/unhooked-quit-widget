@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballast beta — what to expect, and what to look for</title>
+<meta name="description" content="How to install the Ballast beta, the one screen that looks broken and isn't, and the twenty-minute pass I'm asking for.">
+
+<!-- Same reasoning as index.html: the name is not cleared yet (gate G0). -->
+<meta name="robots" content="noindex, nofollow">
+
+<!--
+  Self-contained on purpose. The origin's CSP is
+  default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'
+  so no JS, no webfonts, no external CSS. And the nginx block serves EXPLICIT
+  locations only (docs/public-site-deploy.md §2) — a shared /style.css that was
+  never added to the config would 404 and leave this page unstyled, which is
+  exactly the silent degradation the runbook is designed to avoid. So the styles
+  are inline in each page, and the small duplication is the deliberate trade.
+
+  THIS PAGE IS THE LINK YOU SHARE. It carries no invite, no build, and no
+  download — TestFlight invites are sent by email, one person at a time. The page
+  only explains what the invite is and what to do with it, so forwarding it
+  leaks nothing.
+-->
+<style>
+  :root {
+    --base:#121417; --raised:#1C1F24; --sunken:#0B0D0F;
+    --brand:#4CC8B9; --on-brand:#08302B; --indigo:#93A0E8;
+    --positive:#6FCE97; --caution:#E5B84B;
+    --text:#F2F1EE; --text-2:#A8AFB8; --text-3:#6E757E;
+    --hairline:#2B3036;
+    --radius:20px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --base:#F7F6F3; --raised:#FFFFFF; --sunken:#EEECE7;
+      --brand:#0C6F65; --on-brand:#FFFFFF; --indigo:#5262BC;
+      --positive:#2C774B; --caution:#8C6100;
+      --text:#1A1D21; --text-2:#565D66; --text-3:#80868E;
+      --hairline:#E2E0DB;
+    }
+  }
+
+  *,*::before,*::after { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body {
+    margin:0; background:var(--base); color:var(--text);
+    font:400 17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    overflow-x:hidden;
+  }
+  .wrap { max-width:720px; margin:0 auto; padding:0 24px; }
+
+  header { padding:24px 0; border-bottom:1px solid var(--hairline); }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:600; color:var(--text); text-decoration:none; letter-spacing:-.01em; }
+  .bar a.back { color:var(--text-2); text-decoration:none; font-size:15px; }
+
+  h1,h2,h3 { line-height:1.2; letter-spacing:-.02em; margin:0 0 14px; font-weight:600; }
+  h1 { font-size:clamp(30px,5.5vw,42px); margin-top:56px; }
+  h2 { font-size:clamp(22px,3.4vw,27px); margin-top:48px; }
+  h3 { font-size:18px; margin-top:28px; }
+  p, li { color:var(--text-2); }
+  p { margin:0 0 16px; }
+  .lede { font-size:19px; color:var(--text-2); }
+  strong { color:var(--text); font-weight:600; }
+  a { color:var(--brand); text-underline-offset:3px; }
+  hr.rule { height:1px; border:0; margin:40px 0 0;
+            background:linear-gradient(90deg,transparent,var(--brand),transparent); opacity:.5; }
+
+  ol,ul { padding-left:22px; margin:0 0 16px; }
+  li { margin-bottom:10px; }
+  ol.steps { counter-reset:s; list-style:none; padding-left:0; }
+  ol.steps > li {
+    counter-increment:s; position:relative; padding-left:44px; margin-bottom:18px;
+  }
+  ol.steps > li::before {
+    content:counter(s); position:absolute; left:0; top:1px;
+    width:28px; height:28px; border-radius:999px; display:grid; place-items:center;
+    background:color-mix(in srgb, var(--brand) 16%, transparent);
+    color:var(--brand); font-size:14px; font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .callout {
+    border-radius:var(--radius); padding:20px 22px; margin:28px 0;
+    border:1px solid var(--hairline); background:var(--raised);
+  }
+  .callout h3 { margin:0 0 8px; }
+  .callout p:last-child { margin-bottom:0; }
+  .callout.amber {
+    background:color-mix(in srgb, var(--caution) 12%, var(--base));
+    border-color:color-mix(in srgb, var(--caution) 34%, transparent);
+  }
+  .callout.teal {
+    background:color-mix(in srgb, var(--brand) 10%, var(--base));
+    border-color:color-mix(in srgb, var(--brand) 30%, transparent);
+  }
+
+  table { width:100%; border-collapse:collapse; margin:20px 0; font-size:15px; }
+  th,td { text-align:left; padding:12px 10px; border-bottom:1px solid var(--hairline); vertical-align:top; color:var(--text-2); }
+  th { color:var(--text); font-weight:600; }
+  .scroll { overflow-x:auto; }
+
+  footer { margin-top:64px; padding:40px 0 72px; border-top:1px solid var(--hairline); }
+  .links { display:flex; flex-wrap:wrap; gap:12px 24px; margin:0; padding:0; list-style:none; font-size:15px; }
+  .fine { font-size:13px; color:var(--text-2); margin-top:22px; }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M5 9h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 15c2.4 0 2.4 2 4.8 2s2.4-2 4.8-2 2.4 2 4.8 2" stroke="var(--brand)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Ballast
+    </a>
+    <a class="back" href="/">What is Ballast?</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h1>Thanks for testing Ballast.</h1>
+  <p class="lede">
+    This page is everything you need in one place: how to get the app, the one
+    screen that looks broken and isn't, and the twenty minutes I'm asking for.
+  </p>
+  <hr class="rule">
+
+  <h2>What it is</h2>
+  <p>
+    An app for cutting down or stopping a habit. You pick what you're working on,
+    answer some questions, and it keeps your streak and holds on to the reasons you
+    gave. There's a panic button for your lock screen for the moment an urge hits.
+  </p>
+
+  <h2>Getting in</h2>
+  <ol class="steps">
+    <li>
+      <strong>Install TestFlight</strong> from the App Store. It's Apple's own app
+      for trying betas.
+    </li>
+    <li>
+      <strong>Open the email invite I sent you</strong> on your iPhone and tap the
+      button in it. That's what links your Apple Account to the beta — the invite
+      is per-person, so it needs to be your own.
+    </li>
+    <li>
+      <strong>Install Ballast from TestFlight</strong> and open it.
+    </li>
+  </ol>
+
+  <div class="callout">
+    <h3>Two things to check first</h3>
+    <p>
+      <strong>You need iOS 26 or newer.</strong> If TestFlight won't offer you the
+      build, that's why — tell me and I'll sort it out.
+    </p>
+    <p>
+      <strong>Please turn on crash reports:</strong> Settings → Privacy &amp;
+      Security → Analytics &amp; Improvements → <strong>Share With App
+      Developers</strong>. Without it I can't see crashes, and that's most of what
+      I need from a beta.
+    </p>
+  </div>
+
+  <div class="callout amber">
+    <h3>The one thing that will look broken and isn't</h3>
+    <p>
+      After the summary screen you'll hit a subscription screen <strong>with no
+      close button</strong>. In TestFlight the purchase is <strong>free</strong> —
+      Apple runs it as a test transaction and you are not charged. Please go
+      through it, because it's the only way to see the rest of the app and it's one
+      of the things I most need tested.
+    </p>
+    <p>
+      If you'd rather not, quit the app completely and reopen it, and you'll land on
+      the main screen.
+    </p>
+  </div>
+
+  <h2>Your privacy, plainly</h2>
+  <p>
+    Nothing you enter leaves your phone. There's no account and no sign-in. The app
+    doesn't ask for notifications, location, camera, or microphone — <strong>if
+    anything ever asks you for a permission, that's a bug</strong> and I want to
+    know immediately.
+  </p>
+
+  <h2>The twenty-minute pass</h2>
+  <p>Roughly in this order. You don't have to be thorough — just honest.</p>
+  <ol class="steps">
+    <li><strong>Install and open.</strong> Note anything slow or odd about the very first launch.</li>
+    <li><strong>The age check.</strong> A birth-year wheel. Enter your real year.</li>
+    <li>
+      <strong>The questions</strong> — 11 to 13 of them depending on your answers.
+      <strong>Note roughly when you start and when the summary appears</strong> —
+      that's a number I genuinely need. One question asks whether to share usage
+      data; either answer is a valid test, so say what you'd actually say. Two
+      involve typing a number — if you're outside the US or UK, watch the number
+      keys closely and tell me whether what you type is what you see.
+    </li>
+    <li>
+      <strong>The summary.</strong> Does it feel like it was written about you? Are
+      your own words in it, spelled the way you typed them? Is the money figure
+      plausible?
+    </li>
+    <li>
+      <strong>The subscription screen.</strong> Read it before you tap. Price, trial
+      length, what happens when the trial ends, the Terms and Privacy links,
+      Restore — is anything missing or confusing? Then take the free trial.
+    </li>
+    <li>
+      <strong>The widget moment.</strong> Follow it and add the <strong>"Streak"</strong>
+      widget to your lock screen. Choose the wide rectangular one — it carries the
+      panic button.
+    </li>
+    <li>
+      <strong>Panic, from the lock screen.</strong> Lock the phone, then tap the
+      panic button on the widget. It should go straight into a full-screen breathing
+      exercise showing <em>your</em> reasons. Do the whole thing.
+      <strong>How long from tap to something useful on screen?</strong> That's the
+      single most important thing you can tell me.
+    </li>
+    <li>
+      <strong>Log a slip.</strong> From the main screen. Read what comes back
+      carefully — it should not make you feel bad. Then try undoing it.
+    </li>
+    <li>
+      <strong>Settings.</strong> Go through every section: Panic access, Discreet
+      Mode, Breathing, Privacy &amp; Data, Support &amp; resources. In
+      <strong>Panic access</strong>, tap "Add the lock-screen widget" and confirm it
+      re-opens the widget screen from step 6.
+    </li>
+    <li>
+      <strong>Breathing → "Breathe with taps".</strong> Turn it on, then run the
+      panic flow again <strong>with your eyes shut</strong>. Can you follow the
+      rhythm by feel alone?
+    </li>
+  </ol>
+
+  <h3>If one of these is you, there's a bit more</h3>
+  <ul>
+    <li>
+      <strong>Vaping or nicotine.</strong> Answer the spend question honestly, then
+      check the summary's yearly figure against your own arithmetic.
+    </li>
+    <li>
+      <strong>Adult content.</strong> Please run this one in Discreet Mode
+      (below). The real question is whether you'd be comfortable with this app on
+      your home screen with someone next to you. Say so plainly if not.
+    </li>
+    <li>
+      <strong>Alcohol.</strong> You should meet an amber "One thing worth knowing"
+      card exactly once, on the summary. Tell me whether it lands as caring or as
+      alarming. "Got it" should dismiss it forever, and it should never come back.
+    </li>
+    <li>
+      <strong>Cutting down rather than stopping.</strong> Pick a "cut down" goal —
+      you get an extra step asking for a weekly limit. Check that the main screen
+      respects it.
+    </li>
+  </ul>
+
+  <h3>The discreet pass, if you're willing</h3>
+  <ol class="steps">
+    <li>Settings → <strong>Discreet Mode</strong> → turn on the toggle for your streak. The widget should drop to numbers only, with no habit name anywhere on it.</li>
+    <li>Settings → <strong>App Icon</strong> → "Calendar style" or "Timer style". The home-screen icon and its name change.</li>
+    <li>Add the <strong>"Reset"</strong> control from the Control Center gallery instead of "Panic". Same flow, neutral name and glyph.</li>
+    <li><strong>The real test:</strong> hand your unlocked phone to someone. Can they tell what the app is for from the home screen, the widget, or the Control Center gallery?</li>
+  </ol>
+
+  <h3>Starting over</h3>
+  <p>
+    Settings → Privacy &amp; Data → <strong>Erase everything</strong>, held for about
+    a second. That genuinely deletes everything, resets the app icon, and puts the
+    app back to a fresh install. Your subscription isn't affected — it lives with
+    your Apple Account.
+  </p>
+
+  <h2>Known oddities — none of these are worth reporting</h2>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>What you'll hit</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>The subscription screen has no close button</td>
+          <td>Expected for now. Take the free trial, or quit and reopen the app.</td>
+        </tr>
+        <tr>
+          <td>Your test subscription renews every day, then stops after about a week</td>
+          <td>Apple's doing, not the app's. In TestFlight every plan renews once per 24 hours, up to six times. If you reopen the app around day 7 and something looks wrong, <em>that</em> is worth telling me.</td>
+        </tr>
+        <tr>
+          <td>Helplines only show real numbers for the US and Turkey</td>
+          <td>Deliberate. Everywhere else gets written guidance and no phone number, because an unverified crisis number is worse than none.</td>
+        </tr>
+        <tr>
+          <td>The app never asks for notification permission</td>
+          <td>Correct and deliberate. It has no way to ask.</td>
+        </tr>
+        <tr>
+          <td>The streak widget looks empty just after you add it</td>
+          <td>Open the app once — that's what fills it. If it still looks wrong, please do tell me.</td>
+        </tr>
+        <tr>
+          <td>You had an older build and its widget vanished</td>
+          <td>Remove and re-add "Streak" once. The widget changed underneath.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    One that <strong>is</strong> worth reporting: if a price on the subscription
+    screen disagrees with the price in Apple's own purchase sheet, tell me straight
+    away.
+  </p>
+
+  <h2>How to tell me things</h2>
+  <div class="callout teal">
+    <p>
+      <strong>From inside TestFlight is easiest.</strong> Take a screenshot and tap
+      <strong>Share Beta Feedback</strong>, or just shake the phone. It sends me the
+      screenshot along with your device and build details, so I don't have to ask.
+    </p>
+    <p>
+      Wording matters as much as bugs here. If a sentence felt off, preachy, or
+      confusing, that's exactly the kind of thing I want.
+    </p>
+  </div>
+
+  <div class="callout amber">
+    <h3>One ask</h3>
+    <p>
+      <strong>Please don't share the invite or post screenshots.</strong> The name
+      isn't final yet, so the beta needs to stay off the public internet for now.
+      Sending someone this page is fine — it has no invite in it.
+    </p>
+  </div>
+
+  <div class="callout">
+    <h3>If you need help right now</h3>
+    <p>
+      Ballast isn't a crisis service, and it isn't medical care. If you're in danger
+      or thinking about harming yourself, contact your local emergency number, or
+      find a free helpline in your country at findahelpline.com.
+    </p>
+  </div>
+
+</main>
+
+<footer class="wrap">
+  <ul class="links">
+    <li><a href="/">What is Ballast?</a></li>
+    <li><a href="/privacy">Privacy Policy</a></li>
+    <li><a href="/terms">Terms of Use</a></li>
+  </ul>
+  <p class="fine">
+    This app tracks your progress — it isn't medical care.
+    Ballast is made by Beyond Kaira. © 2026 Beyond Kaira.
+  </p>
+</footer>
+
+</body>
+</html>

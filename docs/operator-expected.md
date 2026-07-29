@@ -2,7 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status (S56) | LIVE — **only OPEN items are listed here.** **Two things changed this session and both are already reflected below.** (1) A NEW hard dependency: the app's legal links now point at **`ballast.beyondkaira.com`**, which does not serve yet — see §3, and note the finding that the OLD apex URLs returned HTTP 200 with a 16-byte placeholder, so they were never real pages and no status-code check could have told you. (2) One item got SMALLER: CI now creates and feeds the TestFlight group itself, so §5 asks only that you add testers. |
+| Status (S57) | LIVE — **only OPEN items are listed here.** **The Friends-review sitting was prepared, and preparing it overturned the instruction S56 left behind.** (1) **§5's "just add the people" cannot be followed.** `Friends` is an **internal** group, and Apple only allows ASC account Users in one — the account has exactly one User (you). An internal group can never be converted, because `isInternalGroup` is not in Apple's update schema. §5 now carries the measured state of the live account and the two commands that stand up an **external** ring instead; new tooling (`scripts/testflight_testers.py`) takes your names+emails as a CSV, dry-runs by default, and refuses the internal group with the reason. Note: TestFlight invites are **email-only** — phone numbers cannot be used. (2) **The website had no landing page at all** — the nginx block 404s everything it has no explicit `location` for, and no `index.html` had ever been written, so a shared link was a dead link. `site/` now holds `/` and **`/beta`, the page you share with testers**, plus a crawler block; §3 has the deploy and `scripts/verify_public_site.sh` verifies it in one command. (3) An external ring's Test Information wants a privacy-policy URL, **so the site deploy now blocks the beta as well as submission** — it is worth doing first. |
+| _prior (S56)_ | LIVE — **only OPEN items are listed here.** **Two things changed this session and both are already reflected below.** (1) A NEW hard dependency: the app's legal links now point at **`ballast.beyondkaira.com`**, which does not serve yet — see §3, and note the finding that the OLD apex URLs returned HTTP 200 with a 16-byte placeholder, so they were never real pages and no status-code check could have told you. (2) One item got SMALLER: CI now creates and feeds the TestFlight group itself, so §5 asks only that you add testers. |
 | _prior_ | LIVE — **only OPEN items are listed here.** Pruned to open-items-only in Session 52 (2026-07-27): 11 blocks of session narrative removed, all 45 open actions kept. Closed items and the full decision record live in `docs/past-prompts.md` (the append-only ledger). |
 | Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook; it sequences this file. For the beta: **`docs/testflight-beta-kit.md`**. |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
@@ -194,9 +195,30 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       mode). It names no technique and makes no claim; if the clinician wants the counts
       de-emphasized, that is a one-line edit with no golden impact.
       (c) `docs/review-notes.md` — read top to bottom; its factual claims are source-verified.
-- [ ] **Stand up `ballast.beyondkaira.com` AND publish the two legal pages — A HARD DEPENDENCY.**
+- [ ] **Stand up `ballast.beyondkaira.com` — A HARD DEPENDENCY, and now also the thing that
+      makes a shared link work.**
       **Runbook: `docs/public-site-deploy.md`** (nginx server block + certbot, written out and
       ready to paste; the deploy itself needs your server access, so an agent cannot do it).
+
+      **NEW in S57 — the pages exist now, in `site/`.** There was a hole nobody had noticed:
+      the nginx block serves explicit locations and 404s everything else, and **no `index.html`
+      had been written — so the bare domain would have been a dead link.** Anyone you sent
+      `ballast.beyondkaira.com` would have got a 404. Two real pages now ship in the repo:
+
+      | Path | What it is |
+      |---|---|
+      | `/` | The landing page — implements `redesign/marketing-strategy.md` §5 |
+      | **`/beta`** | **The page you share with testers.** What the app is, how to redeem the invite, the close-free-paywall warning, the twenty-minute pass, the known oddities, how to send feedback |
+      | `/robots.txt` | Blocks crawlers while G0 name clearance is open |
+
+      Deploy is `rsync -av --delete-after --exclude README.md site/ root@…:/var/www/ballast/`
+      (§4.1 of the runbook), then **`scripts/verify_public_site.sh`** — one command, 19
+      assertions, and it reads response **bodies** rather than status codes for the reason in
+      the next paragraph. Baseline right now is `1 passed, 13 failed`: DNS resolves, everything
+      else fails at TLS. **A founder copy pass on those two pages is owed** — three deliberate
+      deviations from the §5 blueprint are listed in `site/README.md` for you to overrule.
+      `terms.html` / `privacy.html` are **deliberately absent and counsel-owned**; no agent has
+      written them.
       The paywall's Terms of Use / Privacy Policy are real tappable links, repointed in S56 to
       **`https://ballast.beyondkaira.com/terms`** and **`https://ballast.beyondkaira.com/privacy`**
       (constants in `Shared/Sources/AppIdentifiers.swift` — change them there if you host
@@ -254,13 +276,74 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
 > Step-by-step ASC mechanics stay in `docs/testflight-tester-guide.md` (internal group setup, external
 > groups/public link).
 
-- [ ] **Add your testers to the `Friends` group (~2 min) — CI created it and it already receives
-      every build.** You do NOT need to create anything. Two things to know:
+- [ ] **⚠️ READ THIS BEFORE YOU COLLECT NAMES — the `Friends` group cannot take friends, and
+      the reason is Apple's, not ours.** S56 left this item reading "just add the people". That
+      instruction cannot be followed, and following it would waste a sitting.
 
-      **✅ CONFIRMED DONE by run `30317459744` (per-job 10/10).** The group exists:
-      `Friends`, id `60ebfad4-30e8-489c-864d-bbb0378b9194`, internal, **access to all builds**.
-      The same run also uploaded a build, so the latest build is already available to it. Nothing
-      further is needed from you except adding the people.
+      **What was measured, live, against App Store Connect on 2026-07-30** (read-only API
+      probe; re-runnable any time with `scripts/testflight_testers.py --list --secrets-file secret.yml`):
+
+      | Fact | Value |
+      |---|---|
+      | App | `Ballast - Quit`, `com.beyondkaira.ballast`, ASC id `6788964100` |
+      | `Friends` | id `60ebfad4-30e8-489c-864d-bbb0378b9194`, **internal**, all-builds ✅, **0 testers**, public link off |
+      | `founders` | internal, all-builds ✅, 1 tester (you, INSTALLED) |
+      | Newest build | **139**, VALID, uploaded 2026-07-27 — available to both groups already |
+      | **Users on the ASC account** | **exactly 1 — you** (ACCOUNT_HOLDER, ADMIN) |
+
+      **The constraint.** Apple's own TestFlight page divides testers in two, and the division
+      is not cosmetic. **Internal** = "up to 100 members of your team" holding an App Store
+      Connect role (Account Holder, Admin, App Manager, Developer, Marketing) — builds arrive
+      with no review wait. **External** = "anyone with an email address", up to 10,000 — but
+      "your builds are automatically sent for review once they're added to a group".
+
+      So adding a friend's email to `Friends` as it stands is not a thing App Store Connect
+      will do. It would mean **inviting each friend to be a team member on the developer
+      account**, with a role that can see and change real things. That is right for a
+      co-founder and wrong for a friends ring.
+
+      **And the group cannot be converted.** `isInternalGroup` is absent from Apple's
+      `BetaGroupUpdateRequest` schema — the updatable set is only `name`,
+      `publicLinkEnabled`, `publicLinkLimit`, `publicLinkLimitEnabled`, `feedbackEnabled`,
+      `iosBuildsAvailableForAppleSiliconMac`, `iosBuildsAvailableForAppleVision`. An internal
+      group is internal forever. A **second, external group** is the only route.
+
+      **RECOMMENDED — do this, and it is two commands.** Everything is built and dry-run
+      tested; nothing below sends an email until you pass `--apply`.
+
+      ```bash
+      # 1. Make the external ring. Prints a plan first; --apply executes.
+      python3 scripts/testflight_testers.py --secrets-file secret.yml \
+              --create-external-group 'Friends (external)' --apply
+
+      # 2. Hand over the roster. Dry-run FIRST — it shows exactly who gets emailed.
+      python3 scripts/testflight_testers.py --secrets-file secret.yml \
+              --group 'Friends (external)' --roster friends.csv
+      #    then re-run with --apply
+      ```
+
+      `friends.csv` is `email,firstName,lastName`, one per line, header optional. Reordered
+      columns, extra columns, missing surnames, Excel's BOM and duplicate rows are all
+      handled; **one malformed address rejects the whole file** rather than half-inviting the
+      list. Keep the file out of the repo — it is other people's personal data.
+
+      **What this costs you: one Beta App Review.** It runs once per version on the first
+      build distributed externally; later builds of the same version usually clear without a
+      wait. It needs two ASC fields that are **currently empty** (`betaAppLocalizations`
+      returned 0 rows): **Beta App Description** and a **feedback email**, plus Beta App
+      Review Information. Paste-ready text for all of it is in
+      `docs/testflight-beta-kit.md` §1.2 / §1.3 — no writing required.
+
+      **The public link stays OFF** either way, and the script sets it off explicitly. That is
+      unchanged: G0 name clearance is still open.
+
+      **If you would rather not wait for review**, the alternative is honest but narrow: add
+      one or two people as ASC Users (Users and Access → invite, then re-run step 2 against
+      `Friends`). Fine for someone you would trust with the account. Not for a ring.
+
+      *Note on the data you offered to send: TestFlight invites are **email-only**. There is no
+      SMS or phone-number invite path, so phone numbers cannot be used here — names and email
+      addresses are what the roster needs.*
 
       **(0) What the first run found, and what it did.** The distribution job authenticated, resolved
       the app (`Ballast - Quit`, `com.beyondkaira.ballast`, ASC id `6788964100`) and reported that
@@ -271,10 +354,17 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       guarantee, not a procedural one — so "current and future builds are automatically available"
       is true even if the CI job is later removed. Both attribute names were checked against Apple's
       own `BetaGroupCreateRequest` schema before being used.
-      **`founders` is untouched** — if that is where your real testers are, either add them to
-      `Friends` too or set the repo Variable `TESTFLIGHT_GROUP=founders` and CI will target that
-      instead. **Internal groups take testers who are Users on your ASC account** (up to 100), which
-      is the trade for builds arriving with no Beta App Review wait.
+      **`founders` is untouched.** **Internal groups take testers who are Users on your ASC
+      account** (up to 100) — which, per the correction at the top of this item, is exactly why
+      `Friends` cannot host a friends ring. The all-builds flag was still the right call and
+      still holds; the group's *internal* nature is the part that turned out to be wrong for
+      the purpose.
+
+      **You do NOT need to change `TESTFLIGHT_GROUP` after making the external group.** Because
+      the new group is created with `hasAccessToAllBuilds` too, every build reaches it as a
+      property of the group, so CI's distribute job is a no-op for it either way. Point the
+      Variable at the external group only if you want CI's log to name the ring you actually
+      use.
 
       **(a) Why it is a separate CI job rather than a fastlane option.** The upload lane runs
       `pilot(skip_waiting_for_build_processing: true)`, and fastlane's own docs for that flag say
@@ -291,10 +381,13 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       the groups that DO exist, so a mismatch is self-diagnosing. To target a different group, set
       the repo Variable **`TESTFLIGHT_GROUP`** rather than editing code.
 
-      **(c) Internal vs external.** An **internal** group (up to 100 testers who are Users on your
-      ASC account) receives builds immediately — that is what you want for "Friends". An **external**
-      group also works, but builds only reach testers after Beta App Review; the script detects this
-      and warns rather than silently implying delivery.
+      **(c) Internal vs external — CORRECTED.** This line used to read "internal … is what you
+      want for Friends". That was wrong, and the correction is at the top of this item: an
+      internal group receives builds immediately but can only contain **Users on your ASC
+      account**, so ordinary friends cannot be in one. An **external** group takes anyone with
+      an email address, at the price of one Beta App Review per version.
+      `scripts/testflight_distribute.py` already detects an external group and warns rather
+      than silently implying delivery, so the build-attaching half needs no change.
 
       **To back-fill the builds already uploaded** — including the latest — run the
       **"TestFlight distribute (manual)"** workflow from the Actions tab with `sweep` set to the
