@@ -97,8 +97,18 @@ struct PaywallSnapshotTests {
 
     /// The shipping default: the close-free hard wall, annual pre-selected with the
     /// positive-green trial badge on its deliberately NEUTRAL sunken capsule.
+    ///
+    /// **AX5 is an axis here as the BASELINE, and its absence is what made S59's
+    /// first attempt at R58.1 hard to judge.** That run recorded the failure case
+    /// at AX5 and it showed "Restore purch…" truncated — but with no AX5 capture of
+    /// the SAME screen without the banner, there was no way to tell whether the fix
+    /// caused the truncation or merely revealed it. A baseline costs two PNGs and
+    /// settles that class of question permanently.
     @Test func snapshot_paywall_hard() throws {
-        assertAxes(try makeView(variant: .hard))
+        assertAxes(try makeView(variant: .hard), axes: [
+            ("light", false, false), ("dark", true, false),
+            ("light-ax5", false, true), ("dark-ax5", true, true),
+        ])
     }
 
     /// The teaser arm — identical above the fold, plus the quiet escape and its

@@ -28,7 +28,12 @@ struct PaywallView: View {
     /// dismissal vocabulary, deliberately. Defaulted for byte-compat.
     var onWinbackDismiss: () -> Void = {}
 
+    /// R58.1 — the scroll target the failure banner is brought into view by. A
+    /// plain constant `Hashable` id; nothing else in the app uses it.
+    private static let statusAnchor = "paywall.statusSurface"
+
     var body: some View {
+        ScrollViewReader { proxy in
         VStack(spacing: 20) {
             ScrollView {
                 VStack(spacing: 24) {
@@ -52,6 +57,11 @@ struct PaywallView: View {
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("paywall.renewalTerms")
+                    // R58.1 — stays INSIDE the scroll, and is SCROLLED TO instead.
+                    // See the `.onChange` below for why the obvious fix was tried,
+                    // measured and rejected.
+                    statusSurface
+                        .id(Self.statusAnchor)
                 }
                 .padding(.top, 24)
                 .frame(maxWidth: .infinity)
@@ -60,33 +70,44 @@ struct PaywallView: View {
 
             Spacer(minLength: 0)
 
-            // R58.1 (S59) — the status surface PINS; it does not scroll. It used
-            // to be the LAST child inside the ScrollView above, and ME-9's goldens
-            // are what made the consequence visible: the moment a purchase failed,
-            // the amber banner landed OFF-SCREEN. `snapshot_paywall_failed.*` as
-            // recorded in `30506301044` shows a ~4px sliver of the card and NO
-            // "Try again" — against the contract stated a few lines down
-            // ("retry reachable") and in the Epic 7 DoD ("retry AND restore both
-            // reachable, always"). Restore was always fine because it is pinned;
-            // the retry and the explanation were not.
-            //
-            // Pinning is the correct shape, not merely the convenient one: R33.12
-            // item 4 is "content SCROLLS; actions PIN", and this surface carries an
-            // action. It is feedback for a tap the user JUST made, so it has to be
-            // where the user is already looking.
-            //
-            // The idle layout cannot move, and that was MEASURED rather than
-            // assumed. `footerActions` renders two absent `if let`s on the hard
-            // arm; comparing the adopted `hard.light` (CTA → Restore ≈ 134pt) with
-            // `teaser.light` (CTA → escape ≈ 134pt) shows two elided children
-            // contributed ZERO spacing — so SwiftUI omits an absent conditional
-            // from `VStack` spacing, and `statusSurface`'s idle branch builds the
-            // same `_ConditionalContent` shape. The four non-failure goldens
-            // therefore compare-and-match; if any of them moves, that assumption
-            // was wrong and this comment is the thing to re-read.
-            statusSurface
-
             footerActions
+        }
+        // R58.1 (S59) — bring the failure banner INTO VIEW rather than move it.
+        //
+        // The defect ME-9's goldens exposed: `statusSurface` is the last child of
+        // the ScrollView, so the moment a purchase failed the amber banner landed
+        // OFF-SCREEN — `snapshot_paywall_failed.*` from run `30506301044` shows a
+        // ~4px sliver and NO "Try again", against the contract stated below
+        // ("retry reachable") and the Epic 7 DoD ("retry AND restore both
+        // reachable, always"). Restore was never the problem; it is pinned.
+        //
+        // **The obvious fix was to PIN the banner too — R33.12 item 4 says a
+        // surface carrying an ACTION pins while content scrolls — and it was tried
+        // and MEASURED before being rejected.** Run `30509129672` recorded it at
+        // AX5, and the pinned zone cannot absorb this banner: at that text size the
+        // message wraps to six lines, and the footer it now shares space with
+        // truncates to "Restore purch…", "Terms…", "Privacy…". Truncation at an
+        // accessibility size is precisely what brandkit §8 and the Dynamic-Type
+        // contract forbid ("the layout gives way, never the glyph"), and NOTHING IN
+        // CI WOULD HAVE CAUGHT IT: `test_a11yAudit_paywall_noViolations` mounts at
+        // the DEFAULT content size, so Apple's `.dynamicType` check never sees AX5
+        // on this screen. Only the golden did — which is why the AX5 axis is
+        // pinned on the failure case from here on.
+        //
+        // So the banner stays in the scroll, where it can wrap freely, and the view
+        // scrolls to it when the phase turns. That fixes visibility while leaving
+        // the pinned zone's height exactly as it was — the four non-failure goldens
+        // are untouched by construction rather than by inference.
+        //
+        // `ScrollViewReader` and `scrollTo(_:anchor:)` are both iOS 14.0 and
+        // undeprecated (docs-JSON verified); neither has an in-repo precedent, so
+        // both are new-API surface.
+        .onChange(of: model.phase) { _, phase in
+            guard phase == .failed || phase == .restoredEmpty else { return }
+            withAnimation(.easeOut(duration: Theme.motion.standard)) {
+                proxy.scrollTo(Self.statusAnchor, anchor: .bottom)
+            }
+        }
         }
         .padding(20)
         // ME-9 (§6.6) — the Waterline backdrop, "subdued, ≤ top third". This
