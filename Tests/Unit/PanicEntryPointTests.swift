@@ -1,13 +1,13 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E3.3 unit lane — the panic ENTRY-POINT matrix. The two plan-named tests are verbatim
 // (implementation-plan.md E3.3); the attribution pins prove every entry point lands its
 // TRUE PanicSource end to end, killing the `.lockscreenWidget` hardcode at
 // PanicFlowView.swift:36. All new logic under assertion lives in Shared pure types
 // (PanicControlStyle, PanicLaunchFlag, PanicQuitEntity/PanicQuitQuery) so the unit lane
-// can reach it — UnhookedTests links target Unhooked only, so the Widgets/Sources
+// can reach it — BallastTests links target Ballast only, so the Widgets/Sources
 // control wrappers stay thin and invisible here (the constraint that forces the styling
 // data into Shared).
 //

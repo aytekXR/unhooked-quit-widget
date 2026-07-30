@@ -7,7 +7,7 @@
 
   ],
   "settings" : {
-    "_comment" : "E7.1 (Session 24, R24.5): the StoreKitTest configuration mirroring ProductCatalog — MVP §6 pricing as CONFIG ($6.99/mo; annual A/B $29.99 control vs $39.99; 3-day free trial on ANNUAL only). A UnhookedTests RESOURCE, never an app-bundle member (dev/test artifact). Hand-authored on the Linux box against the docs-verifier's minimal structure; RE-VALIDATE by opening in Xcode 26 before the operator's sandbox session (recorded rider). Products are NOT registered in App Store Connect by this session — that is the operator's sandbox-time task, ids must match exactly then."
+    "_comment" : "E7.1 (Session 24, R24.5): the StoreKitTest configuration mirroring ProductCatalog — MVP §6 pricing as CONFIG ($6.99/mo; annual A/B $29.99 control vs $39.99; 3-day free trial on ANNUAL only). A BallastTests RESOURCE, never an app-bundle member (dev/test artifact). Hand-authored on the Linux box against the docs-verifier's minimal structure; RE-VALIDATE by opening in Xcode 26 before the operator's sandbox session (recorded rider). Products are NOT registered in App Store Connect by this session — that is the operator's sandbox-time task, ids must match exactly then."
   },
   "subscriptionGroups" : [
     {

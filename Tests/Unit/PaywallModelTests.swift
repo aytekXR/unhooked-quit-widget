@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24) — the paywall flow model's never-trap pins
 // (Epic 7 DoD: "paywall never traps a user — failure paths always offer

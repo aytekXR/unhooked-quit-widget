@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E8.1 — the analytics privacy boundary, tested as load-bearing behavior
 // (test-suite §7 rule 9: privacy assertions are tests, not comments).

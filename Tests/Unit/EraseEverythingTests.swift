@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E2.4 unit lane — one-tap erase. The plan-named tests from implementation-plan.md
 // E2.4 are verbatim, scope-adjusted per resume-prompt v1.9 §objective:

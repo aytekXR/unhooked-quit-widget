@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.3 (R26.1) — the repository half of the win-back clock: the ONE writer
 // of `AppSettings.lapseObservedAt` stamps the FIRST observed lapse from the

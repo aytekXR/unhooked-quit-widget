@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E4.1 · the STORE-BACKED slip undo lifecycle through QuitRepository (dashboard half).
 // The whole 10-minute-undo unit lands together (decision-record "Store-backed path"):

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E4.2 unit lane — the zero-shame copy gate (implementation-plan §E4.2: "every
 // slip/relapse string passes the no-shame checklist; copy centralized in one audited

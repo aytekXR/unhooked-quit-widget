@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E4.1 · deferred slip application through `flushPanicOutcomes` (the cold half's
 // landing pins — Session 11 decision record, BINDING). The flush is the moment a

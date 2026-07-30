@@ -3,7 +3,7 @@ import StreakEngine
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // E3.2 — the snapshot lane's first REAL image matrix (it has been a render-free
 // smoke since E0.1). Per-step panic screens, light + dark × default + AX5 Dynamic

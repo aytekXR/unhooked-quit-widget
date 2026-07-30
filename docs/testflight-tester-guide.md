@@ -100,7 +100,7 @@ builds of the same version usually clear instantly).
   a pre-panic-fix skeleton.
 - **Export compliance**: ✅ **already handled — the question should not appear.**
   `ITSAppUsesNonExemptEncryption = false` is declared in the app target's
-  Info.plist (`project.yml` → `Unhooked` → `info.properties`), so App Store
+  Info.plist (`project.yml` → `Ballast` → `info.properties`), so App Store
   Connect treats the app as exempt automatically. (Ballast uses only standard
   HTTPS/OS-provided encryption and today makes zero network calls — the
   TelemetryDeck transport is dormant — so the exempt declaration is correct.)

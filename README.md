@@ -1,7 +1,8 @@
 # unhooked-quit-widget
 
-Native iOS quit-anything streak app — ships as **Ballast** (org `com.beyondkaira`;
-the repo and internal target names keep the working title "Unhooked").
+Native iOS quit-anything streak app — ships as **Ballast** (org `com.beyondkaira`).
+The git repo slug is the only place the old working title "Unhooked" survives —
+the Xcode project, all five targets, the scheme and the Swift module are `Ballast*`.
 All product decisions live in `docs/` — start with `docs/resume-prompt.md`.
 The live operator checklist is `docs/operator-expected.md`.
 
@@ -12,7 +13,7 @@ The `.xcodeproj` is generated, not committed:
 ```sh
 brew install xcodegen
 xcodegen generate
-open Unhooked.xcodeproj
+open Ballast.xcodeproj
 ```
 
 Portfolio stub packages live in `Packages/` and test standalone:

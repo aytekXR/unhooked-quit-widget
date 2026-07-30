@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E3.1 unit lane — panic path productionizing. The plan-named tests from
 // implementation-plan.md E3.1 are verbatim where the unit tier owns them,

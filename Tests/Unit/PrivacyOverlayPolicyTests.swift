@@ -1,6 +1,6 @@
 import SwiftUI
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E6.3 unit lane — the app-switcher shield's PURE activation policy (PrivacyOverlayPolicy).
 // I/O-free, so it pins here without the simulator; ScenePhase is a SwiftUI value type

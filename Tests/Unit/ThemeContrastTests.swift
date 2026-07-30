@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // UIR-0 (Session 32) unit lane — the R28.13 closure-by-construction gate.
 //

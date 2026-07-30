@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E9.1 unit lane — the safety layer's plan-named pins (implementation-plan §E9.1,
 // mvp feature 11): the post-gate resources screen's composition, the GLOBAL region

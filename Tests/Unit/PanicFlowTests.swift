@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E3.2 unit lane — panic flow + the §9-rule-2 write buffer. Plan-named tests are
 // verbatim; the two exits are scope-adjusted per resume-prompt v2.1 §objective:

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // S29 unit lane — the DebugEventSpySink decorator (R25.9/Architect-P6, deferred
 // BY NAME from S25 to this named StoreKit-config/contract session): capture of

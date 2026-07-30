@@ -2,7 +2,7 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // P3 (redesign §6.5 / QW copy deltas) — the summary card's goldens, recorded the
 // wave AFTER its strings changed so the re-record discipline has pixels to hold:

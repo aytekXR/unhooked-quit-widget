@@ -122,7 +122,7 @@ whether it *feels* like a settings screen.
    `monetization-importer-lint` was NOT in the TestFlight gate's `needs:` (so it wasn't blocking the
    upload) — both lints are now in `needs:`.
 2. **`ITSAppUsesNonExemptEncryption = false`** — ✅ ALREADY PRESENT (not newly added). Verified in the
-   app target's Info.plist (`project.yml` → `Unhooked` → `info.properties`); the export-compliance
+   app target's Info.plist (`project.yml` → `Ballast` → `info.properties`); the export-compliance
    question is already suppressed. The `testflight-tester-guide.md` §3 "a future session can add it"
    note was stale and is corrected.
 

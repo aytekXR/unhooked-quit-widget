@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E9.3 (R28.9) — the panic-script copy gate, BORN-GREEN permanent CI (the R27.13
 // shape: scratch-verified over the exact shipping bytes on the free box before it

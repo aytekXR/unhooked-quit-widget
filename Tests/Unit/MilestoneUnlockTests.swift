@@ -1,7 +1,7 @@
 import Foundation
 import StreakEngine
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // ME-3 (S51) unit lane — the unlock moment's two testable halves: the DERIVATION
 // (`StreakDetailComposer.newlyUnlockedMilestone`, pure) and the COPY table's lexicon.

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E5.3 unit lane — the pure summary math + the navigation-order pin: projected
 // annual savings is weeklySpend × 52 Decimal-exact with floor-to-ten display

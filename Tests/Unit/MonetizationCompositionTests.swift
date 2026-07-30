@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24) — the DORMANT gate as a pure, spy-checkable
 // decision (R24.2): the `appID.isEmpty` fork of the TelemetryDeck precedent,

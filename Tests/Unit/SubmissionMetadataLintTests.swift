@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E10.2 unit lane — the submission metadata lint (implementation-plan §E10.2:
 // "`test_release_bundleContainsNoExplicitTermsInMetadata()`-style lint on metadata

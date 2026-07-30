@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // Warm-launch regression lane — the two halves of the "Control Center tap does
 // nothing" device finding (first real-device tap of the control family; the E0.3
@@ -9,8 +9,8 @@ import Testing
 //   1. TARGET MEMBERSHIP: the control/widget intents were compiled ONLY into the
 //      widget extension, and iOS will not open the app for a control whose
 //      `openAppWhenRun` intent isn't available to the app process. The compile-time
-//      pin below is the regression test: this file builds against target Unhooked
-//      (UnhookedTests links the app target only — the constraint PanicEntryPointTests
+//      pin below is the regression test: this file builds against target Ballast
+//      (BallastTests links the app target only — the constraint PanicEntryPointTests
 //      documents), so these references FAIL TO COMPILE if either intent ever moves
 //      back out of the app target.
 //   2. WARM CONSUMPTION: the app read the launch flag only in `BallastApp.init`

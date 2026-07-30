@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E5.3 unit lane — the summary fields at the repository seam: `createQuit(from:)`
 // fills the two EXISTING QuizProfile fields (`projectedAnnualSavings` = spend × 52

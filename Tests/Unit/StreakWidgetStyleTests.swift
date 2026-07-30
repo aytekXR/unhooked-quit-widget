@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E6.2 unit lane — the streak widget's HOME-side surfaces: the gallery/micro-copy table
 // (StreakWidgetStyle) and the rectangular family's panic-button display math

@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.2 (R25.6) — the purchase fire-point: the S24 deferral R24.4 carried BY
 // NAME, ruled this session. `purchase` = a USER-INITIATED IN-APP PAID

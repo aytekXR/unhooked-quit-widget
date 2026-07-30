@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E5.3 unit lane — the quiz_completed fire-point at the summary render (R2's
 // canonical MVP §5 trigger: "Personalized summary shown"): the summary view calls

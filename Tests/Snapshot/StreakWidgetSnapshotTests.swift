@@ -4,7 +4,7 @@ import SwiftUI
 import Testing
 import UIKit
 import WidgetToolkit
-@testable import Unhooked
+@testable import Ballast
 
 // E6.2 — the streak widget's family snapshot matrix (step-0 R10). The FINAL
 // `StreakWidgetView` is rendered over HAND-BUILT fixtures — the composer stub is NOT in

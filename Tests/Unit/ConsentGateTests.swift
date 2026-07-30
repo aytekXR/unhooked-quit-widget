@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E8.2 unit lane — the consent step at the reserved slot-3 seam, PURE tier: the
 // shipping quizConfig renders consent at its FIXED canonical slot (between 2 and

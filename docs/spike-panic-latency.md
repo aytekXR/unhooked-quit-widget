@@ -19,7 +19,7 @@ device, 10/10 attempts").
 1. **Signpost** — subsystem `com.beyondkaira.ballast` (`AppIdentifiers.loggingSubsystem`;
    the former placeholder `dev.placeholder.quitwidget` was retired at Gate G0, 2026-07-08,
    and was never registered — filtering Instruments by it finds nothing), category
-   `PanicLaunch`, interval `PanicColdLaunch` (begins in `UnhookedApp.init` via
+   `PanicLaunch`, interval `PanicColdLaunch` (begins in `BallastApp.init` via
    `PanicLaunchTrace.begin()`, ends on `PanicPlaceholderView.onAppear`). Visible in
    Instruments' os_signpost lane.
 2. **Automated proxy** — `PanicLatencyDeviceTests.test_panicColdLaunch_signpost_under2000ms`
@@ -44,8 +44,8 @@ device, 10/10 attempts").
    "Streak" widget to the lock screen. Verify both render and the button exists
    (E0.3 acceptance: ControlWidget registration verified manually).
 5. Automated pass: run `PanicLatencyDeviceTests` against the device
-   (`xcodebuild test -project Unhooked.xcodeproj -scheme Unhooked -destination
-   'platform=iOS,id=<UDID>' -only-testing:UnhookedUITests/PanicLatencyDeviceTests`).
+   (`xcodebuild test -project Ballast.xcodeproj -scheme Ballast -destination
+   'platform=iOS,id=<UDID>' -only-testing:BallastUITests/PanicLatencyDeviceTests`).
    Transcribe the printed samples + p90 below.
 6. Manual pass: lock the phone; cold-condition the app (reboot, or leave overnight);
    tap the lock-screen panic button; capture the `PanicColdLaunch` signpost interval
@@ -64,7 +64,8 @@ device, 10/10 attempts").
 
 ### S48 — the first real device run, and what it actually showed
 
-**The harness had never run on a device at all.** `UnhookedUITests` carried no
+**The harness had never run on a device at all.** The UI-test target (then named
+`UnhookedUITests`, `BallastUITests` since S58) carried no
 `PRODUCT_BUNDLE_IDENTIFIER`; the simulator lanes (all of CI) do not need one, so the
 gap stayed invisible for 47 sessions, while a device run failed the BUILD —
 "UnhookedUITests doesn't have a bundle identifier" — before a single test executed.
@@ -93,7 +94,7 @@ tap a real lock-screen widget, and it never sees the OS's intent→launch phase
 (architecture §11 budgets that at ~500–800 ms, OS-owned). The authoritative number
 is still the manual Instruments pass in the runbook above. A Release-configuration
 run was attempted and is impossible as the project stands — the unit/snapshot
-targets use `@testable import Unhooked`, which needs `ENABLE_TESTABILITY`, off in
+targets use `@testable import Ballast`, which needs `ENABLE_TESTABILITY`, off in
 Release; measuring Release would mean building the UI-test target against a Release
 app separately.
 

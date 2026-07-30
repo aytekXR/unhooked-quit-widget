@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E2.3 unit lane — the CloudKit dedupe merge pass + recomputeDerivedState() + the
 // ADR-7 healing re-anchor + the conservative LKG witness. The five doc-canonical

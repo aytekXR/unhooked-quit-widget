@@ -2,7 +2,7 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // ME-1 (redesign §6.15) — the widget-adoption moment's goldens: the shipping
 // copy table over a deterministic fixture feed, light + dark × default + AX5

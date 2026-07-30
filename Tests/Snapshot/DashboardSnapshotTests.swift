@@ -2,7 +2,7 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // UIR-2 (Session 34) — the dashboard card's golden matrix. The real `StreakDashboardCard`
 // is rendered over a HAND-BUILT `StreakCardModel` value (no store, no SwiftData, no

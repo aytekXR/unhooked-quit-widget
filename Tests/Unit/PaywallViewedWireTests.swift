@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.2 (R25.5/R25.7) — the paywall_viewed + teaser_entered fire-points, over
 // the presentation seam's closure factory (`PaywallPresenter`): the S24

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // ME-1 (redesign §6.15) unit lane — the widget-adoption handshake + the
 // `widget_added` wiring. The handshake is the ONE detection channel for "the

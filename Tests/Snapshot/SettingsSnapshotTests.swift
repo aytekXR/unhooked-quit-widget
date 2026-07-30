@@ -2,7 +2,7 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // ME-7 (Session 50, redesign §6.11) — the rebuilt Settings screen's goldens.
 //

@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24) — the pricing-is-config pins (R24.5; test-suite
 // §4.2's config-drift purpose, landed on the honest tier): ProductCatalog
@@ -18,7 +18,7 @@ import Testing
 // RED: ProductCatalog is inert and Ballast.storekit is not yet in the test
 // bundle — every pin below fails by design until green.
 
-/// Test-bundle anchor: `Ballast.storekit` is a UnhookedTests RESOURCE by
+/// Test-bundle anchor: `Ballast.storekit` is a BallastTests RESOURCE by
 /// ruling (R24.5) — a dev/test artifact must never ship in the app bundle.
 private final class MonetizationConfigBundleToken {}
 
@@ -65,7 +65,7 @@ struct MonetizationConfigTests {
         let url = try #require(
             Bundle(for: MonetizationConfigBundleToken.self)
                 .url(forResource: "Ballast", withExtension: "storekit"),
-            "Ballast.storekit must ship as a UnhookedTests resource (never the app bundle)"
+            "Ballast.storekit must ship as a BallastTests resource (never the app bundle)"
         )
         let root = try #require(
             try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
@@ -119,7 +119,7 @@ struct MonetizationConfigTests {
         let url = try #require(
             Bundle(for: MonetizationConfigBundleToken.self)
                 .url(forResource: "Ballast", withExtension: "storekit"),
-            "Ballast.storekit must ship as a UnhookedTests resource (never the app bundle)"
+            "Ballast.storekit must ship as a BallastTests resource (never the app bundle)"
         )
         let root = try #require(
             try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]

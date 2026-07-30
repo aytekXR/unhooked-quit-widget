@@ -2,7 +2,7 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // UIR-4 (Session 36) — the resources screen's golden matrix. The real `SafetyResourcesView`
 // is rendered over a HAND-BUILT, LOCALE-FIXED `SafetyResourcesViewData` via the test-internal

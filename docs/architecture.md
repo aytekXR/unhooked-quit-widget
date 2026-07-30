@@ -8,7 +8,7 @@
 | Portfolio cluster | A2 — Native Swift, local-first, no backend |
 | Platforms | iOS 26+ (iPhone only, v1) |
 
-> **Naming note — RESOLVED.** The feasibility report made "Unhooked" a pre-build rename gate; the product shipped as **Ballast** and Gate G0 cleared 2026-07-08. The bundle ID (`com.beyondkaira.ballast`), App Group and iCloud container were all registered under the final name, exactly as this note required — no identifier was burned. The name "Unhooked" now survives only as the Xcode target/module and the git repo slug, neither of which a user ever sees.
+> **Naming note — RESOLVED.** The feasibility report made "Unhooked" a pre-build rename gate; the product shipped as **Ballast** and Gate G0 cleared 2026-07-08. The bundle ID (`com.beyondkaira.ballast`), App Group and iCloud container were all registered under the final name, exactly as this note required — no identifier was burned. Session 58 renamed the Xcode project, its five targets, the scheme and the Swift module to `Ballast*`, so the name "Unhooked" now survives only as the git repo slug and in HISTORICAL prose — doc titles, `feasibility-report.md` (which exists to argue the name was burned, and is kept verbatim), and the append-only `past-prompts.md` ledger. None of it is an instruction and none of it is user-visible.
 
 ---
 

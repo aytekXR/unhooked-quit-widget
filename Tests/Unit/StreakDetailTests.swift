@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // P2 (redesign §6.17) unit lane — Streak Detail's pure derivations + copy
 // discipline. The milestone timeline is the 43 dormant catalog bodies' first

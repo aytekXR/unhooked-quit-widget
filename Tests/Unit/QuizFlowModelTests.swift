@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E5.2 unit lane — the quiz flow model over the pure engine: step advance fires
 // quiz_step_completed with the FIXED canonical slot (R1), back preserves answers,

@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E6.2 unit lane — the APP HALF of the streak widget feed: the repository's
 // widget-state.json writer (field set + §10 absence + guard-honest streakStart),

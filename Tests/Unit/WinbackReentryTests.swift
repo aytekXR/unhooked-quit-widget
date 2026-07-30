@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.3 (R26.6) — the win-back slot in the pure re-entry decision:
 // precedence entitled > winback (`.lapsed`-only) > teaser-expiry. The

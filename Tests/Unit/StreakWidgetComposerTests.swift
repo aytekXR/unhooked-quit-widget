@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 import WidgetToolkit
-@testable import Unhooked
+@testable import Ballast
 
 // E6.2 unit lane — the provider's testable core: StreakWidgetComposer selects ONE quit
 // from the feed, maps it onto WidgetToolkit's domain-neutral planner state (in the

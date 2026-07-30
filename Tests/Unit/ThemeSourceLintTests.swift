@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // UIR-0 (Session 32) unit lane — the single-source-of-truth enforcement half of
 // the Theme layer (the SlipLexiconTests shape, applied to source instead of

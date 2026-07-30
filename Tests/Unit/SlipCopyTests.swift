@@ -1,12 +1,12 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E4.1 unit lane — the bundled slip-flow copy audit. Mirrors PanicFlowTests'
 // `test_panicScript_decodesShippingFile_pacerAndExitsPinned`: the SHIPPING content
 // file is the fixture (test-suite §3.2 — static-content fixtures are the shipping
 // files, never copies), loaded from the app bundle via `SlipCopy.loadShipping()`
-// (default `bundle: .main`; the UnhookedTests host IS the app bundle).
+// (default `bundle: .main`; the BallastTests host IS the app bundle).
 //
 // The banned-lexicon + token-integrity audit is the test-suite §1.1 tests 12–13
 // technique, applied the session slipCopy.json becomes a CONSUMED, bundled file

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E9.2 unit lane — the milestones content-table audit (implementation-plan §E9.2;
 // test-suite §1.1 test 12: "content-table audit as a test"). BOTH tests are

@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E5.2 unit lane — quiz completion at the repository seam: `createQuit(from:)`
 // maps the profile's answers onto the quit (motivations VERBATIM in user order,

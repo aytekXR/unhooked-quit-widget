@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.3 (R26.1/R26.3/R26.4) — the pure win-back eligibility predicate: an
 // app-side observed-lapse stamp + an injected clock, because NEITHER Apple

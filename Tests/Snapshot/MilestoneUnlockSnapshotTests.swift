@@ -3,7 +3,7 @@ import StreakEngine
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // ME-3 (S51, redesign §6.20) — the milestone unlock card's goldens. This is a brand moment
 // (the crest's waterline rise, Ember's sanctioned second spend, quiet pride rather than a

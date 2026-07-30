@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24) — the app-wide entitlement model + the pure
 // summary-CTA routing decision (R24.2/R24.10). `FakeEntitlementProvider`

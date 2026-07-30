@@ -9,7 +9,7 @@ import PaywallKit
 // stays the lint-allowlisted second importer.
 @_spi(Internal) import RevenueCat
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24, green) — Contract_RevenueCat (test-suite §4
 // naming: one contract file per vendor, documenting the assumption it guards

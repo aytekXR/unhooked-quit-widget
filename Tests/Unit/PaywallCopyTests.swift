@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24) — the paywall copy table's gates (R24.9/R24.10):
 // the shipping `paywallCopy.json` decodes, passes the STANDARD dual lexicon

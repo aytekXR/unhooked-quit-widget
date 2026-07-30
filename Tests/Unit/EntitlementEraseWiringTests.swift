@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24) — the erase→entitlement wiring (R24.7): the
 // injected `resetEntitlement` closure runs INSIDE `eraseEverything()` as the

@@ -2,7 +2,7 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // P3 (redesign §5.8 / §6.16, QW-2) — the erase-everything surface's goldens,
 // recorded the wave after the surface landed with none: this is the trust

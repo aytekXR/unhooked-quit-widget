@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E4.1 unit lane — the two-tap slip flow + 10-minute undo as ONE unit (mvp feature #3).
 // SlipFlowModel serves both routes; every behavior difference is the SlipRoute write

@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.2 (R25.7) — the teaser grant's pure arithmetic + the re-entry routing
 // decision. The teaser is a 24-hour WALL-CLOCK DURATION ("1 day of access",

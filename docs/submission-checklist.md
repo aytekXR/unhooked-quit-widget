@@ -13,8 +13,8 @@ Split rows list every leg; the box closes only when ALL legs close.
 
 CI lanes referenced: `streakengine-release-gate` (free Linux, coverage-floored),
 `package-units` (WidgetToolkit/PaywallKit, free Linux), the two free grep lints, and
-the billed macOS `app` job's three lanes — Unit (`-only-testing:UnhookedTests`),
-Snapshot (`UnhookedSnapshotTests`), UI smoke (`UnhookedUITests`).
+the billed macOS `app` job's three lanes — Unit (`-only-testing:BallastTests`),
+Snapshot (`BallastSnapshotTests`), UI smoke (`BallastUITests`).
 
 ## Product
 

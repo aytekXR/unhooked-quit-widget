@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E8.1 · analytics wiring at the repository seams — `urge_averted` (warm + cold
 // arms) and `slip_undone`. Every fire is post-save, quit-guarded, and BESIDE the

@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E8.2 unit lane — consent persistence at the repository seam, SwiftData tier:
 // the two plan-named tests (`test_consentDefaultsToOff`,

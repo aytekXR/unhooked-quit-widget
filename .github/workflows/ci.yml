@@ -401,8 +401,8 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild build-for-testing \
-            -project Unhooked.xcodeproj \
-            -scheme Unhooked \
+            -project Ballast.xcodeproj \
+            -scheme Ballast \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -clonedSourcePackagesDirPath .spm-packages \
             -derivedDataPath DerivedData \
@@ -410,42 +410,42 @@ jobs:
 
       # The three E0.1 lanes run independently so a red lane never hides another
       # lane's result (each still fails the job).
-      - name: Unit lane (UnhookedTests)
+      - name: Unit lane (BallastTests)
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
           set -o pipefail
           xcodebuild test-without-building \
-            -project Unhooked.xcodeproj \
-            -scheme Unhooked \
+            -project Ballast.xcodeproj \
+            -scheme Ballast \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -derivedDataPath DerivedData \
-            -only-testing:UnhookedTests \
+            -only-testing:BallastTests \
             -resultBundlePath Results/unit.xcresult \
             CODE_SIGN_IDENTITY=-
 
-      - name: Snapshot lane (UnhookedSnapshotTests)
+      - name: Snapshot lane (BallastSnapshotTests)
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
           set -o pipefail
           xcodebuild test-without-building \
-            -project Unhooked.xcodeproj \
-            -scheme Unhooked \
+            -project Ballast.xcodeproj \
+            -scheme Ballast \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -derivedDataPath DerivedData \
-            -only-testing:UnhookedSnapshotTests \
+            -only-testing:BallastSnapshotTests \
             -resultBundlePath Results/snapshot.xcresult \
             CODE_SIGN_IDENTITY=-
 
-      - name: UI smoke lane (UnhookedUITests)
+      - name: UI smoke lane (BallastUITests)
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
           set -o pipefail
           xcodebuild test-without-building \
-            -project Unhooked.xcodeproj \
-            -scheme Unhooked \
+            -project Ballast.xcodeproj \
+            -scheme Ballast \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -derivedDataPath DerivedData \
-            -only-testing:UnhookedUITests \
+            -only-testing:BallastUITests \
             -resultBundlePath Results/uismoke.xcresult \
             CODE_SIGN_IDENTITY=-
 

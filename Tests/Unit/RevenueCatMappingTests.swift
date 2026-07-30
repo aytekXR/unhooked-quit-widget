@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24) — the adapter's PURE mapping half, pinned over the
 // neutral `CustomerEntitlementView` struct (R24.3): every test here is RC-free

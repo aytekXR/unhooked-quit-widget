@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.2 (R25.5/R25.7) — the repository halves of the teaser + echo: the ONE
 // writer of `AppSettings.teaserExpiresAt` stamps the 1-day grant from the

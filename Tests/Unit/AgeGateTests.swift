@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E5.1 unit lane — the age gate is the app's FIRST screen (feasibility condition #6;
 // roadmap "Minors in category"): birth-year entry, under-17 blocked to resources,

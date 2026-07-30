@@ -2,7 +2,7 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // P2 (redesign §6.17) — Streak Detail's goldens: the milestone catalog's first
 // rendered pixels (shipping vape ladder — brand review happens on these

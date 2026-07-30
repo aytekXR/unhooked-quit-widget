@@ -3,7 +3,7 @@ import StreakEngine
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // E6.3 (O2, R22.9) — the app-switcher privacy overlay's snapshot suite. The FINAL
 // `AppSwitcherPrivacyOverlay` is a zero-content, theme-aware `surface/base` fill

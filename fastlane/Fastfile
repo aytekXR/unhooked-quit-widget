@@ -47,16 +47,16 @@ platform :ios do
     widget_profile = ENV.fetch("sigh_com.beyondkaira.ballast.widgets_appstore_profile-name")
 
     update_code_signing_settings(
-      path: "Unhooked.xcodeproj",
-      targets: ["Unhooked"],
+      path: "Ballast.xcodeproj",
+      targets: ["Ballast"],
       use_automatic_signing: false,
       team_id: "UH7MXG7Z94",
       code_sign_identity: "Apple Distribution",
       profile_name: app_profile
     )
     update_code_signing_settings(
-      path: "Unhooked.xcodeproj",
-      targets: ["UnhookedWidgets"],
+      path: "Ballast.xcodeproj",
+      targets: ["BallastWidgets"],
       use_automatic_signing: false,
       team_id: "UH7MXG7Z94",
       code_sign_identity: "Apple Distribution",
@@ -67,8 +67,8 @@ platform :ios do
     build_number = ENV.fetch("GITHUB_RUN_NUMBER")
 
     gym(
-      project: "Unhooked.xcodeproj",
-      scheme: "Unhooked",
+      project: "Ballast.xcodeproj",
+      scheme: "Ballast",
       export_method: "app-store",
       export_options: {
         signingStyle: "manual",

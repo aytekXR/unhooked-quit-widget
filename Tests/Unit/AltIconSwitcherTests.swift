@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E6.3 unit lane — the alternate-app-icon seam (AppIconSwitcher) and the launch-time
 // reconciler (AppIconReconciler). AppIconSwitcher stores the UIKit-touching apply

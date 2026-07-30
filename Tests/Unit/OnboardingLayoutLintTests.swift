@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // UIR-1 (Session 33) unit lane — the SOURCE half of the Dynamic-Type closure, on
 // the ThemeSourceLintTests shape (which does the same job for colour).

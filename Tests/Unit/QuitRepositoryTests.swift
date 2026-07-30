@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E2.2 unit lane. The five doc-canonical names from implementation-plan.md E2.2 are
 // verbatim; the reboot-cap repository tests land the carried ADR-7 item (Sessions

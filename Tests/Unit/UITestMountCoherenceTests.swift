@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // S50 unit lane — the direct-mount coherence lint. Every `UITEST_*` direct mount is TWO
 // edits in TWO files, and forgetting the second one fails in the most expensive way this

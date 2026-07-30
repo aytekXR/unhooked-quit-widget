@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.1 app half (Session 24) — the consent-gated trial_started wire + the
 // cross-launch at-most-once dedup (R23.4/R24.6). RevenueCat replays current

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 /// E2.1 unit lane. Test names are the doc-canonical ones from implementation-plan.md
 /// E2.1 — keep them verbatim. Deliberately NOT here, with reasons: the CloudKit-option

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // R30.6 unit lane — the PrivacyInfo.xcprivacy presence/key-set pins (Session 31).
 //
@@ -196,13 +196,13 @@ struct PrivacyManifestTests {
             try? String(contentsOf: Self.repoRoot.appendingPathComponent("project.yml"), encoding: .utf8),
             "project.yml must be readable from the repo tree"
         )
-        let widgetBlockStart = try #require(yml.range(of: "\n  UnhookedWidgets:\n"), "the widget target block must exist")
-        let widgetBlockEnd = try #require(yml.range(of: "\n  UnhookedTests:\n"), "the tests target block bounds the widget block")
+        let widgetBlockStart = try #require(yml.range(of: "\n  BallastWidgets:\n"), "the widget target block must exist")
+        let widgetBlockEnd = try #require(yml.range(of: "\n  BallastTests:\n"), "the tests target block bounds the widget block")
         let widgetBlock = yml[widgetBlockStart.upperBound..<widgetBlockEnd.lowerBound]
 
         let pathEntry = try #require(
             widgetBlock.range(of: "- path: Widgets/Resources/PrivacyInfo.xcprivacy"),
-            "the widget manifest must be wired into the UnhookedWidgets target"
+            "the widget manifest must be wired into the BallastWidgets target"
         )
         let window = widgetBlock[pathEntry.upperBound...].prefix(80)
         #expect(
@@ -210,11 +210,11 @@ struct PrivacyManifestTests {
             "the widget manifest entry must carry buildPhase: resources — it is a resource, not a source"
         )
 
-        let appBlockStart = try #require(yml.range(of: "\n  Unhooked:\n"), "the app target block must exist")
+        let appBlockStart = try #require(yml.range(of: "\n  Ballast:\n"), "the app target block must exist")
         let appBlock = yml[appBlockStart.upperBound..<widgetBlockStart.lowerBound]
         #expect(
             appBlock.contains("- path: App/Resources/PrivacyInfo.xcprivacy"),
-            "the app manifest must be wired into the Unhooked target (Bundle.main above proves it LANDS; this pins the wiring source)"
+            "the app manifest must be wired into the Ballast target (Bundle.main above proves it LANDS; this pins the wiring source)"
         )
     }
 

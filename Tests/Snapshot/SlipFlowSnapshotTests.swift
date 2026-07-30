@@ -3,7 +3,7 @@ import StreakEngine
 import SwiftUI
 import Testing
 import UIKit
-@testable import Unhooked
+@testable import Ballast
 
 // E4.1 — the slip flow's snapshot matrix, mirroring PanicFlowSnapshotTests exactly
 // (test-suite §3.3: light + dark × default + AX5 Dynamic Type; per-pixel 1% tolerance

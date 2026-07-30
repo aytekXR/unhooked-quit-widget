@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.3 (R26.9) — the win-back copy + composition pins (the PaywallCopyTests
 // composition shape, Foundation-only, Linux-harnessable):

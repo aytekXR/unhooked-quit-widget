@@ -2,7 +2,7 @@ import Foundation
 import StreakEngine
 import SwiftData
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E9.1 (R27.5) — the repository half of the alcohol-notice once-guarantee: the ONE
 // writer of `AppSettings.alcoholNoticeShownAt` stamps the FIRST display from the

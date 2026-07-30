@@ -1,7 +1,7 @@
 import Foundation
 import PaywallKit
 import Testing
-@testable import Unhooked
+@testable import Ballast
 
 // E7.2 (R25.1/R25.2/R25.3) — the DORMANT Superwall gate + the ADR-4
 // de-integration insurance. The composition is the

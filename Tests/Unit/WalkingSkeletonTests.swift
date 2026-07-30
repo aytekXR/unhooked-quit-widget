@@ -3,7 +3,7 @@ import PaywallKit
 import StreakEngine
 import Testing
 import WidgetToolkit
-@testable import Unhooked
+@testable import Ballast
 
 /// E0.1–E0.3 unit lane. Test names are the doc-canonical ones from
 /// implementation-plan.md Epic 0 — keep them verbatim.
