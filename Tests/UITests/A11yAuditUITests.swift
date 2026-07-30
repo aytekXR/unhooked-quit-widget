@@ -512,6 +512,55 @@ final class A11yAuditUITests: XCTestCase {
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
+    /// R58.1 (S59) — the never-trap contract, gated BEHAVIOURALLY because it is a
+    /// behaviour and a golden structurally cannot see it.
+    ///
+    /// `PaywallView.swift` promises "amber + symbol failure banner with retry
+    /// reachable" and the Epic 7 DoD says "retry AND restore both reachable,
+    /// always". ME-9's first paywall goldens showed that was FALSE: `statusSurface`
+    /// is the last child of the ScrollView, so a failed purchase put the banner and
+    /// its retry off-screen. S59 fixed it by scrolling to the surface when the phase
+    /// turns.
+    ///
+    /// **Why this is a UI test rather than a golden.** The snapshot fixture drives
+    /// `purchaseSelectedPlan()` BEFORE `assertSnapshot` renders, so the view is born
+    /// at `.failed` and `.onChange` never fires — the golden captures frame zero,
+    /// pre-scroll, and would look identical whether the fix works or not. Only a
+    /// live tap produces the transition the fix keys on. `debugPaywallDirectMount`
+    /// already injects `purchase: { _ in .failed }`, so tapping the real CTA is
+    /// enough; no new mount and no new seam.
+    ///
+    /// `isHittable` is the assertion that matters, not `exists`: the banner EXISTED
+    /// before the fix too — it was simply scrolled out of sight, which is precisely
+    /// what `exists` cannot distinguish and a user cannot use.
+    func test_paywallFailure_bringsRetryIntoView_neverTraps() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_PAYWALL_DIRECT"] = "1"
+        app.launch()
+
+        let cta = app.buttons["paywall.cta"]
+        XCTAssertTrue(
+            cta.waitForExistence(timeout: 15),
+            "the UITEST_PAYWALL_DIRECT direct mount renders the hard-variant paywall"
+        )
+        XCTAssertTrue(cta.isHittable, "the CTA must be tappable before the failure is provoked")
+        cta.tap()
+
+        let retry = app.buttons["paywall.retry"]
+        XCTAssertTrue(
+            retry.waitForExistence(timeout: 10),
+            "a failed purchase must compose the retry affordance (the fixture's purchase closure returns .failed)"
+        )
+        XCTAssertTrue(
+            retry.isHittable,
+            "R58.1: retry must be ON SCREEN after a failure, not merely present — the pre-fix build rendered it below the fold"
+        )
+        XCTAssertTrue(
+            app.buttons["paywall.restore"].isHittable,
+            "restore stays reachable alongside it (Epic 7 DoD: retry AND restore, always)"
+        )
+    }
+
     /// A birth year that is unambiguously under 17 on any run date (the gate's
     /// conservative boundary works in whole years; 5 years ago can never pass).
     private static var minorBirthYear: String {
