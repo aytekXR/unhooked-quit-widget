@@ -55,6 +55,20 @@ extension View {
     /// panic-entry row / slip-row chrome. Text on it uses `content/primary`
     /// (13.2:1) or `brand/primary` (4.7:1, registry-pinned TIGHT — never
     /// `brand/primary` text on this tint at sizes below `type/body`).
+    ///
+    /// **This one is deliberately NOT floored, unlike `themedCautionCard()` above,
+    /// and the reason is worth stating so nobody "fixes" it or relies on it.**
+    /// An opaque floor is what makes a translucent fill safe over a tinted
+    /// backdrop; ME-9 (S58) added one to `themedCautionCard()` and to the paywall's
+    /// selected plan card because the paywall now renders a `WaterlineBand` behind
+    /// them. Every consumer of THIS helper — `PanicFlowView`, `RootPlaceholderView`
+    /// and `PanicPlaceholderView` — sits on a surface creative §2 BANS the field
+    /// from (the panic path) or that blueprint §6.7 gives no imagery at all (the
+    /// Home shell), so there is nothing to composite through and a floor would be a
+    /// no-op today. **If a field ever arrives on one of those surfaces, floor this
+    /// first and re-measure**: the binding pair is light `brand/primary` on the
+    /// tint, which starts at 4.716 against a 4.5 threshold — the least headroom in
+    /// the registry.
     func themedSelectionTint(cornerRadius: CGFloat = 14) -> some View {
         background(
             Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint),

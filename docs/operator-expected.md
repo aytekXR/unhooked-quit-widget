@@ -140,10 +140,21 @@
       the measured ceiling is far more generous (**0.1640** with the floors in place, vs the
       summary's 0.0695), so if it reads as invisible there is real headroom to go bolder. As
       elsewhere: the honest fix is a bolder MOTIF, not a bolder opacity.
-      **(b) The failure banner.** It now has goldens for the first time (light and dark), driven
-      through the real purchase path rather than posed. Nothing about its wording changed; if the
-      amber card looks heavier or lighter than you remember, that is the new opaque floor beneath
-      its tint, which exists so the field behind it cannot dim the text.
+      **(b) The failure banner — and taking its picture found something.** It has goldens for the
+      first time, driven through the real purchase path rather than posed, and they show the banner
+      is **almost entirely off-screen when it fires**: a purchase failure renders a ~4px sliver of
+      the amber card and **no "Try again" button**, because that surface is the last thing inside a
+      scroll view. Restore is still reachable (it is pinned), so nobody is stranded — but the
+      feedback is missing. **This is not new and it is not the redesign's doing**: it has been true
+      since the paywall was built in Session 24, and it was invisible because the screen had no
+      goldens. It is the first item of the next session, with its own run.
+      **One related thing that touches a decision of YOURS.** §8 plans to assign the review build to
+      the **teaser** arm. On that arm — and only that arm, because its footer is taller — the
+      auto-renewal disclosure Apple's 3.1.2(c) requires is **clipped mid-sentence** at default text
+      size. It scrolls into view, and review generally accepts scrollable paywalls, so this is a
+      risk to weigh rather than a certainty. Both are fixed together next session; if you would
+      rather the review build went out on the **hard** arm, which shows the disclosure in full, say
+      so and nothing else has to change.
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).
