@@ -716,10 +716,17 @@ external beta, submission) — see the operator-owned blockers below.
 3. **Beta testing (§5)** — fully prepped as of S52, and **S56 removed the group step entirely**:
    CI now creates the internal `Friends` group with `hasAccessToAllBuilds`, so every build (past and
    future) is available to it structurally, not per-build. `docs/testflight-beta-kit.md` carries the
-   pre-flight, paste-ready ASC fields, invite, test script and known issues. **All that is left is
-   adding testers** (internal groups take Users on the ASC account). The gate wants ≥15 testers and
-   ≥1 week. Note `founders` also exists and is untouched — retarget with the repo Variable
-   `TESTFLIGHT_GROUP`, never a code edit.
+   pre-flight, paste-ready ASC fields, invite, test script and known issues. **S57 OVERTURNED the
+   line that used to sit here** ("all that is left is adding testers"): `Friends` is an INTERNAL
+   group, Apple restricts those to ASC account Users, and the account has exactly one — the
+   operator. It can never be converted, because `isInternalGroup` is absent from Apple's
+   `BetaGroupUpdateRequest` schema. **A SECOND, EXTERNAL group is the only route**, and its price is
+   one Beta App Review per version, which needs the Beta App Description + feedback email that
+   `betaAppLocalizations` reports EMPTY. `scripts/testflight_testers.py` makes it two commands and
+   dry-runs by default. **Invites are email-only** — phone numbers cannot be used. The gate wants
+   ≥15 testers and ≥1 week. `founders` also exists and is untouched — retarget with the repo
+   Variable `TESTFLIGHT_GROUP`, never a code edit. **And an external ring's Test Information wants a
+   privacy-policy URL, so item 1's site deploy blocks THIS as well as submission.**
 
 **Operator's own clock:**
 
@@ -728,7 +735,10 @@ external beta, submission) — see the operator-owned blockers below.
    eyeball + the S28 eyes-free/VoiceOver eyeball + the streak-ring motion glance + the rebuilt
    Settings glance.
 5. **Remaining §8 keys:** **Superwall** (create the app, two placements, both experiments, then
-   hand an agent the variant ids; also assign the review build to the TEASER arm) and the
+   hand an agent the variant ids; and the review build's arm is now a real decision rather than a
+   default — **S58's goldens show the 3.1.2(c) auto-renewal disclosure CLIPS on the teaser arm**
+   and renders in full on the hard one, so either fix R58.2 first or send the review build hard)
+   and the
    **TelemetryDeck app ID** (+ the salt decision) — the latter gates the label/manifest
    wire-verify and the payload/MITM audit. **RevenueCat is DONE (S48B) — do not re-do it.**
 6. **Device sitting #2** — the sandbox purchase matrix. Live work now that RC is in; it is also
