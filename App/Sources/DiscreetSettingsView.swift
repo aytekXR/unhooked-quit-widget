@@ -39,10 +39,15 @@ struct DiscreetSettingsView: View {
     /// Placeholder-grade re-read driver (the RootPlaceholderView idiom — no
     /// observation plumbing on a graft surface).
     @State private var refreshToken = 0
-    /// E7.3 (R26.6) — the win-back row's tap-through (the host owns the ONE
+    /// E7.3 (R26.6) — the *Your plan* row's tap-through (the host owns the ONE
     /// paywall mount). nil hides the row; visibility is ALSO gated by the
     /// live eligibility read — view-gated, never an optional String (R26.9).
-    var onWinbackRowTap: (() -> Void)? = nil
+    ///
+    /// ME-9 (S58): it now carries the SOURCE. The view is what decides which
+    /// case it is looking at, so it is what says which paywall to open; letting
+    /// the host re-derive that would put the same question in two places and
+    /// let the row's visibility and its destination drift apart.
+    var onPlanRowTap: ((PaywallSource) -> Void)? = nil
     /// E9.1 (R27.10 — the SECOND R22.7 amendment): the safety-resources row's
     /// tap-through (the host owns the ONE resources mount and injects the
     /// `.settings` source). UNCONDITIONAL when wired — resources are always one
@@ -267,20 +272,38 @@ struct DiscreetSettingsView: View {
         }
     }
 
-    // MARK: - Section 5 · Your plan (the win-back row)
+    // MARK: - Section 5 · Your plan
 
     /// E7.3 (R26.6) — the settings surface of the win-back offer (the plan's
-    /// "settings/paywall source" acceptance, in-app only per R26.5): visible
-    /// ONLY when a live entitlement model reports `.lapsed` AND the pure
-    /// policy says the 7-day window is open. Dormant builds have no
-    /// entitlement model, so the row structurally cannot render — which is also why
-    /// the section carries no header of its own (an empty "Your plan" card would be
-    /// the common case, and its header byte is not drafted).
+    /// "settings/paywall source" acceptance, in-app only per R26.5).
+    ///
+    /// ME-9 (S58, §6.11) widens it. The section used to render ONLY for a lapsed
+    /// user inside the win-back window, so §6.11's third clause — "plan options
+    /// for never-paid users" — had no surface at all: someone who declined the
+    /// onboarding wall could not reach the plans again from anywhere in the app.
+    /// `PaywallRouting.planRowSource` now owns the whole decision (which is a
+    /// pure, unit-pinned function rather than a condition inlined in a view), and
+    /// it returns the SOURCE, so the row's visibility and the paywall it opens
+    /// can never disagree. An entitled user still gets no row.
+    ///
+    /// This needs NO new copy: `winbackRowLabel` is already the generic
+    /// "See your plan options", which is exactly what §6.11 asks for and reads
+    /// correctly for both cases. Dormant builds have no entitlement model, so the
+    /// row structurally cannot render — which is also why the section carries no
+    /// header of its own (an empty "Your plan" card would be the common case, and
+    /// its header byte is not drafted).
+    ///
+    /// The a11y identifier stays `settings.winback.row` deliberately: it is the
+    /// row's stable handle, nothing else in the repo references it, and churning
+    /// a test-facing identifier buys nothing.
     @ViewBuilder
     private func yourPlanSection(_ repository: QuitRepository) -> some View {
-        if let onWinbackRowTap,
+        if let onPlanRowTap,
            let entitlement = provider?.entitlementModel,
-           repository.winbackEligible(state: entitlement.state) {
+           let source = PaywallRouting.planRowSource(
+               state: entitlement.state,
+               winbackEligible: repository.winbackEligible(state: entitlement.state)
+           ) {
             sectionCard(header: nil) {
                 settingsRow(
                     label: copy.winbackRowLabel,
@@ -289,7 +312,7 @@ struct DiscreetSettingsView: View {
                     identifier: "settings.winback.row"
                 ) {
                     dismiss()
-                    onWinbackRowTap()
+                    onPlanRowTap(source)
                 }
             }
         }

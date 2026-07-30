@@ -318,6 +318,14 @@ targets:
       # (MANDATORY, not conditional — the panel's budget adversary flagged the missing
       # dep as the primary burned-run threat).
       - package: WidgetToolkit
+      # ME-9 (S58): the SAME class of threat, caught before it billed. The paywall
+      # fixture builds a `PaywallModel`, whose `purchase:` closure returns
+      # `PurchaseOutcome` — and that enum's `.completed` case carries a PaywallKit
+      # `EntitlementState`. The fixture only ever constructs `.failed`, so this may
+      # well be unnecessary; it is not checkable on the Linux box (swiftc -parse is
+      # syntax only), and the cost of being wrong is a full billed macOS run against
+      # the cost of one line.
+      - package: PaywallKit
 
   BallastUITests:
     type: bundle.ui-testing

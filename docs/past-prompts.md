@@ -7475,3 +7475,104 @@ without casting doubt on the build.
   act is the operator's.
 - The legal text is counsel's and was not authored.
 - `founders` was left untouched; retargeting is a repo Variable, not a code change.
+
+---
+
+## Session 57 — the Friends ring that cannot take friends, and a site with no front door (2026-07-30)
+
+> **BACKFILLED IN SESSION 58.** S57 shipped `8183297` and updated `operator-expected.md`'s status
+> row to "(S57)", but it never wrote this ledger entry and never regenerated `resume-prompt.md` —
+> so the only record of it was a commit message, and the next session opened on an S56 resume
+> prompt. This is the same class as the "Session 49B/50 — TWO MISSING LEDGER ENTRIES" note above,
+> and it is reconstructed here from the commit message and the diff, both read first-hand. The
+> S58 ledger records the gap itself; this entry records the work.
+
+**Objective (operator-set, off the roadmap):** prepare the operator's "Friends review" sitting —
+get testers into the TestFlight ring S56 created, and get the public site ready to share.
+
+**Neither half survived contact with the live systems. Both premises were corrected rather than
+executed**, which is why this is a finding entry and not a checklist.
+
+### Finding 1 — the `Friends` group can never hold friends
+
+S56 created an internal `Friends` group with `hasAccessToAllBuilds` and left `operator-expected.md`
+§5 reading "all that is left is adding testers". A read-only probe of the live account says that
+instruction cannot be followed: `Friends` (id `60ebfad4-30e8-489c-864d-bbb0378b9194`) is
+**INTERNAL** with 0 testers, and Apple restricts internal groups to team members holding an App
+Store Connect role — the account has exactly **one** User, the operator. External groups take
+"anyone with an email address".
+
+**And the group can never be converted.** `isInternalGroup` is absent from Apple's
+`BetaGroupUpdateRequest` schema — verified against the schema JSON rather than assumed; the
+updatable set is name / publicLink\* / feedbackEnabled / iosBuildsAvailable\*. So a SECOND,
+external group is the only route, and its price is one **Beta App Review per version**, which needs
+the Beta App Description + feedback email that `betaAppLocalizations` reports as EMPTY today
+(beta-kit §1.2/§1.3 already hold the text).
+
+Also recorded, because the operator had offered them: **TestFlight invites are email-only.** Phone
+numbers cannot be used.
+
+### Finding 2 — the website had no front door
+
+The nginx block serves explicit `location`s and 404s everything else — which is correct, and is
+exactly why the old apex catch-all was so dangerous — but **no `index.html` had ever been written**,
+so a shared link was a dead link. Re-measured that session: the apex still answered HTTP 200 with a
+16-byte body reading "beyondkaira.com" for every path, and `ballast.beyondkaira.com` still failed
+the TLS hostname check.
+
+### Landed
+
+- **NEW `scripts/testflight_testers.py`** (599 lines) — the operator's half in two commands: create
+  the external ring, hand over a CSV. **Dry-run by default**, because creating an external tester
+  emails a real person immediately. It refuses the internal group with the full reason and both
+  remedies rather than failing opaquely, links testers who already exist on the app instead of
+  re-inviting them, and tolerates 409 so one duplicate cannot strand a roster. Every request shape
+  verified against Apple's schema JSON. **The roster parser carries an executed 38-check harness**
+  (reordered / extra / missing columns, headerless input, Excel's BOM, unicode surnames,
+  case-insensitive dedupe) and **one malformed address rejects the WHOLE file**, because
+  half-inviting a list is worse than failing. Rosters are gitignored by pattern — third-party
+  personal data, and `git add -A` is how `.claude/settings.json` leaked in S51.
+- **NEW `site/`** — `index.html` (marketing-strategy §5) and **`/beta`**, the page actually shared
+  with testers (what it is, redeeming the invite, the close-free paywall warning, the 20-minute
+  pass, known oddities, feedback route), plus `robots.txt`. Neither page carries an invite or a
+  build, so forwarding leaks nothing. **Self-contained by necessity, not taste:** the origin's CSP
+  is `default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'`. Styles are inline PER
+  PAGE rather than shared, because a `/style.css` nobody added a `location` for would 404 and render
+  both pages unstyled. Palette is tokens-v2 verbatim, so its verified contrast ratios carry over.
+  `terms.html` / `privacy.html` are deliberately ABSENT and counsel-owned.
+- **NEW `scripts/site_copy_lint.py`** — gates the copy mechanically (tone rules from product-copy +
+  marketing-strategy §3, self-containment, the noindex tag). It scans VISIBLE text only, stripping
+  style/script/comments/tags, because a naive walk fires on `!important`; two bans are
+  negation-aware because the approved copy says "no red … no countdowns". `--self-test` proves all
+  19 rules fire AND that four approved sentences are not rejected: 26 checks green.
+- **NEW `scripts/verify_public_site.sh`** — 19 assertions that read BODIES, not status codes. A
+  sub-200-byte 200 is reported as the catch-all; a nonsense path returning 200 is a FAIL. Baseline
+  recorded: 1 passed, 13 failed.
+- **Three §5 claims fact-checked against SOURCE before publishing:** prices ($6.99/mo, $29.99/yr,
+  trial on ANNUAL only — the $39.99 B arm stays unpublished), and "no red anywhere in the app",
+  which holds (no `DC2626`, no `Color.red` in any shipping Swift file; tokens-v2's DC2626 mention is
+  a REJECTED candidate).
+- **Three deviations from §5, listed for the founder to overrule:** no newsletter field (needs
+  script + a POST target, both CSP-forbidden, and there is no list), no screenshots (a stale capture
+  lies the day the UI moves, and the redesign is mid-waves), and the privacy FAQ re-hedged because
+  §5's "None, unless you opt in" predates the live RevenueCat key and the declared Purchases row.
+- **CI: `site/**` added to both `paths-ignore` blocks.** It was unignored, so that commit would
+  otherwise have burned a full billed macOS run at 10× — the same structural leak S49 fixed for
+  `redesign/**` and S52 for `.claude/**`, fixed structurally rather than by a remembered
+  `[skip ci]`. `project.yml` has no glob reaching `site/`, so it cannot enter the Xcode build.
+  `scripts/**` deliberately NOT ignored: it feeds the distribute job. YAML re-validated, 10 jobs,
+  all with `runs-on`/`steps`.
+- **Docs re-trued:** `operator-expected.md` §3 (site ready to deploy) and §5 (the corrected
+  internal/external finding with the measured account state), `public-site-deploy.md` (§4.1 deploy,
+  §4.2 the counsel-owned absences, §5 the script, §6 the on-clearance robots/noindex removal that
+  would otherwise ship an invisible launch site), and `testflight-beta-kit.md` §0.3/§2/§3.1/§4.2 —
+  including the tester-facing "Terms and Privacy 404" lines, which stop being true the moment the
+  site ships.
+
+**Billed runs: ZERO** (`[skip ci]`, and `site/**` newly ignored). Zero Swift, zero `project.yml`,
+zero copy JSON touched, so the 121 free-lane package tests were byte-identical and deliberately not
+re-run (the S44 make-work ruling).
+
+**Operator consequence, and it is the one that matters:** an external ring's Test Information wants
+a privacy-policy URL, **so the site deploy now blocks the BETA as well as submission**. It moved to
+the front of the operator's queue.

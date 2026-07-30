@@ -64,7 +64,20 @@ struct PaywallView: View {
             footerActions
         }
         .padding(20)
-        .themedScreenSurface() // UIR-0: surface/base behind the paywall
+        // ME-9 (§6.6) — the Waterline backdrop, "subdued, ≤ top third". This
+        // reproduces `themedScreenSurface()`'s own two modifiers (fill the screen,
+        // then paint `surface/base`) with the decorative layer composited over the
+        // backdrop inside the SAME background slot, which is the `OnboardingScaffold`
+        // field-branch precedent (S53): the content column's layout is untouched and
+        // only the backdrop gained a tint.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            ZStack(alignment: .top) {
+                Theme.color.surfaceBase.color
+                WaterlineBand()
+            }
+            .ignoresSafeArea()
+        )
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("paywall.card")
         // The ONE presentation fire (R25.5): onAppear delegates to the
@@ -180,6 +193,19 @@ struct PaywallView: View {
                 selected ? Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint) : Theme.color.surfaceSunken.color,
                 in: RoundedRectangle(cornerRadius: Theme.radius.l)
             )
+            // ME-9 — the OPAQUE floor beneath the SELECTED card's 12% tint, and it
+            // is what makes the §6.6 backdrop safe. A later `.background` renders
+            // FURTHER BACK, so this pins `surface/base` under the tint: the
+            // composite that renders is then the composite `Theme.contrastPairs`
+            // measured, whatever is painted behind the card. Without it, a card
+            // scrolled up under the band is doubly translucent and light
+            // `brand/primary` on it computes 4.387 against its 4.5 floor.
+            // BYTE-IDENTICAL today wherever no field exists — the backdrop already
+            // IS `surface/base` — and a no-op on the unselected card, whose
+            // `surface/sunken` fill is already opaque. (`AlcoholNoticeCard`'s ME-4
+            // floor, generalised; nothing in CI can catch this class, so it is
+            // removed structurally rather than documented.)
+            .background(Theme.color.surfaceBase.color, in: RoundedRectangle(cornerRadius: Theme.radius.l))
         }
         // R32.9 structural: PlanCardButtonStyle suppresses .plain's ghost-disabled dimming
         // (plan cards are always enabled today; closes the future-disable risk window).

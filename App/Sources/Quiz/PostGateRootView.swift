@@ -451,8 +451,13 @@ struct PostGateRootView: View {
             // (entitled > winback > teaser-expiry; auto-present once per
             // process, dismissible), and the settings row is the persistent
             // second surface.
-            RootPlaceholderView(onWinbackRowTap: {
-                Task { await presentLivePaywall(source: .winback) }
+            // ME-9 (S58): the *Your plan* row hands its OWN source up —
+            // `.winback` for an eligible lapsed subscriber (which swaps in the
+            // signed promotional-offer purchase path), `.settings` for a
+            // never-paid user (the standard plans). See
+            // `PaywallRouting.planRowSource`.
+            RootPlaceholderView(onPlanRowTap: { source in
+                Task { await presentLivePaywall(source: source) }
             })
                 .task { checkPaywallReentry() }
                 .onChange(of: scenePhase) { _, phase in

@@ -38,11 +38,15 @@ struct RootPlaceholderView: View {
     @State private var showsDiscreetSettings = false
     /// ME-7 — the Settings *Panic access* row's re-entry into the ME-1 adoption moment.
     @State private var showsWidgetAdoption = false
-    /// E7.3 (R26.6) — the settings win-back row's tap-through: the host
+    /// E7.3 (R26.6) — the settings *Your plan* row's tap-through: the host
     /// (PostGateRootView) owns the ONE paywall mount, so the row dismisses
     /// the sheet and hands off here. nil (the default) hides the row —
-    /// dormant builds and non-hosts never show it.
-    var onWinbackRowTap: (() -> Void)? = nil
+    /// dormant builds and non-hosts never show it. ME-9 (S58) added the
+    /// `PaywallSource` argument: the row serves a lapsed subscriber (`.winback`)
+    /// and a never-paid user (`.settings`), and those must open different
+    /// purchase paths, so the deciding view names the case rather than the host
+    /// guessing it a second time.
+    var onPlanRowTap: ((PaywallSource) -> Void)? = nil
     /// E9.1 (R27.6) — the alcohol notice's once-per-process consideration latch
     /// (the durable once-guarantee is the AppSettings stamp; this only prevents a
     /// same-session re-present) + the visible-card flag.
@@ -532,7 +536,7 @@ struct RootPlaceholderView: View {
         .accessibilityIdentifier("root.settingsEntry")
         .sheet(isPresented: $showsDiscreetSettings) {
             DiscreetSettingsView(
-                onWinbackRowTap: onWinbackRowTap,
+                onPlanRowTap: onPlanRowTap,
                 onResourcesRowTap: { resources = ResourcesPresentation(source: .settings) },
                 // ME-7 — the *Panic access* section's row. Same dismiss-then-hand-off
                 // shape as the resources row: the settings sheet closes and the host

@@ -27,9 +27,26 @@ extension View {
     /// shape): `semantic/caution` at 10% over the surface, `radius/m`. Content
     /// on it is registry-pinned (content/primary 13.7:1, content/secondary
     /// 5.4:1, primary actions 4.9:1). NEVER red — amber is the ceiling.
+    ///
+    /// ME-9 (S58) pins the OPAQUE `surface/base` floor beneath the tint, so the
+    /// docstring above — "at 10% **over the surface**" — is now enforced rather
+    /// than assumed. The registered pairs composite `caution@10%` over
+    /// `surface/base`; before this, a translucent card over a backdrop something
+    /// else had already tinted composited through TWO layers and rendered a
+    /// different colour than the one the registry measured. ME-4 fixed exactly
+    /// this on `AlcoholNoticeCard` (which inlines its own fill) when the summary
+    /// gained a full-bleed field; ME-9's paywall backdrop makes this call site —
+    /// the failure banner, and the app's ONLY `themedCautionCard()` consumer —
+    /// the same hazard, so the guarantee moves into the primitive where no
+    /// future caller can undo it. Byte-identical wherever the backdrop already
+    /// IS `surface/base`, which is every mount today.
     func themedCautionCard() -> some View {
         background(
             Theme.color.caution.color.opacity(Theme.alpha.cautionTint),
+            in: RoundedRectangle(cornerRadius: Theme.radius.m)
+        )
+        .background(
+            Theme.color.surfaceBase.color,
             in: RoundedRectangle(cornerRadius: Theme.radius.m)
         )
     }

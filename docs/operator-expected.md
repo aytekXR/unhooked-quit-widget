@@ -122,6 +122,28 @@
       before the risk-window well than in the money variant. It reads as generous whitespace rather
       than a broken layout and the card still ends at a comparable height, so it was not worth a
       billed run to tighten — but if it looks wrong to you, say so and it rides the next pass.
+- [ ] **ME-9 adds NO new strings either**, and that is a finding rather than luck: §6.11's "plan
+      options for never-paid users" turned out to need no new row and no new byte — the existing
+      `winbackRowLabel` already reads **"See your plan options"**, which is exactly right for both
+      the lapsed and the never-paid case. Only the row's CONDITION changed.
+      **One thing here IS yours, because an agent changed a founder-owned file's metadata:**
+      `paywallCopy.json`'s `_meta.status` said **"DRAFT — agents scaffolded, founder owns the
+      words"**. It was stale by twelve sessions: your §3 pass closed that table in 46B (`3a10442`)
+      and changed three of its strings. The marker now says SIGNED, with the commit named. **This
+      is a correction to a description, never to a word you signed** — the 27 strings are
+      byte-identical. It mattered because `docs/golden-batch.md` blocks minting goldens for DRAFT
+      copy, so that one stale string is why the paywall had no goldens at all until this session.
+      Overrule it if you disagree.
+      **And two judgments only your eye can make:**
+      **(a) Does the paywall band read?** The top third now carries the Waterline horizon, feathered
+      out so there is no cut line. Same 6% weight as the quiz and the summary — and on THIS screen
+      the measured ceiling is far more generous (**0.1640** with the floors in place, vs the
+      summary's 0.0695), so if it reads as invisible there is real headroom to go bolder. As
+      elsewhere: the honest fix is a bolder MOTIF, not a bolder opacity.
+      **(b) The failure banner.** It now has goldens for the first time (light and dark), driven
+      through the real purchase path rather than posed. Nothing about its wording changed; if the
+      amber card looks heavier or lighter than you remember, that is the new opaque floor beneath
+      its tint, which exists so the field behind it cannot dim the text.
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).

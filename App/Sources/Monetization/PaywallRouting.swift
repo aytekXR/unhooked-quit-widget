@@ -57,4 +57,36 @@ enum PaywallRouting {
             ? .paywall(source: .teaserExpiry)
             : .dashboard
     }
+
+    /// ME-9 (§6.11) — which paywall the Settings *Your plan* row opens, or `nil`
+    /// for no row at all. §6.11 asks that section for "restore; win-back row when
+    /// eligible; **plan options for never-paid users**", and before this the row
+    /// was win-back-only, so someone who never subscribed had no route to the
+    /// plans from Settings at all.
+    ///
+    /// **Widening the row without widening its DESTINATION would have been a
+    /// defect, not a feature.** The row's tap goes to `presentLivePaywall`, which
+    /// branches on the source: `.winback` swaps the purchase path to
+    /// `RevenueCatPurchaser.purchaseWinback()` — a REAL, signed App Store
+    /// promotional offer scoped to a lapsed subscriber (S29/R29.6). Handing that
+    /// to a `.never` user is both dishonest ("now at half price" of nothing they
+    /// ever paid) and un-purchasable, since they do not qualify for the offer in
+    /// App Store Connect either. So the two cases return DIFFERENT sources and the
+    /// existing branch does the rest — no new mechanism.
+    ///
+    /// `.settings` is already in `PaywallSource`'s closed enum and already in
+    /// MVP §5's `paywall_viewed.source` row, so this adds no analytics vocabulary
+    /// and needs no ratification (the privacy-surface gate is untouched).
+    ///
+    /// Precedence and the deliberate silence in the middle: an ENTITLED user gets
+    /// no row (never re-paywall a paid user — the §6.6 contract); an eligible
+    /// lapsed user gets the offer; a never-paid user gets the plans; and a lapsed
+    /// user still INSIDE the 7-day quiet window gets nothing, which preserves the
+    /// win-back policy's deliberate wait rather than routing around it.
+    static func planRowSource(state: EntitlementState, winbackEligible: Bool) -> PaywallSource? {
+        guard !state.isEntitled else { return nil }
+        if winbackEligible { return .winback }
+        if case .never = state { return .settings }
+        return nil
+    }
 }

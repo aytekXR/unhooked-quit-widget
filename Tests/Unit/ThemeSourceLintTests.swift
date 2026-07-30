@@ -33,6 +33,23 @@ struct ThemeSourceLintTests {
         // Raw monochromes that dodged appearance adaptation (the dark-mode
         // white-on-teal 1.99:1 defect class)
         "Color.white", "Color.black", "(.white)",
+        // ME-9 (S58) — the LEADING-DOT SHORTHAND, which the three entries above
+        // all miss. `Color.white` catches the qualified spelling and `(.white)`
+        // catches `.foregroundStyle(.white)`, but a monochrome written as a
+        // LABELLED ARGUMENT or inside an ARRAY LITERAL — `color: .white`,
+        // `[.white, .clear]` — slipped every one of them, and those are exactly
+        // the shapes a gradient or a mask is written in. Found by writing
+        // `WaterlineBand`, whose feather mask is the app's first gradient
+        // monochrome; it lives under `DesignSystem/` (excluded, by design) but
+        // nothing stopped the same bytes being written in a view.
+        //
+        // The terminators are load-bearing, not decoration: a bare `": .white"`
+        // fires on `trimmingCharacters(in: .whitespaces)`, which appears twice in
+        // shipping source. All eight entries were probed over the real corpus
+        // before landing — zero hits, and each one proven to fire on its own
+        // mutation shape (the calibration test below carries both halves).
+        ": .white)", ": .white,", ": .black)", ": .black,",
+        "[.white", "[.black", " .white]", " .black]",
         // System label/background dynamics the content/surface tokens replaced
         ".foregroundStyle(.secondary)", ".foregroundStyle(.primary)",
         "Color.secondary", "Color.primary",
@@ -96,6 +113,39 @@ struct ThemeSourceLintTests {
         #expect(!Self.strippingComment("x() // trailing note re Color.white").contains("Color.white"))
         // URLs survive comment stripping (the :// guard).
         #expect(Self.strippingComment("let u = \"https://example.com\"").contains("https://example.com"))
+
+        // ME-9 (S58) — the shorthand-monochrome entries, both halves. FIRE:
+        for (line, idiom) in [
+            (".foregroundStyle(color: .white)", ": .white)"),
+            ("LinearGradient(colors: .white, x)", ": .white,"),
+            ("Gradient.Stop(color: .black)", ": .black)"),
+            ("Gradient.Stop(color: .black, location: 0)", ": .black,"),
+            ("let g = [.white, .clear]", "[.white"),
+            ("let g = [.black, .clear]", "[.black"),
+            ("let g = [.clear, .white]", " .white]"),
+            ("let g = [.clear, .black]", " .black]"),
+        ] {
+            #expect(
+                Self.bannedIdioms.contains(idiom),
+                "the shorthand entry \(idiom) must still be registered"
+            )
+            #expect(
+                Self.strippingComment("        \(line)").contains(idiom),
+                "\(idiom) must fire on \(line)"
+            )
+        }
+        // ...and DO NOT fire on the Foundation CharacterSet members that a bare
+        // ": .white" would have collided with (this is why the entries carry
+        // their terminators).
+        for line in [
+            "return output.trimmingCharacters(in: .whitespaces)",
+            "for c in raw.trimmingCharacters(in: .whitespacesAndNewlines) {",
+        ] {
+            let code = Self.strippingComment("        \(line)")
+            for idiom in Self.bannedIdioms {
+                #expect(!code.contains(idiom), "\(idiom) must NOT fire on \(line)")
+            }
+        }
     }
 
     /// Everything after the first `//` (except `://`) is comment; full-comment
