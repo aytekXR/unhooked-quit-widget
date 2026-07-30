@@ -64,13 +64,14 @@ struct PaywallSnapshotTests {
 
     private func assertAxes(
         _ view: PaywallView,
+        axes: [(name: String, dark: Bool, ax5: Bool)] = [("light", false, false), ("dark", true, false)],
         fileID: StaticString = #fileID,
         filePath: StaticString = #filePath,
         testName: String = #function,
         line: UInt = #line,
         column: UInt = #column
     ) {
-        for axis: (name: String, dark: Bool) in [("light", false), ("dark", true)] {
+        for axis in axes {
             assertSnapshot(
                 of: view,
                 as: .image(
@@ -79,7 +80,9 @@ struct PaywallSnapshotTests {
                     layout: .device(config: .iPhone13),
                     traits: UITraitCollection { traits in
                         traits.userInterfaceStyle = axis.dark ? .dark : .light
-                        traits.preferredContentSizeCategory = .large
+                        traits.preferredContentSizeCategory = axis.ax5
+                            ? .accessibilityExtraExtraExtraLarge
+                            : .large
                     }
                 ),
                 named: axis.name,
@@ -105,14 +108,27 @@ struct PaywallSnapshotTests {
     }
 
     /// The never-trap failure surface, driven through the SHIPPING path rather
-    /// than posed. `themedCautionCard` is the app's last remaining doubly
-    /// translucent fill, and ME-9 pins an opaque `surface/base` floor beneath it
-    /// so the composite that renders is the composite the registry measured.
-    /// This golden is what proves the floor did not change the pixels.
+    /// than posed. `themedCautionCard` carries an opaque `surface/base` floor
+    /// beneath its tint (ME-9), so the composite that renders is the composite
+    /// `Theme.contrastPairs` measured.
+    ///
+    /// **This pair is why the suite exists.** Its FIRST recording (run
+    /// `30506301044`) showed a ~4px sliver of the amber card and no "Try again",
+    /// because `statusSurface` was the last child inside the `ScrollView` — R58.1.
+    /// S59 pinned it; these goldens are the proof.
+    ///
+    /// **AX5 is an axis HERE and nowhere else in this suite, and it is answering a
+    /// specific question rather than adding coverage for its own sake.** Pinning a
+    /// surface moves it into a zone that cannot scroll, so the thing worth knowing
+    /// is whether the banner plus the CTA plus the escapes still FIT at the largest
+    /// text size. Two extra PNGs answer that in pixels; no amount of reasoning does.
     @Test func snapshot_paywall_failed() async throws {
         let view = try makeView(variant: .hard)
         await view.model.purchaseSelectedPlan()
         #expect(view.model.phase == .failed, "the fixture must actually reach the failure phase — a posed golden proves nothing")
-        assertAxes(view)
+        assertAxes(view, axes: [
+            ("light", false, false), ("dark", true, false),
+            ("light-ax5", false, true), ("dark-ax5", true, true),
+        ])
     }
 }

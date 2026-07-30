@@ -52,7 +52,6 @@ struct PaywallView: View {
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("paywall.renewalTerms")
-                    statusSurface
                 }
                 .padding(.top, 24)
                 .frame(maxWidth: .infinity)
@@ -60,6 +59,32 @@ struct PaywallView: View {
             .scrollBounceBehavior(.basedOnSize)
 
             Spacer(minLength: 0)
+
+            // R58.1 (S59) — the status surface PINS; it does not scroll. It used
+            // to be the LAST child inside the ScrollView above, and ME-9's goldens
+            // are what made the consequence visible: the moment a purchase failed,
+            // the amber banner landed OFF-SCREEN. `snapshot_paywall_failed.*` as
+            // recorded in `30506301044` shows a ~4px sliver of the card and NO
+            // "Try again" — against the contract stated a few lines down
+            // ("retry reachable") and in the Epic 7 DoD ("retry AND restore both
+            // reachable, always"). Restore was always fine because it is pinned;
+            // the retry and the explanation were not.
+            //
+            // Pinning is the correct shape, not merely the convenient one: R33.12
+            // item 4 is "content SCROLLS; actions PIN", and this surface carries an
+            // action. It is feedback for a tap the user JUST made, so it has to be
+            // where the user is already looking.
+            //
+            // The idle layout cannot move, and that was MEASURED rather than
+            // assumed. `footerActions` renders two absent `if let`s on the hard
+            // arm; comparing the adopted `hard.light` (CTA → Restore ≈ 134pt) with
+            // `teaser.light` (CTA → escape ≈ 134pt) shows two elided children
+            // contributed ZERO spacing — so SwiftUI omits an absent conditional
+            // from `VStack` spacing, and `statusSurface`'s idle branch builds the
+            // same `_ConditionalContent` shape. The four non-failure goldens
+            // therefore compare-and-match; if any of them moves, that assumption
+            // was wrong and this comment is the thing to re-read.
+            statusSurface
 
             footerActions
         }
