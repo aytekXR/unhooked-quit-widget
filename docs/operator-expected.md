@@ -8,6 +8,25 @@
 
 ---
 
+## START HERE — the five that unblock everything else
+
+Everything below this block is real and open, but it is a long list and not all of it is
+load-bearing. These five are, in this order. Nothing else on this page blocks another item.
+
+| # | Do this | ~Time | Why it is first |
+|---|---|---|---|
+| 1 | **Deploy `ballast.beyondkaira.com`** (§3) | ~30 min | The only gate on the external beta AND on submission. The paywall's Terms/Privacy links and the beta's declared privacy-policy URL all fail at **TLS** today. Everything TestFlight-shaped waits on it |
+| 2 | **Hand over your phone number** (§5 step 2) | ~1 min | Beta App Review will not save without it; the API rejects the write. One command finishes the contact block |
+| 3 | **Submit build 145 + invite the roster** (§5 steps 3–4) | ~10 min | Two commands. Then the ≥1-week beta clock finally starts — it is the longest-running gate you do not control |
+| 4 | **Send the clinician + counsel package** (§3) | ~15 min | Someone else's clock, and the safety copy is FINAL pending only their pass |
+| 5 | **Start G0 trademark clearance** (critical path step 7) | — | Same reason: someone else's clock, and it gates screenshots, ASO and the public link |
+
+Items 4 and 5 are handoffs — start them the same day as 1 so three clocks run at once. The device
+sittings (§1/§2/§7) and the remaining keys (§8) are your own afternoon and block nothing but
+themselves.
+
+---
+
 ## 0. Redesign acceptance — your half
 
 > The §0 decision is answered: **(B), the redesign runs before launch**, given as a standing

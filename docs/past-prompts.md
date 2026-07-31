@@ -7900,5 +7900,12 @@ corrected (the fields are no longer hand-typed; the all-builds finding recorded)
   `Friends`. Setting it is step 4's tail and is deliberately ordered AFTER the review submission,
   because pointing CI at an external group makes every future build auto-attach — and attaching to an
   external group is what hands a build to Apple.
-- **`resume-prompt.md` was not regenerated** (the operator's ask was scoped to `operator-expected.md`).
-  Noting it here so the next session does not discover the gap the way S58 discovered S57's.
+- **`resume-prompt.md` — regenerated to v13.0 at session close** (the operator asked for the
+  next-session prompt in a follow-up turn). The objective moved from "(A) R58.1/R58.2" to
+  **"(A) R58.2"**, because R58.1 landed in S58's own follow-up commits — and the new prompt carries
+  the *reason the obvious fix was wrong* (pinning truncated the footer at AX5) plus the warning that
+  the `paywall_failed` goldens still show the banner off-screen **by fixture construction**, so the
+  next agent does not "re-fix" a fixed defect.
+- **Free lanes re-run at close: 121 pass** (PaywallKit 16 / StreakEngine 84 / WidgetToolkit 21).
+  Counted from disk at close: **153** goldens across **14** suites, **11** audit legs.
+- **No billed run was spent or needed** — nothing in this session touched Swift.
