@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Status | **NOT DEPLOYED.** DNS resolves; TLS does not cover the host; nothing is served. Re-measured 2026-07-30 by `scripts/verify_public_site.sh` — 1 passed, 13 failed, unchanged from S56. |
-| Owner | **Operator.** Every step below needs shell access to the origin host, which no agent has. |
-| Blocks | App Review (Apple Schedule 2 / guideline 3.1.2(c) — the paywall's Terms + Privacy links must work) **and now the external TestFlight ring**, because an external beta group's Test Information carries a privacy-policy URL. |
+| Status | **NOT DEPLOYED.** DNS resolves; TLS does not cover the host; nothing is served. Re-measured 2026-07-31 — `https://ballast.beyondkaira.com/` still fails the hostname check, `http://` 404s, and the apex still answers every path with the same 16-byte body. Unchanged from S56/S57. |
+| Owner | **Operator.** Every step below needs shell access to the origin host, which no agent has — and that was tested rather than assumed: `ssh root@161.97.172.146` from the build machine returns `Permission denied (publickey,password)`. |
+| Blocks | App Review (Apple Schedule 2 / guideline 3.1.2(c) — the paywall's Terms + Privacy links must work) **and the external TestFlight beta.** As of S59 that second one is no longer indirect: the Test Information written to the live account **declares `https://ballast.beyondkaira.com/privacy` as the beta privacy policy**, and everything else external distribution needs is already filled. **This deploy is the only remaining gate on submitting build 145 to Beta App Review** — see `operator-expected.md` §5 step 1. |
 | Written | Session 56, from measurements taken the same session (recorded below, so they can be re-checked rather than trusted). |
 | Updated | Session 57 — the pages now EXIST, in `site/`. Two of them (`/` and `/beta`) are agent-authored and ready to copy; `terms.html` and `privacy.html` remain counsel-owned and absent. Verification is now a script rather than a paste-along. |
 

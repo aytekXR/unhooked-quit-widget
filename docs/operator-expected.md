@@ -2,9 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status (S57) | LIVE — **only OPEN items are listed here.** **The Friends-review sitting was prepared, and preparing it overturned the instruction S56 left behind.** (1) **§5's "just add the people" cannot be followed.** `Friends` is an **internal** group, and Apple only allows ASC account Users in one — the account has exactly one User (you). An internal group can never be converted, because `isInternalGroup` is not in Apple's update schema. §5 now carries the measured state of the live account and the two commands that stand up an **external** ring instead; new tooling (`scripts/testflight_testers.py`) takes your names+emails as a CSV, dry-runs by default, and refuses the internal group with the reason. Note: TestFlight invites are **email-only** — phone numbers cannot be used. (2) **The website had no landing page at all** — the nginx block 404s everything it has no explicit `location` for, and no `index.html` had ever been written, so a shared link was a dead link. `site/` now holds `/` and **`/beta`, the page you share with testers**, plus a crawler block; §3 has the deploy and `scripts/verify_public_site.sh` verifies it in one command. (3) An external ring's Test Information wants a privacy-policy URL, **so the site deploy now blocks the beta as well as submission** — it is worth doing first. |
-| _prior (S56)_ | LIVE — **only OPEN items are listed here.** **Two things changed this session and both are already reflected below.** (1) A NEW hard dependency: the app's legal links now point at **`ballast.beyondkaira.com`**, which does not serve yet — see §3, and note the finding that the OLD apex URLs returned HTTP 200 with a 16-byte placeholder, so they were never real pages and no status-code check could have told you. (2) One item got SMALLER: CI now creates and feeds the TestFlight group itself, so §5 asks only that you add testers. |
-| _prior_ | LIVE — **only OPEN items are listed here.** Pruned to open-items-only in Session 52 (2026-07-27): 11 blocks of session narrative removed, all 45 open actions kept. Closed items and the full decision record live in `docs/past-prompts.md` (the append-only ledger). |
+| Status (S59) | LIVE — **only OPEN items are listed here.** **The external TestFlight ring was BUILT this session, so §5 is now four steps instead of a research problem.** What exists on the live account right now: the external group `Friends (external)`, the Beta App Description, the feedback email, the privacy-policy + marketing URLs, and "What to Test" on build 145. What is left in §5 is genuinely yours: the site, one phone number, one submit command, and the roster. **Two measurements changed what the old §5 claimed.** (1) **Apple does NOT honour `hasAccessToAllBuilds` on an external group** — the create request is accepted and the attribute comes back `null`, while the identical payload sets it on an internal group. So the old line "you do NOT need to change `TESTFLIGHT_GROUP`" was wrong: without that Variable, the external ring never receives a build. (2) **Beta App Review requires a contact phone**, even though Apple's published schema marks the attribute optional — the API answers `409 ENTITY_ERROR.ATTRIBUTE.REQUIRED`. That number is the one field here no agent can supply. |
 | Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook; it sequences this file. For the beta: **`docs/testflight-beta-kit.md`**. |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
@@ -132,36 +130,32 @@
       and changed three of its strings. The marker now says SIGNED, with the commit named. **This
       is a correction to a description, never to a word you signed** — the 27 strings are
       byte-identical. It mattered because `docs/golden-batch.md` blocks minting goldens for DRAFT
-      copy, so that one stale string is why the paywall had no goldens at all until this session.
+      copy, so that one stale string is why the paywall had no goldens at all until S58.
       Overrule it if you disagree.
-      **And two judgments only your eye can make:**
-      **(a) Does the paywall band read?** The top third now carries the Waterline horizon, feathered
+      **And one judgment only your eye can make:**
+      **Does the paywall band read?** The top third now carries the Waterline horizon, feathered
       out so there is no cut line. Same 6% weight as the quiz and the summary — and on THIS screen
       the measured ceiling is far more generous (**0.1640** with the floors in place, vs the
       summary's 0.0695), so if it reads as invisible there is real headroom to go bolder. As
       elsewhere: the honest fix is a bolder MOTIF, not a bolder opacity.
-      **(b) The failure banner — and taking its picture found something.** It has goldens for the
-      first time, driven through the real purchase path rather than posed, and they show the banner
-      is **almost entirely off-screen when it fires**: a purchase failure renders a ~4px sliver of
-      the amber card and **no "Try again" button**, because that surface is the last thing inside a
-      scroll view. Restore is still reachable (it is pinned), so nobody is stranded — but the
-      feedback is missing. **This is not new and it is not the redesign's doing**: it has been true
-      since the paywall was built in Session 24, and it was invisible because the screen had no
-      goldens. It is the first item of the next session, with its own run.
-      **One related thing that touches a decision of YOURS.** §8 plans to assign the review build to
-      the **teaser** arm. On that arm — and only that arm, because its footer is taller — the
-      auto-renewal disclosure Apple's 3.1.2(c) requires is **clipped mid-sentence** at default text
-      size. It scrolls into view, and review generally accepts scrollable paywalls, so this is a
-      risk to weigh rather than a certainty. Both are fixed together next session; if you would
-      rather the review build went out on the **hard** arm, which shows the disclosure in full, say
-      so and nothing else has to change.
+- [ ] **⚠️ R58.2 is still open and it touches a decision of YOURS.** §8 plans to assign the review
+      build to the **teaser** arm. On that arm — and only that arm, because its footer is taller —
+      the auto-renewal disclosure Apple's 3.1.2(c) requires is **clipped mid-sentence** at default
+      text size. It scrolls into view, and review generally accepts scrollable paywalls, so this is
+      a risk to weigh rather than a certainty. **Its sibling R58.1 is now FIXED** (the failure
+      banner scrolls its retry into view, gated by a UI test that asserts `isHittable` rather than
+      `exists`, because the banner always *existed* — it was off-screen). R58.2 was not bundled
+      with it: the fix is a composition change on an Architect-gated monetization surface and it
+      rides its own run. **If you would rather the review build went out on the `hard` arm, which
+      shows the disclosure in full, say so and nothing else has to change.**
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).
 - [ ] **Eyeball the current TestFlight build on your device** — the operator half of accepting the
       redesign (agents verified simulator goldens + CI; your thumb on the real widget flow is the
       missing evidence). Always take the newest build: CI uploads one per green `main`, so the
-      build number moves constantly and no specific number is worth chasing.
+      build number moves constantly and no specific number is worth chasing. **Today the newest is
+      145**, and it now carries a "What to Test" note, so TestFlight will show you what to walk.
 - [ ] **Glance at the rebuilt Settings screen (~2 min).** It looks different on
       purpose: the system `List` is gone, replaced by a scrolling column of themed cards, and the
       title moved out of the navigation bar into the content. That change is what retires
@@ -228,15 +222,20 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       mode). It names no technique and makes no claim; if the clinician wants the counts
       de-emphasized, that is a one-line edit with no golden impact.
       (c) `docs/review-notes.md` — read top to bottom; its factual claims are source-verified.
-- [ ] **Stand up `ballast.beyondkaira.com` — A HARD DEPENDENCY, and now also the thing that
-      makes a shared link work.**
+- [ ] **⚠️ Stand up `ballast.beyondkaira.com` — THE gate on the external beta, and now the ONLY
+      thing between you and sending build 145 to Apple.**
       **Runbook: `docs/public-site-deploy.md`** (nginx server block + certbot, written out and
-      ready to paste; the deploy itself needs your server access, so an agent cannot do it).
+      ready to paste; the deploy itself needs your server access, so an agent cannot do it —
+      `root@161.97.172.146` refuses this machine's key, which was tested rather than assumed).
 
-      **NEW in S57 — the pages exist now, in `site/`.** There was a hole nobody had noticed:
-      the nginx block serves explicit locations and 404s everything else, and **no `index.html`
-      had been written — so the bare domain would have been a dead link.** Anyone you sent
-      `ballast.beyondkaira.com` would have got a 404. Two real pages now ship in the repo:
+      **Why it moved to the front of the queue.** The Test Information now written on the live
+      account declares **`https://ballast.beyondkaira.com/privacy`** as the beta privacy policy,
+      and the paywall's Terms of Use / Privacy Policy links already point at
+      `/terms` and `/privacy`. **Both currently fail at TLS**, not at 404 — the wildcard `A`
+      record resolves to the right origin, but the installed certificate does not cover the
+      subdomain, so an HTTPS request dies before nginx is consulted. A Beta App Review reviewer
+      tapping either link meets a certificate error on a subscription screen, which is the shape
+      of a 3.1.2(c) rejection. **That is the whole reason build 145 has not been submitted.**
 
       | Path | What it is |
       |---|---|
@@ -246,34 +245,17 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
 
       Deploy is `rsync -av --delete-after --exclude README.md site/ root@…:/var/www/ballast/`
       (§4.1 of the runbook), then **`scripts/verify_public_site.sh`** — one command, 19
-      assertions, and it reads response **bodies** rather than status codes for the reason in
-      the next paragraph. Baseline right now is `1 passed, 13 failed`: DNS resolves, everything
-      else fails at TLS. **A founder copy pass on those two pages is owed** — three deliberate
-      deviations from the §5 blueprint are listed in `site/README.md` for you to overrule.
+      assertions, and it reads response **bodies** rather than status codes because the apex
+      proved a 200 can be a lie: `beyondkaira.com/terms`, `/privacy` and *every other path*
+      return a **16-byte body reading "beyondkaira.com"**. A link-checker would have called
+      those legal links healthy while a reviewer met a blank placeholder. Baseline right now is
+      **1 passed, 13 failed** — DNS resolves, everything else fails at TLS.
+      A founder copy pass on the two agent-authored pages is owed — three deliberate deviations
+      from the §5 blueprint are listed in `site/README.md` for you to overrule.
       `terms.html` / `privacy.html` are **deliberately absent and counsel-owned**; no agent has
-      written them.
-      The paywall's Terms of Use / Privacy Policy are real tappable links, repointed in S56 to
-      **`https://ballast.beyondkaira.com/terms`** and **`https://ballast.beyondkaira.com/privacy`**
-      (constants in `Shared/Sources/AppIdentifiers.swift` — change them there if you host
-      elsewhere). Apple Schedule 2 requires the links to WORK; a reviewer tapping through to a
-      broken link is a rejection. The privacy policy is also where the sensitive-class
-      habit-category disclosure lives (see `docs/app-privacy-label.md`).
-
-      **Two things were MEASURED while making this change, and the second one is worse than the
-      first:**
-
-      1. **`ballast.beyondkaira.com` resolves but has no certificate.** A wildcard `A` record
-         already points it at the same origin as the apex (`161.97.172.146`), so DNS is done —
-         but an HTTPS request fails the hostname check outright, because the installed
-         certificate does not cover the subdomain. Until certbot issues for it, the app's legal
-         links fail at TLS.
-      2. **The OLD apex URLs were never real pages, and they returned HTTP 200.** `/terms`,
-         `/privacy` and *every other path* on `beyondkaira.com` return a **16-byte body reading
-         "beyondkaira.com"**. That is a catch-all, not a site. So the previous state was not
-         "links 404 until you publish" — it was **links that a link-checker would call healthy
-         while a reviewer met a blank placeholder.** No automated 404 sweep could ever have
-         caught it; only fetching the body does. Worth knowing because the old docs described
-         this as a 404 risk, and a 404 would have been the safer failure.
+      written them. The privacy policy is also where the sensitive-class habit-category
+      disclosure lives (see `docs/app-privacy-label.md`), and it must match the App Privacy
+      label exactly — a mismatch between the two is itself a review finding.
 - [ ] **YEDAM 115 operating hours (~5 min, `helplines.json`).** The row ships with
       `hoursVerified: false` and the honest placeholder "Bilinmiyor — yayına almadan
       doğrulayın". Confirm the real hours on yedam.org.tr and replace the string.
@@ -302,129 +284,84 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       `copy.encouragement[slipCount % copy.encouragement.count]` — so a repeat user gets fresh
       framing, or delete the two dead strings.
 
-## 5. TestFlight — the initial testing sitting
+## 5. TestFlight — the external ring, in four steps
 
-> **Read `docs/testflight-beta-kit.md` §0 before you invite anyone (~5 min).** It is the pre-flight for the
-> initial sitting: what a tester actually meets, what to put in the invite, and the paste-ready ASC fields.
-> Step-by-step ASC mechanics stay in `docs/testflight-tester-guide.md` (internal group setup, external
-> groups/public link).
+> **Read `docs/testflight-beta-kit.md` §0 before you invite anyone (~5 min).** It is the pre-flight:
+> what a tester actually meets, and what to put in the invite. Step-by-step ASC mechanics stay in
+> `docs/testflight-tester-guide.md`.
 
-- [ ] **⚠️ READ THIS BEFORE YOU COLLECT NAMES — the `Friends` group cannot take friends, and
-      the reason is Apple's, not ours.** S56 left this item reading "just add the people". That
-      instruction cannot be followed, and following it would waste a sitting.
+**What is already done, so you do not go looking for it.** The external group
+**`Friends (external)`** (`8b856317-1da2-4c41-804e-3299349951f3`, public link OFF) exists. The Beta
+App Description, the feedback email (`aytek@beyondkaira.com`), the privacy-policy and marketing
+URLs, and build 145's "What to Test" are all written to the live account —
+`python3 scripts/testflight_test_info.py --list --secrets-file secret.yml` re-reads every one of
+them and scores what is missing. Nothing has been sent to Apple and nobody has been emailed.
 
-      **What was measured, live, against App Store Connect on 2026-07-30** (read-only API
-      probe; re-runnable any time with `scripts/testflight_testers.py --list --secrets-file secret.yml`):
+The four steps below are in dependency order. Steps 1 and 2 are the only ones that need you.
 
-      | Fact | Value |
-      |---|---|
-      | App | `Ballast - Quit`, `com.beyondkaira.ballast`, ASC id `6788964100` |
-      | `Friends` | id `60ebfad4-30e8-489c-864d-bbb0378b9194`, **internal**, all-builds ✅, **0 testers**, public link off |
-      | `founders` | internal, all-builds ✅, 1 tester (you, INSTALLED) |
-      | Newest build | **139**, VALID, uploaded 2026-07-27 — available to both groups already |
-      | **Users on the ASC account** | **exactly 1 — you** (ACCOUNT_HOLDER, ADMIN) |
+- [ ] **STEP 1 — deploy the site (§3 above).** Everything else waits on it, for the reason §3
+      states: the beta privacy-policy URL and the paywall's two legal links all resolve to a TLS
+      failure until certbot issues for the subdomain. **This is the single highest-leverage thing
+      on this page.**
+- [ ] **STEP 2 — give an agent your phone number, or paste it yourself.** Beta App Review will not
+      save without it:
 
-      **The constraint.** Apple's own TestFlight page divides testers in two, and the division
-      is not cosmetic. **Internal** = "up to 100 members of your team" holding an App Store
-      Connect role (Account Holder, Admin, App Manager, Developer, Marketing) — builds arrive
-      with no review wait. **External** = "anyone with an email address", up to 10,000 — but
-      "your builds are automatically sent for review once they're added to a group".
-
-      So adding a friend's email to `Friends` as it stands is not a thing App Store Connect
-      will do. It would mean **inviting each friend to be a team member on the developer
-      account**, with a role that can see and change real things. That is right for a
-      co-founder and wrong for a friends ring.
-
-      **And the group cannot be converted.** `isInternalGroup` is absent from Apple's
-      `BetaGroupUpdateRequest` schema — the updatable set is only `name`,
-      `publicLinkEnabled`, `publicLinkLimit`, `publicLinkLimitEnabled`, `feedbackEnabled`,
-      `iosBuildsAvailableForAppleSiliconMac`, `iosBuildsAvailableForAppleVision`. An internal
-      group is internal forever. A **second, external group** is the only route.
-
-      **RECOMMENDED — do this, and it is two commands.** Everything is built and dry-run
-      tested; nothing below sends an email until you pass `--apply`.
-
-      ```bash
-      # 1. Make the external ring. Prints a plan first; --apply executes.
-      python3 scripts/testflight_testers.py --secrets-file secret.yml \
-              --create-external-group 'Friends (external)' --apply
-
-      # 2. Hand over the roster. Dry-run FIRST — it shows exactly who gets emailed.
-      python3 scripts/testflight_testers.py --secrets-file secret.yml \
-              --group 'Friends (external)' --roster friends.csv
-      #    then re-run with --apply
+      ```
+      HTTP 409  ENTITY_ERROR.ATTRIBUTE.REQUIRED
+      "You must provide a value for the attribute 'contactPhone'"
       ```
 
-      `friends.csv` is `email,firstName,lastName`, one per line, header optional. Reordered
-      columns, extra columns, missing surnames, Excel's BOM and duplicate rows are all
-      handled; **one malformed address rejects the whole file** rather than half-inviting the
-      list. Keep the file out of the repo — it is other people's personal data.
+      That was measured against the live account, and it is worth knowing that **Apple's own
+      published schema calls `contactPhone` optional** — the docs JSON lists all eight
+      `BetaAppReviewDetailUpdateRequest` attributes as optional. The live API disagrees. One
+      command completes the contact block and the review notes together:
 
-      **What this costs you: one Beta App Review.** It runs once per version on the first
-      build distributed externally; later builds of the same version usually clear without a
-      wait. It needs two ASC fields that are **currently empty** (`betaAppLocalizations`
-      returned 0 rows): **Beta App Description** and a **feedback email**, plus Beta App
-      Review Information. Paste-ready text for all of it is in
-      `docs/testflight-beta-kit.md` §1.2 / §1.3 — no writing required.
+      ```bash
+      python3 scripts/testflight_test_info.py --secrets-file secret.yml \
+              --contact-phone '+90 5xx xxx xx xx' --apply
+      ```
 
-      **The public link stays OFF** either way, and the script sets it off explicitly. That is
-      unchanged: G0 name clearance is still open.
+      Or type it into App Store Connect → TestFlight → Test Information → App Review Information.
+      The name (`Aytek Erdogan`) and email are already set; only the phone is empty.
+- [ ] **STEP 3 — submit build 145 for Beta App Review** (one command, after steps 1–2):
 
-      **If you would rather not wait for review**, the alternative is honest but narrow: add
-      one or two people as ASC Users (Users and Access → invite, then re-run step 2 against
-      `Friends`). Fine for someone you would trust with the account. Not for a ring.
+      ```bash
+      python3 scripts/testflight_test_info.py --secrets-file secret.yml \
+              --submit-for-beta-review --apply
+      ```
 
-      *Note on the data you offered to send: TestFlight invites are **email-only**. There is no
-      SMS or phone-number invite path, so phone numbers cannot be used here — names and email
-      addresses are what the roster needs.*
+      It is idempotent — if a submission already exists it says so and does nothing. **Review runs
+      once per version**, so v0.1.0 pays this cost once; later builds of the same version usually
+      clear without a wait. Expect roughly a day.
+- [ ] **STEP 4 — hand over the roster and attach the builds.** `friends.csv` is
+      `email,firstName,lastName`, one per line, header optional; reordered columns, extra columns,
+      missing surnames, Excel's BOM and duplicate rows are all handled, and **one malformed address
+      rejects the whole file** rather than half-inviting the list. Keep it out of the repo — it is
+      other people's personal data. Dry-run first; it shows exactly who gets emailed.
 
-      **(0) What the first run found, and what it did.** The distribution job authenticated, resolved
-      the app (`Ballast - Quit`, `com.beyondkaira.ballast`, ASC id `6788964100`) and reported that
-      **no group named `Friends` existed — the only group on the app was `founders`.** It now creates
-      `Friends` as an **internal** group with **`hasAccessToAllBuilds` set**, which is the important
-      part: that flag makes the group receive **every build, past and future, as a property of the
-      group itself** rather than because a CI step remembered to attach each one. It is a structural
-      guarantee, not a procedural one — so "current and future builds are automatically available"
-      is true even if the CI job is later removed. Both attribute names were checked against Apple's
-      own `BetaGroupCreateRequest` schema before being used.
-      **`founders` is untouched.** **Internal groups take testers who are Users on your ASC
-      account** (up to 100) — which, per the correction at the top of this item, is exactly why
-      `Friends` cannot host a friends ring. The all-builds flag was still the right call and
-      still holds; the group's *internal* nature is the part that turned out to be wrong for
-      the purpose.
+      ```bash
+      python3 scripts/testflight_testers.py --secrets-file secret.yml \
+              --group 'Friends (external)' --roster friends.csv          # then --apply
+      ```
 
-      **You do NOT need to change `TESTFLIGHT_GROUP` after making the external group.** Because
-      the new group is created with `hasAccessToAllBuilds` too, every build reaches it as a
-      property of the group, so CI's distribute job is a no-op for it either way. Point the
-      Variable at the external group only if you want CI's log to name the ring you actually
-      use.
-
-      **(a) Why it is a separate CI job rather than a fastlane option.** The upload lane runs
-      `pilot(skip_waiting_for_build_processing: true)`, and fastlane's own docs for that flag say
-      *"the distribute_external option won't work and no build will be distributed to testers"* — it
-      exists to avoid paying for CI minutes while Apple processes the build. On this private repo
-      macOS minutes bill at **10×**, and S52 already refused to hold the runner for the changelog for
-      exactly that reason. So the flag stays, and a **free ubuntu job** does the waiting and the
-      attaching afterwards via the App Store Connect API (`scripts/testflight_distribute.py`).
-      Zero macOS minutes.
-
-      **(b) It still fails the pipeline if distribution genuinely breaks, on purpose.** The job runs
-      after the upload has already succeeded, so a failure there means precisely "the build did not
-      reach testers" — which should be loud, and is wired into the Slack notification. Errors name
-      the groups that DO exist, so a mismatch is self-diagnosing. To target a different group, set
-      the repo Variable **`TESTFLIGHT_GROUP`** rather than editing code.
-
-      **(c) Internal vs external — CORRECTED.** This line used to read "internal … is what you
-      want for Friends". That was wrong, and the correction is at the top of this item: an
-      internal group receives builds immediately but can only contain **Users on your ASC
-      account**, so ordinary friends cannot be in one. An **external** group takes anyone with
-      an email address, at the price of one Beta App Review per version.
-      `scripts/testflight_distribute.py` already detects an external group and warns rather
-      than silently implying delivery, so the build-attaching half needs no change.
-
-      **To back-fill the builds already uploaded** — including the latest — run the
+      *TestFlight invites are **email-only**. There is no SMS or phone-number invite path, so phone
+      numbers cannot be used here — names and email addresses are what the roster needs.*
+- [ ] **⚠️ SET THE REPO VARIABLE `TESTFLIGHT_GROUP` to `Friends (external)`, or the ring never gets
+      a build after the first one.** This reverses what this file said in S57, and the reversal is
+      a measurement rather than a rethink: the group was created with `hasAccessToAllBuilds: true`
+      in the payload, Apple accepted the request, and the attribute **came back `null`**. The
+      identical payload sets it on an internal group, so it is an internal-group property in
+      practice whatever the create schema implies — and it can never be added later, because
+      `hasAccessToAllBuilds` is absent from `BetaGroupUpdateRequest`. So an external ring receives
+      only builds that something explicitly ATTACHES.
+      `gh variable set TESTFLIGHT_GROUP --body 'Friends (external)'` makes CI's free ubuntu
+      distribute job do it on every green `main`. **Do this AFTER step 3**, not before: pointing CI
+      at the external group means every future build is auto-attached, and attaching to an external
+      group is what hands a build to Apple.
+      To attach a build by hand instead — including back-filling 145 — run the
       **"TestFlight distribute (manual)"** workflow from the Actions tab with `sweep` set to the
-      number of recent builds to attach. It needs no new build and costs no macOS minutes.
+      number of recent builds, or locally:
+      `python3 scripts/testflight_distribute.py --group 'Friends (external)' --sweep 1`.
 - [ ] **⚠️ Brief testers about the close-free paywall, or the sitting stalls there (the one that matters).**
       RevenueCat going live flipped the summary CTA: every non-entitled user now routes into the paywall
       (`PostGateRootView.swift:412`), and with Superwall still dormant the variant is always the **hard** arm
@@ -433,7 +370,8 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       re-present because a user with no teaser grant re-enters at `.dashboard` (`PaywallRouting.swift:55`).
       In TestFlight the purchase is **free** (sandbox), so the intended
       path works and doubles as your §8 sandbox evidence. But a tester who is not told will refuse the purchase sheet
-      and report "the app won't let me in". Beta-kit §2 and §4.1 are written to prevent exactly that. **Two notes:**
+      and report "the app won't let me in". Beta-kit §2 and §4.1 are written to prevent exactly that, and build 145's
+      "What to Test" now says it in the tester's own words. **Two notes:**
       a non-purchaser silently skips the ME-1 widget-adoption moment (the north-star metric's only surface) — the
       script routes them back via Settings → Panic access instead; and if testers do stall, that is the argument for
       pasting the Superwall key and assigning the teaser arm (§8), which is already the decided posture for the
@@ -449,8 +387,8 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       devices are not offered the build at all, which reads as a broken invite. Relevant to recruiting the ≥15
       external testers the beta gate wants.
 - [ ] **Do NOT enable the TestFlight public link yet.** The build wears "Ballast" and G0 trademark/name clearance is
-      still open (critical path step 7); a public link is an indexable public exposure of an uncleared name.
-      Email-invited external testers are fine.
+      still open (critical path step 7); a public link is an indexable public exposure of an uncleared name. The
+      group was created with `publicLinkEnabled: false` explicitly. Email-invited external testers are fine.
 - [ ] **Decide beta-tester GEOGRAPHY before you recruit (~2 min).** Verified helpline rows exist for
       **US and TR only**. Every other region resolves to the GLOBAL bucket, which by your own number-free ruling
       shows text guidance ("…call your local emergency number… visit findahelpline.com") and **no tappable
@@ -460,14 +398,18 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       exactly why). But if you recruit your ≥15 external testers outside US/TR, that is what they will see. Either
       weight recruiting to US/TR, or add officially-sourced rows for the regions you recruit from — the render
       path is already proven, so adding a row is data-only.
-- [ ] **Add internal testers** (nobody receives builds until a tester group exists). The
-      newest build completes the M1 loop end-to-end (install → gate → quiz incl. the consent step → the summary
-      payoff → a real quit whose panic flow speaks the tester's own motivations). Follow Part 1 of the guide.
-- [ ] **Expire the stray bundle-version-"1" build;** answer export compliance only if ASC prompts (guide Part 3 has
-      the exact answers — note `ITSAppUsesNonExemptEncryption=false` is already set, so this should not be asked).
+- [ ] **Expire the stray bundle-version-"1" build (~1 min, optional hygiene).** 58 builds sit on the app, all
+      VALID and unexpired, and the oldest is build **`1`** from 2026-07-08 — it predates the real widget and shows
+      only a hardcoded "Day 0" placeholder. Testers with all-builds access can install it. Expiring is
+      **irreversible**, which is why no agent did it: `PATCH /v1/builds/{id}` with `{"expired": true}`, or the
+      Expire button in App Store Connect.
 - [ ] **Re-add the widget once.** SkeletonWidget was retired for the real "Streak" widget (new kind — a placed
       placeholder disappears). Long-press → add "Streak"; the rectangular size carries the panic button. Any tester
       who had the old placeholder placed must re-add too (one-time).
+- [ ] **Optional cleanup: the internal `Friends` group is now vestigial.** It has 0 testers and cannot take any
+      (internal groups accept only Users on your ASC account, and there is exactly one — you, already in
+      `founders`). It is harmless; delete it in App Store Connect if the two similarly-named groups would ever
+      confuse you at 2am.
 
 ## 6. Slack webhook rotation — optional hygiene, ~5 min
 
@@ -563,9 +505,9 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       (ITMS-91055 "Invalid API reason declaration"), so an agent must not add one speculatively. **You already hold
       the definitive evidence:** App Store Connect emails an **ITMS-91053 "Missing API declaration"** warning after
       it processes a build, and this exact manifest + clock code has been through processing on every green-main
-      TestFlight upload. Search your ASC/developer email for **"ITMS-9105"**. Nothing there ⇒ closed permanently,
-      delete this line. If a warning IS there, paste it and an agent lands the named category + reason code in one
-      run (a two-line XML edit plus its `PrivacyManifestTests` pin).
+      TestFlight upload — 58 of them now. Search your ASC/developer email for **"ITMS-9105"**. Nothing there ⇒
+      closed permanently, delete this line. If a warning IS there, paste it and an agent lands the named category +
+      reason code in one run (a two-line XML edit plus its `PrivacyManifestTests` pin).
 - [ ] **THE SANDBOX PURCHASE MATRIX — unblocked, and it is Epic 7's operator half.** ASC →
       Users and Access → **Sandbox** → create a test account; on the device Settings → Developer
       → **Sandbox Apple Account** → sign in. Then run: trial start · trial→paid · monthly ·
@@ -591,13 +533,14 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       `adHocOffers` win-back entry). Same sitting: run with launch env `UITEST_PAYWALL=1` to eyeball the paywall.
 - [ ] **Superwall key:** create the app in the Superwall dashboard and paste the public API key
       into `App/Sources/Monetization/SuperwallConfiguration.swift` (`superwallAPIKey`). Until then every build shows
-      the bundled hard-wall control paywall — which is also what every beta tester meets (§5, first item).
+      the bundled hard-wall control paywall — which is also what every beta tester meets (§5).
 - [ ] **Superwall dashboard config (with the key):** two placements — **`quiz_completed`** and **`winback`**; the
       teaser-vs-hard experiment (teaser = escape allowed; hard = no close); the $29.99-vs-$39.99 price experiment
       binding `….annual` (control) vs `….annual.hi` (B arm); then hand an agent the variant ids to fill
       `SuperwallPlacement.variantMapping` (opaque dashboard ids → `teaser`/`hard`; unmapped ids safely render the
       hard control). **Also assign the review build to the TEASER arm** — that is what makes the ratified
-      3.1.2 posture true; it is a dashboard setting, not code. For the App Privacy label: SuperwallKit's manifest
+      3.1.2 posture true; it is a dashboard setting, not code. ⚠️ **Read the R58.2 item in §0 first** — the teaser
+      arm is the one where the auto-renewal disclosure clips. For the App Privacy label: SuperwallKit's manifest
       declares Purchase History + a FileTimestamp reason and pulls a checksummed Rust binary
       (`libcel.xcframework`) — recorded so review surprises no one.
 - [ ] **TelemetryDeck app ID (~10 min)** — create the app in the TelemetryDeck console and paste the app ID into

@@ -7811,3 +7811,94 @@ ships today, so the fix will show up as a deliberate two-PNG diff rather than as
   submission — G0 trademark clearance, the external TestFlight ring, device sitting #1, the sandbox
   purchase matrix, the Superwall + TelemetryDeck keys, submission) is sequenced in
   `docs/critical-path-post-uir.md` and runs on its own clock.
+
+---
+
+## Session 59 — the external ring, built; and two things Apple's own schema got wrong (2026-07-31)
+
+**Objective (operator-set):** "Are we ready for the TestFlight testing for external? If not, make it
+ready. Send the latest release to TestFlight, and update `operator-expected.md` so only open items
+are there."
+
+**Session-open verified first-hand:** local == `origin/main` at `395ab57`, clean tree; last CI run
+`30511920613` SUCCESS **per-job 11/11**, and its run number **145** is the build number, so the
+newest TestFlight build IS the newest commit — "send the latest release" needed no build, only
+verification that one existed. Live ASC probe before touching anything: 58 builds, all VALID and
+unexpired, newest **145** `externalBuildState=READY_FOR_BETA_SUBMISSION`; **`betaAppLocalizations`
+0 rows**; every `betaAppReviewDetail` attribute `null`; two beta groups, both **internal**; one
+account User.
+
+**ZERO billed runs.** No Swift changed. Everything below is Python, docs, and live API calls.
+
+### What was measured that overturned a documented claim
+
+**(1) Apple does NOT honour `hasAccessToAllBuilds` on an EXTERNAL beta group.** `operator-expected.md`
+§5 said, in bold, "You do NOT need to change `TESTFLIGHT_GROUP` after making the external group.
+Because the new group is created with `hasAccessToAllBuilds` too, every build reaches it as a
+property of the group." That was reasoned from `BetaGroupCreateRequest`'s schema, which does list the
+attribute — and it is **false**. The create request was sent with `hasAccessToAllBuilds: true`, Apple
+returned **HTTP 201 and `hasAccessToAllBuilds: null`**, while the *identical payload* through
+`testflight_distribute.py` sets it to `true` on an internal group. It is an internal-group property
+in practice. **The failure it would have caused is the silent kind**: a ring that exists, has friends
+in it, and never receives a build — with no error anywhere, because nothing failed. And there is no
+recovery by update: the attribute is absent from `BetaGroupUpdateRequest`, so the group can never
+gain it. `create_external_group` now asserts the flag after creation and prints a loud warning naming
+both remedies; the doc claim is inverted rather than softened.
+
+**(2) `contactPhone` is REQUIRED, and Apple publishes it as optional.** Every one of the eight
+`BetaAppReviewDetailUpdateRequest.Data.Attributes` is marked `optional` in Apple's docs JSON. The
+live API answers `409 ENTITY_ERROR.ATTRIBUTE.REQUIRED` — *"You must provide a value for the attribute
+'contactPhone'"* — with `source.pointer: /data/attributes/contactPhone`. **Verifying the schema
+against Apple's own docs was still the right move and it still was not enough**: the docs are the
+oracle for shape, not for enforcement, and only the live call settles the second. Recorded in the
+script docstring with the verbatim error so nobody re-derives it.
+
+### What shipped
+
+- **`scripts/testflight_test_info.py`** (new) — writes and verifies the Test Information that
+  external distribution needs, dry-run by default like its two siblings. `--list` reads the live
+  state back and scores it BLOCKING/WARN, exiting non-zero while anything blocks, so it works as a
+  gate in a shell. Every request shape verified against Apple's published schema JSON before use.
+  The three copy blocks are verbatim from `testflight-beta-kit.md` §1.1/§1.2/§1.3, with a comment on
+  both sides binding them to move together.
+  It writes what it can and **skips** what it cannot rather than failing the run: a half-filled Test
+  Information is strictly closer to ready than an empty one, and `--list` says what is left.
+- **Written to the live account:** the `en-US` beta localization (Beta App Description, feedback
+  email `aytek@beyondkaira.com`, privacy-policy + marketing URLs) and **"What to Test" on build 145**.
+- **`Friends (external)`** created — `8b856317-1da2-4c41-804e-3299349951f3`, `publicLinkEnabled:
+  false` explicitly, 0 testers.
+- **Nothing was sent to Apple and nobody was emailed.** Verified after group creation that build 145
+  still has no `betaAppReviewSubmission`: creating an empty external group does not auto-submit.
+
+### The one judgment that was the operator's, and why it was put to them
+
+Submitting build 145 for Beta App Review was **held deliberately.** The Test Information now declares
+`https://ballast.beyondkaira.com/privacy`, and the paywall's Terms + Privacy links point at the same
+host — which **fails at TLS**, not at 404. A reviewer tapping either link on a subscription screen
+meets a certificate error, which is the shape of a 3.1.2(c) rejection, and a beta rejection is
+recorded against v0.1.0 and costs a cycle. The operator chose **site first, then submit**; §5 is
+sequenced accordingly and the submission is one idempotent command. Also tested rather than assumed:
+`ssh root@161.97.172.146` from the build machine returns `Permission denied (publickey,password)`, so
+the deploy genuinely cannot be agent-run.
+
+### Docs re-trued
+
+`operator-expected.md` pruned to open items only per its own rule — three rows of session-status
+narrative removed from the header, §5 rewritten from a research problem into four ordered steps, the
+ME-9 failure-banner item corrected (R58.1 is FIXED; **R58.2, the teaser-arm 3.1.2(c) clip, is still
+open** and now sits beside the §8 teaser-arm decision it affects). `testflight-beta-kit.md` §0.3/§1
+corrected (the fields are no longer hand-typed; the all-builds finding recorded).
+`public-site-deploy.md` re-measured — **1 passed, 13 failed**, counted not quoted.
+`critical-path-post-uir.md` "Do next" item 3 rewritten, since it still told the operator the internal
+`Friends` group needed only testers.
+
+### What is NOT done
+
+- **The phone number, the site deploy, the submission, and the roster** — §5 steps 1–4. The first two
+  are genuinely the operator's; the last two are one command each once they land.
+- **`TESTFLIGHT_GROUP` is still unset**, so CI's distribute job still defaults to the internal
+  `Friends`. Setting it is step 4's tail and is deliberately ordered AFTER the review submission,
+  because pointing CI at an external group makes every future build auto-attach — and attaching to an
+  external group is what hands a build to Apple.
+- **`resume-prompt.md` was not regenerated** (the operator's ask was scoped to `operator-expected.md`).
+  Noting it here so the next session does not discover the gap the way S58 discovered S57's.

@@ -331,14 +331,16 @@ def read_roster(path: str) -> list[dict]:
 
 def create_external_group(api: Client, app_id: str, name: str, apply: bool) -> dict | None:
     log()
-    log(f"PLAN: create EXTERNAL beta group {name!r} with access to all builds.")
+    log(f"PLAN: create EXTERNAL beta group {name!r}.")
     log("  Consequences, so none of them are a surprise:")
     log("    * External testers are invited by EMAIL and need no App Store Connect account.")
-    log("    * Apple sends builds in an external group for BETA APP REVIEW automatically.")
-    log("      Because hasAccessToAllBuilds is set, that applies to existing builds too.")
-    log("    * Beta App Review needs the Beta App Description + feedback email filled in")
-    log("      (App Store Connect > TestFlight > Test Information). docs/testflight-beta-kit.md")
-    log("      §1.2/§1.3 carry paste-ready text for both.")
+    log("    * Apple sends builds in an external group for BETA APP REVIEW.")
+    log("    * hasAccessToAllBuilds is REQUESTED but Apple does not honour it on an external")
+    log("      group — measured 2026-07-31, the attribute comes back null (see below). So")
+    log("      builds must be ATTACHED, and something has to keep doing that: point the repo")
+    log("      Variable TESTFLIGHT_GROUP at this group, or run testflight_distribute.py.")
+    log("    * Beta App Review needs the Beta App Description + feedback email filled in.")
+    log("      testflight_test_info.py writes both; --list says whether they are there.")
     log("    * The public link stays OFF. It is a separate, opt-in setting and this does")
     log("      not touch it — trademark clearance (gate G0) is still open.")
     if not apply:
@@ -354,10 +356,14 @@ def create_external_group(api: Client, app_id: str, name: str, apply: bool) -> d
                 "attributes": {
                     "name": name,
                     "isInternalGroup": False,
-                    # Set at CREATE time on purpose: it is not in the update schema, so
-                    # it can never be added later. Every build, past and future, reaches
-                    # the group as a property of the group rather than because a CI step
-                    # remembered to attach it.
+                    # Sent at CREATE time because it is not in the update schema, so it
+                    # could never be added later — but MEASURED 2026-07-31: Apple accepts
+                    # the request and silently returns hasAccessToAllBuilds=null on an
+                    # EXTERNAL group, while honouring the identical payload on an internal
+                    # one. It is an internal-group property in practice, whatever the
+                    # create schema implies. Kept in the payload so the day Apple starts
+                    # honouring it, this group shape gets it for free; the check below is
+                    # what stops the script believing it worked.
                     "hasAccessToAllBuilds": True,
                     "feedbackEnabled": True,
                     # Explicit rather than defaulted, so the intent is on the record.
@@ -371,6 +377,17 @@ def create_external_group(api: Client, app_id: str, name: str, apply: bool) -> d
     if not group.get("id"):
         fail(f"create returned no group id: {json.dumps(payload)[:400]}")
     log(f"  CREATED {describe_group(group)}")
+    if not group.get("attributes", {}).get("hasAccessToAllBuilds"):
+        # Loud, because the failure it prevents is silent: a ring that exists, has
+        # people in it, and never receives a build. There is no second chance to set
+        # this — hasAccessToAllBuilds is absent from BetaGroupUpdateRequest.
+        log()
+        log("  ::warning title=No all-builds access::Apple did NOT grant this group access to")
+        log("    all builds (the attribute came back null). External groups do not get it.")
+        log("    Builds therefore reach this ring only when something ATTACHES them:")
+        log(f"      * set the repo Variable TESTFLIGHT_GROUP to '{group['attributes'].get('name')}'")
+        log("        so every future green main attaches its build automatically, or")
+        log("      * run scripts/testflight_distribute.py --group '<name>' --sweep N by hand.")
     return group
 
 
@@ -530,7 +547,12 @@ def main() -> None:
     ap.add_argument("--bundle-id", default="com.beyondkaira.ballast")
     ap.add_argument("--group", help="Group to add testers to.")
     ap.add_argument("--roster", help="CSV of email,firstName,lastName.")
-    ap.add_argument("--create-external-group", metavar="NAME", help="Create an external group with all-builds access.")
+    ap.add_argument(
+        "--create-external-group",
+        metavar="NAME",
+        help="Create an external group. Apple does not grant these all-builds access, so builds "
+        "must be attached (TESTFLIGHT_GROUP, or testflight_distribute.py).",
+    )
     ap.add_argument("--list", action="store_true", help="Show groups, testers and account users. Read-only.")
     ap.add_argument("--apply", action="store_true", help="Actually make changes. Without it, this is a dry run.")
     ap.add_argument(

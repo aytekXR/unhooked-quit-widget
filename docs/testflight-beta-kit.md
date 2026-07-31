@@ -98,12 +98,17 @@ groups take "anyone with an email address", max 10,000, at the price of Beta App
 Review. **An internal group also cannot be converted** — `isInternalGroup` is
 absent from Apple's `BetaGroupUpdateRequest` schema.
 
-So the shape of the first sitting is: **a new external group, invited by email, with
-the public link still off.** `operator-expected.md` §5 carries the two commands;
-`scripts/testflight_testers.py` does the work from a CSV of names and emails and
-dry-runs by default. The Beta App Description and Beta App Review Information that
-external distribution requires are **§1.2 and §1.3 below, paste-ready** — and
-`betaAppLocalizations` came back empty, so they are genuinely unfilled today.
+**S59 — the external group now EXISTS.** `Friends (external)`
+(`8b856317-1da2-4c41-804e-3299349951f3`), public link off, zero testers, nothing
+sent to Apple. `operator-expected.md` §5 carries the four steps that remain.
+
+**And one property of it is worth knowing before you rely on it.** The group was
+created with `hasAccessToAllBuilds: true` in the payload; Apple accepted the request
+and returned the attribute as **`null`**. The identical payload sets it on an
+internal group, so it is an internal-group property in practice — and it can never
+be added afterwards, because it is absent from `BetaGroupUpdateRequest` too. **An
+external ring therefore receives only the builds something explicitly attaches**,
+which is what the repo Variable `TESTFLIGHT_GROUP` is for.
 
 **Email-only.** There is no SMS or phone-number invite path in TestFlight, so a
 phone number cannot be used to invite anyone.
@@ -136,8 +141,16 @@ app can request. Ask for it in the invite; §2 does.
 CI uploads builds and stops there — `fastlane/Fastfile`'s `pilot` call runs with
 `distribute_external: false` and `skip_waiting_for_build_processing: true`, so it
 never sets build notes, never attaches a build to a group, and never notifies
-anyone. Every field below is one you fill by hand in App Store Connect. That is
-the correct division: nothing reaches a human without your action.
+anyone. That is the correct division: nothing reaches a human without your action.
+
+> **S59 — these are no longer hand-typed, and the text below is still the source.**
+> `scripts/testflight_test_info.py` writes §1.1, §1.2 and §1.3 through the App Store
+> Connect API, and `--list` reads them back and scores what external distribution is
+> still missing. **All three are already written on the live account** for build 145;
+> only the review-contact **phone** is empty, because the API requires one and no
+> agent can invent it. The strings in that script are copied verbatim from the three
+> sections below — **if you edit one, edit the other in the same commit**, which the
+> script's own comment also says.
 
 ### 1.1 "What to Test" — TestFlight → the build → Test Details
 
@@ -177,12 +190,13 @@ the correct division: nothing reaches a human without your action.
 Beta App Review runs once per version, on the first build you distribute
 externally. Later builds of the same version usually clear without a wait.
 
-| Field | What to enter |
-|---|---|
-| Contact — first/last name, email, phone | Yours. Apple uses it only to reach you about the beta review |
-| **Demo account required?** | **No.** The app is account-free by design: no sign-in exists anywhere, a fresh install reaches full functionality after onboarding, and all content ships in the bundle |
-| **Review notes** | Paste the block below |
-| Sign-in required? | No |
+| Field | What to enter | State on the live account |
+|---|---|---|
+| Contact — first/last name, email | Yours. Apple uses it only to reach you about the beta review | **Written** — Aytek Erdogan, `aytek@beyondkaira.com` |
+| Contact — **phone** | Yours | **EMPTY, and it is REQUIRED.** Apple's published schema calls `contactPhone` optional; the live API answers `409 ENTITY_ERROR.ATTRIBUTE.REQUIRED` without it. Measured, not inferred |
+| **Demo account required?** | **No.** The app is account-free by design: no sign-in exists anywhere, a fresh install reaches full functionality after onboarding, and all content ships in the bundle | **Written** — `false` |
+| **Review notes** | The block below | **Written** |
+| Sign-in required? | No | — |
 
 > Ballast is an on-device habit-tracking utility. It stores all data on-device,
 > requires no account, and puts a lock-screen "panic" control one tap from a short
@@ -218,9 +232,10 @@ nothing dormant described as live.
 | Thing | Who does it | Why |
 |---|---|---|
 | Upload a build | **CI**, every green `main` | `fastlane beta`; build number = the GitHub run number, so newest run = highest build |
-| Set "What to Test" | **You** | `pilot` runs with `skip_waiting_for_build_processing: true`, which is what keeps the macOS runner from idling through Apple's processing wait. Notes require a processed build |
-| Attach a build to a group | **You**, or automatic distribution | `distribute_external: false` — CI never pushes to anyone |
+| Set "What to Test" | **`testflight_test_info.py`** (was: you) | `pilot` runs with `skip_waiting_for_build_processing: true`, which keeps the macOS runner from idling through Apple's processing wait, so the lane cannot set notes — they need a processed build. The script sets them afterwards, for free, from ubuntu |
+| Attach a build to a group | **CI's free ubuntu job**, per the `TESTFLIGHT_GROUP` Variable | `distribute_external: false` — the macOS lane never pushes to anyone. **The Variable is currently unset**, so the job defaults to the internal `Friends` group and the external ring gets nothing until you set it |
 | Notify testers | **You** / the group setting | — |
+| Submit for Beta App Review | **You**, one command | `testflight_test_info.py --submit-for-beta-review --apply`. Deliberately not automatic: it is the only step here that leaves the account |
 
 Leaving this manual is deliberate and worth keeping: turning the processing wait
 on would add Apple-side idle minutes to **every** green merge on the priciest
