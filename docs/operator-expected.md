@@ -322,11 +322,26 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       is `Ballast - Quit`, so if you intend to ship as plain **`Ballast`** that is a
       different string and worth confirming in ASC before you build marketing on it.
 
-      **The TRADEMARK half is genuinely open and stays yours.** A USPTO knockout search
-      is legal work, and an agent should not perform one and call it clearance — a
-      false negative here is expensive and slow to discover. USPTO's public search API
-      is not reachable without credentials, so there is no shortcut to offer. Give it to
-      counsel alongside the §3 package, or run it yourself in USPTO's own search.
+      **The TRADEMARK half is open, and a preliminary search FOUND SOMETHING — read
+      `docs/g0-name-clearance.md` before you spend money on this.** Verified directly
+      against USPTO's TSDR, not a third-party summary: **`BALLAST` is a LIVE, RENEWED
+      US registration** — Reg. **3353077**, owner **BOSU Fitness LLC**, International
+      Class **028** (sporting goods), status *"LIVE/REGISTRATION/Issued and Active"*.
+      It is **not** in Class 9 or 42, which is the good news. But relatedness of goods
+      is what the analysis turns on, not class identity — BOSU is a recognised fitness
+      brand that has actively renewed the mark, and your own App Privacy label declares
+      the habit category as **Health & Fitness › Health**. A second, weaker hit
+      (**SIMPLIFY BALLAST**, Reg. 8093382, software services, registered Jan 2026) is
+      in the file too.
+      **None of this says the name is unusable** — co-existence across unrelated classes
+      is ordinary. It says the question is now specific and cheap to answer, instead of
+      open-ended: *does that Class 28 registration create real risk for a
+      Health-&-Fitness iOS app called Ballast?* Hand that one sentence to counsel.
+      **What is still unproven:** no bare `BALLAST` in Class 9/42 surfaced, but USPTO's
+      API needs credentials and both free mirrors return 403, so that half was searched
+      indirectly and deserves ten minutes in USPTO's own interface.
+      An agent must not run a knockout and call it clearance — a false negative here is
+      expensive and slow to discover — so the opinion stays yours or counsel's.
       **It remains the longest-lead item on the whole critical path and it gates
       screenshots, ASO and the TestFlight public link** — so it is worth starting the
       same day as the site deploy, not after it.
