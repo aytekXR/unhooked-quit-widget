@@ -529,7 +529,46 @@
   landing plan, so: **batch it into the next billed run that already touches the monetization path**
   (realistically the Superwall-key session), and never spend a run on it standalone.
 
-## Next session objective — (A) R58.2, then (B) QW-6, then (C) the final golden batch
+## Next session objective — (A) R60.2, then (B) the quiz's six, then (C) QW-6
+
+> **S60 CHANGED THIS LIST BY DOING IT.** R58.2 is FIXED, VERIFIED AND ADOPTED (10 goldens
+> re-minted; the teaser arm now renders the 3.1.2(c) disclosure in full above the fold). The
+> age gate's six goldens are MINTED AND ADOPTED — the first half of the final batch. What
+> replaced them at the top is not a plan item but a defect the batch found on its first mint.
+>
+> **(A) R60.2 (HIGH) — at AX5 the age gate is impassable, and it is the app's first screen.**
+> Both `snapshot_ageGate_entry.*-ax5` goldens show the year wheel collapsed to ZERO height:
+> "Year of birth" renders, then a DISABLED "Continue". No control exists to select a year, so
+> `selectedBirthYear` never leaves nil and the CTA can never enable. The body copy is sliced
+> mid-glyph above it. A legally-required 17+ gate that an accessibility user cannot pass is
+> the most serious defect currently known in the app.
+> **Likely mechanism, stated as a hypothesis to test rather than a diagnosis:**
+> `OnboardingScaffold`'s pinned `actions:` zone is over-subscribed at AX5, and
+> `.pickerStyle(.wheel)` has a compressible intrinsic height while the Button and footer do
+> not — so the picker is what gives way. **Do not assume it; the S53/S54/S58 rule is that a
+> layout claim is a billed-run question.** Expect the two `*-ax5` goldens to move and treat
+> movement in the two default-size ones as the signal that the fix reached further than
+> intended. **R60.3 (MEDIUM) rides along if it is free:** in dark mode the wheel renders a
+> WHITE fade mask, reading as a light-mode control on a dark screen; the contrast registry is
+> blind to it because the gradient is UIKit's, not a Theme token.
+>
+> **(B) The quiz's six** — the batch's remaining half (habit ×4 + consent ×2), and the last
+> surface in the app with zero goldens. One hazard is already scouted:
+> `QuizFlowModel.init` calls `checkpoint.load()`, so a `QuizProgressStore` with state would
+> resume the fixture mid-quiz. Handle that determinism before minting, the way the age gate's
+> `Locale.current` read was handled with a seam.
+>
+> **(C) QW-6** — unchanged, and it will re-record the two age-gate entry pairs when it lands.
+> That is a known, deliberate two-PNG cost, not a surprise.
+>
+> **THE PATTERN WORTH CARRYING, because it has now produced FOUR defects.** R58.1, R58.2,
+> R60.1 and R60.2 were all invisible for the same reason: the accessibility audit legs mount
+> at the DEFAULT content size, so Apple's `.dynamicType` check never sees AX5, and the
+> surfaces had no goldens. Two of the four are on screens a user cannot avoid. **Consider
+> whether the audit should gain an AX5 leg app-wide** — that is a bigger question than any one
+> defect and it is the real lesson of this batch.
+
+## [SUPERSEDED — R58.2 is done] Previous objective — (A) R58.2, then (B) QW-6, then (C) the final golden batch
 
 **R58.1 IS DONE — do not re-open it, and read why before you touch this screen.** S58's follow-up
 commits fixed it, and the fix is NOT the one the old plan proposed. The obvious move — pin

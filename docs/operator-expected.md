@@ -167,6 +167,23 @@ themselves.
       with it: the fix is a composition change on an Architect-gated monetization surface and it
       rides its own run. **If you would rather the review build went out on the `hard` arm, which
       shows the disclosure in full, say so and nothing else has to change.**
+- [ ] **⚠️ R60.2 (HIGH) — at the largest text size, the AGE GATE cannot be completed. Agent-fixable,
+      but you should know it exists because it is a submission risk.** The final golden batch minted
+      the age gate's first-ever goldens this session, and its AX5 axis found that the year-picker
+      wheel **collapses to zero height**: "Year of birth" renders, and the next thing is a
+      **disabled** "Continue". There is no control to choose a year, so the CTA can never enable.
+      **The app's first screen — a legally-required 17+ gate — is impassable for a user at the
+      largest accessibility text size.**
+      It is **pre-existing**, not new, and it stayed invisible for the same reason R58.1/R58.2 and
+      R60.1 did: the accessibility audit mounts at the DEFAULT content size, so Apple's own
+      `.dynamicType` check has never seen AX5 on that screen, and the screen had no goldens. **Four
+      defects have now been found by exactly this blindness — the pattern is itself the finding**,
+      and it is worth deciding whether the audit should gain an AX5 leg app-wide.
+      A second, milder one came with it — **R60.3 (MEDIUM)**: in dark mode the wheel renders a white
+      fade mask, so it reads as a light-mode control pasted into a dark screen. The contrast registry
+      cannot see it, because the gradient is UIKit's own rather than a Theme token.
+      **Nothing is asked of you here** beyond knowing it before you weigh submission timing; the fix
+      is a layout change on the compliance gate and rides its own run.
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).
