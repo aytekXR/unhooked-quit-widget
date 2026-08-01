@@ -42,6 +42,22 @@ struct AgeGateBlockedView: View {
         }
     }
 
+    /// Test-internal seam (the snapshot lane): renders over a pre-composed,
+    /// locale-fixed `AgeGateBlocked` so a CI simulator locale change can never move
+    /// the golden. **Production never calls this** — the `model:` init above composes
+    /// from the live directory through `Locale.current`, which is exactly the read
+    /// that makes this surface snapshot-hostile.
+    ///
+    /// Mirrors `SafetyResourcesView.init(data:)` deliberately rather than inventing a
+    /// shape: that seam exists for the identical reason on the identical kind of
+    /// surface, and CI pins no locale or timezone for the snapshot lane, so a runner
+    /// whose region drifts would otherwise silently re-render a SAFETY screen's
+    /// helpline rows and fail a golden for a reason that has nothing to do with code.
+    init(model: AgeGateModel, blocked: AgeGateBlocked) {
+        self.model = model
+        self.blocked = blocked
+    }
+
     var body: some View {
         OnboardingScaffold {
             VStack(spacing: Theme.space.s5) {
