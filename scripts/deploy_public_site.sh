@@ -28,9 +28,15 @@
 # run shows the deletion list too.
 #
 # Usage:
+#   scripts/deploy_public_site.sh --selftest      # prove it serves, locally, no root
 #   scripts/deploy_public_site.sh                 # show the plan, change nothing
 #   scripts/deploy_public_site.sh --apply         # do it
 #   scripts/deploy_public_site.sh --apply --skip-certbot   # files only, cert exists
+#
+# START WITH --selftest. It stands the REAL server block up on :8443 over a
+# throwaway cert and checks 13 things — every path serves, a nonsense path 404s,
+# all three pages carry noindex, all four security headers are emitted. No root,
+# no network, nothing touched. It found `http2 on;` before the origin ever did.
 #
 set -euo pipefail
 
@@ -40,20 +46,87 @@ WEBROOT="/var/www/ballast"
 CERTBOT_EMAIL="${BALLAST_CERTBOT_EMAIL:-aytek@beyondkaira.com}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+bold() { printf '\033[1m%s\033[0m\n' "$1"; }
+step() { printf '\n\033[1m▶ %s\033[0m\n' "$1"; }
+note() { printf '  %s\n' "$1"; }
+
 APPLY=0
 SKIP_CERTBOT=0
+SELFTEST=0
 for arg in "$@"; do
   case "$arg" in
     --apply) APPLY=1 ;;
     --skip-certbot) SKIP_CERTBOT=1 ;;
+    --selftest) SELFTEST=1 ;;
     -h|--help) sed -n '2,40p' "${BASH_SOURCE[0]}"; exit 0 ;;
     *) echo "unknown argument: $arg" >&2; exit 2 ;;
   esac
 done
 
-bold() { printf '\033[1m%s\033[0m\n' "$1"; }
-step() { printf '\n\033[1m▶ %s\033[0m\n' "$1"; }
-note() { printf '  %s\n' "$1"; }
+# ---------------------------------------------------------------- self-test
+# Stand the REAL server block up locally, on high ports, over a throwaway cert,
+# and prove the pages actually serve BEFORE anything touches the origin.
+#
+# This exists because the alternative is discovering a config or content problem
+# on the one machine nobody can iterate on. It already earned itself once: the
+# block carried `http2 on;` (nginx >= 1.25.1 syntax) for four sessions, which is
+# an [emerg] unknown-directive on older nginx and would have failed `nginx -t` at
+# step 1 of the operator's first deploy. Ubuntu LTS still ships 1.24.
+#
+# Needs nginx and openssl locally. Root is NOT needed — that is the point of the
+# high ports.
+if [ "$SELFTEST" = "1" ]; then
+  command -v nginx >/dev/null || { echo "self-test needs nginx installed locally" >&2; exit 1; }
+  W="$(mktemp -d)"; trap 'nginx -s quit -c "$W/n.conf" -p "$W" 2>/dev/null || true; rm -rf "$W"' EXIT
+  mkdir -p "$W/www" "$W/logs"
+  cp "$REPO_ROOT"/site/*.html "$REPO_ROOT"/site/robots.txt "$REPO_ROOT"/site/icon.png "$W/www/" 2>/dev/null || true
+  rm -f "$W/www/README.md"
+  openssl req -x509 -newkey rsa:2048 -nodes -keyout "$W/k.pem" -out "$W/c.pem" -days 1 \
+    -subj "/CN=$HOST" -addext "subjectAltName=DNS:$HOST,DNS:localhost" 2>/dev/null
+  {
+    echo "pid $W/n.pid;"; echo "events { worker_connections 16; }"; echo "http {"
+    echo "  include /etc/nginx/mime.types;"
+    echo "  access_log $W/logs/a.log; error_log $W/logs/e.log;"
+    echo "  client_body_temp_path $W/cbt; proxy_temp_path $W/pt;"
+    echo "  fastcgi_temp_path $W/ft; uwsgi_temp_path $W/ut; scgi_temp_path $W/st;"
+    sed -e "s|listen 443 ssl http2;|listen 8443 ssl http2;|" \
+        -e "s|listen \[::\]:443 ssl http2;||" \
+        -e "s|listen 80;|listen 8080;|" -e "s|listen \[::\]:80;||" \
+        -e "s|/etc/letsencrypt/live/$HOST/fullchain.pem|$W/c.pem|" \
+        -e "s|/etc/letsencrypt/live/$HOST/privkey.pem|$W/k.pem|" \
+        -e "s|include             /etc/letsencrypt/options-ssl-nginx.conf;||" \
+        -e "s|ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;||" \
+        -e "s|$WEBROOT|$W/www|g" -e "s|/var/www/certbot|$W/www|g" \
+        "$REPO_ROOT/scripts/ballast-nginx.conf"
+    echo "}"
+  } > "$W/n.conf"
+
+  bold "Self-test — the real block, served locally on :8443"
+  nginx -t -c "$W/n.conf" -p "$W" 2>&1 | sed 's/^/  /'
+  nginx -c "$W/n.conf" -p "$W"
+  sleep 1
+  fails=0
+  for spec in "/:200" "/beta:200" "/support:200" "/robots.txt:200" "/icon.png:200" "/definitely-not-a-page:404"; do
+    path="${spec%:*}"; want="${spec##*:}"
+    got="$(curl -sk -o /dev/null -w '%{http_code}' --max-time 8 "https://localhost:8443$path" || echo 000)"
+    if [ "$got" = "$want" ]; then note "PASS  $path -> $got"; else note "FAIL  $path -> $got (want $want)"; fails=$((fails+1)); fi
+  done
+  # The catch-all guard is the one that matters most: if a nonsense path ever
+  # answers 200, every legal link is silently broken again (runbook §1).
+  for p in / /beta /support; do
+    if curl -sk --max-time 8 "https://localhost:8443$p" | grep -qi 'name="robots"[^>]*noindex'; then
+      note "PASS  $p carries noindex"
+    else note "FAIL  $p is MISSING noindex"; fails=$((fails+1)); fi
+  done
+  for h in strict-transport-security x-content-type-options content-security-policy referrer-policy; do
+    if curl -skI --max-time 8 https://localhost:8443/ | grep -qi "^$h:"; then note "PASS  header $h"
+    else note "FAIL  header $h missing"; fails=$((fails+1)); fi
+  done
+  echo
+  [ "$fails" = "0" ] && bold "self-test PASSED — the block and the pages serve correctly" \
+                     || bold "self-test FAILED with $fails problem(s)"
+  exit "$fails"
+fi
 
 run_remote() {
   # $1 = human label, $2 = the command
