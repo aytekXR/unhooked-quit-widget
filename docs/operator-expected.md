@@ -435,6 +435,15 @@ The four steps below are in dependency order. Steps 1 and 2 are the only ones th
 
       *TestFlight invites are **email-only**. There is no SMS or phone-number invite path, so phone
       numbers cannot be used here — names and email addresses are what the roster needs.*
+
+      **This path was EXERCISED against the live account in S60, with synthetic
+      addresses and no `--apply`, so nothing was sent.** All four shapes you might
+      realistically paste parse correctly — a standard header; a reordered header using
+      different names (`Email Address` / `First Name` / `Last Name`); Excel's UTF-8 BOM;
+      and no header at all. A malformed address rejects the **whole file** with the line
+      number, rather than inviting half the list and stranding the rest. The group
+      resolves and reports 0 existing testers. So when you put real people in the file,
+      the only untested variable is the people.
 - [ ] **⚠️ SET THE REPO VARIABLE `TESTFLIGHT_GROUP` to `Friends (external)`, or the ring never gets
       a build after the first one.** This reverses what this file said in S57, and the reversal is
       a measurement rather than a rethink: the group was created with `hasAccessToAllBuilds: true`
