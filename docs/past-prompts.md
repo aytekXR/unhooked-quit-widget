@@ -7987,7 +7987,7 @@ R58.1, R58.2, R60.1 and R60.2 were **all invisible for the same reason**: the ac
 
 **Session-open state:** local == `origin/main` at `39f871e`, clean, last CI run green.
 
-**2 billed runs.** Run 1 `30717859108` (red by design — `record: .missing` mints, plus real findings); run 2 `30718997823`.
+**3 billed runs, all lanes green at close.** Run 1 `30717859108` — red by design (`record: .missing` mints) and by discovery (two real findings). Run 2 `30718997823` — **SUCCESS 11/11**, including the TestFlight upload and distribution. Run 3 `30720017295` — green, and it carried the corrected R61.1 probe that turned the session's one open question from a hypothesis into a measurement.
 
 ### Why (A) was worth a session at all
 
@@ -8013,14 +8013,14 @@ Eleven legs on the priciest runner in the matrix; a naive doubling doubles the l
 
 Evidence, recovered from the run's xcresult (no `xcresulttool` on Linux — the PNG blobs were found by magic bytes): the audit's own element crops are **1082×2422px (≈361×807pt)** and **1034×2262px (≈345×754pt)**, each showing a short run of glyphs cut mid-letterform at the scroll boundary, then the pinned zone, then black.
 
-**The first hypothesis was written down, measured in the same session, and REFUTED — which is the part worth keeping.** It was: *the accessibility frame runs past the bottom of the WINDOW, so `.contrast` samples the black beyond it.* `recordR61_1Geometry` asked exactly that in run `30718997823`:
+**MEASURED AND NOW CONCLUSIVE — and the route there is itself the lesson.** The first hypothesis (*the accessibility frame runs past the bottom of the window*) was **right**; the first PROBE was wrong. It tested `text.height > window.height` — 807.3 vs 874 ⇒ `false` — when the frame's ORIGIN is y=339.7, so a frame shorter than the window still ends 273pt past it. That false negative was briefly written up as a refutation. Corrected probe, run `30720017295`:
 
 ```
-R61.1[ageGate.entry]  window=874.0pt  tallestStaticText=807.3pt  exceedsWindow=false
-R61.1[quiz.consent]   window=874.0pt  tallestStaticText=754.7pt  exceedsWindow=false
+R61.1[ageGate.entry] window=874.0 scrollView=361.0@y78.0  text=807.3@y339.7 exceedsViewport=true overhang=708.0pt
+R61.1[quiz.consent]  window=874.0 scrollView=487.3@y142.0 text=754.7@y303.0 exceedsViewport=true overhang=428.3pt
 ```
 
-**No.** The frames stop short of the window. Two things follow, and the second is sharper than the claim it replaced. First, 807.3 and 754.7 are the *same* numbers measured off the audit's PNG crops, which independently confirms **the crops ARE the element frames** — so the geometry is now established rather than inferred. Second, a paragraph whose visible glyphs occupy roughly the top 90pt reports a frame of **807pt on an 874pt window — 92% of the screen** (the quiz's is 86%). The comparison was against the wrong rectangle: the viewport ends where the pinned action zone begins, far above 874pt, so a frame that large **necessarily overlaps the picker and the CTA**. That still explains a spurious contrast sample, and it is also a real defect of a different kind — an element whose accessibility frame swallows the controls beneath it is a VoiceOver-focus and hit-region problem. The probe now measures against the SCROLLVIEW, and S62's first run answers it.
+**The StaticText's accessibility frame is NOT clipped to the ScrollView's viewport.** The age gate's body copy runs y=339.7 → 1147.0 while its viewport ends at y=439.0 — a **708pt overhang**; the quiz's overhangs by 428pt. Both frames swallow the entire pinned action zone beneath them, which on the age gate is the year picker AND the Continue button. That explains the `.contrast` reading completely — the audit samples the frame, and ~88% of that rect is not text but the surfaces and controls drawn over it — so **the colour is not the defect**. **The unclipped frame is**, and it is worse-behaved than a contrast miss: VoiceOver's focus rectangle for that paragraph covers most of the screen and overlaps controls the user must reach. It is the R60.x family again — content in a scroll behaving as though the viewport does not bound it. The lever (`.clipped()`, an `.accessibilityElement` change, or something narrower) is a layout question, and layout questions are billed-run questions here.
 
 **Two ways to make it green were considered and rejected, in place.** `XCTExpectFailure`: annotating a known issue on the app's first screen at the largest text size, on a legally-required 17+ gate, is the exact failure mode this session exists to prevent — S61 would have papered over its own finding on day one. Excluding `.contrast`: R32.3 (the exclusion list only shrinks) and the standing rule that an assertion is never weakened for a green. What was done instead is `session-rules.md`'s own instruction for a large issue: document it, and put it at the top of the next resume prompt.
 

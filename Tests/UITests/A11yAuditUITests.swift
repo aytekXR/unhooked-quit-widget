@@ -962,36 +962,45 @@ final class A11yAuditUITests: XCTestCase {
     // action zone composited across the middle, then a large BLACK region — the area
     // beyond the app window.
     //
-    // ── THE FIRST HYPOTHESIS WAS MEASURED AND REFUTED. READ BOTH. ────────────
-    // It was: *the StaticText's accessibility frame is not clipped to the viewport,
-    // so it runs past the bottom of the WINDOW and `.contrast` samples the black
-    // beyond it.* `recordR61_1Geometry` tested exactly that in run `30718997823`
-    // and the answer was **no**:
+    // ── MEASURED, AND THE MEASUREMENT IS NOW CONCLUSIVE ──────────────────────
+    // Run `30720017295`, with the probe comparing the right rectangle and comparing
+    // EXTENTS rather than heights:
     //
-    //     R61.1[ageGate.entry]  window=874.0pt  tallestStaticText=807.3pt  exceedsWindow=false
-    //     R61.1[quiz.consent]   window=874.0pt  tallestStaticText=754.7pt  exceedsWindow=false
+    //   R61.1[ageGate.entry] window=874.0  scrollView=361.0@y78.0
+    //                        text=807.3@y339.7  exceedsViewport=true  overhang=708.0pt
+    //   R61.1[quiz.consent]  window=874.0  scrollView=487.3@y142.0
+    //                        text=754.7@y303.0  exceedsViewport=true  overhang=428.3pt
     //
-    // **Recorded rather than quietly corrected, because the refutation is the useful
-    // part** — and because those two numbers are the same 807pt and 754pt measured
-    // off the audit's own PNG crops, which independently confirms the crops ARE the
-    // element frames.
+    // **The StaticText's accessibility frame is NOT clipped to the ScrollView's
+    // viewport.** The age gate's body copy reports a frame running y=339.7 → 1147.0
+    // while its viewport ends at y=439.0 — a **708pt overhang**, and 273pt past the
+    // bottom of the 874pt window itself. The quiz's consent explainer overhangs by
+    // 428pt. Both frames swallow the entire pinned action zone beneath them: on the
+    // age gate that is the year picker AND the Continue button.
     //
-    // ── WHAT THE NUMBERS ACTUALLY SAY, WHICH IS SHARPER ──────────────────────
-    // A paragraph whose visible glyphs occupy roughly the top 90pt reports an
-    // accessibility frame of **807pt on an 874pt window — 92% of the screen** (the
-    // quiz's is 86%). So the frame is not clipped to the SCROLLVIEW's bounds either;
-    // it simply stops short of the window. The comparison was against the wrong
-    // rectangle: the viewport ends where the pinned action zone begins, far above
-    // 874pt, so a frame that large necessarily **overlaps the picker and the CTA**.
+    // ── A CORRECTION THIS FILE OWES ITSELF, BECAUSE IT WAS WRONG TWICE ───────
+    // The FIRST hypothesis — *"the frame runs past the bottom of the window"* — was
+    // **right**. The first PROBE was wrong: it tested `text.height > window.height`
+    // (807.3 vs 874 ⇒ false) when the frame's ORIGIN is y=339.7, so a frame shorter
+    // than the window still ends 273pt past it. That false negative was then read as
+    // a refutation and written up as one. Both the probe and the write-up are
+    // corrected here. **The lesson is the project's own, re-paid: a measurement is
+    // only as good as the rectangle you measure against, and "the number came back
+    // false" is not the same claim as "the hypothesis is false."**
     //
-    // That still explains a spurious `.contrast` reading — the audit samples a
-    // region that is mostly not the text — and it is ALSO a real defect of a
-    // different kind, which is why it is not being waved away: an element whose
-    // accessibility frame covers 90% of the screen and swallows the controls beneath
-    // it is a genuine VoiceOver-focus and hit-region problem.
+    // ── WHAT THIS MEANS, AND WHY IT IS STILL NOT A ONE-LINE FIX ──────────────
+    // It explains the `.contrast` reading completely: the audit samples the element's
+    // frame, and 88% of that rect is not the text — it is the surfaces and controls
+    // drawn over it. So the colour is not the defect.
     //
-    // **The next probe is the right rectangle, and it is already wired below:**
-    // compare the text frame to the enclosing SCROLLVIEW's frame, not the window's.
+    // **But an unclipped frame IS a defect, and a worse-behaved one than a contrast
+    // miss.** VoiceOver's focus rectangle for that paragraph covers most of the
+    // screen; the frame overlaps controls the user must reach; and this is the R60.x
+    // family again — content in a scroll behaving as though the viewport does not
+    // bound it. Whether the right lever is `.accessibilityElement`/`.clipped()` on
+    // the scroll content, or something narrower, is a layout question, and layout
+    // questions are billed-run questions on this box. That is the next session's
+    // first job, and it now starts from numbers rather than from a guess.
     //
     // ── WHY THE AUDIT CALLS ARE DEFERRED RATHER THAN SUPPRESSED ──────────────
     // Three options were considered and two rejected. **`XCTExpectFailure` was
