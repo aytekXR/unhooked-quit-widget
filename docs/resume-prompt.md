@@ -580,10 +580,11 @@
 >
 > **So `.contrast` is not your problem and the colour is not the defect** — the audit samples
 > the element's frame and ~88% of that rect is the surfaces and controls drawn over it.
-> **The unclipped frame IS the defect, and it is the worse one:** VoiceOver's focus rectangle
-> for that paragraph covers most of the screen and overlaps controls the user must reach. This
-> is the R60.x family again — content in a scroll behaving as though the viewport does not
-> bound it.
+> **But the follow-on claim that this is "also a real VoiceOver-focus and hit-region defect" is
+> WITHDRAWN — it had no evidence and there is evidence against it.** Both failing frames ran the
+> full seven-type set and `.hitRegion`, `.elementDetection`, `.sufficientElementDescription` and
+> `.trait` all PASSED on them. Apple's own hit-region check — the one that exists to catch "the
+> user cannot reliably touch the right thing" — looked at this overlap and did not object.
 >
 > **Your job is the lever, and it is a layout question, so it is a billed-run question.**
 > Candidates, none yet tested: `.clipped()` on the scroll content; an explicit
@@ -990,9 +991,10 @@ the RevenueCat key (S48B); the Mac-gated settings-content audit (S50).
 > gate's body copy runs y=339.7 → 1147.0 against a viewport ending at y=439.0 — a **708pt
 > overhang** — and the quiz's overhangs by 428pt; both **swallow the entire pinned action zone**,
 > the year picker and Continue included. So `.contrast` fires because ~88% of the sampled rect
-> is not text: **the colour is not the defect, the unclipped frame is**, and it is the worse of
-> the two — VoiceOver's focus rect covers most of the screen and overlaps controls the user must
-> reach. **Your job is the lever** (`.clipped()`, an `.accessibilityElement` regrouping, or
+> is not text: **the colour is not the defect**. A follow-on claim that the oversized frame is *also* a
+> VoiceOver/hit-region defect was made and then WITHDRAWN: `.hitRegion`, `.elementDetection`,
+> `.sufficientElementDescription` and `.trait` all PASSED on those same frames, so Apple's own
+> hit-region check looked at the overlap and did not object. **Your job is the lever** (`.clipped()`, an `.accessibilityElement` regrouping, or
 > something narrower — none tested), and it is a layout question, so a billed-run question.
 > **Re-run the probe and read the overhang**: it measures the fix directly. When it reaches zero,
 > restore the two deferred `performAccessibilityAudit` calls — two lines — and the lane is done.

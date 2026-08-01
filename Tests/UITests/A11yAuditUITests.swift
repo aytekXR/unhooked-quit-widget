@@ -817,6 +817,7 @@ final class A11yAuditUITests: XCTestCase {
             goBack.waitForExistence(timeout: 15),
             "an under-17 year routes to the calm blocked screen at AX5 — never a dead end, never app content"
         )
+        Self.recordR61_1Geometry(app, frame: "ageGate.blocked") // CONTROL: this frame PASSES
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
@@ -841,6 +842,7 @@ final class A11yAuditUITests: XCTestCase {
             continueButton.waitForExistence(timeout: 15),
             "the UITEST_QUIZ direct mount lands on the first quiz step at AX5"
         )
+        Self.recordR61_1Geometry(app, frame: "quiz.habit") // CONTROL: this frame PASSES
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
 
         let habit = app.buttons["quiz.choice.vape"]
@@ -885,6 +887,7 @@ final class A11yAuditUITests: XCTestCase {
             hero.waitForExistence(timeout: 5),
             "the fixture renders the SAVINGS hero at AX5 — the variant UIR-1 rebuilt for Dynamic Type"
         )
+        Self.recordR61_1Geometry(app, frame: "summary") // CONTROL: this frame PASSES
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
@@ -909,6 +912,7 @@ final class A11yAuditUITests: XCTestCase {
             cta.waitForExistence(timeout: 15),
             "the UITEST_PAYWALL_DIRECT direct mount renders the hard-variant paywall at AX5"
         )
+        Self.recordR61_1Geometry(app, frame: "paywall") // CONTROL: this frame PASSES
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
@@ -931,6 +935,7 @@ final class A11yAuditUITests: XCTestCase {
             title.waitForExistence(timeout: 15),
             "the UITEST_RESOURCES direct mount renders SafetyResourcesView at AX5"
         )
+        Self.recordR61_1Geometry(app, frame: "resources") // CONTROL: this frame PASSES
         try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
@@ -988,19 +993,39 @@ final class A11yAuditUITests: XCTestCase {
     // only as good as the rectangle you measure against, and "the number came back
     // false" is not the same claim as "the hypothesis is false."**
     //
-    // ── WHAT THIS MEANS, AND WHY IT IS STILL NOT A ONE-LINE FIX ──────────────
+    // ── WHAT THIS MEANS — AND A SECOND CLAIM WALKED BACK ─────────────────────
     // It explains the `.contrast` reading completely: the audit samples the element's
-    // frame, and 88% of that rect is not the text — it is the surfaces and controls
-    // drawn over it. So the colour is not the defect.
+    // frame, and ~88% of that rect is not the text — it is the surfaces and controls
+    // drawn over it. So the COLOUR is not the defect.
     //
-    // **But an unclipped frame IS a defect, and a worse-behaved one than a contrast
-    // miss.** VoiceOver's focus rectangle for that paragraph covers most of the
-    // screen; the frame overlaps controls the user must reach; and this is the R60.x
-    // family again — content in a scroll behaving as though the viewport does not
-    // bound it. Whether the right lever is `.accessibilityElement`/`.clipped()` on
-    // the scroll content, or something narrower, is a layout question, and layout
-    // questions are billed-run questions on this box. That is the next session's
-    // first job, and it now starts from numbers rather than from a guess.
+    // **An earlier version of this block went on to assert that the unclipped frame
+    // is "ALSO a real defect of a different kind — a VoiceOver-focus and hit-region
+    // problem". That assertion is withdrawn: it had no evidence, and there is
+    // evidence against it.** Both failing frames ran the FULL seven-type set, and
+    // `.hitRegion`, `.elementDetection`, `.sufficientElementDescription` and `.trait`
+    // all PASSED on the same frames in the same run. Apple's own hit-region check —
+    // the one that exists precisely to catch "the user cannot reliably touch the
+    // right thing" — looked at this overlap and did not object. Writing it up as a
+    // hit-region defect anyway was reasoning past the data, which is the same habit
+    // that produced the bad probe two paragraphs up.
+    //
+    // ── SO THE OPEN QUESTION IS NARROWER THAN IT LOOKED, AND IT IS TESTABLE ──
+    // The live hypothesis is now a CORRELATION, stated so it can be killed:
+    // **`.contrast` fires at AX5 exactly when a StaticText's frame overhangs its
+    // scroll viewport** — i.e. this is an artifact of how the audit samples tall
+    // elements, not a user-facing fault. Two data points support it and five would
+    // be a result, so `recordR61_1Geometry` is now wired into the five AX5 frames
+    // that PASS as well (`ageGate.blocked`, `quiz.habit`, `summary`, `paywall`,
+    // `resources`). If every passing frame reports `exceedsViewport=false` and only
+    // the two failing frames report `true`, the correlation is 7/7 and the cause is
+    // established. **If a PASSING frame also overhangs, the correlation is dead and
+    // the contrast reading needs taking seriously on its own terms.**
+    //
+    // Only after that does a fix make sense to choose — and note what it would be
+    // FOR: making Apple's audit measure the right rectangle, not repairing something
+    // a user experiences. That is a real reason to act (a lane that cannot be trusted
+    // is worth little) and a poor reason to restructure a rule-11 safety surface, so
+    // the two must not be confused.
     //
     // ── WHY THE AUDIT CALLS ARE DEFERRED RATHER THAN SUPPRESSED ──────────────
     // Three options were considered and two rejected. **`XCTExpectFailure` was
