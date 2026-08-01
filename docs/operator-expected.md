@@ -15,11 +15,11 @@ load-bearing. These five are, in this order. Nothing else on this page blocks an
 
 | # | Do this | ~Time | Why it is first |
 |---|---|---|---|
-| 1 | **Deploy `ballast.beyondkaira.com`** (§3) | ~30 min | The only gate on the external beta AND on submission. The paywall's Terms/Privacy links and the beta's declared privacy-policy URL all fail at **TLS** today. Everything TestFlight-shaped waits on it |
-| 2 | **Hand over your phone number** (§5 step 2) | ~1 min | Beta App Review will not save without it; the API rejects the write. One command finishes the contact block |
-| 3 | **Submit the newest build + invite the roster** (§5 steps 3–4) | ~10 min | Two commands. Then the ≥1-week beta clock finally starts — it is the longest-running gate you do not control |
-| 4 | **Send the clinician + counsel package** (§3) | ~15 min | Someone else's clock, and the safety copy is FINAL pending only their pass |
-| 5 | **Start G0 trademark clearance** (critical path step 7) | — | Same reason: someone else's clock, and it gates screenshots, ASO and the public link |
+| 1 | **`scripts/deploy_public_site.sh --apply`** (§3) | **~2 min** | The only gate on the external beta AND on submission. The paywall's Terms/Privacy links and the beta's declared privacy-policy URL all fail at **TLS** today. **S60 collapsed the six manual steps into one script** — it pushes the nginx block, symlinks it, tests it, runs certbot in the right order, rsyncs, and verifies. Dry-run by default; run it once to read the plan. **It needs your SSH key** — that is the whole reason it is yours (root, aytek, ubuntu, deploy, admin and www-data were all tested from this machine; every one is refused) |
+| 2 | **Paste your phone number here** (§5 step 2) | ~1 min | The single string blocking Beta App Review; the API rejects the write without it. One command finishes the contact block. Nothing else on this page is blocked on one field |
+| 3 | **Submit the newest build + invite the roster** (§5 steps 3–4) | ~10 min | Two commands, after 1 and 2. Then the ≥1-week beta clock finally starts — the longest-running gate you do not control |
+| 4 | **Forward `docs/safety-signoff-package.md`** (§3) | **~2 min** | Someone else's clock. **S60 assembled it**: cover note, every string quoted verbatim from the shipping JSON, and the specific question each reviewer must answer — clinician and counsel in one document, no attachments. Was "assemble and send"; it is now "send" |
+| 5 | **G0 — the TRADEMARK half only** (critical path step 7) | — | **S60 narrowed this and the narrowing is worth reading.** The App-Store-**name** half is in much better shape than the docs assumed: your ASC record is already reserved as **`Ballast - Quit`**, which means Apple's own uniqueness check accepted it, and a live App Store search returns **no app named "Ballast"** (nearest: "Boat Ballast", "Ballasted" — both Utilities). So what is actually open is the **USPTO trademark knockout**, which is legal work and stays yours. See §3 |
 
 Items 4 and 5 are handoffs — start them the same day as 1 so three clocks run at once. The device
 sittings (§1/§2/§7) and the remaining keys (§8) are your own afternoon and block nothing but
@@ -228,7 +228,20 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
 ## 3. Content sign-offs — the work that leaves this repo
 
 - [ ] **Clinician + counsel sign-off — the safety-content SHIP GATE.** The words are
-      FINAL pending their pass; nothing else blocks them. Send these three together:
+      FINAL pending their pass; nothing else blocks them.
+
+      **➜ S60: this is now ONE action. Forward `docs/safety-signoff-package.md`.**
+      It is written to be sent as-is: a cover note in plain language, every string
+      quoted **verbatim from the shipping JSON** (with re-extraction commands, so it
+      can be proven current rather than trusted), the two reviewers' questions
+      separated because they are looking for different things, and a table of exactly
+      which two metadata lines clear on approval. No attachments, nothing to install.
+      It also surfaces two questions an agent could not answer: whether the alcohol
+      notice should name medical supervision more explicitly, and whether firing it
+      at goal-CREATION is the right moment.
+
+      *The original assembly notes are kept below, because they name the reasoning
+      behind specific strings and the package points back at them.* Send these three:
       (a) `App/Resources/Content/safetyCopy.json` — its `_meta` still reads "DRAFT — needs
       clinician + counsel sign-off" and that line is what clears on their approval. Note
       one change to draw their eye to: the alcohol notice body now says "the safest way
@@ -243,9 +256,19 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       (c) `docs/review-notes.md` — read top to bottom; its factual claims are source-verified.
 - [ ] **⚠️ Stand up `ballast.beyondkaira.com` — THE gate on the external beta, and now the ONLY
       thing between you and sending the newest build to Apple.**
-      **Runbook: `docs/public-site-deploy.md`** (nginx server block + certbot, written out and
-      ready to paste; the deploy itself needs your server access, so an agent cannot do it —
-      `root@161.97.172.146` refuses this machine's key, which was tested rather than assumed).
+      **➜ S60: run `scripts/deploy_public_site.sh`.** It prints the plan and changes nothing;
+      add `--apply` to execute. It does all six steps in the order that matters — pushes
+      `scripts/ballast-nginx.conf` (extracted verbatim from the runbook §2, so the two cannot
+      drift), creates the webroots, symlinks, runs `nginx -t` **before** certbot (the ACME
+      challenge needs the :80 block already serving), issues the certificate, rsyncs `site/`,
+      and finishes by running the verifier. It warns loudly that `terms.html`/`privacy.html`
+      are absent and counsel-owned, and it refuses `--apply` if it cannot reach the host.
+
+      **Runbook: `docs/public-site-deploy.md`** stays the EXPLANATION — why explicit locations,
+      why a real 404, what the silent-200 on the apex taught us. The script is the execution.
+      **It needs your SSH key and that is not a guess:** root, aytek, ubuntu, deploy, admin and
+      www-data were each tried from the build machine, with both keys present, and every one
+      returns `Permission denied (publickey,password)`.
 
       **Why it moved to the front of the queue.** The Test Information now written on the live
       account declares **`https://ballast.beyondkaira.com/privacy`** as the beta privacy policy,
@@ -282,6 +305,31 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       written them. The privacy policy is also where the sensitive-class habit-category
       disclosure lives (see `docs/app-privacy-label.md`), and it must match the App Privacy
       label exactly — a mismatch between the two is itself a review finding.
+- [ ] **G0 — the trademark half, and S60 narrowed what is actually open.**
+      This has been carried as one undifferentiated "name clearance" item. It is two
+      halves with very different states, and only one of them is still work:
+
+      **The App-Store-NAME half is substantially settled, by evidence rather than
+      assumption.** Two things measured this session: (1) your App Store Connect record
+      already exists under the name **`Ballast - Quit`**, which means Apple's own
+      name-uniqueness check accepted that reservation when it was made — a colliding
+      name is refused at reservation, not at submission; and (2) a live App Store search
+      returns **no app named "Ballast"** anywhere in the US store. The nearest hits are
+      **"Boat Ballast"** (Gorman Technology) and **"Ballasted"** (Charles Hanner), both
+      **Utilities**, neither an exact-name collision nor a category one.
+      *Two honest caveats:* Apple's search index does not expose *reserved but
+      unreleased* names, so "no result" is strong but not proof; and the reserved name
+      is `Ballast - Quit`, so if you intend to ship as plain **`Ballast`** that is a
+      different string and worth confirming in ASC before you build marketing on it.
+
+      **The TRADEMARK half is genuinely open and stays yours.** A USPTO knockout search
+      is legal work, and an agent should not perform one and call it clearance — a
+      false negative here is expensive and slow to discover. USPTO's public search API
+      is not reachable without credentials, so there is no shortcut to offer. Give it to
+      counsel alongside the §3 package, or run it yourself in USPTO's own search.
+      **It remains the longest-lead item on the whole critical path and it gates
+      screenshots, ASO and the TestFlight public link** — so it is worth starting the
+      same day as the site deploy, not after it.
 - [ ] **YEDAM 115 operating hours (~5 min, `helplines.json`).** The row ships with
       `hoursVerified: false` and the honest placeholder "Bilinmiyor — yayına almadan
       doğrulayın". Confirm the real hours on yedam.org.tr and replace the string.
