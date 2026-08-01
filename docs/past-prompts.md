@@ -7980,3 +7980,68 @@ R58.1, R58.2, R60.1 and R60.2 were **all invisible for the same reason**: the ac
 - **The operator's four inputs.** Unchanged and unfabricated.
 - **QW-6, QW-3, QW-8, ME-8b** — all agent-doable, none blocked. QW-6 will re-record the two age-gate entry pairs; that cost is known and deliberate.
 - **ME-4b** — operator-gated, gates nothing.
+
+## Session 61 — the blind spot gets a lane, and the first look through it finds three things (2026-08-01)
+
+**Objective (from `resume-prompt.md` §Next session objective):** *(A) an AX5 leg on the accessibility audit, app-wide* — then (B) QW-6, (C) QW-3. Operator goal for the session: *"make the app production ready."* (A) was executed; (B) and (C) were not started, and that is stated rather than implied.
+
+**Session-open state:** local == `origin/main` at `39f871e`, clean, last CI run green.
+
+**2 billed runs.** Run 1 `30717859108` (red by design — `record: .missing` mints, plus real findings); run 2 `30718997823`.
+
+### Why (A) was worth a session at all
+
+R58.1, R58.2, R60.1 and R60.2 were **four defects with one cause**: every `test_a11yAudit_*` leg mounts at the DEFAULT content size, so Apple's own `.dynamicType`/`.textClipped` checks had **never seen an accessibility size on any surface of this app**. Two of the four were on screens a user cannot route around, and R60.2 made a legally-required 17+ gate impassable at AX5 for the entire life of the screen.
+
+### There is no XCUITest API for content size, and that shaped everything
+
+Verified against Apple's docs JSON from the orchestrator, not recalled: `XCUIApplication` exposes launch/activate/terminate/state/resetAuthorizationStatus/performAccessibilityAudit; `XCUIDevice` has `appearance` for light/dark and nothing for Dynamic Type; `XCUISystem` has only `open(_:)`. The size therefore rides UIKit's argument domain, `-UIPreferredContentSizeCategoryName`, through the documented `launchArguments` — spelled with `UIContentSizeCategory.accessibilityExtraExtraExtraLarge`, the **same symbol the snapshot suites assign**, so "the legs and the goldens render at the same size" is true by construction rather than by two magic strings agreeing.
+
+**That is a BEHAVIOUR, not a published API, so it was gated rather than trusted.** A silent no-op would not fail — it would render every AX5 leg at the default size and **pass**, which on an audit lane is strictly worse than having no leg: it converts an untested surface into one that reports itself tested. `test_ax5Override_actuallyTakes_orEveryAX5LegIsAFalseGreen` measures a real element at both sizes and gates the rest. **It passed** — the S59 ASC rule (*accepted is not applied; read the value back and assert it*) transplanted from a REST API to a launch argument, and it is now the reason the rest of this entry means anything.
+
+### Scope was counted, not reflexed
+
+Eleven legs on the priciest runner in the matrix; a naive doubling doubles the lane. Two questions picked five: which surfaces pin an action zone (the shape that broke — a compressible child losing to fixed siblings), and which have **no AX5 coverage of any kind**. Counting the 16 snapshot suites answered the second and turned up a real hole: **`ResourcesSnapshotTests` was the only suite without the four-axis matrix**, minted in UIR-4 with `.large` hard-coded. With its audit leg at default size too, `SafetyResourcesView` — helpline rows, live `tel:` links, a 44pt-floor target with a growing `Text` inside it — was **the one surface blind at AX5 in both lanes at once**. Closed here: AX5 axis + AX5 leg in the same commit, 2 goldens minted, visually verified, adopted. The two pre-existing PNGs came back byte-identical, as the suite comment predicted. **167 goldens across 16 suites, counted from disk.**
+
+### What the first look through the new lane found
+
+**1. R60.2 is proven fixed at the level the defect lived in.** The fix shipped saying "the golden is the gate" — true, and not enough: a golden proves the wheel is VISIBLE, and the defect was that the gate could not be COMPLETED. The AX5 age-gate leg spins the wheel, verifies the value took, verifies the CTA lifts out of ghost-disabled, and walks through to the blocked frame. All green. Every one of those assertions was FALSE on the pre-fix build.
+
+**2. A latent order dependence, surfaced rather than caused.** `test_a11yAudit_quizFlow_noViolations` — a leg that had passed for sessions — failed with *"No matches found for quiz.choice.vape"*. The quiz CHECKPOINTS as it advances (`QuizProgressStore`, in `UserDefaults.standard` by design, R5) and the mount RESUMES from it, so any second quiz drive in the shared simulator lands on the step the first reached. The leg only ever passed because nothing had driven the quiz before it. `UITEST_RESET` — whose own comment says it exists for *"order-independence … self-isolating in the shared CI simulator"* — now rides both quiz legs.
+
+**3. R61.1 (OPEN) — two AX5 frames fire `.contrast`, and they are DEFERRED, not suppressed.** The age gate's entry body copy and the quiz's consent explainer. Everything else at AX5 is clean on all seven types: blocked frame, habit frame, summary, paywall, resources. Both offenders pass at the default size and both have adopted, visually-verified AX5 goldens — so **the app renders what it was designed to render and Apple's audit disagrees at one size on two frames.**
+
+Evidence, recovered from the run's xcresult (no `xcresulttool` on Linux — the PNG blobs were found by magic bytes): the audit's own element crops are **1082×2422px (≈361×807pt)** and **1034×2262px (≈345×754pt)**, each showing a short run of glyphs cut mid-letterform at the scroll boundary, then the pinned zone, then black.
+
+**The first hypothesis was written down, measured in the same session, and REFUTED — which is the part worth keeping.** It was: *the accessibility frame runs past the bottom of the WINDOW, so `.contrast` samples the black beyond it.* `recordR61_1Geometry` asked exactly that in run `30718997823`:
+
+```
+R61.1[ageGate.entry]  window=874.0pt  tallestStaticText=807.3pt  exceedsWindow=false
+R61.1[quiz.consent]   window=874.0pt  tallestStaticText=754.7pt  exceedsWindow=false
+```
+
+**No.** The frames stop short of the window. Two things follow, and the second is sharper than the claim it replaced. First, 807.3 and 754.7 are the *same* numbers measured off the audit's PNG crops, which independently confirms **the crops ARE the element frames** — so the geometry is now established rather than inferred. Second, a paragraph whose visible glyphs occupy roughly the top 90pt reports a frame of **807pt on an 874pt window — 92% of the screen** (the quiz's is 86%). The comparison was against the wrong rectangle: the viewport ends where the pinned action zone begins, far above 874pt, so a frame that large **necessarily overlaps the picker and the CTA**. That still explains a spurious contrast sample, and it is also a real defect of a different kind — an element whose accessibility frame swallows the controls beneath it is a VoiceOver-focus and hit-region problem. The probe now measures against the SCROLLVIEW, and S62's first run answers it.
+
+**Two ways to make it green were considered and rejected, in place.** `XCTExpectFailure`: annotating a known issue on the app's first screen at the largest text size, on a legally-required 17+ gate, is the exact failure mode this session exists to prevent — S61 would have papered over its own finding on day one. Excluding `.contrast`: R32.3 (the exclusion list only shrinks) and the standing rule that an assertion is never weakened for a green. What was done instead is `session-rules.md`'s own instruction for a large issue: document it, and put it at the top of the next resume prompt.
+
+**And it costs no run to settle.** `recordR61_1Geometry` prints the deciding number from legs that already launch — if the tallest StaticText is taller than the window, the fix is about the element's frame, not its colour. It prints and never asserts, because a wrong hypothesis must not redden the lane that gates the live TestFlight upload.
+
+### The free half — a source lint for the shape
+
+The objective flagged `OnboardingLayoutLintTests` as *possibly the cheaper half*, and it was. A `.wheel` picker reports a flexible height, so it must state a floor or a parent under pressure compresses it — to zero, as R60.2 proved. **App-wide and unconditional**: the two containers a wheel can land in are the two that punish it (outside a ScrollView it is the compressible child; inside one it fights its ancestor for the scroll gesture), so there is no exemption to rot. One wheel exists today, which makes the rule worth little as a finding and everything as a ratchet.
+
+The scanner tracks brace depth because a `Picker`'s modifiers resume **after** its multi-line content closure — a first-non-`.`-line scanner (correct for the neighbouring `Image(` rule, which has no closure) would never reach the floor and would fail the lane on CORRECT code. **Calibrated on the real pre-fix bytes, not a hand-written fixture:** delete the one line the R60.2 fix added from the shipping `AgeGateView` and it fires; leave it and it does not.
+
+**The Linux replication was green on the first attempt** — fixtures, the 119-file `App/Sources` walk, and the real pre-fix calibration. Worth recording precisely because S53, S54 and S58 each had two bugs in their own harness: the difference here is that the rule was written against bytes already on disk rather than against a layout that did not exist yet, so there was nothing to mis-predict. The unit lane then passed it on the real build, first try.
+
+### Known limitations, stated
+
+- **R61.1 is open** and is the top of the next objective.
+- **The AX5 drives are duplicated**, not shared with their default-size twins. Deliberate: factoring them out means editing proven rule-11 safety legs for a non-safety reason, and this file's history says what that costs (the settings leg, added and reverted three times across seven billed runs). The invariant is written in place: change a drive above, change its twin below in the same commit.
+- **The quiz's `retryNote` is still unmeasured at any size.** `controls` renders it in the PINNED zone when `model.completionFailed`, and no golden and no leg has ever rendered that arm. Same shape R60.2 punished; conditional is why it has never been seen, not why it is safe.
+- **Six surfaces have no AX5 leg** (dashboard, settings, erase confirm, milestone unlock, panic, slip). None pins an action zone and all six carry AX5 goldens. A scoping judgment, not a coverage claim.
+- **(B) QW-6 and (C) QW-3 were not started.**
+
+### One thing only the goldens could show
+
+At AX5 the resources screen's first helpline row sits **below the fold** — a user in trouble must scroll to reach a phone number. It is inside a ScrollView and the audit passes clean, so it is an observation rather than a defect, and whether a crisis surface should surface a number without scrolling is a product call an agent may not make. Added to `operator-expected.md`.

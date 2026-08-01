@@ -2,7 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status (S60) | LIVE — **only OPEN items are listed here.** **The agent side of the submittable-ASAP path is CLOSED.** R58.2 (the 3.1.2(c) disclosure clipped on the review build's own arm) is fixed and green; **the final golden batch is COMPLETE** — the age gate and the quiz were the last two surfaces without goldens, so nothing in the app is unpinned (165 goldens, 16 suites). **Minting them found the worst defect currently known and fixed it the same day: R60.2 — at the largest accessibility text size the year wheel collapsed to zero, so a legally-required 17+ gate could not be completed, and had been that way since the screen was built.** Three things were also built to shorten YOUR list rather than describe it: `scripts/deploy_public_site.sh` (six manual steps → one command, with `--selftest`), `docs/safety-signoff-package.md` (forward it, no assembly), and `docs/g0-name-clearance.md` (a real finding — `BALLAST` is a LIVE, renewed US trademark to BOSU Fitness in Class 028). **Also closed a submission requirement nothing here tracked:** App Store Connect will not accept a listing without a Support URL, and no such page existed — `site/support.html` now does. **What is left for you is four inputs and a device sitting.** Nothing is waiting on an agent. |
+| Status (S61) | **Nothing on this page changed except ONE new item, and your five START HERE steps are untouched.** S61 was agent-side quality work — the accessibility audit had never once run at the largest text size, which is why four defects (R58.1, R58.2, R60.1, R60.2) all hid in the same blind spot; it now runs there on five surfaces. Two things are worth your attention rather than your action. **(1)** R60.2 — the one that made the 17+ gate impassable at the largest text size — is now proven fixed by a test that actually *completes the gate* at that size, not just a picture showing the wheel is there. **(2)** A new item joined §0: at the largest text size the Support screen's first phone number sits below the fold. Not broken, but it is a product call on a crisis surface and an agent will not make it for you. One thing is open on the agent side and does not involve you (**R61.1**, two frames where Apple's audit disagrees with a golden that was eyeballed and accepted). Previous status row below. |
+| _superseded_ Status (S60) | LIVE — **only OPEN items are listed here.** **The agent side of the submittable-ASAP path is CLOSED.** R58.2 (the 3.1.2(c) disclosure clipped on the review build's own arm) is fixed and green; **the final golden batch is COMPLETE** — the age gate and the quiz were the last two surfaces without goldens, so nothing in the app is unpinned (165 goldens, 16 suites). **Minting them found the worst defect currently known and fixed it the same day: R60.2 — at the largest accessibility text size the year wheel collapsed to zero, so a legally-required 17+ gate could not be completed, and had been that way since the screen was built.** Three things were also built to shorten YOUR list rather than describe it: `scripts/deploy_public_site.sh` (six manual steps → one command, with `--selftest`), `docs/safety-signoff-package.md` (forward it, no assembly), and `docs/g0-name-clearance.md` (a real finding — `BALLAST` is a LIVE, renewed US trademark to BOSU Fitness in Class 028). **Also closed a submission requirement nothing here tracked:** App Store Connect will not accept a listing without a Support URL, and no such page existed — `site/support.html` now does. **What is left for you is four inputs and a device sitting.** Nothing is waiting on an agent. |
 | Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook; it sequences this file. For the beta: **`docs/testflight-beta-kit.md`**. |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
@@ -211,6 +212,20 @@ themselves.
       accessibility size — but goldens cannot tell you whether it FEELS like a settings screen.
       While you are there, tap **Panic access → "Add the lock-screen widget"** and confirm it
       re-opens the widget-adoption moment.
+- [ ] **A product call on the SUPPORT screen at the largest text size (S61) — yours because it
+      is a judgment about a crisis surface, not a defect an agent may quietly "fix".**
+      S61 gave `SafetyResourcesView` its first AX5 goldens (it was the last surface in the app
+      with none — see `golden-batch.md`). They are clean: correct colours in both appearances,
+      text reflows properly, nothing clipped or collapsed, and Apple's full 7-type audit passes
+      at that size. **But at AX5 the first helpline row sits BELOW THE FOLD** — the glyph,
+      "Support", the intro and the emergency note fill the screen, so someone in trouble has to
+      scroll before any phone number appears.
+      Nothing is broken: the screen scrolls, the number is reachable, and the `tel:` link keeps
+      its 44pt target. It is a question of what a support screen should lead with when the text
+      is huge, and there are cheap answers if you want one (the number above the emergency note;
+      a shorter intro at accessibility sizes; the row pinned). **If you are happy as-is, say so
+      and this closes** — an agent will not change the ordering of a safety surface on its own
+      judgment.
 
 ## 1. E0.3 panic-latency — one 15-minute pass is what is left
 

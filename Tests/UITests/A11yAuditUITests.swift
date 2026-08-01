@@ -962,18 +962,36 @@ final class A11yAuditUITests: XCTestCase {
     // action zone composited across the middle, then a large BLACK region — the area
     // beyond the app window.
     //
-    // ── THE HYPOTHESIS, STATED AS ONE ────────────────────────────────────────
-    // The StaticText's accessibility frame appears not to be clipped to the
-    // ScrollView's viewport, so it reports its full unclipped paragraph height at
-    // AX5 and `.contrast` samples a region the glyphs mostly do not occupy. That
-    // would make the reading an artifact of the measurement rather than a defect a
-    // user could experience — the glyphs themselves are `content/secondary` on
-    // `surface/base`, a registry-pinned pair.
+    // ── THE FIRST HYPOTHESIS WAS MEASURED AND REFUTED. READ BOTH. ────────────
+    // It was: *the StaticText's accessibility frame is not clipped to the viewport,
+    // so it runs past the bottom of the WINDOW and `.contrast` samples the black
+    // beyond it.* `recordR61_1Geometry` tested exactly that in run `30718997823`
+    // and the answer was **no**:
     //
-    // **It would ALSO be a real defect of a different kind**, which is exactly why
-    // it is not being waved away: an element whose accessibility frame covers half
-    // the screen and overlaps the CTA is a genuine VoiceOver-focus and hit-region
-    // problem, and that is the R60.x family all over again.
+    //     R61.1[ageGate.entry]  window=874.0pt  tallestStaticText=807.3pt  exceedsWindow=false
+    //     R61.1[quiz.consent]   window=874.0pt  tallestStaticText=754.7pt  exceedsWindow=false
+    //
+    // **Recorded rather than quietly corrected, because the refutation is the useful
+    // part** — and because those two numbers are the same 807pt and 754pt measured
+    // off the audit's own PNG crops, which independently confirms the crops ARE the
+    // element frames.
+    //
+    // ── WHAT THE NUMBERS ACTUALLY SAY, WHICH IS SHARPER ──────────────────────
+    // A paragraph whose visible glyphs occupy roughly the top 90pt reports an
+    // accessibility frame of **807pt on an 874pt window — 92% of the screen** (the
+    // quiz's is 86%). So the frame is not clipped to the SCROLLVIEW's bounds either;
+    // it simply stops short of the window. The comparison was against the wrong
+    // rectangle: the viewport ends where the pinned action zone begins, far above
+    // 874pt, so a frame that large necessarily **overlaps the picker and the CTA**.
+    //
+    // That still explains a spurious `.contrast` reading — the audit samples a
+    // region that is mostly not the text — and it is ALSO a real defect of a
+    // different kind, which is why it is not being waved away: an element whose
+    // accessibility frame covers 90% of the screen and swallows the controls beneath
+    // it is a genuine VoiceOver-focus and hit-region problem.
+    //
+    // **The next probe is the right rectangle, and it is already wired below:**
+    // compare the text frame to the enclosing SCROLLVIEW's frame, not the window's.
     //
     // ── WHY THE AUDIT CALLS ARE DEFERRED RATHER THAN SUPPRESSED ──────────────
     // Three options were considered and two rejected. **`XCTExpectFailure` was
@@ -1007,13 +1025,27 @@ final class A11yAuditUITests: XCTestCase {
     /// static text at AX5 on these two frames IS the paragraph in question.
     private static func recordR61_1Geometry(_ app: XCUIApplication, frame label: String) {
         let window = app.windows.firstMatch.frame
+        let scroll = app.scrollViews.firstMatch
         let tallest = app.staticTexts.allElementsBoundByIndex
             .max { $0.frame.height < $1.frame.height }
-        let textHeight = tallest?.frame.height ?? -1
+        guard let tallest else {
+            print("R61.1[\(label)] NO static text found — the mount is wrong, not the geometry")
+            return
+        }
+        let text = tallest.frame
+        // The SCROLLVIEW is the rectangle that matters: the viewport ends where the
+        // pinned action zone begins, and a text frame taller than it is one that
+        // overlaps the controls. `exceedsWindow` is kept so the refuted first
+        // hypothesis stays visible next to the corrected one.
+        let viewport = scroll.exists ? scroll.frame : .null
         print(
-            "R61.1[\(label)] window=\(window.height)pt tallestStaticText=\(textHeight)pt "
-            + "exceedsWindow=\(textHeight > window.height) "
-            + "text=\"\(tallest?.label.prefix(56) ?? "")\""
+            "R61.1[\(label)] window=\(window.height)pt "
+            + "scrollView=\(scroll.exists ? "\(viewport.height)pt@y\(viewport.minY)" : "ABSENT") "
+            + "text=\(text.height)pt@y\(text.minY) "
+            + "exceedsWindow=\(text.height > window.height) "
+            + "exceedsViewport=\(scroll.exists && text.maxY > viewport.maxY) "
+            + "overhangPastViewport=\(scroll.exists ? text.maxY - viewport.maxY : 0)pt "
+            + "label=\"\(tallest.label.prefix(48))\""
         )
     }
 
