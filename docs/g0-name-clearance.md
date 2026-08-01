@@ -80,18 +80,33 @@ to prevent.
 | US Registration No. | 8093382 (serial 99175729) |
 | Owner | Mark Andrew Riggio (PA) |
 | Filed / Registered | May 8, 2025 / Jan 6, 2026 |
-| Category | Computer & Software Services & Scientific Services |
+| Status | **LIVE / REGISTRATION / Issued and Active** (TSDR-verified) |
+| International Class | **042** — SaaS / software services, Class Status ACTIVE |
+| Mark type | **Stylized/design**: *"the mark consists of the stylized wording 'simplify ballast' with simplify in light blue and ballast…"* |
 
-A **composite** mark, so a materially different commercial impression — but it is
-recent, live, and in the software space, so it belongs in the file.
+**Two things about this one cut in opposite directions, and both are TSDR-verified
+rather than inferred.** It is in **Class 042** — the software-services class, i.e.
+genuinely the neighbourhood, not a distant industry. But it is a **composite** mark
+AND a **stylized** one, and both narrow it: the commercial impression is
+"SIMPLIFY BALLAST" rather than "BALLAST", and protection for a stylized mark attaches
+to the presentation as much as the words. It belongs in counsel's file; it is not
+the hit that should worry anyone most. That remains §2.1.
 
 ### 2.3 What was NOT found, and how much that is worth
 
-No bare `BALLAST` registration in **Class 9** or **Class 42** surfaced in the
-accessible sources. **Treat that as unproven, not as clear.** USPTO's own search API
-requires credentials this project does not hold, and the free mirrors block automated
-access (Justia and Trademarkia both returned HTTP 403). So the Class 9/42 question
-was searched indirectly and deserves a proper look in USPTO's own interface.
+**No BARE-WORD `BALLAST` registration in Class 9 or Class 42 surfaced** — the only
+Class 042 hit is the stylized composite in §2.2, and the only bare-word `BALLAST` is
+the Class 028 registration in §2.1. Both were confirmed against TSDR by serial
+number, so the two hits themselves are facts rather than search results.
+
+**But treat the ABSENCE as unproven, not as clear**, and the distinction matters:
+confirming a mark you have found is easy, and proving none exists is not. USPTO's own
+search API requires credentials this project does not hold, and the free mirrors block
+automated access (Justia and Trademarkia both return HTTP 403 to it). What was done
+here is targeted lookup, not an exhaustive class sweep. **Ten minutes in USPTO's own
+search interface closes that gap** — search `BALLAST` restricted to Classes 009 and
+042, live marks only. That is the single remaining piece of this page an agent could
+not do.
 
 ---
 
