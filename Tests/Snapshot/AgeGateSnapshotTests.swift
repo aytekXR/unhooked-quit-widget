@@ -42,6 +42,35 @@ import UIKit
 // picker inside a snapshot host does not always populate synchronously. **Do not
 // adopt a blank wheel, or one showing only its centre row.** A correct entry golden
 // shows "—" resting at centre with 2026 and earlier years below it.
+// *(It populated correctly on the first mint — that risk did not land.)*
+//
+// ═══ WHAT THE FIRST MINT FOUND, AND NEITHER DEFECT IS THIS SUITE'S DOING ═══
+//
+// Both are PRE-EXISTING — nothing here changes the view — and both were invisible
+// for the same reason the paywall's were: the screen had no goldens, and
+// `test_a11yAudit_ageGate_noViolations` mounts at the DEFAULT content size, so
+// Apple's own `.dynamicType` check never sees AX5 on this surface. Same blindness
+// that produced R58.1/R58.2 and R60.1.
+//
+// **R60.2 (HIGH) — at AX5 THE AGE GATE IS IMPASSABLE.** In both `entry.*-ax5`
+// goldens the wheel collapses to zero height: "Year of birth" renders, and the very
+// next thing is a DISABLED "Continue". There is no control to pick a year, so
+// `selectedBirthYear` can never leave nil and the CTA can never enable. The body
+// copy is also sliced mid-glyph above it. This is the app's FIRST screen and a
+// legally-required 17+ gate — a user at the largest accessibility size cannot get
+// into the app at all. The likely mechanism: `OnboardingScaffold`'s pinned `actions:`
+// zone is over-subscribed at AX5, and a `.pickerStyle(.wheel)` has a compressible
+// intrinsic height while the Button and footer do not, so the picker is what gives.
+//
+// **R60.3 (MEDIUM) — the wheel does not adapt to dark mode.** `entry.dark` renders
+// the picker's fade mask as a WHITE/light gradient over the sunken card, so on an
+// otherwise dark screen the control reads as a light-mode element pasted in, and the
+// year text sits at poor contrast inside it. Not caught by the contrast registry,
+// because the gradient is UIKit's own and not a Theme token.
+//
+// **These goldens deliberately RECORD BOTH.** That is the S58 precedent: adopt what
+// ships today so the fix arrives as a deliberate two-PNG diff rather than a mystery.
+// Do not "fix" them by re-recording — fix the view, and expect these to move.
 //
 // Geometry and determinism follow the flow neighbours exactly: `.device(config:
 // .iPhone13)`, 0.99/0.98, iOS-17 closure-init traits (`UITraitCollection(traitsFrom:)`
