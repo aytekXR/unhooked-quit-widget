@@ -171,6 +171,169 @@ struct OnboardingLayoutLintTests {
         )
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // MARK: - S61 · the incompressible-floor rule (the R60.2 shape)
+    // ══════════════════════════════════════════════════════════════════════════
+    //
+    // R60.2 made a legally-required 17+ gate IMPASSABLE at AX5 for the entire life
+    // of the screen, and the mechanism was structural rather than typographic:
+    //
+    //   `OnboardingScaffold` lays out `VStack { header; ScrollView { content };
+    //   actions }`. TWO children there are flexible — the ScrollView and, because
+    //   `UIPickerView` reports a flexible height, the year wheel. At AX5 the pinned
+    //   action zone's fixed children over-subscribe the space and SwiftUI takes it
+    //   out of the flexible ones. The wheel lost, silently and TOTALLY: zero height,
+    //   no control to pick a year, a CTA that could never enable.
+    //
+    // **Why this is a lint and not only an audit leg.** S61 adds AX5 legs to the
+    // accessibility audit, and they are the broad net — but an audit leg only ever
+    // sees the surfaces it mounts, and it costs a launch on the priciest runner in
+    // the matrix. A source lint sees EVERY file for free, on every lane, including
+    // Linux. The wheel that broke was on a surface that had an audit leg and a
+    // funnel smoke and still shipped the defect for the life of the screen, because
+    // both mounted at the default content size. This rule needs no size at all: a
+    // wheel with no floor is wrong whether or not anything has rendered it yet.
+    //
+    // **The rule is unconditional, deliberately.** It does not ask whether the
+    // picker sits in a pinned zone, because the two containers a wheel can land in
+    // are the two that punish it: outside a ScrollView it is the compressible child
+    // (R60.2), and inside one it fights its ancestor for the scroll gesture — the
+    // fight `OnboardingScaffold`'s own doc comment names as the reason the picker
+    // lives in `actions:` at all. A `.wheel` picker always wants an explicit floor,
+    // so the rule has no exemption to rot.
+    //
+    // **Scope is APP-WIDE**, unlike the idiom rule above, which is scoped to the
+    // directories UIR rebuilt. There is exactly ONE wheel picker in the app today,
+    // so the rule is worth little as a finding and everything as a ratchet: the next
+    // one is written by someone who has not read this file.
+
+    /// Walked in full — this rule earns its keep on files nobody has written yet.
+    private static let floorRuleDirectory = "App/Sources"
+
+    /// A `.wheel` picker reports a FLEXIBLE height, so it must state a floor or a
+    /// parent under pressure will compress it — to zero, as R60.2 proved.
+    @Test func test_everyWheelPicker_carriesAnIncompressibleFloor() throws {
+        var violations: [String] = []
+        var scannedFiles = 0
+        var wheelsSeen = 0
+
+        let root = Self.repoRoot.appendingPathComponent(
+            Self.floorRuleDirectory, isDirectory: true
+        )
+        let enumerator = try #require(
+            FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil),
+            "\(Self.floorRuleDirectory) must be walkable from the test host"
+        )
+        for case let url as URL in enumerator {
+            guard url.pathExtension == "swift" else { continue }
+            scannedFiles += 1
+            let source = try String(contentsOf: url, encoding: .utf8)
+            wheelsSeen += Self.wheelPickerChains(in: source).count
+            violations += Self.scanPickerFloors(source, in: url.lastPathComponent)
+        }
+
+        // Corpus non-vacuity floor (the lexicon-gate discipline), twice over: the
+        // walk must be seeing the app's view layer, AND it must still be finding a
+        // wheel to judge. A rule that silently stops matching anything is a rule
+        // that passes forever — which is how R60.2 survived two lanes.
+        #expect(
+            scannedFiles >= 100,
+            "the floor lint walked only \(scannedFiles) app files — the corpus shrank implausibly"
+        )
+        #expect(
+            wheelsSeen >= 1,
+            """
+            the floor lint found NO `.wheel` picker in \(Self.floorRuleDirectory). The age \
+            gate's year wheel is the one this rule was written for, so either it was \
+            removed (in which case delete this rule deliberately) or the chain scanner \
+            stopped matching it — which would make this whole suite vacuously green.
+            """
+        )
+        #expect(
+            violations.isEmpty,
+            """
+            A `.wheel` picker with no height floor. It reports a FLEXIBLE height, so \
+            a parent under pressure will compress it — R60.2 compressed the age gate's \
+            to ZERO at AX5 and made a legally-required 17+ gate impassable. Give it \
+            `.frame(minHeight:)`; do not weaken this assertion:
+            \(violations.joined(separator: "\n"))
+            """
+        )
+    }
+
+    /// The gate must gate itself. This is the EXACT shipping chain with the one line
+    /// the R60.2 fix added removed again — i.e. the bytes that made the gate
+    /// impassable. If this stops firing, the rule has stopped protecting anything.
+    @Test func test_theFloorLint_firesOnThePreFixAgeGateWheel() {
+        let preFixWheel = """
+        Picker(copy.yearLabel, selection: $model.selectedBirthYear) {
+            Text(verbatim: "—").tag(Int?.none)
+            ForEach(model.selectableYears.reversed(), id: \\.self) { year in
+                Text(verbatim: String(year)).tag(Int?.some(year))
+            }
+        }
+        .pickerStyle(.wheel)
+        .accessibilityIdentifier("ageGate.yearPicker")
+        """
+        #expect(
+            Self.scanPickerFloors(preFixWheel, in: "fixture").count == 1,
+            "the pre-R60.2 wheel — flexible height, no floor — must fire exactly once"
+        )
+    }
+
+    /// The shipping form must NOT fire, and the multi-line trailing closure is the
+    /// part that makes this non-trivial: the modifier chain resumes AFTER the
+    /// picker's content closure closes, so a scanner that ends the chain at the
+    /// first non-`.` line would never see `.frame(minHeight:)` and would fail the
+    /// whole app lane on correct code.
+    @Test func test_theFloorLint_acceptsTheShippingWheel() {
+        let shippingWheel = """
+        Picker(copy.yearLabel, selection: $model.selectedBirthYear) {
+            Text(verbatim: "—").tag(Int?.none)
+            ForEach(model.selectableYears.reversed(), id: \\.self) { year in
+                Text(verbatim: String(year)).tag(Int?.some(year))
+            }
+        }
+        .pickerStyle(.wheel)
+        .frame(minHeight: Self.pickerMinHeight)
+        .accessibilityIdentifier("ageGate.yearPicker")
+        """
+        #expect(
+            Self.scanPickerFloors(shippingWheel, in: "fixture").isEmpty,
+            "the shipping wheel carries `.frame(minHeight:)` — the lint must not fire on it"
+        )
+    }
+
+    /// False-positive probe (the S58 rule: every new lint entry needs one, not just
+    /// a born-green run). A NON-wheel picker has an intrinsic height and is not the
+    /// compressible child, so the rule must leave it alone — otherwise the next
+    /// author's `.segmented` picker fails a lane for a defect it cannot have.
+    @Test func test_theFloorLint_ignoresPickersThatAreNotWheels() {
+        let segmented = """
+        Picker("Mode", selection: $mode) {
+            Text("A").tag(Mode.a)
+            Text("B").tag(Mode.b)
+        }
+        .pickerStyle(.segmented)
+        """
+        #expect(
+            Self.scanPickerFloors(segmented, in: "fixture").isEmpty,
+            "a segmented picker has an intrinsic height — the floor rule must not fire on it"
+        )
+
+        // And prose ABOUT the idiom must not fire either: `AgeGateView`'s own header
+        // comment says "the wheel stays a wheel (`.pickerStyle(.wheel)` …)", which a
+        // comment-blind scanner would read as a second, floorless wheel.
+        let proseOnly = """
+        /// - the wheel stays a wheel (`.pickerStyle(.wheel)` — the funnel smoke drives it
+        ///   by value, so a floorless one would be a defect)
+        """
+        #expect(
+            Self.scanPickerFloors(proseOnly, in: "fixture").isEmpty,
+            "a comment discussing `.pickerStyle(.wheel)` is not a picker — the scanner strips comments"
+        )
+    }
+
     // MARK: - The rules
 
     /// Every violation in one source, in line order.
@@ -207,6 +370,98 @@ struct OnboardingLayoutLintTests {
             }
         }
         return violations
+    }
+
+    /// A floorless `.wheel` picker, per source. One violation per offending chain.
+    private static func scanPickerFloors(_ source: String, in fileName: String) -> [String] {
+        wheelPickerChains(in: source).compactMap { chain in
+            guard !chain.lines.contains(where: { $0.contains(".frame(minHeight:") }) else {
+                return nil
+            }
+            return "\(fileName):\(chain.line) declares `.pickerStyle(.wheel)` with no "
+                + "`.frame(minHeight:)`. A wheel reports a FLEXIBLE height, so a parent "
+                + "under pressure compresses it — R60.2 compressed the age gate's to ZERO "
+                + "at AX5 and a legally-required 17+ gate could not be completed."
+        }
+    }
+
+    /// Every `.wheel` picker's modifier chain, with the 1-based line its `Picker(`
+    /// opened on.
+    ///
+    /// **The trailing closure is the whole difficulty**, and getting it wrong fails
+    /// in the expensive direction. A `Picker` carries a multi-line content closure,
+    /// so its modifiers resume AFTER that closure closes:
+    ///
+    ///     Picker(…) {          ← chain opens, brace depth 1
+    ///         Text(…)          ← inside the closure, not a modifier
+    ///     }                    ← depth back to 0
+    ///     .pickerStyle(.wheel) ← the chain continues HERE
+    ///     .frame(minHeight: …) ← …and the floor is only visible past that point
+    ///
+    /// A scanner that ends the chain at the first non-`.` line (the `Image(` rule
+    /// above does exactly that, correctly, because a glyph has no content closure)
+    /// would never reach the floor and would fail the app lane on CORRECT code. So
+    /// this one tracks brace depth: a line belongs to the chain while it is inside
+    /// the closure, or is a `.modifier`, or is blank/comment-only.
+    ///
+    /// KNOWN LIMIT, stated rather than discovered later: brace counting is literal,
+    /// so a `{` or `}` inside a string literal in a picker's closure would skew the
+    /// depth. Nothing in the app does that, and the non-vacuity `#expect` above fires
+    /// if this ever stops matching the wheel it was written for.
+    private static func wheelPickerChains(
+        in source: String
+    ) -> [(line: Int, lines: [String])] {
+        var chains: [(line: Int, lines: [String])] = []
+        var openedAt = 0
+        var current: [String]?
+        var depth = 0
+
+        func close() {
+            guard let chain = current else { return }
+            if chain.contains(where: { $0.contains(".pickerStyle(.wheel)") }) {
+                chains.append((openedAt, chain))
+            }
+            current = nil
+            depth = 0
+        }
+
+        for (index, rawLine) in source.components(separatedBy: "\n").enumerated() {
+            let code = strippingComment(rawLine)
+            let trimmed = code.trimmingCharacters(in: .whitespaces)
+
+            if current == nil {
+                guard code.contains("Picker(") else { continue }
+                openedAt = index + 1
+                current = [code]
+                depth = braceDelta(code)
+                continue
+            }
+
+            let depthBeforeThisLine = depth
+            depth += braceDelta(code)
+
+            // Inside the content closure, a modifier, or blank/comment-only: keep it.
+            if depthBeforeThisLine > 0 || trimmed.hasPrefix(".") || trimmed.isEmpty {
+                current?.append(code)
+                continue
+            }
+
+            // Anything else is the next statement — the chain ended before it, and
+            // that statement may itself open the next picker.
+            close()
+            if code.contains("Picker(") {
+                openedAt = index + 1
+                current = [code]
+                depth = braceDelta(code)
+            }
+        }
+        close() // a chain running to end-of-file still counts
+        return chains
+    }
+
+    /// Net brace balance of one comment-stripped line.
+    private static func braceDelta(_ code: String) -> Int {
+        code.filter { $0 == "{" }.count - code.filter { $0 == "}" }.count
     }
 
     /// Prose may still discuss the idioms it bans (this file does, at length), so a

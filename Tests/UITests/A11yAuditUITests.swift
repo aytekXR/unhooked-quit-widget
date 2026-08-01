@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 /// E9.3 (R28.6) UI-smoke lane (scenario 33, the a11y-audit family):
@@ -559,6 +560,342 @@ final class A11yAuditUITests: XCTestCase {
             app.buttons["paywall.restore"].isHittable,
             "restore stays reachable alongside it (Epic 7 DoD: retry AND restore, always)"
         )
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // MARK: - The AX5 legs (S61) — the blind spot that produced four defects
+    // ══════════════════════════════════════════════════════════════════════════
+    //
+    // R58.1, R58.2, R60.1 and R60.2 were all invisible for the SAME reason: every
+    // leg above mounts at the DEFAULT content size, so Apple's own `.dynamicType`
+    // and `.textClipped` checks have never seen an accessibility size on ANY
+    // surface. Two of the four were on screens a user cannot route around, and
+    // R60.2 made a legally-required 17+ gate IMPASSABLE at the largest text size
+    // for the entire life of the screen. Finding the fifth the same way would be a
+    // process failure rather than luck.
+    //
+    // ── WHY A LAUNCH ARGUMENT, AND NOT AN API ────────────────────────────────
+    // There is NO XCUITest API for content size. Verified against Apple's docs
+    // JSON from the orchestrator (the standing rule — never take a proposed API on
+    // trust): `XCUIApplication` exposes only launch/activate/terminate/state/
+    // resetAuthorizationStatus/performAccessibilityAudit; `XCUIDevice` exposes
+    // `appearance` for light/dark but nothing for Dynamic Type; `XCUISystem` has
+    // `open(_:)` and nothing else. The only route is UIKit's argument-domain
+    // override, `-UIPreferredContentSizeCategoryName`, which
+    // `XCUIApplication.launchArguments` (a documented `[String]` property) puts on
+    // the app process at launch.
+    //
+    // ── WHY THE CALIBRATION TEST IS NOT OPTIONAL ─────────────────────────────
+    // That override is a UIKit BEHAVIOUR, not a published API, so it can stop
+    // working without a compile error. A silent no-op here does not fail — it
+    // renders every leg below at the DEFAULT size and passes, which on an audit
+    // lane is strictly worse than having no leg at all: it converts an untested
+    // surface into one that reports itself tested. This is the S59 ASC rule in a
+    // different costume — **accepted is not applied; read the value back and
+    // assert it** — so `test_ax5Override_actuallyTakes…` measures a real rendered
+    // element at both sizes and fails if the app did not grow. If that test is
+    // red, every `_ax5_` result in this file is void; fix the mechanism, NEVER the
+    // threshold.
+    //
+    // ── WHY THE SIZE IS A CONSTANT AND NOT A STRING ──────────────────────────
+    // `UIContentSizeCategory.accessibilityExtraExtraExtraLarge` is the SAME symbol
+    // the snapshot suites assign to `traits.preferredContentSizeCategory`, so "the
+    // AX5 legs and the AX5 goldens render at the same size" is true by
+    // construction rather than by two magic strings agreeing. (Its `rawValue` is
+    // `UICTContentSizeCategoryAccessibilityXXXL`, which is what the argument domain
+    // actually reads — spelling it this way makes a typo a compile error.)
+    //
+    // ── SCOPE, DERIVED RATHER THAN REFLEXIVE ─────────────────────────────────
+    // The audit already runs 11 surfaces on the priciest runner in the matrix, and
+    // a naive doubling doubles the lane. Two questions decided this list, both
+    // answered by counting rather than by taste:
+    //
+    //  1. **Which surfaces have a PINNED action zone?** That is the shape that
+    //     broke — a compressible child losing to fixed siblings when the pinned
+    //     zone over-subscribes. `OnboardingScaffold` has FIVE consumers (age gate,
+    //     age-gate blocked, quiz, summary, widget adoption; `PaywallView` names it
+    //     in a comment but hand-rolls its own `VStack { ScrollView; footerActions }`
+    //     — the same shape, which is why it hosted three of the four defects).
+    //  2. **Which surfaces have no AX5 coverage of ANY kind?** Counted across the
+    //     16 snapshot suites: every one carries the light/dark/light-ax5/dark-ax5
+    //     matrix EXCEPT `ResourcesSnapshotTests`, minted in UIR-4 at `.large` only.
+    //     So `SafetyResourcesView` — helpline rows, live `tel:` links, a 44pt-floor
+    //     target that a growing label sits directly on top of — has been blind at
+    //     AX5 in both lanes at once. S61 closes the golden half too.
+    //
+    // Deliberately NOT given AX5 legs: dashboard, settings, erase confirm,
+    // milestone unlock, panic and slip. None pins an action zone, and all six
+    // already carry AX5 goldens, so the marginal information per billed second is
+    // the lowest in the matrix. That is a scoping judgment, not a coverage claim —
+    // if a defect of this class ever lands on one of them, the answer is to add its
+    // leg here, not to widen the net pre-emptively.
+    //
+    // ── WHAT THESE LEGS SEE THAT THE AX5 GOLDENS CANNOT ──────────────────────
+    // A golden pins composition at AX5; it cannot see the accessibility tree. The
+    // audit reads `.hitRegion` (a target squeezed under 44pt by a grown neighbour),
+    // `.contrast` (the project's own rule: a golden cannot see a contrast defect),
+    // `.elementDetection`, `.sufficientElementDescription`, `.trait`, and Apple's
+    // own clipping prediction at the size actually rendered. The two lanes are
+    // complementary, not redundant.
+    //
+    // ── POSTURE ──────────────────────────────────────────────────────────────
+    // These legs join the scenario-33 family and take no new named-test slot (the
+    // header's split precedent). `test_a11yAudit_ageGate_ax5_noViolations` is a
+    // rule-11 SAFETY leg on the same terms as its default-size twin — never
+    // quarantined, valved or suppressed. The rest are R28.6 valve-eligible.
+    //
+    // ── THE DRIVES ARE DUPLICATED ON PURPOSE ─────────────────────────────────
+    // Each leg below carries its own copy of the drive its default-size twin uses
+    // rather than sharing an extracted helper. Factoring the drives out would mean
+    // editing proven rule-11 safety legs for a non-safety reason, and this file's
+    // own history says what that costs: the settings leg was added and reverted
+    // three times across seven billed runs. The invariant instead: **if a drive
+    // changes above, change its twin below in the same commit.**
+
+    /// Applies the AX5 override to an app proxy before `launch()`.
+    ///
+    /// Returns the same proxy for call-site brevity. Must be called BEFORE
+    /// `launch()` — the argument domain is read once, at process start.
+    private static func atAX5(_ app: XCUIApplication) -> XCUIApplication {
+        app.launchArguments += [
+            "-UIPreferredContentSizeCategoryName",
+            UIContentSizeCategory.accessibilityExtraExtraExtraLarge.rawValue,
+        ]
+        return app
+    }
+
+    /// The floor the calibration asserts against. `.title` is 28pt at `.large` and
+    /// 53pt at AX5 — a ~1.9x line-height ratio — so 1.4 sits comfortably above 1.0
+    /// (which is what a silent no-op would produce) and comfortably below the real
+    /// growth. It is a MECHANISM check, not a typography assertion; widening the
+    /// gap is the only sanctioned direction if it ever proves tight.
+    private static let ax5MinimumGrowthFactor: CGFloat = 1.4
+
+    /// **The gate on every other `_ax5_` leg in this file.** If this is red, they
+    /// are all rendering at the default size and reporting green — fix the
+    /// override, never this threshold.
+    ///
+    /// Resources is the subject because it is the cheapest deterministic mount in
+    /// the file (store-free, no drive, no seed) and `resources.title` is a real
+    /// surfacing `Text` — the audit leg above already anchors on it, so its
+    /// existence is independently proven rather than assumed here.
+    func test_ax5Override_actuallyTakes_orEveryAX5LegIsAFalseGreen() throws {
+        let atDefault = XCUIApplication()
+        atDefault.launchEnvironment["UITEST_RESOURCES"] = "1"
+        atDefault.launch()
+
+        let defaultTitle = atDefault.descendants(matching: .any)["resources.title"]
+        XCTAssertTrue(
+            defaultTitle.waitForExistence(timeout: 15),
+            "the default-size control launch must render the resources screen"
+        )
+        let defaultHeight = defaultTitle.frame.height
+        XCTAssertGreaterThan(
+            defaultHeight, 0,
+            "a zero-height title would make the ratio below meaningless — the mount is wrong, not the override"
+        )
+        atDefault.terminate()
+
+        let scaled = Self.atAX5(XCUIApplication())
+        scaled.launchEnvironment["UITEST_RESOURCES"] = "1"
+        scaled.launch()
+
+        let scaledTitle = scaled.descendants(matching: .any)["resources.title"]
+        XCTAssertTrue(
+            scaledTitle.waitForExistence(timeout: 15),
+            "the AX5 launch must render the same screen — a launch argument must never change what mounts"
+        )
+        XCTAssertGreaterThan(
+            scaledTitle.frame.height,
+            defaultHeight * Self.ax5MinimumGrowthFactor,
+            """
+            THE AX5 OVERRIDE DID NOT TAKE. `resources.title` measured \
+            \(scaledTitle.frame.height)pt under -UIPreferredContentSizeCategoryName \
+            vs \(defaultHeight)pt at the default size, so the app is rendering at the \
+            DEFAULT content size and EVERY `_ax5_` leg in this file is a false green. \
+            The override is a UIKit behaviour, not a published API (no XCUITest API \
+            for content size exists — docs-JSON-verified), so it can stop working \
+            without a compile error. Fix the mechanism — the DEBUG-mount route \
+            (.environment(\\.dynamicTypeSize, .accessibility5)) is the recorded \
+            fallback. NEVER lower ax5MinimumGrowthFactor to make this pass.
+            """
+        )
+    }
+
+    /// SAFETY leg (rule 11 — NEVER quarantined/valved/suppressed), and **the R60.2
+    /// regression gate that did not exist until now.**
+    ///
+    /// The R60.2 fix shipped with "No new test: … a collapsed wheel is exactly what
+    /// a snapshot CAN see — so the golden is the gate." That is true and it is also
+    /// not enough: a golden proves the wheel is VISIBLE at AX5, and the defect was
+    /// that the gate could not be COMPLETED. Only a drive proves operability. This
+    /// leg spins the wheel, asserts the value took, asserts the CTA lifts out of its
+    /// ghost-disabled state and walks through to the blocked frame — at AX5. If the
+    /// picker ever loses its `minHeight` floor again, `wheel.waitForExistence` or
+    /// the adjust-took assertion fails here long before anyone re-reads a PNG.
+    ///
+    /// Drive mirrors `test_a11yAudit_ageGate_noViolations` exactly (see the
+    /// duplication note above): UITEST_RESET → the real first-launch gate → the
+    /// S29 artifact-rehabilitated wheel drive (adjust → VERIFY → one bounded retry).
+    func test_a11yAudit_ageGate_ax5_noViolations() throws {
+        let app = Self.atAX5(XCUIApplication())
+        app.launchEnvironment["UITEST_RESET"] = "1"
+        app.launch()
+
+        // ── Frame 1: the year-entry screen, at AX5. ───────────────────────────
+        let gateContinue = app.buttons["ageGate.continue"]
+        XCTAssertTrue(
+            gateContinue.waitForExistence(timeout: 20),
+            "a fresh install lands on the age gate at AX5 too — the CTA is the real element anchor"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+
+        // ── R60.2, asserted as BEHAVIOUR rather than pixels. ──────────────────
+        // The wheel is the compressible child of the scaffold's VStack; at AX5 the
+        // pinned zone's fixed siblings over-subscribe the space and it collapsed to
+        // ZERO height, so no year could be chosen and the CTA could never enable.
+        // Every assertion in this block was FALSE on the pre-fix build.
+        let minorYear = Self.minorBirthYear
+        let wheel = app.pickerWheels.firstMatch
+        XCTAssertTrue(
+            wheel.waitForExistence(timeout: 10),
+            "R60.2: the year wheel must EXIST at AX5 — it collapsed to zero height before the minHeight floor"
+        )
+        XCTAssertGreaterThan(
+            wheel.frame.height, 0,
+            "R60.2: a wheel with zero height is unspinnable — the 17+ gate would be impassable at AX5"
+        )
+        wheel.adjust(toPickerWheelValue: minorYear)
+        if (wheel.value as? String)?.contains(minorYear) != true {
+            wheel.adjust(toPickerWheelValue: minorYear) // ONE bounded retry (the S18-owed drive)
+        }
+        XCTAssertTrue(
+            (wheel.value as? String)?.contains(minorYear) == true,
+            "R60.2: the wheel must be SPINNABLE at AX5, not merely present — this is what a golden cannot see"
+        )
+        XCTAssertTrue(
+            gateContinue.isEnabled,
+            "R60.2: an explicit year selection must lift the CTA at AX5 — the gate has to be COMPLETABLE"
+        )
+        gateContinue.tap()
+
+        // ── Frame 2: the blocked resources screen, at AX5. ────────────────────
+        let goBack = app.buttons["ageGate.blocked.goBack"]
+        XCTAssertTrue(
+            goBack.waitForExistence(timeout: 15),
+            "an under-17 year routes to the calm blocked screen at AX5 — never a dead end, never app content"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
+    /// The quiz at AX5 — R28.6 valve-eligible, on the same pre-worded terms as its
+    /// default-size twin. Pinned action zone (`controls`), so it carries the shape.
+    /// Drive mirrors `test_a11yAudit_quizFlow_noViolations`.
+    ///
+    /// SCOPE, stated because it is narrower than it looks: `controls` renders a
+    /// `retryNote` in the PINNED zone when `model.completionFailed`, and no golden
+    /// and no leg — including this one — has ever rendered that arm. It is the same
+    /// shape R60.2 punished (unconditional prose was the age gate's; this one is
+    /// conditional, which is why it has never been seen, not why it is safe). It is
+    /// recorded as an open risk rather than silently implied to be covered.
+    func test_a11yAudit_quizFlow_ax5_noViolations() throws {
+        let app = Self.atAX5(XCUIApplication())
+        app.launchEnvironment["UITEST_QUIZ"] = "1"
+        app.launch()
+
+        let continueButton = app.buttons["quiz.continue"]
+        XCTAssertTrue(
+            continueButton.waitForExistence(timeout: 15),
+            "the UITEST_QUIZ direct mount lands on the first quiz step at AX5"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+
+        let habit = app.buttons["quiz.choice.vape"]
+        XCTAssertTrue(habit.waitForExistence(timeout: 10), "the habit step offers its shipping chips at AX5")
+        habit.tap()
+        XCTAssertTrue(
+            continueButton.isEnabled,
+            "the chip tap TOOK at AX5 — a single-choice pick lifts Continue out of its ghost-disabled state"
+        )
+        continueButton.tap()
+
+        let optIn = app.buttons["quiz.choice.optIn"]
+        XCTAssertTrue(
+            optIn.waitForExistence(timeout: 10),
+            "advancing from the habit step lands on the consent step at AX5 (slot 3)"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
+    /// The summary at AX5 — R28.6 valve-eligible. Pinned action zone, and the screen
+    /// whose hero numeral UIR-1 rebuilt off a fixed 56pt font specifically so it
+    /// would respond to Dynamic Type. This leg is the first time that rebuild is
+    /// audited at the size it was rebuilt for.
+    func test_a11yAudit_summary_ax5_noViolations() throws {
+        let app = Self.atAX5(XCUIApplication())
+        app.launchEnvironment["UITEST_SUMMARY"] = "1"
+        app.launch()
+
+        let cta = app.buttons["summary.cta"]
+        XCTAssertTrue(
+            cta.waitForExistence(timeout: 15),
+            "the UITEST_SUMMARY direct mount renders the payoff screen at AX5"
+        )
+        // Queried across ALL element types: the id rides a block that
+        // `.accessibilityElement(children: .ignore)` COLLAPSES into one `.other`
+        // (run 29303961082 — never assume the element TYPE an identifier lands on).
+        let hero = app.descendants(matching: .any)["summary.savings"]
+        XCTAssertTrue(
+            hero.waitForExistence(timeout: 5),
+            "the fixture renders the SAVINGS hero at AX5 — the variant UIR-1 rebuilt for Dynamic Type"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
+    /// The paywall at AX5 — R28.6 valve-eligible, and the surface that hosted three
+    /// of the four defects (R58.1, R58.2, R60.1). Hand-rolled pinned zone
+    /// (`VStack { ScrollView; footerActions }`), which is the scaffold's shape
+    /// without the scaffold's contract.
+    ///
+    /// **This leg is not expected to re-find R60.1, and that is not a gap.** R60.1
+    /// is "at AX5 the plan cards sit below the fold" — an element that is off-screen
+    /// but reachable by scrolling is not an audit violation, and the S60 goldens
+    /// already record it for the operator. What this leg adds is the tree the
+    /// goldens cannot read: hit regions, traits and rendered contrast on a footer
+    /// that S59 measured truncating to "Restore purch…" at this exact size.
+    func test_a11yAudit_paywall_ax5_noViolations() throws {
+        let app = Self.atAX5(XCUIApplication())
+        app.launchEnvironment["UITEST_PAYWALL_DIRECT"] = "1"
+        app.launch()
+
+        let cta = app.buttons["paywall.cta"]
+        XCTAssertTrue(
+            cta.waitForExistence(timeout: 15),
+            "the UITEST_PAYWALL_DIRECT direct mount renders the hard-variant paywall at AX5"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
+    }
+
+    /// Resources at AX5 — the surface that was blind in BOTH lanes at once (its
+    /// goldens were minted at `.large` only in UIR-4; S61 adds the AX5 axis in
+    /// `ResourcesSnapshotTests` alongside this leg).
+    ///
+    /// Rule-11-ADJACENT, so it takes the R28.6 posture — but the reason it is worth
+    /// a leg is specific: every helpline row ends in a `tel:` `Link` whose target is
+    /// held at the 44pt floor by `.frame(minHeight: Theme.touch.minTarget)`, with a
+    /// `Text` inside it that grows. `.hitRegion` on a live crisis-line target is
+    /// exactly the check a PNG cannot perform.
+    func test_a11yAudit_resources_ax5_noViolations() throws {
+        let app = Self.atAX5(XCUIApplication())
+        app.launchEnvironment["UITEST_RESOURCES"] = "1"
+        app.launch()
+
+        let title = app.descendants(matching: .any)["resources.title"]
+        XCTAssertTrue(
+            title.waitForExistence(timeout: 15),
+            "the UITEST_RESOURCES direct mount renders SafetyResourcesView at AX5"
+        )
+        try app.performAccessibilityAudit(for: Self.onboardingAuditTypes)
     }
 
     /// A birth year that is unambiguously under 17 on any run date (the gate's
