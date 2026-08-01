@@ -3,12 +3,22 @@
 # ci-templates repo exists yet — this workflow is authored in-repo and is the seed to
 # contribute back once a second consumer appears (implementation-plan E0.1).
 #
-# Cost discipline: this repo is PRIVATE, so macOS runners bill at 10x. Package units
+# Cost discipline. ⚠️ S61 CORRECTION: THE PREMISE UNDER THIS WHOLE SECTION WAS FALSE.
+# Every comment here said "this repo is PRIVATE, so macOS runners bill at 10x" and
+# ~60 sessions rationed verification against it. The repo is PUBLIC (created public
+# 2026-07-07; `gh api repos/... --jq .private` => false) and GitHub-hosted runners are
+# FREE for public repos: `actions/runs/<id>/timing` reports billable MACOS total_ms = 0
+# on every run checked, including one from 2026-07-27, so this is not a reporting lag.
+# The structure below is still worth keeping — a docs-only push has nothing to build and
+# a 25-minute run is still 25 minutes of wall clock — but NO decision should be made on
+# cost grounds any more. Verification that was deferred as "not worth a billed run" is
+# affordable. Package units
 # run on Linux (official swift container, 1x); the three app lanes share one
 # build-for-testing product on a single macOS job; superseded runs are cancelled.
 name: CI
 
-# Docs-only pushes skip CI entirely (macOS minutes are 10x on this private repo).
+# Docs-only pushes skip CI entirely — for WALL-CLOCK and signal-to-noise, not cost
+# (see the S61 correction above: the repo is public and these runners bill zero).
 on:
   push:
     branches: [main]
@@ -17,8 +27,9 @@ on:
       - "**.md"
       # S49 — `redesign/**` is a docs-class tree (blueprints, HTML design cards,
       # preview renders) that no lane builds, and a stray `.log` is never a build
-      # input. Both were unignored, so either one reached `main` and burned a FULL
-      # billed macOS run (private repo ⇒ 10x minutes). `ci-mirror-full.log` did
+      # input. Both were unignored, so either one reached `main` and triggered a FULL
+      # macOS run (cost: zero — see the S61 correction; the waste is wall clock and a
+      # misleading red/green signal, which is still worth avoiding). `ci-mirror-full.log` did
       # exactly that in 152890b; the redesign commits were spared only because
       # someone remembered `[skip ci]` — a person-dependent guard on a structural
       # leak.
@@ -26,8 +37,8 @@ on:
       - "**.log"
       # S52 — `.claude/**` is machine-local agent config (settings.json carries a
       # per-machine subagent-model pin). It is git-TRACKED, is not gitignored, and
-      # was absent here, so a commit touching it triggered the full billed macOS
-      # matrix. That already happened: S51's `git add -A` swept the pin into a
+      # was absent here, so a commit touching it triggered the full macOS
+      # matrix (wall clock, not money — see the S61 correction). That already happened: S51's `git add -A` swept the pin into a
       # feature commit and the revert (`60e4d35`) needed a hand-written `[skip ci]`
       # to avoid burning a run — the same person-dependent guard the S49 note above
       # calls out. No lane reads this tree.
@@ -46,8 +57,9 @@ on:
       - "**.md"
       # S49 — `redesign/**` is a docs-class tree (blueprints, HTML design cards,
       # preview renders) that no lane builds, and a stray `.log` is never a build
-      # input. Both were unignored, so either one reached `main` and burned a FULL
-      # billed macOS run (private repo ⇒ 10x minutes). `ci-mirror-full.log` did
+      # input. Both were unignored, so either one reached `main` and triggered a FULL
+      # macOS run (cost: zero — see the S61 correction; the waste is wall clock and a
+      # misleading red/green signal, which is still worth avoiding). `ci-mirror-full.log` did
       # exactly that in 152890b; the redesign commits were spared only because
       # someone remembered `[skip ci]` — a person-dependent guard on a structural
       # leak.
@@ -55,8 +67,8 @@ on:
       - "**.log"
       # S52 — `.claude/**` is machine-local agent config (settings.json carries a
       # per-machine subagent-model pin). It is git-TRACKED, is not gitignored, and
-      # was absent here, so a commit touching it triggered the full billed macOS
-      # matrix. That already happened: S51's `git add -A` swept the pin into a
+      # was absent here, so a commit touching it triggered the full macOS
+      # matrix (wall clock, not money — see the S61 correction). That already happened: S51's `git add -A` swept the pin into a
       # feature commit and the revert (`60e4d35`) needed a hand-written `[skip ci]`
       # to avoid burning a run — the same person-dependent guard the S49 note above
       # calls out. No lane reads this tree.
@@ -525,7 +537,7 @@ jobs:
   # DISTRIBUTED TO TESTERS. (You might want to use this option if you are using this
   # action on CI and have to pay for 'minutes used' on your CI plan.)" So group
   # distribution is structurally impossible while that flag is set — and the flag earns
-  # its place: this is a private repo (macOS minutes bill at 10x) and Apple's processing
+  # its place: Apple's processing
   # wait is pure idling. S52 made this same call for the build changelog and refused to
   # hold the runner for it.
   #

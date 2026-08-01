@@ -102,6 +102,43 @@
 
 ---
 
+## ⚠️ S61 — THE COST PREMISE EVERY SESSION HAS PLANNED AGAINST IS FALSE
+
+**This repo is PUBLIC, and its GitHub-hosted runners are FREE. "Billed macOS run" is a
+phrase that appears throughout this file, `session-rules.md`, `ci.yml` and ~60 ledger
+entries, and it has been wrong the entire time.** Measured, not assumed:
+
+```
+gh api repos/aytekXR/unhooked-quit-widget --jq '{private, visibility, created_at}'
+  → {"private": false, "visibility": "public", "created_at": "2026-07-07T20:11:38Z"}
+
+gh api repos/.../actions/runs/<id>/timing --jq '.billable.MACOS.total_ms'
+  → 0   on 30718997823, 30720017295, and 30265638543 (2026-07-27)
+```
+
+Three runs spanning a month, including one from four sessions ago, all report **zero
+billable macOS milliseconds** — so this is not a reporting lag, and the repo was created
+public, so it was never otherwise.
+
+**What this changes, and what it does not.** It does NOT change the parse gate, the
+free-check discipline, the lint replications or "count, never quote" — those exist
+because they catch defects, and they have each paid for themselves in red runs avoided.
+**It DOES retire every decision whose stated reason was money.** Things deferred as "not
+worth a billed run" — the banked `winbackEligible`/`paywallReentry` repository tests, the
+R46.4 tidy, extra AX5 legs, a second candidate fix measured rather than argued — are
+simply affordable now. **The remaining scarce resource is WALL CLOCK** (a run is ~25
+minutes) **and signal quality** (a red lane nobody can attribute), so `[skip ci]` on
+docs-only commits and lean lanes stay right for those reasons.
+
+**A question for the operator sits underneath this, and it is theirs, not an agent's:**
+the docs believed this repo was private and it is not, so the full source of an
+unreleased app, the operator checklists, the roadmap, the trademark analysis and the
+origin server's IP are all public. **No credential is exposed** — `secret.yml` is
+gitignored and was never committed, and the ASC key reaches CI only through Actions
+secrets (checked). It may well be deliberate (this is described as a portfolio project),
+but the docs say the opposite, so one of the two is wrong. Recorded in
+`operator-expected.md` §0.
+
 ## Standing tooling rules (permanent, apply to every agent)
 
 1. **CodeGraph**: query `codegraph_explore` (shell: `codegraph explore "..."`)

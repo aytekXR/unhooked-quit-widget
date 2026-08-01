@@ -212,6 +212,27 @@ themselves.
       accessibility size — but goldens cannot tell you whether it FEELS like a settings screen.
       While you are there, tap **Panic access → "Add the lock-screen widget"** and confirm it
       re-opens the widget-adoption moment.
+- [ ] **IS THIS REPO MEANT TO BE PUBLIC? (S61 — 30 seconds, and it is genuinely yours.)**
+      Every doc in here says the repo is private, and it is not:
+      `gh api repos/aytekXR/unhooked-quit-widget --jq .private` returns **false**, and it was
+      created public on 2026-07-07. So the full source of an unreleased app, this checklist,
+      the roadmap, the G0 trademark analysis and the origin server's IP address
+      (`161.97.172.146`, in `scripts/deploy_public_site.sh` and three docs) are all readable
+      by anyone.
+      **Nothing secret is exposed, and that was checked rather than assumed:** `secret.yml`
+      is gitignored and has never been committed (`git log --all -- secret.yml` is empty), the
+      ASC key reaches CI only through Actions secrets, and a scan of every tracked file for
+      key/password/token shapes came back clean.
+      **It may well be deliberate** — the repo describes itself as a portfolio project — in
+      which case only the docs are wrong and an agent has already fixed them. **If it is NOT
+      deliberate, this is a two-click fix** (Settings → General → Danger Zone → Change
+      visibility) and worth doing before launch. Either way, say which, so the docs stop
+      contradicting the API.
+      **One upside either way, and it is large:** because the repo is public, GitHub's runners
+      are FREE — measured, `billable.MACOS.total_ms = 0` on every run checked including one
+      from a month ago. Roughly sixty sessions have been rationing verification against a
+      10x-billing premise that was never true. Nothing on YOUR list changes; the agent side
+      can now simply check more.
 - [ ] **A product call on the SUPPORT screen at the largest text size (S61) — yours because it
       is a judgment about a crisis surface, not a defect an agent may quietly "fix".**
       S61 gave `SafetyResourcesView` its first AX5 goldens (it was the last surface in the app

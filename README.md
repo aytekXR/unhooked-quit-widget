@@ -23,6 +23,9 @@ swift test --package-path Packages/StreakEngine
 ```
 
 CI (`.github/workflows/ci.yml`) runs package units on Linux and the app's
-unit / snapshot / UI-smoke lanes on a macOS runner (10x-billed — keep runs
-lean; docs-only commits carry `[skip ci]`). The TestFlight upload lane is LIVE
+unit / snapshot / UI-smoke lanes on a macOS runner. **The runners are FREE** —
+this repo is public, and `actions/runs/<id>/timing` reports billable
+`MACOS.total_ms = 0`. Docs-only commits still carry `[skip ci]`, for wall clock
+and signal, not for cost. (Every doc here used to say the opposite; S61 measured
+it. See `docs/resume-prompt.md`.) The TestFlight upload lane is LIVE
 on green merges to `main` — see `fastlane/Fastfile`.
