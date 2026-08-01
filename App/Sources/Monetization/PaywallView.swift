@@ -80,6 +80,21 @@ struct PaywallView: View {
                     // the terms "in proximity to the price", so adjacency to the
                     // plan cards is the more correct composition on its own terms,
                     // not just the more visible one.
+                    //
+                    // **SCOPE OF THE CLAIM, because the AX5 goldens measured it and
+                    // it is narrower than "renders ON the screen" reads.** That
+                    // sentence is true at DEFAULT content sizes, on all three arms.
+                    // It is NOT true at AX5, and the re-record proved why in the
+                    // most direct way available: `hard.*-ax5` and `failed.*-ax5`
+                    // came back **byte-identical** to their pre-change references.
+                    // A reorder inside the scroll cannot move a pixel at that size
+                    // because the fold sits ABOVE the whole scroll — at AX5 the
+                    // visible frame is the headline, a clipped subhead, and the
+                    // pinned footer. **The plan cards themselves are below the
+                    // fold there** (R60.1, recorded for the operator: at AX5 a user
+                    // must scroll to see the PRICE, which is a real question this
+                    // change neither caused nor fixes). Everything on this screen
+                    // requires scrolling at AX5; the disclosure is not singled out.
                     Text(data.autoRenewDisclosure)
                         .font(.caption)
                         .foregroundStyle(Theme.color.contentSecondary.color)
