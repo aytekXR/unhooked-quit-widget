@@ -67,13 +67,26 @@ import UIKit
 // The body copy is still cut at the scroll boundary at AX5 and that is CORRECT —
 // content scrolls, and it is reachable.
 //
-// **R60.3 (MEDIUM) — STILL OPEN, and these goldens record it.** `entry.dark` renders
-// the picker's fade mask as a WHITE/light gradient over the sunken card, so on an
-// otherwise dark screen the control reads as a light-mode element pasted in, and the
-// year text sits at poor contrast inside it. The contrast registry cannot see it:
-// the gradient is UIKit's own, not a Theme token. Recording it is the S58 precedent
-// — adopt what ships so the fix arrives as a deliberate diff rather than a mystery.
-// **Do not "fix" it by re-recording** — fix the view, and expect the dark pair to move.
+// **R60.3 (OPEN — and DO NOT trust this one without a device, which is a correction
+// to how it was first written down).** Both dark goldens render the wheel's fade mask
+// as a bright WHITE→grey gradient slab, so on an otherwise dark screen it is the most
+// visually dominant element and "2026"/"2025" sit at poor contrast inside it.
+//
+// It was first recorded here as a straightforward dark-mode defect. **That claim is
+// weaker than it looked.** `UIPickerView` draws its own fade-out mask, and in a
+// snapshot HOST the backdrop behind that mask is not the app's themed surface — so a
+// white fade is exactly what a host-background artifact would look like, and it is
+// equally what a real defect would look like. The two are indistinguishable from a
+// PNG. Evidence it may be an artifact: the mask is identical in the pre-fix and
+// post-fix mints, and it does not respond to the themed `surface/sunken` behind it.
+// Evidence it may be real: nothing in the view sets a picker background, and the
+// contrast registry cannot see it either way, because the gradient is UIKit's own
+// rather than a Theme token.
+//
+// **So it is a DEVICE question, not a golden question**, and it is on the operator's
+// §7 matrix rather than presented as a confirmed bug. Chasing it from Linux would be
+// guessing at pixels. The goldens record what the host renders, honestly labelled.
+// **Do not "fix" it by re-recording** — settle it on a device first.
 //
 // Geometry and determinism follow the flow neighbours exactly: `.device(config:
 // .iPhone13)`, 0.99/0.98, iOS-17 closure-init traits (`UITraitCollection(traitsFrom:)`

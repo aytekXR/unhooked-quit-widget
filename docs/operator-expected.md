@@ -179,11 +179,22 @@ themselves.
       `.dynamicType` check has never seen AX5 on that screen, and the screen had no goldens. **Four
       defects have now been found by exactly this blindness — the pattern is itself the finding**,
       and it is worth deciding whether the audit should gain an AX5 leg app-wide.
-      A second, milder one came with it — **R60.3 (MEDIUM)**: in dark mode the wheel renders a white
-      fade mask, so it reads as a light-mode control pasted into a dark screen. The contrast registry
-      cannot see it, because the gradient is UIKit's own rather than a Theme token.
-      **Nothing is asked of you here** beyond knowing it before you weigh submission timing; the fix
-      is a layout change on the compliance gate and rides its own run.
+      **✅ R60.2 IS FIXED** (same session, verified on the CI render and re-recorded): the footer
+      moved out of the pinned zone into the scrolling content, and the wheel gained a minimum height
+      so it can no longer be the child SwiftUI compresses away. At AX5 the wheel now renders and
+      Continue is reachable, so the gate can be completed. Nothing is asked of you for that one.
+- [ ] **⚠️ R60.3 — ONE THING ONLY A DEVICE CAN SETTLE (~30 seconds, add it to your §7 sitting).**
+      In BOTH dark-mode age-gate goldens the year wheel renders as a bright white-to-grey gradient
+      slab — the most visually dominant thing on an otherwise dark screen — with "2026"/"2025" at
+      poor contrast inside it. **I first wrote this down as a confirmed dark-mode defect and that
+      was overconfident.** `UIPickerView` draws its own fade mask, and in a snapshot HOST the
+      backdrop behind that mask is not the app's themed surface — so a white fade is exactly what a
+      host artifact looks like, and equally what a real defect looks like. From a PNG the two are
+      indistinguishable, and chasing it from Linux would be guessing at pixels.
+      **What settles it:** open the app in DARK MODE on your device and look at the birth-year
+      wheel on the first screen. If it looks like a normal dark picker, this closes as an artifact
+      and the note is deleted. If it really is a white slab with hard-to-read years, say so and it
+      becomes a real fix with a known reproduction.
 - [ ] **Safety-content panel sign-off** on the panic in-flow support PLACEMENT (the strings are
       lexicon-clean and the affordance only adds a path to help, but §_meta says the panel signs
       placement before ship).
