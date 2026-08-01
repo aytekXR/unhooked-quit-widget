@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status (S61) | **Nothing on this page changed except ONE new item, and your five START HERE steps are untouched.** S61 was agent-side quality work — the accessibility audit had never once run at the largest text size, which is why four defects (R58.1, R58.2, R60.1, R60.2) all hid in the same blind spot; it now runs there on five surfaces. Two things are worth your attention rather than your action. **(1)** R60.2 — the one that made the 17+ gate impassable at the largest text size — is now proven fixed by a test that actually *completes the gate* at that size, not just a picture showing the wheel is there. **(2)** A new item joined §0: at the largest text size the Support screen's first phone number sits below the fold. Not broken, but it is a product call on a crisis surface and an agent will not make it for you. One thing is open on the agent side and does not involve you (**R61.1**, two frames where Apple's audit disagrees with a golden that was eyeballed and accepted). Previous status row below. |
+| Status (S61) | **Nothing on this page changed except ONE new item, and your five START HERE steps are untouched.** S61 was agent-side quality work — the accessibility audit had never once run at the largest text size, which is why four defects (R58.1, R58.2, R60.1, R60.2) all hid in the same blind spot; it now runs there on five surfaces. Two things are worth your attention rather than your action. **(1)** R60.2 — the one that made the 17+ gate impassable at the largest text size — is now proven fixed by a test that actually *completes the gate* at that size, not just a picture showing the wheel is there. **(2)** A new item joined §0: at the largest text size the Support screen's first phone number sits below the fold. Not broken, but it is a product call on a crisis surface and an agent will not make it for you. **(3) The biggest one: `/terms` and `/privacy` had NO FILES behind them** — routed by nginx, linked by the paywall, declared to TestFlight, required by App Store Connect, linked in this site's own footer, and 404 behind every one of those. Both pages are now written from facts already in this repo (the Terms page points at Apple's standard EULA rather than inventing a licence), they pass the copy lint, and the deploy self-test checks them — 17/17. **They are not counsel-reviewed**, so the deploy warns until you re-run it with `BALLAST_LEGAL_REVIEWED=1`; reading them is a §0 item and your counsel task is now REVIEW, not authorship. One thing is open on the agent side and does not involve you (**R61.1**, two AX5 frames where Apple's audit disagrees with a golden that was eyeballed and accepted; three attempts at a cause were all wrong and are recorded as such). Previous status row below. |
 | _superseded_ Status (S60) | LIVE — **only OPEN items are listed here.** **The agent side of the submittable-ASAP path is CLOSED.** R58.2 (the 3.1.2(c) disclosure clipped on the review build's own arm) is fixed and green; **the final golden batch is COMPLETE** — the age gate and the quiz were the last two surfaces without goldens, so nothing in the app is unpinned (165 goldens, 16 suites). **Minting them found the worst defect currently known and fixed it the same day: R60.2 — at the largest accessibility text size the year wheel collapsed to zero, so a legally-required 17+ gate could not be completed, and had been that way since the screen was built.** Three things were also built to shorten YOUR list rather than describe it: `scripts/deploy_public_site.sh` (six manual steps → one command, with `--selftest`), `docs/safety-signoff-package.md` (forward it, no assembly), and `docs/g0-name-clearance.md` (a real finding — `BALLAST` is a LIVE, renewed US trademark to BOSU Fitness in Class 028). **Also closed a submission requirement nothing here tracked:** App Store Connect will not accept a listing without a Support URL, and no such page existed — `site/support.html` now does. **What is left for you is four inputs and a device sitting.** Nothing is waiting on an agent. |
 | Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook; it sequences this file. For the beta: **`docs/testflight-beta-kit.md`**. |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
@@ -16,7 +16,7 @@ load-bearing. These five are, in this order. Nothing else on this page blocks an
 
 | # | Do this | ~Time | Why it is first |
 |---|---|---|---|
-| 1 | **`scripts/deploy_public_site.sh --apply`** (§3) | **~2 min** | The only gate on the external beta AND on submission. The paywall's Terms/Privacy links and the beta's declared privacy-policy URL all fail at **TLS** today. **S60 collapsed the six manual steps into one script** — it pushes the nginx block, symlinks it, tests it, runs certbot in the right order, rsyncs, and verifies. Dry-run by default; run it once to read the plan. **It needs your SSH key** — that is the whole reason it is yours (root, aytek, ubuntu, deploy, admin and www-data were all tested from this machine; every one is refused) |
+| 1 | **`scripts/deploy_public_site.sh --apply`** (§3) | **~2 min** | The only gate on the external beta AND on submission. The paywall's Terms/Privacy links and the beta's declared privacy-policy URL all fail at **TLS** today. **S60 collapsed the six manual steps into one script** — it pushes the nginx block, symlinks it, tests it, runs certbot in the right order, rsyncs, and verifies. Dry-run by default; run it once to read the plan. **It needs your SSH key** — that is the whole reason it is yours (root, aytek, ubuntu, deploy, admin and www-data were all tested from this machine; every one is refused). **S61 removed the trap waiting on the other side of it:** `/terms` and `/privacy` had no files behind them, so a successful deploy would still have served **404** on the two pages the paywall links to and App Store Connect requires. Both pages now exist, pass the lint, and the self-test checks them (17/17). Read them before you submit — §0 |
 | 2 | **Paste your phone number here** (§5 step 2) | ~1 min | The single string blocking Beta App Review; the API rejects the write without it. One command finishes the contact block. Nothing else on this page is blocked on one field |
 | 3 | **Submit the newest build + invite the roster** (§5 steps 3–4) | ~10 min | Two commands, after 1 and 2. Then the ≥1-week beta clock finally starts — the longest-running gate you do not control |
 | 4 | **Forward `docs/safety-signoff-package.md`** (§3) | **~2 min** | Someone else's clock. **S60 assembled it**: cover note, every string quoted verbatim from the shipping JSON, and the specific question each reviewer must answer — clinician and counsel in one document, no attachments. Was "assemble and send"; it is now "send" |
@@ -212,6 +212,32 @@ themselves.
       accessibility size — but goldens cannot tell you whether it FEELS like a settings screen.
       While you are there, tap **Panic access → "Add the lock-screen widget"** and confirm it
       re-opens the widget-adoption moment.
+- [ ] **READ THE TWO LEGAL PAGES AN AGENT JUST WROTE (S61) — `site/terms.html` and
+      `site/privacy.html`. ~10 minutes, and it converts your counsel task from AUTHORSHIP
+      to REVIEW.**
+      **Why they exist:** `/terms` and `/privacy` were the last hard blockers on the
+      submission path and both returned **404**. The nginx block routed them, the
+      PAYWALL links to them (`AppIdentifiers.termsOfUseURL` / `.privacyPolicyURL`), the
+      TestFlight Test Information declares the privacy URL, App Store Connect will not
+      accept a listing without a reachable one, and this site's own footer links both —
+      and nothing existed behind any of it. A successful deploy would still have served
+      404 on the two pages a reviewer taps from a subscription screen.
+      **What was written, and how conservatively.** Every factual statement is derived
+      from this repo rather than imagined: `docs/app-privacy-label.md` (itself code-derived
+      from the closed `AnalyticsEvent` enum), `docs/payload-audit.md`, and
+      `paywallCopy.json`'s auto-renewal sentence quoted **verbatim** so the page and the
+      app cannot disagree. **The Terms page deliberately authors no licence** — it points
+      at Apple's *Licensed Application End User License Agreement*, which is the agreement
+      that already applies when a developer supplies none (URL verified live, HTTP 200).
+      That keeps the drafting to disclosure rather than negotiation.
+      **What it is not: counsel-reviewed.** An agent may not sign that off, so
+      `deploy_public_site.sh` now prints a warning until you re-run it with
+      `BALLAST_LEGAL_REVIEWED=1`. Deploying before you read them is allowed — an accurate
+      page beats a 404 — but the review is still owed. Amend or replace freely.
+      **Check especially:** the analytics description matches what you intend to ship;
+      "we do not sell your information" is a promise you are happy to make; and the
+      standard-EULA choice is the one you want (a custom EULA is the alternative, and it
+      is the part that genuinely needs a lawyer).
 - [ ] **IS THIS REPO MEANT TO BE PUBLIC? (S61 — 30 seconds, and it is genuinely yours.)**
       Every doc in here says the repo is private, and it is not:
       `gh api repos/aytekXR/unhooked-quit-widget --jq .private` returns **false**, and it was

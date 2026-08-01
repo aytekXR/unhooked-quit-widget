@@ -106,14 +106,21 @@ if [ "$SELFTEST" = "1" ]; then
   nginx -c "$W/n.conf" -p "$W"
   sleep 1
   fails=0
-  for spec in "/:200" "/beta:200" "/support:200" "/robots.txt:200" "/icon.png:200" "/definitely-not-a-page:404"; do
+  # S61 — /terms and /privacy JOIN THIS LIST, and they are the two that matter most.
+  # They were routed by the server block and linked by the paywall, the TestFlight
+  # Test Information and this site's own footer, while no file existed behind either:
+  # a deploy would have served 404 on exactly the two pages Apple requires to work.
+  # The self-test could not see it because its check list was hand-written and they
+  # were not on it. A gate that only checks the pages someone remembered is a gate
+  # with the same blind spot as the person who wrote it.
+  for spec in "/:200" "/beta:200" "/support:200" "/terms:200" "/privacy:200" "/robots.txt:200" "/icon.png:200" "/definitely-not-a-page:404"; do
     path="${spec%:*}"; want="${spec##*:}"
     got="$(curl -sk -o /dev/null -w '%{http_code}' --max-time 8 "https://localhost:8443$path" || echo 000)"
     if [ "$got" = "$want" ]; then note "PASS  $path -> $got"; else note "FAIL  $path -> $got (want $want)"; fails=$((fails+1)); fi
   done
   # The catch-all guard is the one that matters most: if a nonsense path ever
   # answers 200, every legal link is silently broken again (runbook §1).
-  for p in / /beta /support; do
+  for p in / /beta /support /terms /privacy; do
     if curl -sk --max-time 8 "https://localhost:8443$p" | grep -qi 'name="robots"[^>]*noindex'; then
       note "PASS  $p carries noindex"
     else note "FAIL  $p is MISSING noindex"; fails=$((fails+1)); fi
@@ -154,6 +161,21 @@ fi
 # them leaves /terms and /privacy returning a real 404, which is a rejection when
 # a reviewer taps them from the paywall. Warn loudly; do not block, because
 # deploying the rest is still progress and the beta page does not need them.
+# S61 — the two legal pages now EXIST (`site/terms.html`, `site/privacy.html`), so
+# the old "counsel owns them and no agent has written them" warning is retired. What
+# replaces it is a SIGN-OFF gate, because the risk simply moved: it used to be a 404,
+# and it is now unreviewed text on a subscription app's legal pages.
+#
+# Both were written by a build agent from facts already established in this repo —
+# `docs/app-privacy-label.md` (code-derived from the closed `AnalyticsEvent` enum),
+# `docs/payload-audit.md`, and `paywallCopy.json`'s auto-renewal sentence quoted
+# verbatim — and the Terms page deliberately AUTHORS no licence: it points at Apple's
+# standard EULA, which is the agreement that already applies when a developer supplies
+# none. That keeps the drafting to disclosure rather than negotiation.
+#
+# It is still not counsel-reviewed, and an agent may not sign that off. So: the deploy
+# prints this until the operator sets BALLAST_LEGAL_REVIEWED=1, which is a deliberate
+# act rather than a remembered one.
 MISSING_LEGAL=0
 for f in terms.html privacy.html; do
   if [ ! -f "$REPO_ROOT/site/$f" ]; then
@@ -162,11 +184,18 @@ for f in terms.html privacy.html; do
 done
 if [ "$MISSING_LEGAL" = "1" ]; then
   note ""
-  note "⚠️  terms.html / privacy.html are NOT in site/ — counsel owns them and no"
-  note "    agent has written them. Without them /terms and /privacy 404, and the"
-  note "    paywall's two legal links are what Apple Schedule 2 requires to WORK."
-  note "    The beta page does not need them; SUBMISSION does. Place counsel's"
-  note "    files in site/ (or directly in $WEBROOT) before you submit."
+  note "⚠️  terms.html / privacy.html are MISSING from site/ — /terms and /privacy will"
+  note "    404, and the paywall's two legal links are what Apple Schedule 2 requires"
+  note "    to WORK. The beta page does not need them; SUBMISSION does."
+elif [ "${BALLAST_LEGAL_REVIEWED:-0}" != "1" ]; then
+  note ""
+  note "⚠️  terms.html / privacy.html exist but are NOT MARKED REVIEWED."
+  note "    S61 wrote both so the pages would stop 404-ing; every fact in them is"
+  note "    derived from this repo, and the Terms page points at Apple's standard"
+  note "    EULA rather than inventing one. Neither has been read by counsel."
+  note "    Read them, amend or replace freely, then re-run with"
+  note "    BALLAST_LEGAL_REVIEWED=1 to silence this. Deploying anyway is allowed —"
+  note "    a working, accurate page beats a 404 — but the review is still owed."
 fi
 
 if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "$SSH_TARGET" 'echo ok' >/dev/null 2>&1; then

@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballast — Privacy Policy</title>
+<meta name="description" content="What Ballast stores on your device, what the optional analytics setting sends, and what never leaves your phone.">
+
+<!--
+  WHY THIS PAGE EXISTS, and it is not decoration.
+  App Store Connect requires a **Support URL** on every listing — it is a
+  mandatory App Information field, not an optional one, and a listing cannot be
+  submitted without a reachable page behind it. Nothing in this repo tracked
+  that: "support url" appears in no checklist, and index.html's footer never
+  linked one. This is that page.
+
+  It also carries real load during the beta. `docs/testflight-beta-kit.md` tells
+  testers to send feedback, and a tester who hits something odd at 1am wants a
+  page, not an inbox they have to guess at.
+-->
+
+<!--
+  NOINDEX IS DELIBERATE AND MUST STAY UNTIL GATE G0 CLEARS.
+  App-Store name / trademark clearance for "Ballast" is still open
+  (docs/critical-path-post-uir.md step 7). An indexable page is a public,
+  permanent exposure of an uncleared name. Remove this tag — and the matching
+  robots.txt — on the day clearance lands, not before.
+-->
+<meta name="robots" content="noindex, nofollow">
+
+<!--
+  Link-preview metadata. Deliberately `summary` and not `summary_large_image`:
+  the only brand raster this repo owns is a 1024x1024 app icon, and claiming a
+  wide card for a square asset renders a letterboxed mess. A proper 1200x630
+  hero is owed once QW-6 lands the crest as real geometry (site/README.md).
+
+  Note the ordering constraint these tags live under: while robots.txt disallows
+  everything, well-behaved unfurlers (Slack among them) will not fetch this at
+  all. The tags are correct now and become useful the day G0 clears; iMessage
+  and similar clients that ignore robots.txt benefit immediately, which is what
+  matters for a beta link shared person-to-person.
+-->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ballast">
+<meta property="og:title" content="Ballast — Privacy Policy">
+<meta property="og:description" content="What Ballast stores on your device, what the optional analytics setting sends, and what never leaves your phone.">
+<meta property="og:url" content="https://ballast.beyondkaira.com/privacy">
+<meta property="og:image" content="https://ballast.beyondkaira.com/icon.png">
+<meta name="twitter:card" content="summary">
+
+<!--
+  SELF-CONTAINED BY NECESSITY. The origin serves this under
+  Content-Security-Policy: default-src 'none'; style-src 'self' 'unsafe-inline';
+  img-src 'self'  (docs/public-site-deploy.md §2), which blocks external
+  stylesheets, webfonts and ALL JavaScript. Hence inline CSS, a system font
+  stack, and no script anywhere.
+
+  It is also why this page names Apple's own settings paths in WORDS rather than
+  linking to support.apple.com: an external href is CSP-blocked and
+  `scripts/site_copy_lint.py` fails the build on one.
+
+  The CSS below is index.html's block verbatim. Duplicated on purpose — a shared
+  /style.css would need its own nginx `location` line, and the day someone forgot
+  it every page would render unstyled. See site/README.md.
+-->
+<style>
+  :root {
+    /* Dark is the default: the audience visits at night. */
+    --base:#121417; --raised:#1C1F24; --sunken:#0B0D0F;
+    --brand:#4CC8B9; --on-brand:#08302B; --indigo:#93A0E8;
+    --positive:#6FCE97; --caution:#E5B84B;
+    --text:#F2F1EE; --text-2:#A8AFB8; --text-3:#6E757E;
+    --hairline:#2B3036;
+    --measure:64ch;
+    --radius:24px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --base:#F7F6F3; --raised:#FFFFFF; --sunken:#EEECE7;
+      --brand:#0C6F65; --on-brand:#FFFFFF; --indigo:#5262BC;
+      --positive:#2C774B; --caution:#8C6100;
+      --text:#1A1D21; --text-2:#565D66; --text-3:#80868E;
+      --hairline:#E2E0DB;
+    }
+  }
+
+  *,*::before,*::after { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body {
+    margin:0;
+    background:var(--base);
+    color:var(--text);
+    font:400 17px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    /* Never let the page scroll sideways, whatever a child does. */
+    overflow-x:hidden;
+  }
+
+  /* The Waterline motif: teal-over-indigo bands under a luminous horizon.
+     Held at a low opacity for the same reason the app holds it there — the
+     text above it has to stay legible (docs/design/tokens-v2.md). */
+  .field { position:relative; isolation:isolate; }
+  .field::before {
+    content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(120% 80% at 50% 118%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 70%),
+      linear-gradient(180deg, transparent 55%, color-mix(in srgb, var(--indigo) 10%, transparent));
+  }
+  .rule {
+    height:1px; border:0; margin:0;
+    background:linear-gradient(90deg, transparent, var(--brand), transparent);
+    opacity:.55;
+  }
+
+  .wrap { max-width:1080px; margin:0 auto; padding:0 24px; }
+  section { padding:88px 0; }
+  section + section { border-top:1px solid var(--hairline); }
+
+  h1,h2,h3 { line-height:1.15; letter-spacing:-.02em; margin:0 0 16px; font-weight:600; }
+  h1 { font-size:clamp(34px, 7vw, 60px); }
+  h2 { font-size:clamp(26px, 4.4vw, 38px); }
+  h3 { font-size:19px; letter-spacing:-.01em; }
+  p { margin:0 0 16px; max-width:var(--measure); color:var(--text-2); }
+  .lede { font-size:clamp(18px, 2.2vw, 21px); color:var(--text-2); }
+  strong { color:var(--text); font-weight:600; }
+  a { color:var(--brand); text-decoration-thickness:1px; text-underline-offset:3px; }
+  .eyebrow {
+    font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--text-2); margin:0 0 12px;
+  }
+
+  /* ---- header ---- */
+  header { padding:24px 0; border-bottom:1px solid var(--hairline); }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:600; color:var(--text); text-decoration:none; letter-spacing:-.01em; }
+
+  /* ---- hero ---- */
+  .hero { display:grid; grid-template-columns:1.15fr .85fr; gap:56px; align-items:center; padding-top:72px; }
+  @media (max-width:860px) { .hero { grid-template-columns:1fr; gap:40px; } }
+  .cta-row { display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-top:28px; }
+  .btn {
+    display:inline-block; padding:14px 24px; border-radius:999px;
+    background:var(--brand); color:var(--on-brand);
+    font-weight:600; text-decoration:none; border:1px solid transparent;
+  }
+  .btn-quiet {
+    background:transparent; color:var(--text); border-color:var(--hairline);
+  }
+  .note { font-size:15px; color:var(--text-2); margin-top:16px; }
+
+  /* ---- the lock-screen widget mock (CSS + inline SVG, no image asset) ---- */
+  .phone {
+    margin:0 auto; width:100%; max-width:300px; aspect-ratio:9/17;
+    border-radius:44px; border:1px solid var(--hairline);
+    background:linear-gradient(170deg, var(--sunken), var(--raised));
+    padding:26px 18px; display:flex; flex-direction:column; gap:18px;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.5);
+  }
+  .clock { text-align:center; color:var(--text); }
+  .clock .t { font-size:44px; font-weight:300; letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums; }
+  .clock .d { font-size:13px; color:var(--text-2); margin-top:4px; }
+  .widget {
+    margin-top:auto; background:color-mix(in srgb, var(--raised) 72%, transparent);
+    border:1px solid var(--hairline); border-radius:18px; padding:14px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    backdrop-filter:blur(8px);
+  }
+  .widget .day { font-size:26px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .widget .saved { font-size:13px; color:var(--text-2); font-variant-numeric:tabular-nums; }
+  .wind {
+    flex:0 0 auto; width:46px; height:46px; border-radius:999px;
+    background:var(--brand); color:var(--on-brand);
+    display:grid; place-items:center;
+  }
+  .caption { font-size:13px; color:var(--text-2); text-align:center; margin:14px auto 0; max-width:34ch; }
+
+  /* ---- grids ---- */
+  .steps, .cards, .facts, .prices { display:grid; gap:24px; margin-top:36px; }
+  .steps { grid-template-columns:repeat(3,1fr); }
+  .cards { grid-template-columns:repeat(4,1fr); }
+  .facts { grid-template-columns:repeat(3,1fr); }
+  .prices { grid-template-columns:repeat(2,1fr); max-width:640px; }
+  @media (max-width:900px) { .cards { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:760px) {
+    .steps,.facts,.prices { grid-template-columns:1fr; }
+    section { padding:64px 0; }
+  }
+  .card {
+    background:var(--raised); border:1px solid var(--hairline);
+    border-radius:var(--radius); padding:24px;
+  }
+  .card p { margin:0; font-size:15px; }
+  .card h3 { margin-bottom:8px; }
+  .num {
+    display:inline-grid; place-items:center; width:28px; height:28px; border-radius:999px;
+    background:color-mix(in srgb, var(--brand) 16%, transparent);
+    color:var(--brand); font-size:14px; font-weight:700; margin-bottom:12px;
+    font-variant-numeric:tabular-nums;
+  }
+  blockquote.fact {
+    margin:0; background:var(--sunken); border:1px solid var(--hairline);
+    border-left:3px solid var(--brand); border-radius:14px; padding:20px;
+    font-size:16px; color:var(--text);
+  }
+
+  /* ---- price ---- */
+  .price { background:var(--raised); border:1px solid var(--hairline); border-radius:var(--radius); padding:24px; }
+  .price .amt { font-size:34px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .price .per { font-size:15px; color:var(--text-2); }
+  .price .tag {
+    display:inline-block; margin-top:10px; padding:4px 10px; border-radius:999px;
+    background:color-mix(in srgb, var(--positive) 16%, transparent);
+    color:var(--positive); font-size:13px; font-weight:600;
+  }
+
+  /* ---- faq ---- */
+  .faq { margin-top:32px; display:grid; gap:0; }
+  .qa { padding:22px 0; border-top:1px solid var(--hairline); }
+  .qa:last-child { border-bottom:1px solid var(--hairline); }
+  .qa h3 { margin-bottom:8px; }
+  .qa p { margin:0; font-size:16px; }
+
+  /* ---- safety + footer ---- */
+  .safety {
+    background:color-mix(in srgb, var(--caution) 12%, var(--base));
+    border:1px solid color-mix(in srgb, var(--caution) 34%, transparent);
+    border-radius:var(--radius); padding:22px; margin-top:36px;
+  }
+  .safety h3 { color:var(--text); }
+  .safety p { color:var(--text-2); margin:0; font-size:15px; }
+  footer { padding:56px 0 72px; border-top:1px solid var(--hairline); }
+  .links { display:flex; flex-wrap:wrap; gap:12px 28px; margin:24px 0 0; padding:0; list-style:none; font-size:15px; }
+  .fine { font-size:13px; color:var(--text-2); margin-top:24px; max-width:var(--measure); }
+
+  /* Respect the setting the app respects. */
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style></head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+        <circle cx="11" cy="8.5" r="5" fill="currentColor" opacity=".92"></circle>
+        <rect x="1" y="14" width="20" height="1.4" rx=".7" fill="currentColor" opacity=".55"></rect>
+      </svg>
+      Ballast
+    </a>
+    <a class="btn btn-quiet" href="/beta">Beta guide</a>
+  </div>
+</header>
+
+
+<!--
+  ⚠️ DRAFT — NOT COUNSEL-REVIEWED. READ THIS BEFORE DEPLOYING.
+
+  Written by a build agent in Session 61 because /terms and /privacy were the last
+  hard blockers on the submission path and both returned 404: `ballast-nginx.conf`
+  routes them, `AppIdentifiers.termsOfUseURL` / `.privacyPolicyURL` point the
+  PAYWALL at them, App Store Connect requires a reachable privacy-policy URL, and
+  the site footer links both. Nothing existed behind any of that.
+
+  WHAT THIS PAGE IS: every factual statement is derived from the repo, not drafted
+  from imagination — `docs/app-privacy-label.md` (itself code-derived from the
+  closed `AnalyticsEvent` enum), `docs/payload-audit.md`, and the shipped
+  `paywallCopy.json` string, quoted verbatim where it appears.
+
+  WHAT THIS PAGE IS NOT: legal advice, or a substitute for counsel. An agent may
+  not sign off binding terms. `operator-expected.md` §3 carries the review item.
+  Replace or amend freely — the point was to make review the remaining task
+  instead of authorship.
+-->
+
+<section class="field" style="border:0">
+  <div class="wrap">
+    <p class="eyebrow">Privacy Policy</p>
+    <h1>Your streak lives on your phone.</h1>
+    <p class="lede">
+      Ballast has no account, no sign-up and no server holding your history. What you
+      log stays on your device. This page says exactly what that means, and what the
+      one optional exception is.
+    </p>
+    <p class="note">Last updated 2 August 2026.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">The short version</p>
+    <h2>What leaves your device, and when.</h2>
+    <p>
+      <strong>By default, nothing.</strong> There is no account to create, so there is
+      nothing to link your data to. Your quits, your streaks, the notes you write, the
+      times you log a slip and the answers you gave during onboarding are stored on
+      your device and are not sent anywhere.
+    </p>
+    <p>
+      <strong>Analytics is optional and off until you turn it on.</strong> Onboarding
+      asks once, the answer defaults to off, and you can change it later in Settings.
+      If you leave it off, no analytics event is ever sent.
+    </p>
+    <p>
+      <strong>If you turn it on</strong>, Ballast sends a small set of product events —
+      which steps of the app you reach, and the <em>category</em> of habit you are
+      working on (for example "nicotine" or "alcohol"). That is deliberately coarse.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">The line we hold</p>
+    <h2>What is never sent, on any setting.</h2>
+    <p>Even with analytics enabled, these never leave your device:</p>
+    <p>
+      the notes and reasons you write; your free-text answers; the specific times you
+      log anything; your streak history; any name you give a quit; and any identifier
+      that would tie the above to you as a person.
+    </p>
+    <p>
+      Analytics events are not linked to your identity and are not used to track you
+      across other apps or websites. Ballast contains no advertising and no advertising
+      identifiers. Your information is not sold, and it is not shared for anyone else's
+      marketing.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Payments</p>
+    <h2>Subscriptions are handled by Apple.</h2>
+    <p>
+      If you subscribe, the payment is processed by Apple. Ballast never sees your card
+      details. To know whether to unlock paid features, the app records whether a valid
+      subscription exists — a purchase record, not a payment method.
+    </p>
+    <p>
+      Apple's own privacy terms cover the transaction itself, and your purchase history
+      is available in your Apple Account settings.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Your control</p>
+    <h2>Erase everything means everything.</h2>
+    <p>
+      Settings has an erase option that removes the app's data from your device —
+      quits, streaks, notes, onboarding answers and the widget's copy of your progress.
+      Deleting the app removes it too. Because there is no server-side copy, there is
+      nothing left behind for anyone to return to you or to delete on request.
+    </p>
+    <p>
+      If you have analytics turned on and change your mind, turning it off in Settings
+      stops any further events immediately.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Age and contact</p>
+    <h2>Ballast is rated 17+.</h2>
+    <p>
+      The app is not directed to children, and it asks for your year of birth before
+      anything else so that under-17 users are shown support resources rather than the
+      app. That year is used for the check and is not stored.
+    </p>
+    <p>
+      Questions about any of this, including anything you would like removed, go to
+      <a href="mailto:aytek@beyondkaira.com?subject=Ballast%20privacy">aytek@beyondkaira.com</a>.
+    </p>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    <p class="eyebrow">Ballast</p>
+    <p>Steady beats perfect.</p>
+    <ul class="links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/beta">Beta guide</a></li>
+      <li><a href="/privacy">Privacy Policy</a></li>
+      <li><a href="/terms">Terms of Use</a></li>
+      <li><a href="mailto:aytek@beyondkaira.com">aytek@beyondkaira.com</a></li>
+    </ul>
+    <p class="fine">
+      Ballast is a habit-tracking and motivation tool. It isn't medical care and makes no
+      medical or clinical claims.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
