@@ -73,9 +73,18 @@ server {
 }
 
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
+    # HTTP/2 is requested in the LISTEN directive, not with `http2 on;`, and the
+    # difference is a deploy-aborting one. `http2 on;` is nginx >= 1.25.1 syntax;
+    # on anything older it is not a warning but `[emerg] unknown directive "http2"`,
+    # which fails `nginx -t` and stops the deploy dead. The origin hides its version
+    # (`Server: nginx`, no number), so this cannot be checked before connecting —
+    # and the build machine, an Ubuntu box, runs 1.24.0, which is what Ubuntu LTS
+    # still ships. The `listen ... http2` form works on EVERY version; on 1.25.1+
+    # it emits a deprecation warning and functions normally. A warning on new nginx
+    # beats an emerg on old nginx for a step the operator performs exactly once.
+    # (Validated with a real `nginx -t` against this block, not by reading docs.)
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name ballast.beyondkaira.com;
 
     ssl_certificate     /etc/letsencrypt/live/ballast.beyondkaira.com/fullchain.pem;
