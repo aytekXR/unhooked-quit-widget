@@ -1009,44 +1009,49 @@ final class A11yAuditUITests: XCTestCase {
     // hit-region defect anyway was reasoning past the data, which is the same habit
     // that produced the bad probe two paragraphs up.
     //
-    // ── SO THE OPEN QUESTION IS NARROWER THAN IT LOOKED, AND IT IS TESTABLE ──
-    // The live hypothesis is now a CORRELATION, stated so it can be killed:
-    // **`.contrast` fires at AX5 exactly when a StaticText's frame overhangs its
-    // scroll viewport** — i.e. this is an artifact of how the audit samples tall
-    // elements, not a user-facing fault. Two data points support it and five would
-    // be a result, so `recordR61_1Geometry` is now wired into the five AX5 frames
-    // that PASS as well (`ageGate.blocked`, `quiz.habit`, `summary`, `paywall`,
-    // `resources`). If every passing frame reports `exceedsViewport=false` and only
-    // the two failing frames report `true`, the correlation is 7/7 and the cause is
-    // established. **If a PASSING frame also overhangs, the correlation is dead and
-    // the contrast reading needs taking seriously on its own terms.**
+    // ── THE CORRELATION WAS TESTED AND IS DEAD. CAUSE UNKNOWN. ──────────────
+    // The hypothesis was: *`.contrast` fires at AX5 exactly when a StaticText's frame
+    // overhangs its scroll viewport.* The probe was wired into the five PASSING AX5
+    // frames as controls, and run `30721226161` killed it outright:
     //
-    // Only after that does a fix make sense to choose — and note what it would be
-    // FOR: making Apple's audit measure the right rectangle, not repairing something
-    // a user experiences. That is a real reason to act (a lane that cannot be trusted
-    // is worth little) and a poor reason to restructure a rule-11 safety surface, so
-    // the two must not be confused.
+    //   frame             audit   exceedsViewport   overhangPastViewport
+    //   ageGate.entry     FAIL    true              708.0pt
+    //   quiz.consent      FAIL    true              428.3pt
+    //   ageGate.blocked   pass    true              417.3pt
+    //   summary           pass    true              238.3pt
+    //   paywall           pass    true             1604.7pt
+    //   resources         pass    true             3026.7pt
+    //   quiz.habit        pass    false            -355.7pt
     //
-    // ── WHY THE AUDIT CALLS ARE DEFERRED RATHER THAN SUPPRESSED ──────────────
-    // Three options were considered and two rejected. **`XCTExpectFailure` was
-    // rejected**: annotating a known issue on the app's first screen at the largest
-    // text size, on a legally-required 17+ gate, is precisely the failure mode this
-    // whole session exists to prevent — S61 would have papered over its own finding
-    // on day one. **Excluding `.contrast` from these legs was rejected** on R32.3
-    // (the exclusion list only ever shrinks) and on the standing rule that a QA
-    // assertion is never weakened to get a green. What is left is `session-rules.md`'s
-    // own instruction for a large issue: do not attempt a risky fix, document the
-    // failure and what remains, and put it at the top of the next resume prompt.
+    // **Six of seven frames overhang; only two fail.** `resources` overhangs by 3027pt
+    // and audits clean on all seven types. `ageGate.blocked` (417pt) and `quiz.consent`
+    // (428pt) have near-identical overhang and opposite outcomes. Overhang does not
+    // predict the failure, so the "the audit samples a rect that is mostly not text"
+    // story is unsupported — **and with it goes the conclusion drawn from it, that the
+    // COLOUR is not the defect. That may still be true. It is no longer evidenced.**
     //
-    // **Nothing is silently lost.** The default-size legs are untouched and fully
-    // strict — `test_a11yAudit_ageGate_noViolations` in particular keeps its rule-11
-    // posture with every audit type live. Five of the seven AX5 audit calls this
-    // session added are running. What waits is two frames, named, with evidence.
+    // ── AND THE PROBE IS MEASURING THE WRONG ELEMENT, WHICH IS WHY ──────────
+    // `paywall` reports its tallest text at **y=1353** and `resources` at **y=3328**, on
+    // an 874pt window — those elements are entirely OFFSCREEN, scrolled far below the
+    // fold. The probe takes the tallest StaticText in the whole tree, so on most frames
+    // it is not measuring the paragraph the audit flagged at all. The two failing rows
+    // are the only ones where "tallest in tree" happens to BE the flagged element.
     //
-    // ── AND IT COSTS NO RUN TO SETTLE ────────────────────────────────────────
-    // `recordR61_1Geometry` prints the deciding number from inside the legs that
-    // already launch. If the tallest StaticText is taller than the window, the
-    // hypothesis holds and the fix is about the element's frame, not its colour.
+    // ── AN HONEST TALLY, BECAUSE IT SHOULD CHANGE HOW THE NEXT ATTEMPT GOES ─
+    // Three measurement errors on this one question, all mine, all the same shape —
+    // reaching a conclusion faster than the instrument justified:
+    //   1. compared frame HEIGHT to window height when the frame's ORIGIN made extent
+    //      the only meaningful comparison, and read the false negative as a refutation;
+    //   2. asserted a "VoiceOver-focus and hit-region defect" while Apple's own
+    //      `.hitRegion` check was passing on those very frames;
+    //   3. measured the tallest element in the tree instead of the flagged one.
+    //
+    // **So the next attempt should start by targeting the RIGHT element** — match the
+    // StaticText whose `label` is the flagged string (both are known verbatim; they are
+    // quoted at the top of this block) and measure THAT — and should not adopt a cause
+    // until a control frame distinguishes it. The two audit calls stay deferred; five of
+    // seven run; nothing here is suppressed, and nothing is claimed that a run has not
+    // shown.
 
     /// R61.1 diagnostic. **Prints; never asserts** — a hypothesis that turns out
     /// wrong must not redden a lane, and `main` must stay green because the

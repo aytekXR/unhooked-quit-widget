@@ -8020,7 +8020,42 @@ R61.1[ageGate.entry] window=874.0 scrollView=361.0@y78.0  text=807.3@y339.7 exce
 R61.1[quiz.consent]  window=874.0 scrollView=487.3@y142.0 text=754.7@y303.0 exceedsViewport=true overhang=428.3pt
 ```
 
-**The StaticText's accessibility frame is NOT clipped to the ScrollView's viewport.** The age gate's body copy runs y=339.7 → 1147.0 while its viewport ends at y=439.0 — a **708pt overhang**; the quiz's overhangs by 428pt. Both frames swallow the entire pinned action zone beneath them, which on the age gate is the year picker AND the Continue button. That explains the `.contrast` reading completely — the audit samples the frame, and ~88% of that rect is not text but the surfaces and controls drawn over it — so **the colour is not the defect**. **A follow-on claim that the oversized frame is ALSO a real VoiceOver-focus and hit-region defect was made during the session and then WITHDRAWN** — it had no evidence and there is evidence against it: both failing frames ran the full seven-type set, and `.hitRegion`, `.elementDetection`, `.sufficientElementDescription` and `.trait` all PASSED on them. Apple's own hit-region check looked at this overlap and did not object. So the live hypothesis is narrower and is stated so it can be killed: **`.contrast` fires at AX5 exactly when a StaticText's frame overhangs its scroll viewport** — an artifact of how the audit samples tall elements, not a user-facing fault. Two data points support it; the probe is now wired into the five AX5 frames that PASS as well, so the next run makes it 7/7 or kills it.
+**The StaticText's accessibility frame is NOT clipped to the ScrollView's viewport.** The age gate's body copy runs y=339.7 → 1147.0 while its viewport ends at y=439.0 — a **708pt overhang**; the quiz's overhangs by 428pt. Both frames swallow the entire pinned action zone beneath them, which on the age gate is the year picker AND the Continue button. That explains the `.contrast` reading completely — the audit samples the frame, and ~88% of that rect is not text but the surfaces and controls drawn over it — so **the colour is not the defect**. **A follow-on claim that the oversized frame is ALSO a real VoiceOver-focus and hit-region defect was made during the session and then WITHDRAWN** — it had no evidence and there is evidence against it: both failing frames ran the full seven-type set, and `.hitRegion`, `.elementDetection`, `.sufficientElementDescription` and `.trait` all PASSED on them. Apple's own hit-region check looked at this overlap and did not object. So the live hypothesis is narrower and is stated so it can be killed: **`.contrast` fires at AX5 exactly when a StaticText's frame overhangs its scroll viewport** — an artifact of how the audit samples tall elements, not a user-facing fault. Two data points support it; the probe was wired into the five AX5 frames that PASS as well — **and the next run KILLED it.**
+
+**S61's LAST RUN KILLED THE REMAINING HYPOTHESIS, AND THAT IS THE STATE TO INHERIT.** The
+correlation *"`.contrast` fires exactly when a StaticText overhangs its viewport"* was tested
+against the five PASSING AX5 frames as controls (run `30721226161`) and is dead:
+
+| frame | audit | exceedsViewport | overhang |
+|---|---|---|---|
+| `ageGate.entry` | **FAIL** | true | 708.0pt |
+| `quiz.consent` | **FAIL** | true | 428.3pt |
+| `ageGate.blocked` | pass | true | 417.3pt |
+| `summary` | pass | true | 238.3pt |
+| `paywall` | pass | true | 1604.7pt |
+| `resources` | pass | true | 3026.7pt |
+| `quiz.habit` | pass | false | −355.7pt |
+
+Six of seven overhang; two fail. `resources` overhangs by **3027pt** and audits clean on all
+seven types; `ageGate.blocked` (417pt) and `quiz.consent` (428pt) are near-identical with
+opposite outcomes. **Overhang does not predict the failure** — so the "the audit samples a
+rect that is mostly not text" story is unsupported, and so is the conclusion drawn from it
+that the colour is not the defect. That may still be true; it is no longer evidenced.
+
+**The probe is also measuring the wrong element**, which is why the controls were so noisy:
+`paywall` reports its tallest text at y=1353 and `resources` at y=3328 on an 874pt window —
+entirely offscreen. It takes the tallest StaticText in the whole tree, and only on the two
+failing frames does that happen to BE the flagged paragraph.
+
+**The tally, recorded because it should change how the next attempt goes: three measurement
+errors on this one question, all the same shape — concluding faster than the instrument
+justified.** (1) Compared frame HEIGHT to window height when the origin made extent the only
+meaningful comparison, then read the false negative as a refutation. (2) Asserted a
+"VoiceOver-focus and hit-region defect" while Apple's own `.hitRegion` check was passing on
+those exact frames. (3) Measured the tallest element in the tree rather than the flagged one.
+**Next attempt: match the StaticText by its known verbatim `label`, measure THAT, and adopt
+no cause until a control frame distinguishes it.**
+
 
 **Two ways to make it green were considered and rejected, in place.** `XCTExpectFailure`: annotating a known issue on the app's first screen at the largest text size, on a legally-required 17+ gate, is the exact failure mode this session exists to prevent — S61 would have papered over its own finding on day one. Excluding `.contrast`: R32.3 (the exclusion list only shrinks) and the standing rule that an assertion is never weakened for a green. What was done instead is `session-rules.md`'s own instruction for a large issue: document it, and put it at the top of the next resume prompt.
 

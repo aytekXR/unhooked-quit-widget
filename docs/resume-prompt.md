@@ -595,40 +595,40 @@ but the docs say the opposite, so one of the two is wrong. Recorded in
 > **(A) R61.1 — TWO AX5 FRAMES FIRE `.contrast`, AND HALF THE DIAGNOSIS IS ALREADY
 > DONE. Read what was measured before adding to it.**
 >
-> **The diagnosis is DONE. What is open is the fix, and one honest correction on the way.**
+> **THE DIAGNOSIS IS NOT DONE — S61 tried three times and got it wrong three times.**
+> **S61's LAST RUN KILLED THE REMAINING HYPOTHESIS, AND THAT IS THE STATE TO INHERIT.** The
+> correlation *"`.contrast` fires exactly when a StaticText overhangs its viewport"* was tested
+> against the five PASSING AX5 frames as controls (run `30721226161`) and is dead:
 >
-> S61 wrote a hypothesis down, built a probe, and the probe was wrong before the hypothesis
-> was. The claim — *the accessibility frame runs past the bottom of the window* — was RIGHT.
-> The probe tested `text.height > window.height` (807.3 vs 874 ⇒ `false`) when the frame's
-> ORIGIN is y=339.7, so a frame shorter than the window still ends 273pt past it. That false
-> negative was briefly written up as a refutation, then corrected. Run `30720017295`, with the
-> probe comparing the right rectangle and comparing EXTENTS:
+> | frame | audit | exceedsViewport | overhang |
+> |---|---|---|---|
+> | `ageGate.entry` | **FAIL** | true | 708.0pt |
+> | `quiz.consent` | **FAIL** | true | 428.3pt |
+> | `ageGate.blocked` | pass | true | 417.3pt |
+> | `summary` | pass | true | 238.3pt |
+> | `paywall` | pass | true | 1604.7pt |
+> | `resources` | pass | true | 3026.7pt |
+> | `quiz.habit` | pass | false | −355.7pt |
 >
-> ```
-> R61.1[ageGate.entry] window=874.0 scrollView=361.0@y78.0  text=807.3@y339.7 exceedsViewport=true overhang=708.0pt
-> R61.1[quiz.consent]  window=874.0 scrollView=487.3@y142.0 text=754.7@y303.0 exceedsViewport=true overhang=428.3pt
-> ```
+> Six of seven overhang; two fail. `resources` overhangs by **3027pt** and audits clean on all
+> seven types; `ageGate.blocked` (417pt) and `quiz.consent` (428pt) are near-identical with
+> opposite outcomes. **Overhang does not predict the failure** — so the "the audit samples a
+> rect that is mostly not text" story is unsupported, and so is the conclusion drawn from it
+> that the colour is not the defect. That may still be true; it is no longer evidenced.
 >
-> **The StaticText's accessibility frame is NOT clipped to the ScrollView's viewport.** The age
-> gate's body copy runs y=339.7 → 1147.0 while its viewport ends at y=439.0 — a **708pt
-> overhang**, 273pt of it past the window itself; the quiz's overhangs by 428pt. Both frames
-> **swallow the entire pinned action zone**, which on the age gate is the year picker AND the
-> Continue button.
+> **The probe is also measuring the wrong element**, which is why the controls were so noisy:
+> `paywall` reports its tallest text at y=1353 and `resources` at y=3328 on an 874pt window —
+> entirely offscreen. It takes the tallest StaticText in the whole tree, and only on the two
+> failing frames does that happen to BE the flagged paragraph.
 >
-> **So `.contrast` is not your problem and the colour is not the defect** — the audit samples
-> the element's frame and ~88% of that rect is the surfaces and controls drawn over it.
-> **But the follow-on claim that this is "also a real VoiceOver-focus and hit-region defect" is
-> WITHDRAWN — it had no evidence and there is evidence against it.** Both failing frames ran the
-> full seven-type set and `.hitRegion`, `.elementDetection`, `.sufficientElementDescription` and
-> `.trait` all PASSED on them. Apple's own hit-region check — the one that exists to catch "the
-> user cannot reliably touch the right thing" — looked at this overlap and did not object.
->
-> **Your job is the lever, and it is a layout question, so it is a billed-run question.**
-> Candidates, none yet tested: `.clipped()` on the scroll content; an explicit
-> `.accessibilityElement(children:)` regrouping; or something narrower. Whatever you pick,
-> **re-run the probe and read the overhang** — it is the direct measurement of whether the fix
-> worked, and it is cheaper than re-reading a PNG. When the overhang is gone, restore the two
-> deferred `performAccessibilityAudit` calls (two lines) and the AX5 lane is complete.
+> **The tally, recorded because it should change how the next attempt goes: three measurement
+> errors on this one question, all the same shape — concluding faster than the instrument
+> justified.** (1) Compared frame HEIGHT to window height when the origin made extent the only
+> meaningful comparison, then read the false negative as a refutation. (2) Asserted a
+> "VoiceOver-focus and hit-region defect" while Apple's own `.hitRegion` check was passing on
+> those exact frames. (3) Measured the tallest element in the tree rather than the flagged one.
+> **Next attempt: match the StaticText by its known verbatim `label`, measure THAT, and adopt
+> no cause until a control frame distinguishes it.**
 >
 > **The two audit calls are DEFERRED, not suppressed** — `Self.recordR61_1Geometry`
 > sits where each one was, and restoring them is a two-line change once the cause is
