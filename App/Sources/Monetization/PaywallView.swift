@@ -46,17 +46,47 @@ struct PaywallView: View {
                             .multilineTextAlignment(.center)
                             .accessibilityIdentifier("paywall.trialMechanics")
                     }
-                    positioningBlock
                     // The 3.1.2(c)/Schedule-2 auto-renewal statement renders
                     // ON the screen, before any purchase (the green critics'
                     // catch: composing it is not disclosing it). Caption is
                     // the brandkit floor — small, but never truncated.
+                    //
+                    // R58.2 (S60) — IT SITS DIRECTLY UNDER THE PRICES, and the
+                    // order is the fix. It used to follow `positioningBlock`, and
+                    // on the TEASER arm that put it past the fold: the teaser
+                    // footer composes the escape button plus its note, ~40pt more
+                    // pinned height than the hard arm, and the ScrollView viewport
+                    // absorbs every point of it. `snapshot_paywall_teaser.{light,
+                    // dark}` (S58) caught it — the statement was sliced MID-WORD
+                    // after "…when you confirm. Y", while the same text renders in
+                    // full on the hard arm with room to spare. Compare the two
+                    // goldens; the delta is entirely the footer's.
+                    //
+                    // **Why a reorder rather than a pin, and this is R58.1's
+                    // lesson applied rather than re-learned.** Moving a squeezed
+                    // element into the pinned zone is exactly what was tried for
+                    // the failure banner and MEASURED as wrong (run `30509129672`:
+                    // the footer truncated to "Restore purch…", "Terms…",
+                    // "Privacy…" at AX5). A reorder changes NO container, NO
+                    // spacing and NO pinned height, so that failure mode is not
+                    // merely avoided here — it is structurally unreachable.
+                    //
+                    // **What is below the fold on the teaser arm is now
+                    // `positioningBlock` instead, and that trade is the right way
+                    // round.** The disclosure is a legal requirement; positioning
+                    // copy is marketing. Something must scroll on that arm — the
+                    // content genuinely exceeds the viewport — so the only
+                    // question was which, and 3.1.2(c) answers it. Apple asks for
+                    // the terms "in proximity to the price", so adjacency to the
+                    // plan cards is the more correct composition on its own terms,
+                    // not just the more visible one.
                     Text(data.autoRenewDisclosure)
                         .font(.caption)
                         .foregroundStyle(Theme.color.contentSecondary.color)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("paywall.renewalTerms")
+                    positioningBlock
                     // R58.1 — stays INSIDE the scroll, and is SCROLLED TO instead.
                     // See the `.onChange` below for why the obvious fix was tried,
                     // measured and rejected.
