@@ -50,6 +50,20 @@ struct AgeGateView: View {
                     .foregroundStyle(Theme.color.contentSecondary.color)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+
+                // R60.2 — the footer MOVED HERE from the pinned action zone, and the
+                // move is half the fix. It is informational ("No account, no sign-up.
+                // This stays on your device."), not an action, so the scaffold's own
+                // contract puts it in the scrolling half: `actions:` exists for
+                // "a control the user needs [that] is never below the fold".
+                // At AX5 it wraps to four lines — roughly 240pt of PINNED height
+                // spent on a sentence nobody has to reach — which is most of what
+                // squeezed the wheel out of existence.
+                Text(copy.footer)
+                    .font(.footnote)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         } actions: {
             VStack(spacing: Theme.space.s5) {
@@ -70,20 +84,53 @@ struct AgeGateView: View {
                 .buttonStyle(PrimaryButtonStyle())
                 .disabled(model.selectedBirthYear == nil)
                 .accessibilityIdentifier("ageGate.continue")
-
-                Text(copy.footer)
-                    .font(.footnote)
-                    .foregroundStyle(Theme.color.contentSecondary.color)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("ageGate.entry")
     }
 
+    /// The floor that makes the wheel incompressible. **Not scaled**, deliberately:
+    /// the rows inside a wheel already scale with Dynamic Type, so a floor that grew
+    /// with the text size would demand MORE room exactly when there is less, which is
+    /// the direction that caused R60.2. A fixed floor keeps roughly three rows
+    /// visible at every size — enough to see that it is a wheel and to spin it —
+    /// against ~199pt measured for the default-size wheel in the adopted golden.
+    private static let pickerMinHeight: CGFloat = 132
+
     /// The wheel: a sunken well the year sits in (`surface/sunken` — the same
-    /// recessed-input language the quiz's fields and chips speak). No fixed height.
+    /// recessed-input language the quiz's fields and chips speak).
+    ///
+    /// **R60.2 — this used to say "No fixed height", and that was the defect.**
+    /// The first AX5 goldens (S60) showed the wheel COLLAPSED TO ZERO: "Year of
+    /// birth" rendered and the next thing was a disabled "Continue", so no year could
+    /// be chosen and the CTA could never enable. A legally-required 17+ gate was
+    /// impassable at the largest accessibility size, and it had been since the screen
+    /// was built.
+    ///
+    /// **The mechanism, and why the floor is the right lever.** The scaffold lays out
+    /// `VStack { header; ScrollView { content }; actions }`. Two children there are
+    /// flexible — the ScrollView and, because `UIPickerView` reports a flexible
+    /// height, this wheel. At AX5 the action zone's fixed children (the CTA, and
+    /// formerly the four-line footer) over-subscribe the space, and SwiftUI takes it
+    /// out of the flexible ones. The wheel lost, silently and completely.
+    /// A `minHeight` makes the wheel incompressible below a usable size, so the
+    /// squeeze lands on the ScrollView instead — which is exactly what the scaffold
+    /// was built for ("Content SCROLLS … the text can always grow"). The fix uses the
+    /// shell as designed rather than fighting it.
+    ///
+    /// **Two alternatives were rejected before this one.** Moving the picker INTO the
+    /// scrolling content would put a wheel's own scroll gesture inside an ancestor
+    /// ScrollView — the scaffold's doc comment names that fight explicitly as the
+    /// reason the picker lives in `actions:`. And swapping to `.menu`/`.navigationLink`
+    /// at accessibility sizes would present 121 years as a list, which is a bigger
+    /// behavioural change than the defect warrants and needs a navigation ancestor
+    /// this screen does not have.
+    ///
+    /// ⚠️ **This is a layout hypothesis until a golden says otherwise** — the S53/S54/S58
+    /// rule, and S58 proved it by measuring the "obvious" fix for R58.1 as wrong. Expect
+    /// the two `entry.*-ax5` goldens to move; treat movement in the default-size pair as
+    /// a signal the floor reached further than intended.
     private var yearPicker: some View {
         VStack(spacing: Theme.space.s1) {
             Text(copy.yearLabel)
@@ -99,6 +146,9 @@ struct AgeGateView: View {
                 }
             }
             .pickerStyle(.wheel)
+            // R60.2: the floor that stops this being the child SwiftUI compresses
+            // away when the pinned zone is over-subscribed. See `pickerMinHeight`.
+            .frame(minHeight: Self.pickerMinHeight)
             .accessibilityIdentifier("ageGate.yearPicker")
         }
         .padding(.vertical, Theme.space.s2)
