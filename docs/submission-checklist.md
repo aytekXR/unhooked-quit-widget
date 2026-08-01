@@ -100,3 +100,12 @@ Snapshot (`BallastSnapshotTests`), UI smoke (`BallastUITests`).
 - The metadata lint reaches only in-repo surfaces; ASC-side fields (subtitle,
   keywords, promotional text, screenshots) are scanned by the operator at
   submission against the same banned-term registers (brandkit §9.3).
+- **The Support URL is a MANDATORY App Store Connect field and this checklist did
+  not name it until S60.** A listing cannot be submitted without a reachable page
+  behind it, and until S60 no page existed: the landing page's footer linked
+  Privacy, Terms and the beta guide, and nothing else. `site/support.html` is now
+  that page — it ships with the site deploy, has its own nginx `location`
+  (`docs/public-site-deploy.md` §2), and `scripts/verify_public_site.sh` asserts
+  it serves real words. **Enter `https://ballast.beyondkaira.com/support` in App
+  Information → Support URL.** The Marketing URL field is optional; the same site
+  root serves it if wanted.

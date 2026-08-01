@@ -8,9 +8,49 @@ the nginx server block, the certbot invocation, and the verification step.
 |---|---|---|
 | `index.html` | The landing page (`/`) — implements `redesign/marketing-strategy.md` §5 | agent-authored, **founder copy pass owed** |
 | `beta.html` | The beta guide (`/beta`) — **this is the link you share with testers** | agent-authored, **founder copy pass owed** |
+| `support.html` | Support (`/support`) — **the App Store Connect Support URL** | agent-authored, **founder copy pass owed** |
+| `icon.png` | The `og:image` for link previews (1024×1024, copied from `brandkit/branding-assets/icons/AppIcon-dark-1024.png`) | generated |
 | `robots.txt` | Blocks crawlers until name clearance | agent-authored |
 | `terms.html` | Terms of Use (`/terms`) | **NOT IN THIS REPO — counsel-owned** |
 | `privacy.html` | Privacy Policy (`/privacy`) | **NOT IN THIS REPO — counsel-owned** |
+
+## Why `support.html` exists, and what it closed
+
+**App Store Connect requires a Support URL.** It is a mandatory App Information
+field, and a listing cannot be submitted without a reachable page behind it.
+Nothing in this repo tracked that — the string "support url" appeared in no
+checklist, and the landing page's footer linked Privacy, Terms and the beta guide
+but never a support page. It is now linked from both other pages, has its own
+nginx `location`, and is asserted by `scripts/verify_public_site.sh`.
+
+Two answers on it are worth reading before the founder pass, because both trade
+polish for honesty:
+
+- **"I got a new phone. Where did my streak go?"** The page says plainly that
+  having no account has a cost: data travels in a *device backup*, not by signing
+  in, and setting a phone up as new starts fresh. That is the true behaviour
+  (`cloudKitDatabase` is `.none` and stays that way), and a support page that
+  implied sync would generate exactly the ticket it was meant to prevent.
+- **Cancellation and refunds** are described as Apple's, with Apple's own settings
+  path spelled out **in words rather than linked** — an external `href` is blocked
+  by the CSP and fails `scripts/site_copy_lint.py`.
+
+## Link previews
+
+Every page now carries Open Graph + Twitter card tags. Before this, sharing
+`ballast.beyondkaira.com/beta` with a tester previewed as a blank rectangle.
+
+Deliberately `twitter:card = summary`, not `summary_large_image`: the only brand
+raster this repo owns is a square 1024×1024 app icon, and claiming a wide card for
+a square asset renders letterboxed. **A proper 1200×630 hero is owed** — the
+natural time is once QW-6 lands the crest as real geometry, since that is the
+first standalone brand mark the project will have.
+
+One ordering note so nobody reports the tags as broken: while `robots.txt`
+disallows everything, well-behaved unfurlers (Slack among them) will not fetch the
+page at all, so previews stay blank there until G0 clears. Clients that ignore
+robots.txt, iMessage included, benefit immediately — which is the case that
+matters for a beta link passed person to person.
 
 ## The two files that are deliberately absent
 
@@ -84,7 +124,9 @@ legal links healthy while a reviewer met a blank page.
 
 ## Before launch
 
-- [ ] Founder copy pass over `index.html` and `beta.html`.
+- [ ] Founder copy pass over `index.html`, `beta.html` and `support.html`.
+- [ ] A 1200×630 `og:image` to replace the square icon, and flip both pages'
+      `twitter:card` to `summary_large_image` when it lands.
 - [ ] Counsel's `terms.html` + `privacy.html` placed on the server.
 - [ ] **On name clearance:** delete `robots.txt` and the `noindex` meta tag from
       both pages. Forgetting this ships an invisible launch site.

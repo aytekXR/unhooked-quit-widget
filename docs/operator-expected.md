@@ -260,15 +260,22 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       |---|---|
       | `/` | The landing page — implements `redesign/marketing-strategy.md` §5 |
       | **`/beta`** | **The page you share with testers.** What the app is, how to redeem the invite, the close-free-paywall warning, the twenty-minute pass, the known oddities, how to send feedback |
+      | **`/support`** | **NEW, and it closes a submission requirement nothing here tracked.** App Store Connect will not accept a listing without a reachable **Support URL**, and there was no such page — the footer linked Privacy, Terms and the beta guide and stopped there. Contact, the questions that come up most, Apple's own cancellation path, and the honest new-phone answer |
+      | `/icon.png` | The link-preview image. Sharing `/beta` with a tester used to preview as a blank rectangle; every page now carries Open Graph tags pointing here |
       | `/robots.txt` | Blocks crawlers while G0 name clearance is open |
 
+      ⚠️ **The nginx block in the runbook gained three `location` lines in S60** (`/support`,
+      its `.html` redirect, and `/icon.png`). It serves explicit locations and 404s everything
+      else, so a file copied up without a matching line is invisible — paste the CURRENT §2
+      block, not one you saved earlier.
+
       Deploy is `rsync -av --delete-after --exclude README.md site/ root@…:/var/www/ballast/`
-      (§4.1 of the runbook), then **`scripts/verify_public_site.sh`** — one command, 19
+      (§4.1 of the runbook), then **`scripts/verify_public_site.sh`** — one command, now 20
       assertions, and it reads response **bodies** rather than status codes because the apex
       proved a 200 can be a lie: `beyondkaira.com/terms`, `/privacy` and *every other path*
       return a **16-byte body reading "beyondkaira.com"**. A link-checker would have called
       those legal links healthy while a reviewer met a blank placeholder. Baseline right now is
-      **1 passed, 13 failed** — DNS resolves, everything else fails at TLS.
+      **1 passed, 15 failed** of 16 — DNS resolves, everything else fails at TLS.
       A founder copy pass on the two agent-authored pages is owed — three deliberate deviations
       from the §5 blueprint are listed in `site/README.md` for you to overrule.
       `terms.html` / `privacy.html` are **deliberately absent and counsel-owned**; no agent has

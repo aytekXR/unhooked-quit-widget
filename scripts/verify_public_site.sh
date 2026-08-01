@@ -91,6 +91,7 @@ check_page() {
 
 check_page "/"        "steady beats perfect|ballast"
 check_page "/beta"    "testflight|beta"
+check_page "/support" "support|cancel|widget"
 check_page "/terms"   "terms|agreement|subscription"
 check_page "/privacy" "privacy|data|policy"
 
@@ -119,7 +120,7 @@ else
   bad "/robots.txt -> HTTP $code and/or no Disallow — gate G0 (name clearance) is still open"
 fi
 
-for path in / /beta; do
+for path in / /beta /support; do
   if curl -sS --max-time 20 "$BASE$path" 2>/dev/null | grep -qi 'name="robots"[^>]*noindex'; then
     ok "$path carries the noindex meta tag"
   else

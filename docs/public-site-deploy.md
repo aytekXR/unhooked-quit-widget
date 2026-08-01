@@ -106,6 +106,17 @@ server {
     location = /beta       { try_files /beta.html =404; }
     location = /beta.html  { return 301 https://$host/beta; }
 
+    # /support is REQUIRED, not optional: App Store Connect will not accept a
+    # listing without a reachable Support URL, and this is the page that field
+    # points at. Same extensionless shape and the same .html redirect.
+    location = /support      { try_files /support.html =404; }
+    location = /support.html { return 301 https://$host/support; }
+
+    # The link-preview image every page's og:image points at. Needed because
+    # img-src is 'self' — an image served from anywhere else is blocked, and a
+    # page whose og:image 404s previews worse than one with no tag at all.
+    location = /icon.png   { try_files /icon.png =404; }
+
     # robots.txt must be reachable, and it is the ONLY file outside the set above
     # that is. It disallows crawling while trademark clearance (gate G0) is open.
     location = /robots.txt { try_files /robots.txt =404; }
@@ -163,6 +174,8 @@ no `location` for it, so serving it would just 404, but there is no reason to sh
 |---|---|---|
 | `/` | `index.html` | The landing page. Implements `redesign/marketing-strategy.md` §5 |
 | `/beta` | `beta.html` | **The link you share with testers** |
+| `/support` | `support.html` | **Required for submission** — App Store Connect's Support URL field. Contact, the common questions, cancellation (Apple's own path, in words), and the honest no-account/new-phone answer |
+| `/icon.png` | `icon.png` | The `og:image` every page points at, so a shared link previews with a title and a mark instead of blank |
 | `/robots.txt` | `robots.txt` | Blocks crawlers until name clearance |
 
 Both pages are self-contained: inline CSS, a system font stack, inline SVG, zero
@@ -207,10 +220,18 @@ scripts/verify_public_site.sh
 ```
 
 It reads response **bodies**, not status codes, because the apex proved a 200 can be a
-lie. Nineteen assertions across five groups: DNS and TLS; that each of `/`, `/beta`,
-`/terms`, `/privacy` returns 200 with a body over 200 bytes containing expected words;
-that a nonsense path returns **404**; that `robots.txt` and both `noindex` tags are in
-place; and that the four security headers from §2 are actually being sent.
+lie. **Sixteen** assertions across five groups: DNS and TLS; that each of `/`, `/beta`,
+`/support`, `/terms` and `/privacy` returns 200 with a body over 200 bytes containing
+expected words; that a nonsense path returns **404**; that `robots.txt` and all three
+`noindex` tags are in place; and that the four security headers from §2 are actually
+being sent.
+
+> **The count was wrong before S60, and it is worth saying how.** This paragraph read
+> "Nineteen assertions" from the day it was written, while the script has only ever had
+> fourteen — the number was never counted, only asserted. It is sixteen now (`/support`
+> added a page check and a `noindex` check), and it was counted:
+> `scripts/verify_public_site.sh | grep -cE 'PASS|FAIL'`. Same rule as everywhere else in
+> this repo — count, never quote.
 
 Two of those assertions are the non-obvious ones, and they exist because of §1:
 
@@ -221,7 +242,7 @@ Two of those assertions are the non-obvious ones, and they exist because of §1:
 
 Run against any host by passing it: `scripts/verify_public_site.sh staging.example.com`.
 
-**Baseline, measured 2026-07-30 (nothing deployed yet):** `1 passed, 13 failed` — DNS
+**Baseline, re-measured 2026-08-01 (nothing deployed yet):** `1 passed, 15 failed` — DNS
 resolves, and everything else fails at TLS. That is the expected pre-deploy reading, so a
 first run that looks like this means the script is working, not that you broke something.
 

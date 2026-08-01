@@ -10,6 +10,27 @@
 <meta name="robots" content="noindex, nofollow">
 
 <!--
+  Link-preview metadata. Deliberately `summary` and not `summary_large_image`:
+  the only brand raster this repo owns is a 1024x1024 app icon, and claiming a
+  wide card for a square asset renders a letterboxed mess. A proper 1200x630
+  hero is owed once QW-6 lands the crest as real geometry (site/README.md).
+
+  Worth knowing WHEN these start working: while robots.txt disallows everything,
+  well-behaved unfurlers (Slack among them) will not fetch the page at all, so
+  the tags sit inert until G0 clears. Clients that ignore robots.txt — iMessage
+  and similar — benefit immediately, which is what matters for a beta link
+  passed person to person. Before this, every such link previewed as blank.
+-->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ballast">
+<meta property="og:title" content="Ballast — Beta guide">
+<meta property="og:description" content="What Ballast is, how to redeem your TestFlight invite, what to walk through, and the known oddities that are not bugs.">
+<meta property="og:url" content="https://ballast.beyondkaira.com/beta">
+<meta property="og:image" content="https://ballast.beyondkaira.com/icon.png">
+<meta name="twitter:card" content="summary">
+
+
+<!--
   Self-contained on purpose. The origin's CSP is
   default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'
   so no JS, no webfonts, no external CSS. And the nginx block serves EXPLICIT
@@ -362,6 +383,7 @@
     <li><a href="/">What is Ballast?</a></li>
     <li><a href="/privacy">Privacy Policy</a></li>
     <li><a href="/terms">Terms of Use</a></li>
+    <li><a href="/support">Support</a></li>
   </ul>
   <p class="fine">
     This app tracks your progress — it isn't medical care.

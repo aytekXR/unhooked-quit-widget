@@ -3,8 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ballast — Steady beats perfect.</title>
-<meta name="description" content="Ballast is the private way to quit anything — with a panic button on your lock screen and a streak that forgives. No account. Nothing leaves your device.">
+<title>Ballast — Support</title>
+<meta name="description" content="How to get help with Ballast: contact, the questions that come up most, billing and cancellation, and what to do if the widget looks wrong.">
+
+<!--
+  WHY THIS PAGE EXISTS, and it is not decoration.
+  App Store Connect requires a **Support URL** on every listing — it is a
+  mandatory App Information field, not an optional one, and a listing cannot be
+  submitted without a reachable page behind it. Nothing in this repo tracked
+  that: "support url" appears in no checklist, and index.html's footer never
+  linked one. This is that page.
+
+  It also carries real load during the beta. `docs/testflight-beta-kit.md` tells
+  testers to send feedback, and a tester who hits something odd at 1am wants a
+  page, not an inbox they have to guess at.
+-->
 
 <!--
   NOINDEX IS DELIBERATE AND MUST STAY UNTIL GATE G0 CLEARS.
@@ -21,34 +34,34 @@
   wide card for a square asset renders a letterboxed mess. A proper 1200x630
   hero is owed once QW-6 lands the crest as real geometry (site/README.md).
 
-  Worth knowing WHEN these start working: while robots.txt disallows everything,
-  well-behaved unfurlers (Slack among them) will not fetch the page at all, so
-  the tags sit inert until G0 clears. Clients that ignore robots.txt — iMessage
-  and similar — benefit immediately, which is what matters for a beta link
-  passed person to person. Before this, every such link previewed as blank.
+  Note the ordering constraint these tags live under: while robots.txt disallows
+  everything, well-behaved unfurlers (Slack among them) will not fetch this at
+  all. The tags are correct now and become useful the day G0 clears; iMessage
+  and similar clients that ignore robots.txt benefit immediately, which is what
+  matters for a beta link shared person-to-person.
 -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Ballast">
-<meta property="og:title" content="Ballast — Steady beats perfect.">
-<meta property="og:description" content="Ballast is the private way to quit anything — with a panic button on your lock screen and a streak that forgives. No account. Nothing leaves your device.">
-<meta property="og:url" content="https://ballast.beyondkaira.com/">
+<meta property="og:title" content="Ballast — Support">
+<meta property="og:description" content="How to get help with Ballast: contact, the questions that come up most, billing and cancellation, and what to do if the widget looks wrong.">
+<meta property="og:url" content="https://ballast.beyondkaira.com/support">
 <meta property="og:image" content="https://ballast.beyondkaira.com/icon.png">
 <meta name="twitter:card" content="summary">
 
-
 <!--
-  SELF-CONTAINED BY NECESSITY, not by preference. The origin serves this under
+  SELF-CONTAINED BY NECESSITY. The origin serves this under
   Content-Security-Policy: default-src 'none'; style-src 'self' 'unsafe-inline';
-  img-src 'self'  (see docs/public-site-deploy.md §2). That policy blocks
-  external stylesheets, webfonts and ALL JavaScript. So: inline CSS, a system
-  font stack, inline SVG, and no script anywhere. The page is static by design.
+  img-src 'self'  (docs/public-site-deploy.md §2), which blocks external
+  stylesheets, webfonts and ALL JavaScript. Hence inline CSS, a system font
+  stack, and no script anywhere.
 
-  The brand direction asks for Inter Display; a webfont is impossible under this
-  policy and brandkit §4 says "SF Pro (system) everywhere; no custom fonts"
-  anyway, so the system stack is the honest resolution rather than a compromise.
+  It is also why this page names Apple's own settings paths in WORDS rather than
+  linking to support.apple.com: an external href is CSP-blocked and
+  `scripts/site_copy_lint.py` fails the build on one.
 
-  Palette is docs/design/tokens-v2.md verbatim — the same contrast-verified
-  hexes the app ships, so the ratios published there hold here too.
+  The CSS below is index.html's block verbatim. Duplicated on purpose — a shared
+  /style.css would need its own nginx `location` line, and the day someone forgot
+  it every page would render unstyled. See site/README.md.
 -->
 <style>
   :root {
@@ -220,254 +233,176 @@
 
   /* Respect the setting the app respects. */
   @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
-</style>
-</head>
+</style></head>
 <body>
 
 <header>
   <div class="wrap bar">
     <a class="brand" href="/">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 3v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M5 9h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M4 15c2.4 0 2.4 2 4.8 2s2.4-2 4.8-2 2.4 2 4.8 2" stroke="var(--brand)" stroke-width="2" stroke-linecap="round"/>
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+        <circle cx="11" cy="8.5" r="5" fill="currentColor" opacity=".92"></circle>
+        <rect x="1" y="14" width="20" height="1.4" rx=".7" fill="currentColor" opacity=".55"></rect>
       </svg>
       Ballast
     </a>
-    <a class="btn btn-quiet" href="/beta">Join the beta</a>
+    <a class="btn btn-quiet" href="/beta">Beta guide</a>
   </div>
 </header>
 
-<!-- ===================== 1. HERO ===================== -->
 <section class="field" style="border:0">
-  <div class="wrap hero">
-    <div>
-      <h1>Steady beats perfect.</h1>
-      <p class="lede">
-        Ballast is the private way to quit anything — with a panic button on your
-        lock screen and a streak that forgives. No account. Nothing leaves your device.
-      </p>
-      <div class="cta-row">
-        <a class="btn" href="/beta">Join the beta</a>
-        <a class="btn btn-quiet" href="#how">How it works</a>
-      </div>
-      <p class="note">In private beta by invitation. There is no email list to join here.</p>
+  <div class="wrap">
+    <p class="eyebrow">Support</p>
+    <h1>Something not working the way it should?</h1>
+    <p class="lede">
+      Ballast is made by one person, so there is no ticket queue and no bot — messages
+      go straight to a human. Most things below have a two-minute answer, so it is
+      worth a look first.
+    </p>
+    <div class="cta-row">
+      <a class="btn" href="mailto:aytek@beyondkaira.com?subject=Ballast%20support">Email support</a>
     </div>
-
-    <div>
-      <div class="phone" role="img"
-           aria-label="An iPhone lock screen showing a Ballast widget: day 34, $412 saved, and a panic button.">
-        <div class="clock">
-          <div class="t">11:04</div>
-          <div class="d">Tuesday, 12 November</div>
-        </div>
-        <div class="widget">
-          <div>
-            <div class="day">Day 34</div>
-            <div class="saved">$412 saved</div>
-          </div>
-          <div class="wind" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M4 14c2.6 0 2.6 2.2 5.2 2.2S11.8 14 14.4 14s2.6 2.2 5.2 2.2"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M12 4v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M9 7l3-3 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <p class="caption">An illustration of the lock-screen widget. Your own numbers, or none at all in discreet mode.</p>
-    </div>
+    <p class="note">
+      Written replies usually come within a couple of days. If you are testing a beta build,
+      the fastest route is Share Beta Feedback from inside TestFlight — it attaches your
+      device and build automatically.
+    </p>
   </div>
 </section>
 
-<!-- ===================== 2. HOW IT WORKS ===================== -->
-<section id="how">
+<section>
   <div class="wrap">
-    <p class="eyebrow">The moment that matters</p>
-    <h2>Help before you even unlock.</h2>
-    <p>Most quit apps help you count days. The hard part is the ninety seconds when an urge arrives.</p>
+    <p class="eyebrow">Before you write</p>
+    <h2>Three things that make a reply useful.</h2>
     <div class="steps">
       <div class="card">
         <span class="num">1</span>
-        <h3>One tap.</h3>
-        <p>The panic button lives on your lock screen, in Control Center, or on your Action button.</p>
+        <h3>Your build number.</h3>
+        <p>In the app: <strong>Settings</strong>, then scroll to the bottom. In TestFlight it is on the app's page.</p>
       </div>
       <div class="card">
         <span class="num">2</span>
-        <h3>Ninety seconds.</h3>
-        <p>Breathe with the circle — in for 4, hold for 7, out for 8. Urges crest and pass, usually within about 15 minutes.</p>
+        <h3>Your device and iOS version.</h3>
+        <p>iPhone model, and <strong>Settings &rsaquo; General &rsaquo; About &rsaquo; iOS Version</strong>.</p>
       </div>
       <div class="card">
         <span class="num">3</span>
-        <h3>Your words.</h3>
-        <p>Then the app shows you your own reasons, in your own words, at the biggest type it has.</p>
+        <h3>What you expected instead.</h3>
+        <p>A screenshot beats a description. Nothing you send is stored anywhere beyond the email itself.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== 3. FORGIVENESS ===================== -->
 <section>
   <div class="wrap">
-    <p class="eyebrow">Forgiveness is a mechanic</p>
-    <h2>A slip isn't day zero.</h2>
-    <hr class="rule">
-    <p style="margin-top:24px">
-      Log a slip and your best streak is archived, not erased. Your momentum score
-      survives. Mistapped? Undo stays available for ten minutes. There's no red in
-      this app, no countdowns, and no lecture — just the next hour, starting now.
-    </p>
-  </div>
-</section>
+    <p class="eyebrow">The questions that come up most</p>
+    <h2>Answers, shortest first.</h2>
 
-<!-- ===================== 4. PRIVACY ===================== -->
-<section>
-  <div class="wrap">
-    <p class="eyebrow">Private by architecture, not by promise</p>
-    <h2>Your quit is nobody's business.</h2>
-    <div class="cards">
-      <div class="card">
-        <h3>No account</h3>
-        <p>There's nothing to sign up for. We couldn't read your data if we wanted to — there's no server of ours to send it to.</p>
-      </div>
-      <div class="card">
-        <h3>Discreet mode</h3>
-        <p>Widgets show numbers only. The app disguises itself as a calendar or timer.</p>
-      </div>
-      <div class="card">
-        <h3>Shoulder-proof</h3>
-        <p>The app switcher shows a blank card, never your streak.</p>
-      </div>
-      <div class="card">
-        <h3>You're in control</h3>
-        <p>Analytics are off unless you opt in — and even then, never your answers, notes, or times.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== 5. HONEST PROOF ===================== -->
-<section>
-  <div class="wrap">
-    <p class="eyebrow">Built like we mean it</p>
-    <h2>No testimonials until they're real.</h2>
-    <p>
-      There are no reviews to quote yet, so here are three things about the product
-      instead — each one checkable in the app itself.
-    </p>
-    <div class="facts">
-      <blockquote class="fact">"No red anywhere in the app — errors are amber, because shame doesn't help."</blockquote>
-      <blockquote class="fact">"Milestones say 'commonly reported,' because we won't promise what we can't know."</blockquote>
-      <blockquote class="fact">"The panic button has no disabled state. Help is never turned off."</blockquote>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== 6. PRICING ===================== -->
-<section>
-  <div class="wrap">
-    <p class="eyebrow">Pricing</p>
-    <h2>Transparent, like everything else.</h2>
-    <div class="prices">
-      <div class="price">
-        <div class="amt">$6.99</div>
-        <div class="per">per month</div>
-      </div>
-      <div class="price">
-        <div class="amt">$29.99</div>
-        <div class="per">per year</div>
-        <span class="tag">3-day free trial</span>
-      </div>
-    </div>
-    <p style="margin-top:28px">
-      No countdown timers. No fake discounts. Cancel in one tap — Apple handles billing.
-      The free trial is on the annual plan. Prices are in US dollars and may differ in your region.
-    </p>
-    <p class="note">During the beta, everything is free — TestFlight purchases are not real charges.</p>
-  </div>
-</section>
-
-<!-- ===================== 7. FAQ ===================== -->
-<section>
-  <div class="wrap">
-    <p class="eyebrow">Questions</p>
-    <h2>The things people ask first.</h2>
     <div class="faq">
       <div class="qa">
-        <h3>Is this medical treatment?</h3>
+        <h3>The lock-screen widget shows nothing useful.</h3>
         <p>
-          No. Ballast tracks your progress and helps you through urges; it isn't medical
-          care. If you drink heavily or daily, stopping suddenly can be physically risky —
-          talk to a doctor. Free, confidential helplines are built into the app.
+          Open the app once. The widget reads a small feed that the app writes when it launches,
+          so a freshly added widget has nothing to show until you have opened the app at least
+          once after adding it. If you had a widget placed before an update, remove it and add
+          <strong>Streak</strong> again — the widget changed kind, and a placed one from the older
+          build simply disappears rather than updating in place.
         </p>
       </div>
       <div class="qa">
-        <h3>Do I need an account?</h3>
-        <p>No. There's nothing to create and nothing to log into.</p>
-      </div>
-      <div class="qa">
-        <h3>What data do you collect?</h3>
+        <h3>How do I cancel, and who do I ask about a charge?</h3>
         <p>
-          Usage analytics are off unless you opt in — and even then, never your answers,
-          notes, or the times you log. If you subscribe, Apple processes the payment and
-          our billing provider receives your purchase history, which is what lets the app
-          know you're subscribed. Nothing is used to track you across other apps, and
-          there is no advertising identifier anywhere in the app.
+          Apple handles all billing, so cancellation and refunds go through Apple rather than
+          through us. On your iPhone: <strong>Settings</strong>, tap your name at the top, then
+          <strong>Subscriptions</strong>. Cancelling there stops the renewal and you keep access
+          until the period you already paid for ends. Refund requests are made through Apple's
+          purchase history, and we cannot issue or refuse one on your behalf.
         </p>
       </div>
       <div class="qa">
-        <h3>What can I quit?</h3>
+        <h3>I paid, but the app still shows the subscription screen.</h3>
         <p>
-          Vaping, alcohol, adult content, cannabis, doomscrolling, or anything you name
-          yourself. "Cut down" is a valid goal, not a compromise.
+          Tap <strong>Restore purchases</strong> on that screen. That asks Apple directly what your
+          Apple Account owns and re-applies it, which also covers a reinstall or a new phone. If a
+          purchase does not go through, the screen keeps a retry on it rather than sending you back
+          to the start.
         </p>
       </div>
       <div class="qa">
-        <h3>What happens when I slip?</h3>
+        <h3>I got a new phone. Where did my streak go?</h3>
         <p>
-          Your best streak is archived, your momentum survives, and you can undo within
-          ten minutes. Never day zero.
+          This is the honest cost of having no account. Everything lives on your device and there is
+          no server of ours holding a copy, so your streak travels in a <strong>device backup</strong>
+          — restoring a new iPhone from an iCloud or computer backup brings it along — but it will not
+          appear by signing in somewhere, because there is nowhere to sign in. Setting a phone up as
+          new starts the app fresh. Your subscription is separate and does follow your Apple Account.
         </p>
       </div>
       <div class="qa">
-        <h3>Will people see it on my phone?</h3>
+        <h3>Can I hide what I am tracking?</h3>
         <p>
-          Only if you want them to. Discreet mode strips habit words from every widget,
-          and the app icon can look like a calendar or timer.
+          Yes, and it is built for that. <strong>Settings &rsaquo; Discreet Mode</strong> strips habit
+          words from every widget so they show numbers only, the app icon can be changed to look like
+          a calendar or a timer, and the app switcher shows a blank card instead of your screen. There
+          is also a neutrally named <strong>Reset</strong> control that opens the same panic flow
+          without naming anything.
+        </p>
+      </div>
+      <div class="qa">
+        <h3>How do I delete everything?</h3>
+        <p>
+          <strong>Settings &rsaquo; Privacy &amp; Data &rsaquo; Erase everything</strong>, then hold the
+          button for about a second. It genuinely deletes — quits, notes, streaks, and the app icon
+          resets — and there is no copy anywhere for us to remove on our end, because there was never
+          one. Your subscription is not affected, since that belongs to your Apple Account.
+        </p>
+      </div>
+      <div class="qa">
+        <h3>The app will not install, or TestFlight will not offer it.</h3>
+        <p>
+          Ballast needs <strong>iOS 26 or newer</strong>. On an older version the build is not offered
+          at all, which looks like a broken invite rather than a version mismatch. Check
+          <strong>Settings &rsaquo; General &rsaquo; About</strong> and update if you can.
+        </p>
+      </div>
+      <div class="qa">
+        <h3>Does the app ever ask for permissions?</h3>
+        <p>
+          No — and not as a policy, but structurally. The app has no code that could raise a prompt for
+          notifications, location, camera, microphone, photos, contacts or health. If anything ever asks
+          you for one, that is a bug and worth telling us about immediately.
         </p>
       </div>
     </div>
 
     <div class="safety">
-      <h3>If you need help right now</h3>
+      <h3>If you are having a hard time</h3>
       <p>
-        Ballast isn't a crisis service. If you're in danger or thinking about harming
-        yourself, contact your local emergency number, or find a free helpline in your
-        country at findahelpline.com. The app carries verified lines for the regions it
-        supports.
+        Ballast tracks your progress and helps you through urges; it isn't medical care, and it makes
+        no clinical claims. Free, confidential helplines are built into the app under
+        <strong>Settings &rsaquo; Support &amp; resources</strong>, and they are reachable without a
+        subscription. If you drink heavily or daily, stopping suddenly can be physically risky —
+        both stopping and cutting down can need supervision, so it is worth talking to a doctor
+        about the safest way forward. In an emergency, call your local emergency number.
       </p>
     </div>
   </div>
 </section>
 
-<!-- ===================== 8. FOOTER ===================== -->
-<footer class="field">
+<footer>
   <div class="wrap">
-    <h2>The next hour starts now.</h2>
-    <p>Ballast is in private beta. If someone sent you here, they can send you an invite too.</p>
-    <div class="cta-row">
-      <a class="btn" href="/beta">Join the beta</a>
-    </div>
+    <p class="eyebrow">Ballast</p>
+    <p>Steady beats perfect.</p>
     <ul class="links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/beta">Beta guide</a></li>
       <li><a href="/privacy">Privacy Policy</a></li>
       <li><a href="/terms">Terms of Use</a></li>
-      <li><a href="/beta">Beta guide</a></li>
-      <li><a href="/support">Support</a></li>
+      <li><a href="mailto:aytek@beyondkaira.com">aytek@beyondkaira.com</a></li>
     </ul>
     <p class="fine">
-      This app tracks your progress — it isn't medical care.
-      Ballast is made by Beyond Kaira. © 2026 Beyond Kaira. All rights reserved.
+      Ballast is a habit-tracking and motivation tool. It isn't medical care and makes no
+      medical or clinical claims.
     </p>
   </div>
 </footer>
