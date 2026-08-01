@@ -146,7 +146,7 @@ anyone. That is the correct division: nothing reaches a human without your actio
 > **S59 — these are no longer hand-typed, and the text below is still the source.**
 > `scripts/testflight_test_info.py` writes §1.1, §1.2 and §1.3 through the App Store
 > Connect API, and `--list` reads them back and scores what external distribution is
-> still missing. **All three are already written on the live account** for build 145;
+> still missing. **All three are already written on the live account** for the newest build;
 > only the review-contact **phone** is empty, because the API requires one and no
 > agent can invent it. The strings in that script are copied verbatim from the three
 > sections below — **if you edit one, edit the other in the same commit**, which the

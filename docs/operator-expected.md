@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status (S59) | LIVE — **only OPEN items are listed here.** **The external TestFlight ring was BUILT this session, so §5 is now four steps instead of a research problem.** What exists on the live account right now: the external group `Friends (external)`, the Beta App Description, the feedback email, the privacy-policy + marketing URLs, and "What to Test" on build 145. What is left in §5 is genuinely yours: the site, one phone number, one submit command, and the roster. **Two measurements changed what the old §5 claimed.** (1) **Apple does NOT honour `hasAccessToAllBuilds` on an external group** — the create request is accepted and the attribute comes back `null`, while the identical payload sets it on an internal group. So the old line "you do NOT need to change `TESTFLIGHT_GROUP`" was wrong: without that Variable, the external ring never receives a build. (2) **Beta App Review requires a contact phone**, even though Apple's published schema marks the attribute optional — the API answers `409 ENTITY_ERROR.ATTRIBUTE.REQUIRED`. That number is the one field here no agent can supply. |
+| Status (S59) | LIVE — **only OPEN items are listed here.** **The external TestFlight ring was BUILT this session, so §5 is now four steps instead of a research problem.** What exists on the live account right now: the external group `Friends (external)`, the Beta App Description, the feedback email, the privacy-policy + marketing URLs, and "What to Test" on the newest build. What is left in §5 is genuinely yours: the site, one phone number, one submit command, and the roster. **Two measurements changed what the old §5 claimed.** (1) **Apple does NOT honour `hasAccessToAllBuilds` on an external group** — the create request is accepted and the attribute comes back `null`, while the identical payload sets it on an internal group. So the old line "you do NOT need to change `TESTFLIGHT_GROUP`" was wrong: without that Variable, the external ring never receives a build. (2) **Beta App Review requires a contact phone**, even though Apple's published schema marks the attribute optional — the API answers `409 ENTITY_ERROR.ATTRIBUTE.REQUIRED`. That number is the one field here no agent can supply. |
 | Read first | **`docs/critical-path-post-uir.md`** — the single-page, dependency-ordered launch playbook; it sequences this file. For the beta: **`docs/testflight-beta-kit.md`**. |
 | Rule for agents | Update this file at session end alongside `resume-prompt.md`. **Keep it OPEN-items-only** — when an item closes, DELETE it here and record the closure in the `past-prompts.md` ledger; never re-accrete session history, closed-section stubs, or FYI narrative. Section numbers are kept stable (gaps are fine) because other docs cross-reference §3/§7/§8. TRACKED in `docs/` so the operator can read it anywhere. |
 
@@ -17,7 +17,7 @@ load-bearing. These five are, in this order. Nothing else on this page blocks an
 |---|---|---|---|
 | 1 | **Deploy `ballast.beyondkaira.com`** (§3) | ~30 min | The only gate on the external beta AND on submission. The paywall's Terms/Privacy links and the beta's declared privacy-policy URL all fail at **TLS** today. Everything TestFlight-shaped waits on it |
 | 2 | **Hand over your phone number** (§5 step 2) | ~1 min | Beta App Review will not save without it; the API rejects the write. One command finishes the contact block |
-| 3 | **Submit build 145 + invite the roster** (§5 steps 3–4) | ~10 min | Two commands. Then the ≥1-week beta clock finally starts — it is the longest-running gate you do not control |
+| 3 | **Submit the newest build + invite the roster** (§5 steps 3–4) | ~10 min | Two commands. Then the ≥1-week beta clock finally starts — it is the longest-running gate you do not control |
 | 4 | **Send the clinician + counsel package** (§3) | ~15 min | Someone else's clock, and the safety copy is FINAL pending only their pass |
 | 5 | **Start G0 trademark clearance** (critical path step 7) | — | Same reason: someone else's clock, and it gates screenshots, ASO and the public link |
 
@@ -242,7 +242,7 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       de-emphasized, that is a one-line edit with no golden impact.
       (c) `docs/review-notes.md` — read top to bottom; its factual claims are source-verified.
 - [ ] **⚠️ Stand up `ballast.beyondkaira.com` — THE gate on the external beta, and now the ONLY
-      thing between you and sending build 145 to Apple.**
+      thing between you and sending the newest build to Apple.**
       **Runbook: `docs/public-site-deploy.md`** (nginx server block + certbot, written out and
       ready to paste; the deploy itself needs your server access, so an agent cannot do it —
       `root@161.97.172.146` refuses this machine's key, which was tested rather than assumed).
@@ -254,7 +254,7 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       record resolves to the right origin, but the installed certificate does not cover the
       subdomain, so an HTTPS request dies before nginx is consulted. A Beta App Review reviewer
       tapping either link meets a certificate error on a subscription screen, which is the shape
-      of a 3.1.2(c) rejection. **That is the whole reason build 145 has not been submitted.**
+      of a 3.1.2(c) rejection. **That is the whole reason nothing has been submitted yet.**
 
       | Path | What it is |
       |---|---|
@@ -319,7 +319,7 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
 **What is already done, so you do not go looking for it.** The external group
 **`Friends (external)`** (`8b856317-1da2-4c41-804e-3299349951f3`, public link OFF) exists. The Beta
 App Description, the feedback email (`aytek@beyondkaira.com`), the privacy-policy and marketing
-URLs, and build 145's "What to Test" are all written to the live account —
+URLs, and the newest build's "What to Test" are all written to the live account —
 `python3 scripts/testflight_test_info.py --list --secrets-file secret.yml` re-reads every one of
 them and scores what is missing. Nothing has been sent to Apple and nobody has been emailed.
 
@@ -349,7 +349,7 @@ The four steps below are in dependency order. Steps 1 and 2 are the only ones th
 
       Or type it into App Store Connect → TestFlight → Test Information → App Review Information.
       The name (`Aytek Erdogan`) and email are already set; only the phone is empty.
-- [ ] **STEP 3 — submit build 145 for Beta App Review** (one command, after steps 1–2):
+- [ ] **STEP 3 — submit the NEWEST build for Beta App Review** (one command, after steps 1–2):
 
       ```bash
       python3 scripts/testflight_test_info.py --secrets-file secret.yml \
@@ -396,7 +396,7 @@ The four steps below are in dependency order. Steps 1 and 2 are the only ones th
       re-present because a user with no teaser grant re-enters at `.dashboard` (`PaywallRouting.swift:55`).
       In TestFlight the purchase is **free** (sandbox), so the intended
       path works and doubles as your §8 sandbox evidence. But a tester who is not told will refuse the purchase sheet
-      and report "the app won't let me in". Beta-kit §2 and §4.1 are written to prevent exactly that, and build 145's
+      and report "the app won't let me in". Beta-kit §2 and §4.1 are written to prevent exactly that, and the build's
       "What to Test" now says it in the tester's own words. **Two notes:**
       a non-purchaser silently skips the ME-1 widget-adoption moment (the north-star metric's only surface) — the
       script routes them back via Settings → Panic access instead; and if testers do stall, that is the argument for

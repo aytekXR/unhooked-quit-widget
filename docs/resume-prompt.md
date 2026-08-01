@@ -435,7 +435,7 @@
   TelemetryDeck 2.14.1 exact-pinned. TestFlight LIVE.
 - **The EXTERNAL TestFlight ring is BUILT and pre-filled (S59), and nothing has reached Apple.**
   `Friends (external)` exists with the public link explicitly off; the Beta App Description, feedback
-  email, privacy-policy + marketing URLs and build 145's "What to Test" are written to the live
+  email, privacy-policy + marketing URLs and the newest build's "What to Test" are written to the live
   account. Build **145** is VALID, `READY_FOR_BETA_SUBMISSION`, with **no** `betaAppReviewSubmission`
   — creating an empty external group does not auto-submit, which was verified rather than assumed.
   **Three ASC scripts now cover the whole beta path and all dry-run by default:**
@@ -749,7 +749,7 @@ external beta, submission) — see the operator-owned blockers below.
 3. **Beta testing (§5) — S59 BUILT the ring, so this is now four steps and only the first two need
    the operator.** On the live account today: the external group **`Friends (external)`**
    (`8b856317-1da2-4c41-804e-3299349951f3`, public link off, 0 testers), the Beta App Description,
-   the feedback email, the privacy-policy + marketing URLs, and **"What to Test" on build 145**.
+   the feedback email, the privacy-policy + marketing URLs, and **"What to Test" on the newest build**.
    Nothing has been sent to Apple; nobody has been emailed. `scripts/testflight_test_info.py --list`
    re-reads all of it and scores what is missing.
    **What is left:** (1) item 1's site deploy — it is the ONLY gate on submitting, because the Test
@@ -912,7 +912,7 @@ the RevenueCat key (S48B); the Mac-gated settings-content audit (S50).
 >
 > **What S59 changed about that human work, in one line each.** The external TestFlight ring is
 > BUILT and pre-filled (`Friends (external)`, Beta App Description, feedback email, privacy +
-> marketing URLs, "What to Test" on build 145); **nothing has gone to Apple and nobody has been
+> marketing URLs, "What to Test" on the newest build); **nothing has gone to Apple and nobody has been
 > emailed**. Four steps remain and `operator-expected.md` §5 sequences them. Two API facts are now
 > load-bearing and cost a session each to learn if forgotten: **Apple does not honour
 > `hasAccessToAllBuilds` on an external group** (201 + `null`, unrepairable — so `TESTFLIGHT_GROUP`
