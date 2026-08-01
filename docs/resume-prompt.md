@@ -529,7 +529,45 @@
   landing plan, so: **batch it into the next billed run that already touches the monetization path**
   (realistically the Superwall-key session), and never spend a run on it standalone.
 
-## Next session objective — (A) R60.2, then (B) the quiz's six, then (C) QW-6
+## Next session objective — (A) the AX5 audit leg, then (B) QW-6, then (C) QW-3
+
+> **S60 CLOSED EVERYTHING THIS LIST USED TO HOLD.** R58.2 fixed, verified, adopted.
+> R60.2 found AND fixed. **The final golden batch is COMPLETE** — age gate ×6 and quiz ×6
+> minted and adopted, so no surface in the app is unpinned. 165 goldens across 16 suites.
+> What replaces them is not a plan item; it is the reason four defects were found in one day.
+>
+> **(A) AN AX5 LEG ON THE ACCESSIBILITY AUDIT, APP-WIDE — and read why before scoping it.**
+> R58.1, R58.2, R60.1 and R60.2 were all invisible for the SAME reason: every
+> `test_a11yAudit_*` leg mounts at the DEFAULT content size, so Apple's own `.dynamicType`
+> check has never seen AX5, and the affected surfaces had no goldens. Two of the four were on
+> screens a user cannot route around — the paywall and the age gate — and **R60.2 made a
+> legally-required 17+ gate impassable at the largest text size, for the entire life of the
+> screen.** Finding the fifth this way would be a process failure rather than luck.
+> **Scope it honestly rather than adding 11 more legs reflexively:** the audit already runs 11
+> surfaces, so a naive doubling doubles the UI lane's cost on the priciest runner in the
+> matrix. Ask which surfaces have a PINNED action zone (that is the shape that broke — a
+> compressible child losing to fixed siblings) and start there. `OnboardingLayoutLintTests`
+> may also be the cheaper half: a source lint can ban the *shape* on every file, where an
+> audit leg only sees the surfaces it mounts.
+>
+> **(B) QW-6** — the crest mark's first in-app appearance at the age gate. Unchanged, and its
+> cost is now KNOWN rather than feared: it will re-record `snapshot_ageGate_entry.*` (4 PNGs),
+> a deliberate diff. The age gate's fixtures are already deterministic and its suite exists.
+>
+> **(C) QW-3** — wire the dormant analytics fire-points. Three of five MVP success metrics are
+> unmeasurable today, so the month-3 kill/pivot checkpoint has nothing behind it. Pairs with
+> the TelemetryDeck key the operator still owes; the events are enum-defined and consent-gated
+> already.
+>
+> **Also open, both small:** QW-8 (consent revisit toggle — ME-7 built its home) and ME-8b (the
+> quiz interstitials; note `QuizFunnelUITests` taps a hard-coded `0..<11` loop and
+> `QuizFlowModelTests` pins `visibleSteps` as exact arrays, so a VIEW-layer overlay is the
+> route). **ME-4b is operator-gated and gates nothing.**
+>
+> **R60.3 is NOT agent work** — it is a 30-second device look on the operator's §7 matrix.
+> Do not chase it from Linux; a snapshot host cannot distinguish it from an artifact.
+
+## [SUPERSEDED — all three done in S60] Previous objective — (A) R60.2, then (B) the quiz's six, then (C) QW-6
 
 > **S60 CHANGED THIS LIST BY DOING IT.** R58.2 is FIXED, VERIFIED AND ADOPTED (10 goldens
 > re-minted; the teaser arm now renders the 3.1.2(c) disclosure in full above the fold). The

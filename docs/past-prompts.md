@@ -7909,3 +7909,74 @@ corrected (the fields are no longer hand-typed; the all-builds finding recorded)
 - **Free lanes re-run at close: 121 pass** (PaywallKit 16 / StreakEngine 84 / WidgetToolkit 21).
   Counted from disk at close: **153** goldens across **14** suites, **11** audit legs.
 - **No billed run was spent or needed** — nothing in this session touched Swift.
+
+---
+
+## Session 60 — the operator's list taken as far as it goes, and a batch that found the app's worst defect (2026-08-01)
+
+**Objective (operator-set, twice):** first *"finish the app and make it ready on web browser, iOS app"* — clarified to **more marketing web presence** + **iOS submittable-ASAP** — then `/goal finish those list`, meaning the five START HERE items.
+
+**Session-open state:** local == `origin/main` at `395ab57`; the S59 close had just landed.
+
+**11 billed runs.** All green at close; per-job 11/11.
+
+### The honest headline: the five-item list could NOT be finished, and four of five still cannot be
+
+Established by **testing, not assuming**, which matters because the alternative was fabricating:
+
+- **SSH to the origin** — root, aytek, ubuntu, deploy, admin, www-data, both keys on the box: every one `Permission denied (publickey,password)`. And **CI holds no server credential either** (`gh secret list` → only ASC, match, Slack; no repo deploy keys). There is no path to that machine from here.
+- **The review-contact phone** appears nowhere in the repo. Closing it means inventing a number and writing it to a live Apple developer account.
+- **The roster** is other people's names and emails, and inviting them is irreversible outreach.
+- **Clinician + counsel** is correspondence as the operator.
+
+**Fabricating any of them was refused, repeatedly and deliberately.** A false phone on an Apple submission or invented testers in a TestFlight ring is worse than an open checkbox: the checkbox costs a minute, the fabrication corrupts a live account and gets discovered by Apple or by a stranger receiving an invite.
+
+**What was done instead — every item advanced to a single action:**
+
+| # | Was | Now |
+|---|---|---|
+| 1 | six manual steps across two machines | `scripts/deploy_public_site.sh --apply`, plus `--selftest` (13/13) |
+| 2 | "hand over your phone number" | unchanged — one string |
+| 3 | "invite the roster" | tooling **exercised** against the live account with synthetic data |
+| 4 | "assemble and send the package" | `docs/safety-signoff-package.md` — forward it |
+| 5 | "start G0 clearance" | narrowed to one answerable sentence, with a real finding |
+
+### Findings that were not on anyone's list
+
+**A submission requirement nothing tracked.** App Store Connect requires a **Support URL**; the string appeared in no checklist and the landing page's footer linked Privacy, Terms and the beta guide and stopped. `site/support.html` now exists, wired into nginx, the verify script and the submission checklist. Two answers on it trade polish for honesty: no account means a streak travels in a *device backup*, not by signing in; refunds are Apple's.
+
+**`http2 on;` would have aborted the first deploy.** Carried in the runbook untested since S56. It is nginx ≥ 1.25.1 syntax and an `[emerg] unknown directive` on anything older. The origin hides its version; this box runs 1.24.0, which is what Ubuntu LTS ships. Caught by actually running `nginx -t` against the block. Fixed to `listen 443 ssl http2;`, which works on every version.
+
+**A count that was never counted.** `public-site-deploy.md` claimed "Nineteen assertions" since the day it was written; the script has only ever had **fourteen**. Sixteen now, measured.
+
+**A live trademark for the exact mark.** `BALLAST`, Reg. **3353077**, **BOSU Fitness LLC**, Class 028, *LIVE/REGISTRATION/Issued and Active*, verified against USPTO TSDR. Not Class 9/42 — but relatedness of goods is what the analysis turns on, and the App Privacy label declares Health & Fitness › Health. The App-Store-**name** half is separately in good shape: the ASC record already exists as `Ballast - Quit` (Apple enforces uniqueness at reservation) and no app named "Ballast" is in the US store. Recorded in `docs/g0-name-clearance.md`, labelled preliminary and explicitly **not** clearance.
+
+**Build 145 was pinned into eight instructions.** The green R58.2 run uploaded **148**, and §5 step 3 still said "submit build 145" — following it would have sent Apple the build WITHOUT the 3.1.2(c) fix. The build number IS the run number; `operator-expected.md` §0 already said no number is worth chasing. Every instruction now says "the newest build".
+
+### The iOS half — R58.2, then the batch, then the batch's own defect
+
+**R58.2 FIXED.** Verified by opening the goldens rather than trusting the ledger: the teaser arm sliced the auto-renewal statement mid-word at *"…when you confirm. Y"*, while the hard arm rendered it in full. The fix is the **order** — disclosure directly under the prices, positioning copy after. A reorder, not a pin, because pinning is exactly what was measured wrong for R58.1. What falls below the fold is now marketing copy, not a legal requirement. 10 goldens re-minted.
+
+**The AX5 pair came back byte-identical**, which was the most useful thing that re-record produced: at AX5 the fold sits above even the plan cards, so the claim *"renders ON the screen"* is true at default sizes and **not** at AX5. Recorded as **R60.1**, and the source comment now states its own scope.
+
+**THE FINAL GOLDEN BATCH IS COMPLETE** — age gate ×6, quiz ×6, the last two surfaces with zero goldens. Production delta for all twelve: **two lines**. The age gate needed one seam (`AgeGateBlockedView.init(model:blocked:)`) because CI pins no locale; the quiz needed none, because `QuizProgressStore(defaults:)` and `QuizFlowEngine.resume(config:progress:)` already compose — so the checkpoint *hazard* became the positioning tool and `consent` is the real engine resumed, not posed.
+
+**R60.2 (HIGH) — found by the mint, fixed the same session.** The age gate's first AX5 golden showed the year wheel **collapsed to zero**: "Year of birth", then a DISABLED "Continue", no control to pick a year. **A legally-required 17+ gate was impassable at the largest accessibility size, and had been since the screen was built.** Two children of the scaffold's VStack are flexible — the ScrollView and, because `UIPickerView` reports a flexible height, the wheel — so an over-subscribed pinned zone took its space out of the wheel. Fixed by moving the informational footer into the scrolling content and giving the wheel a `minHeight`. The quiz's AX5 goldens independently confirmed the fault was specific to picker-in-`actions:`, not shell-wide.
+
+**R60.3 — recorded, then WALKED BACK.** First written as a confirmed dark-mode defect (white fade mask on the wheel). `UIPickerView` draws its own mask and a snapshot host's backdrop is not the themed surface, so that is equally what an artifact looks like; from a PNG they are indistinguishable. Reclassified to a **device question** on the operator's §7 matrix. Correcting it before it hardened into the record was worth more than the original claim.
+
+### The pattern, which is bigger than any one defect
+
+R58.1, R58.2, R60.1 and R60.2 were **all invisible for the same reason**: the accessibility audit legs mount at the DEFAULT content size, so Apple's `.dynamicType` check has never seen AX5, and those surfaces had no goldens. Four defects, one blind spot, two of them on screens a user cannot route around. **The next session's first objective is an AX5 audit leg app-wide** — finding the fifth this way would be process failure, not luck.
+
+### Verification habits that paid, concretely
+
+- Checking `QuizAnswer` against its declaration caught `values:` vs `choiceIDs:` — a wrong argument label `swiftc -parse` cannot see — **before** it cost a run. Fourth time this session that reading source rather than recalling prevented a red run.
+- Running `nginx -t` rather than reading docs caught `http2 on;`.
+- Reading resources back after ASC writes is now a standing rule: **2xx means accepted, not applied.**
+
+### What is NOT done
+
+- **The operator's four inputs.** Unchanged and unfabricated.
+- **QW-6, QW-3, QW-8, ME-8b** — all agent-doable, none blocked. QW-6 will re-record the two age-gate entry pairs; that cost is known and deliberate.
+- **ME-4b** — operator-gated, gates nothing.
