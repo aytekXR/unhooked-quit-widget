@@ -36,6 +36,7 @@ struct StreakRing: View {
     /// Drives the animated sweep; UNUSED when `animateOnAppear` is false (the draw reads
     /// `fraction` directly then), so it can never leave the settled fill stale.
     @State private var drawnFraction: Double = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Settled draw reads `fraction` (always current); animated draw reads the `@State`.
     private var shownFraction: Double {
@@ -56,13 +57,24 @@ struct StreakRing: View {
         .accessibilityHidden(true)
         .onAppear {
             guard animateOnAppear else { return }
-            withAnimation(.easeOut(duration: Theme.motion.calm)) { drawnFraction = fraction }
+            // Reduce Motion draws the ring SETTLED — no rotational sweep at all
+            // (brandkit §7; the settled default the goldens already capture).
+            if reduceMotion {
+                drawnFraction = fraction
+            } else {
+                withAnimation(Theme.motion.entrance(reduceMotion: reduceMotion)) {
+                    drawnFraction = fraction
+                }
+            }
         }
         .onChange(of: fraction) { _, newValue in
-            // A live momentum update sweeps to the new value (same calm curve); the
+            // A live momentum update sweeps to the new value (the entrance curve;
+            // Reduce Motion collapses it to the 200ms crossfade — §7); the
             // settled path ignores this (it reads `fraction` directly).
             guard animateOnAppear else { return }
-            withAnimation(.easeOut(duration: Theme.motion.calm)) { drawnFraction = newValue }
+            withAnimation(Theme.motion.entrance(reduceMotion: reduceMotion)) {
+                drawnFraction = newValue
+            }
         }
     }
 

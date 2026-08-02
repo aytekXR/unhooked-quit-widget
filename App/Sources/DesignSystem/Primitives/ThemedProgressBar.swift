@@ -19,9 +19,14 @@ struct ThemedProgressBar: View {
             ZStack(alignment: .leading) {
                 Capsule()
                     .fill(Theme.color.surfaceSunken.color)
-                Capsule()
-                    .fill(Theme.color.brandSecondary.color)
-                    .frame(width: max(8, proxy.size.width * min(max(fraction, 0), 1)))
+                // Zero renders NOTHING — progress is earned, never fabricated. The
+                // 8pt minimum applies only once any progress exists (a capsule needs
+                // its own diameter to draw).
+                if fraction > 0 {
+                    Capsule()
+                        .fill(Theme.color.brandSecondary.color)
+                        .frame(width: max(8, proxy.size.width * min(fraction, 1)))
+                }
             }
         }
         .frame(height: trackHeight)

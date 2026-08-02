@@ -96,6 +96,16 @@ hero alone; no weight <400). Screens adopt these WITH their own UIR session —
 UIR-0's swap was colors-only (R32.2); **UIR-1 adopted them on the onboarding
 surfaces** (age gate, quiz, consent, summary).
 
+**Type-ramp canonization (UI-polish pass):** two roles the shipped screens
+already used coherently are now DECLARED in brandkit §3 instead of living
+off-table: `type/flowTitle` = `.title`/Semibold (panic step titles, slip
+stages, age gate, safety resources; the paywall headline runs it Bold) and
+`type/cardTitle` = `.title3`/Semibold (plan cards, settings section headers,
+milestone unlock titles; quiet figure variants Medium). Canonization, not
+churn — no call site moved; the rows exist so the two clusters cannot drift.
+`tokens.json` carries no type block (type roles are Dynamic-Type text styles,
+not machine values), so no regeneration is owed.
+
 ### 5.1 UIR-1 additions (Session 33)
 
 | Token | Value | Grounds |

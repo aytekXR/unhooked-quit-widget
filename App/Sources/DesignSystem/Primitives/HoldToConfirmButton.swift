@@ -45,6 +45,10 @@ struct HoldToConfirmButton: View {
     /// routed through the caller's audited copy table, never authored here).
     let assistiveHint: String
     let accessibilityID: String
+    /// M5 — ongoing-status indication while the confirmed action runs: the label
+    /// swaps for an inline spinner, width locked (the PrimaryButton loading
+    /// pattern). Defaulted so every existing call site stays byte-identical.
+    var isLoading = false
     let action: () -> Void
 
     /// The hold duration — `Theme.motion.calm` (600ms) per the redesign motion
@@ -92,32 +96,41 @@ struct HoldToConfirmButton: View {
     /// hold-progress indicator (zero-progress renders no ring — the goldens see a
     /// settled control).
     private var chrome: some View {
-        Text(label)
-            .font(.body.weight(.semibold))
-            .foregroundStyle(Theme.color.caution.color)
-            .multilineTextAlignment(.center)
-            // S50 (S49 §3.4 class) — the R33.12 item-4 invariant on every wrapping
-            // `Text`. Inside the confirm stage's ScrollView the height is
-            // unconstrained, so this grants the wrapped height without moving pixels
-            // at the shipped sizes.
-            .fixedSize(horizontal: false, vertical: true)
-            // 56pt-class target via PADDING, never a height floor (R33.5).
-            .padding(.vertical, Theme.space.s5)
-            .padding(.horizontal, Theme.space.s4)
-            .frame(maxWidth: .infinity)
-            .background(
-                Theme.color.surfaceSunken.color,
-                in: RoundedRectangle(cornerRadius: Theme.radius.m)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.radius.m)
-                    .trim(from: 0, to: holdProgress)
-                    .stroke(
-                        Theme.color.caution.color,
-                        style: StrokeStyle(lineWidth: 3, lineCap: .round)
-                    )
-            )
-            .contentShape(Rectangle())
+        ZStack {
+            Text(label)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Theme.color.caution.color)
+                .multilineTextAlignment(.center)
+                // S50 (S49 §3.4 class) — the R33.12 item-4 invariant on every wrapping
+                // `Text`. Inside the confirm stage's ScrollView the height is
+                // unconstrained, so this grants the wrapped height without moving pixels
+                // at the shipped sizes.
+                .fixedSize(horizontal: false, vertical: true)
+                // M5 width lock: the label keeps its layout, hidden, so the
+                // control never resizes while the action runs (PrimaryButton:30).
+                .opacity(isLoading ? 0 : 1)
+            if isLoading {
+                ProgressView()
+                    .tint(Theme.color.contentSecondary.color)
+            }
+        }
+        // 56pt-class target via PADDING, never a height floor (R33.5).
+        .padding(.vertical, Theme.space.s5)
+        .padding(.horizontal, Theme.space.s4)
+        .frame(maxWidth: .infinity)
+        .background(
+            Theme.color.surfaceSunken.color,
+            in: RoundedRectangle(cornerRadius: Theme.radius.m)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.radius.m)
+                .trim(from: 0, to: holdProgress)
+                .stroke(
+                    Theme.color.caution.color,
+                    style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                )
+        )
+        .contentShape(Rectangle())
     }
 }
 // S50 — `HoldToConfirmChromeStyle` is deleted with the detection branch that was its

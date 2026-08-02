@@ -92,7 +92,12 @@ struct OnboardingScaffold<Header: View, Content: View, Actions: View>: View {
                 .background(
                     ZStack {
                         Theme.color.surfaceBase.color
+                        // M13: explicit identity keys the field so the caller's
+                        // progress tween can interpolate — without it, AnyView's
+                        // type erasure lets SwiftUI read each step's field as a
+                        // NEW view and cut instead of animate.
                         field
+                            .id("scaffold.field")
                     }
                     .ignoresSafeArea()
                 )
@@ -108,14 +113,24 @@ struct OnboardingScaffold<Header: View, Content: View, Actions: View>: View {
             header()
                 .measured()
 
-            ScrollView {
-                content()
-                    .measured()
-                    .padding(.top, Theme.space.s2)
-                    .padding(.bottom, Theme.space.s4)
+            // M3: the ZStack slot makes the id-swap crossfade a true OVERLAY —
+            // in a stack, a removing view still occupies layout for the length
+            // of its transition, which would squash the column mid-fade. One
+            // greedy child, so the settled layout is byte-identical.
+            ZStack {
+                ScrollView {
+                    content()
+                        .measured()
+                        .padding(.top, Theme.space.s2)
+                        .padding(.bottom, Theme.space.s4)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .id(contentID)
+                // M3: when the content carries identity (the quiz), an id change
+                // crossfades under the caller's `withAnimation`; the four identity-
+                // free consumers keep the plain cut — `.identity` is a no-op.
+                .transition(contentID == nil ? AnyTransition.identity : .opacity)
             }
-            .scrollBounceBehavior(.basedOnSize)
-            .id(contentID)
 
             actions()
                 .measured()

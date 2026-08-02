@@ -54,7 +54,12 @@ struct PrimaryButtonStyle: ButtonStyle {
             )
             .background(fill(pressed: configuration.isPressed), in: Capsule())
             .scaleEffect(configuration.isPressed ? Theme.interaction.pressedScale : 1)
-            .animation(.easeOut(duration: Theme.motion.quick), value: configuration.isPressed)
+            // Asymmetric press (brandkit §7): down-stroke at motion/instant so the
+            // feedback tracks the finger; release recovers at motion/quick.
+            .animation(
+                .easeOut(duration: configuration.isPressed ? Theme.motion.instant : Theme.motion.quick),
+                value: configuration.isPressed
+            )
     }
 
     private func fill(pressed: Bool) -> Color {

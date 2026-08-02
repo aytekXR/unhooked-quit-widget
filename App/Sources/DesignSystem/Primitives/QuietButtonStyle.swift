@@ -17,6 +17,11 @@ struct QuietButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity, minHeight: minHeight)
             .contentShape(Rectangle())
             .opacity(configuration.isPressed ? 0.6 : 1)
-            .animation(.easeOut(duration: Theme.motion.quick), value: configuration.isPressed)
+            // Asymmetric press (brandkit §7): down-stroke at motion/instant so the
+            // feedback tracks the finger; release recovers at motion/quick.
+            .animation(
+                .easeOut(duration: configuration.isPressed ? Theme.motion.instant : Theme.motion.quick),
+                value: configuration.isPressed
+            )
     }
 }
