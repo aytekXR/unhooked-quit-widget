@@ -200,6 +200,83 @@ def resolve_or_create_group(token: str, app_id: str, name: str, allow_create: bo
     return created["id"], bool(created.get("attributes", {}).get("hasAccessToAllBuilds"))
 
 
+def group_tester_count(token: str, group_id: str) -> int:
+    """How many testers are actually IN a group. Read-only (GET)."""
+    payload = request(token, "GET", f"/betaGroups/{group_id}/betaTesters", {"limit": 200})
+    return len(payload.get("data", []))
+
+
+def audit_delivery(token: str, app_id: str, target_name: str, target_id: str) -> None:
+    """S61 — the check that turns a silent no-op into a visible one.
+
+    THE DEFECT THIS EXISTS FOR, because it was live and green for weeks. This job
+    reported SUCCESS on every build while delivering to nobody. `ci.yml` targets
+    `${TESTFLIGHT_GROUP:-Friends}`, the repo Variable is UNSET, so the target is the
+    INTERNAL group 'Friends' — which has `hasAccessToAllBuilds`, so the caller takes
+    the early-return branch above ("distribution is structural, not per-build") and
+    exits happily. Nobody had ever asked whether that group contains a human. It
+    contains zero. Meanwhile the real ring, 'Friends (external)', sits empty and
+    unreferenced.
+
+    So the trap is armed and invisible: the day the operator adds friends to the
+    EXTERNAL ring — which is what `operator-expected.md` §5 tells them to do, and the
+    only group that can legally hold non-team members — CI keeps cheerfully
+    "distributing" to an empty internal group and those friends receive nothing. The
+    job is green, Slack is green, and the beta silently does not happen.
+
+    WHY THIS WARNS RATHER THAN CHANGING THE TARGET. Pointing CI at the external group
+    would be the obvious fix and it is NOT safe to do unasked: Apple auto-submits a
+    build for Beta App Review the moment it is attached to an external group, which is
+    an irreversible send to Apple — and today it would be a send that CANNOT succeed,
+    because `betaAppReviewDetail` has no contact and no phone. The target is the
+    operator's call; this function only makes the consequence impossible to miss.
+
+    WHY IT FAILS ONLY IN THE ONE CASE. An unconditional failure would redden every
+    run today for a beta that has not started yet, and a gate that cries wolf is a
+    gate people stop reading (the S54 ruling, in this repo's own words). It fails on
+    exactly one condition — the target is empty AND an external group has real
+    testers in it — because that combination cannot mean anything except
+    misdirection, and it becomes true at the precise moment it starts costing
+    something.
+    """
+    payload = request(token, "GET", "/betaGroups", {"filter[app]": app_id, "limit": 200})
+    groups = payload.get("data", [])
+
+    target_count = group_tester_count(token, target_id)
+    log("")
+    log("  delivery audit (read-only):")
+    misdirected = []
+    for group in groups:
+        attrs = group["attributes"]
+        name = attrs.get("name", "?")
+        external = not bool(attrs.get("isInternalGroup"))
+        count = target_count if group["id"] == target_id else group_tester_count(token, group["id"])
+        mark = " <- CI TARGET" if group["id"] == target_id else ""
+        log(f"    '{name}': {count} tester(s), {'EXTERNAL' if external else 'internal'}{mark}")
+        if external and count > 0 and group["id"] != target_id:
+            misdirected.append((name, count))
+
+    if target_count == 0 and misdirected:
+        names = ", ".join(f"'{n}' ({c} tester(s))" for n, c in misdirected)
+        fail(
+            f"MISDIRECTED DISTRIBUTION. This job attached builds to '{target_name}', which has "
+            f"ZERO testers, while the EXTERNAL group(s) {names} hold real people who are "
+            "therefore receiving NOTHING. Set the repo Variable TESTFLIGHT_GROUP to the group "
+            "the testers are actually in (Settings > Secrets and variables > Actions > "
+            "Variables). Note that targeting an external group makes Apple auto-submit each "
+            "build for Beta App Review, so finish the review contact + phone first "
+            "(scripts/testflight_test_info.py --list scores it)."
+        )
+
+    if target_count == 0:
+        log(
+            "::warning title=Distributing to an empty group::"
+            f"'{target_name}' has ZERO testers, so this build reached nobody. That is expected "
+            "while the beta has not started; it becomes a real problem the moment testers are "
+            "added to a DIFFERENT group. Set TESTFLIGHT_GROUP when the ring is populated."
+        )
+
+
 def newest_builds(token: str, app_id: str, limit: int):
     payload = request(
         token,
@@ -280,6 +357,9 @@ def main() -> None:
             f"  '{args.group}' has access to ALL builds — every current and future build is "
             "available to it automatically. No per-build attach needed."
         )
+        # S61 — the early return above is exactly where the silent no-op lived:
+        # "structural" was true and "reached a human" was never asked.
+        audit_delivery(token, app_id, args.group, group_id)
         log("Done — distribution is structural, not per-build.")
         return
 
@@ -311,6 +391,9 @@ def main() -> None:
             )
         fail("No build could be attached. See the log above.")
 
+    # S61 — the per-build path needs the same audit as the structural one: "attached"
+    # and "reached a human" are different claims, and only the second is the point.
+    audit_delivery(token, app_id, args.group, group_id)
     log(f"Done — {attached} build(s) now available to '{args.group}'.")
     if timed_out:
         log(f"::warning::Still processing, not attached: {', '.join(timed_out)}. Re-run to pick them up.")
