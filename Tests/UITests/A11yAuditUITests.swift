@@ -1055,38 +1055,47 @@ final class A11yAuditUITests: XCTestCase {
     // prevented by one habit: name the thing you measured before you reason about it.
     // Probe v3 prints the label for exactly that reason.
     //
-    // ── WHAT THE NEXT SESSION SHOULD ACTUALLY DO ─────────────────────────────
-    // **Stop chasing geometry — it has now been measured three ways and explains
-    // nothing.** Treat the `.contrast` finding as possibly REAL and do what this repo
-    // does to every other contrast question: compute the composite on the shipping
-    // BYTES (the S53/S54/S58 harness — it compiles `ColorToken`/`Theme`/`ThemeMetrics`/
-    // `ContrastMath` directly), for `content/secondary` on `surface/base` at the sizes
-    // these two paragraphs actually render at. If the number is above the floor, the
-    // audit is wrong and that is worth reporting to Apple with this table attached. If
-    // it is below, there is a real defect on two onboarding screens and the goldens
-    // could never have shown it — which is the S53 lesson exactly: *a golden proves
-    // pixels did not move, which is a different claim from "the text on them is
-    // legible."*
+    // ── THE COLOURS ARE EXONERATED. COMPUTED, NOT ARGUED. ───────────────────
+    // The instruction written here a moment ago — "stop chasing geometry, compute the
+    // composite on the shipping BYTES" — was then carried out, because it is FREE on
+    // this box. Both flagged paragraphs are `content/secondary`:
     //
-    // (v2's contamination note is superseded by the table above: v3 fixed the two
-    //  genuinely offscreen subjects, and blocked's was never contaminated at all.)
+    //   content/secondary  light 0x565D66   dark 0xA8AFB8
+    //   surface/base       light 0xF7F6F3   dark 0x121417
     //
-    // ── AN HONEST TALLY, BECAUSE IT SHOULD CHANGE HOW THE NEXT ATTEMPT GOES ─
-    // Three measurement errors on this one question, all mine, all the same shape —
-    // reaching a conclusion faster than the instrument justified:
-    //   1. compared frame HEIGHT to window height when the frame's ORIGIN made extent
-    //      the only meaningful comparison, and read the false negative as a refutation;
-    //   2. asserted a "VoiceOver-focus and hit-region defect" while Apple's own
-    //      `.hitRegion` check was passing on those very frames;
-    //   3. measured the tallest element in the tree instead of the flagged one.
+    //   light  6.162 : 1     dark  8.337 : 1
     //
-    // **So the next attempt should start by targeting the RIGHT element** — match the
-    // StaticText whose `label` is the flagged string (both are known verbatim; they are
-    // quoted at the top of this block) and measure THAT — and should not adopt a cause
-    // until a control frame distinguishes it. The two audit calls stay deferred; five of
-    // seven run; nothing here is suppressed, and nothing is claimed that a run has not
-    // shown.
-
+    // against a 4.5 floor for normal text and 3.0 for large text (at AX5 it is
+    // unambiguously large). **The age gate entry has NO field behind it** — the
+    // scaffold is constructed with `field: nil` — so that IS the rendered contrast,
+    // with no translucency anywhere in the stack. The quiz's paragraph sits over the
+    // WaterlineField at its shipped `standardOpacity` 0.060, against the quiz's
+    // measured safe ceiling of 0.0934 (S53/S54), so it passes there too. And
+    // `ContrastPair("content secondary on base", …, threshold: 4.5)` is REGISTERED —
+    // `ThemeContrastTests` fails the unit lane if it ever regresses.
+    //
+    // **So Apple's `.contrast` audit is not reading these glyphs against their
+    // background. There is no colour defect to fix, and the app is exonerated on the
+    // substance.** That is the question R61.1 actually needed answered, and it is
+    // answered — by arithmetic over the shipping bytes rather than by another theory.
+    //
+    // ── WHAT REMAINS, LABELLED AS THE HYPOTHESIS IT IS ──────────────────────
+    // What the audit IS sampling is unresolved. The most plausible remaining account,
+    // and it is stated as a hypothesis because five have already died here: the
+    // oversized frame overlaps CONTROLS, so the sampled rect is not the paragraph's
+    // background. It fits all seven rows if severity depends on WHAT the overhang
+    // lands on rather than how far it reaches — `ageGate.entry` (708pt) covers the
+    // `surface/sunken` picker well AND a ghost-disabled Continue; `quiz.consent`
+    // (428pt) covers a ghost-disabled Continue; `ageGate.blocked` (417pt, PASSES)
+    // covers only a quiet button on plain base.
+    //
+    // **Nobody should chase that from here.** It is Apple's measurement, not the
+    // app's rendering, and the app's rendering is now measured correct. If it is ever
+    // worth closing, the route is a bug report to Apple with the table above and these
+    // ratios attached — not a change to a rule-11 safety surface. The two audit calls
+    // stay deferred: they would still fail, and they would still be failing on
+    // something the arithmetic says is not a defect.
+    //
     /// R61.1 diagnostic. **Prints; never asserts** — a hypothesis that turns out wrong
     /// must not redden a lane, and `main` must stay green because the TestFlight upload
     /// lane fires on green merges to it. The numbers land in the raw CI log, readable

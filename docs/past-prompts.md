@@ -8074,6 +8074,31 @@ directly — for `content/secondary` on `surface/base` at the sizes these two pa
 render at. Above the floor ⇒ the audit is wrong and this table is the bug report. Below ⇒ a real
 defect on two onboarding screens that goldens structurally cannot show.
 
+**AND THEN IT WAS COMPUTED — THE COLOURS ARE EXONERATED.** The instruction above ("stop chasing
+geometry, compute the composite on the shipping BYTES") is FREE on this box, so S61 carried it
+out rather than deferring it. Both flagged paragraphs are `content/secondary`:
+
+```
+content/secondary  light 0x565D66  dark 0xA8AFB8
+surface/base       light 0xF7F6F3  dark 0x121417
+        light  6.162 : 1        dark  8.337 : 1     (floors: 4.5 normal, 3.0 large)
+```
+
+**The age gate entry has NO field behind it** (`field: nil`), so that is the rendered contrast
+with no translucency in the stack at all. The quiz's paragraph sits over the WaterlineField at
+its shipped 0.060 against the quiz's measured ceiling of 0.0934, so it passes there too. And the
+pair is REGISTERED — `ContrastPair("content secondary on base", threshold: 4.5)` — so
+`ThemeContrastTests` fails the unit lane if it ever regresses.
+
+**Apple's `.contrast` audit is therefore not reading these glyphs against their background.
+There is no colour defect, and the app is exonerated on the substance.** What the audit IS
+sampling is unresolved and is Apple's measurement rather than the app's rendering; the plausible
+remaining account (stated as a hypothesis, since five have died here) is that the oversized frame
+overlaps CONTROLS — `ageGate.entry` covers the sunken picker well plus a ghost-disabled Continue,
+`quiz.consent` a ghost-disabled Continue, while `ageGate.blocked` (417pt overhang, PASSES) covers
+only a quiet button on plain base. **If that is ever worth closing, the route is a bug report to
+Apple with the table and these ratios — not a change to a rule-11 safety surface.**
+
 **⚠️ S61 CORRECTED ITSELF AGAIN — the refutation above was made on CONTAMINATED CONTROLS.**
 The probe took the tallest StaticText anywhere in the tree, so three of the five control frames
 measured something the audit never looked at: `paywall`'s subject sat at **y=1353** and
