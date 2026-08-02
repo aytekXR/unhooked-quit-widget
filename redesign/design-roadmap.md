@@ -17,7 +17,8 @@ on `main`, and sessions 51/53/54 then landed ME-3, ME-8 and ME-4 individually �
 | QW-2 Erase UI | ✅ done | wave 1 (`152890b`) |
 | QW-4 Panic entry visual priority | ✅ done | wave 1 (`152890b`) |
 | QW-5 Averted-urge stat | ✅ done | wave 2 (`9f724a0`) |
-| QW-7 Functional Terms/Privacy links | ✅ done | S46 (`3a10442`) — the two PAGES are still the operator's to publish |
+| QW-3 Analytics fire-points | 🟡 **2 of 5 (S61)** | `quit_created` (both `createQuit` overloads) and `erase_all_completed` wired to their Architect-assigned seams, with `QuitCreatedWireTests`. **Still dormant: `panic_opened` (+cold-start bucket), `panic_step_reached`, `slip_logged`** — those three need seams that do not exist yet (`PanicFlowModel` and `SlipFlowModel` hold no `AnalyticsService`), plus a post-undo-window flush for the slip and a bucketing of the existing `PanicColdLaunch` signpost interval |
+| QW-7 Functional Terms/Privacy links | ✅ done | S46 (`3a10442`) — the two PAGES now exist too (S61, `site/terms.html` + `site/privacy.html`); publishing is still the operator's |
 | QW-9 Parked AX5 settings defects | ✅ done | **wave 3 (S50)** — retired by construction by ME-7; see below |
 | QW-10 Panic in-flow support | ✅ done | wave 1 (`2e3f2dc`) |
 | ME-1 Widget-adoption moment | ✅ done | wave 2 (`0bc768d`) — `widget_added` wired, and re-enterable from Settings as of wave 3 |

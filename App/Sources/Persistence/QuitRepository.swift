@@ -376,6 +376,18 @@ final class QuitRepository {
             currencyCode: "USD"
         )
         try context.save()
+        // QW-3 (S61) — the same fire-point as the `from profile:` path below, and it
+        // has to be here too: the seam's own wording is "the repository create path
+        // is the fire-point so both onboarding AND the future E6.2 dashboard add emit
+        // it exactly once", and THIS is the overload a dashboard add would call.
+        // Wiring only the quiz path would undercount every non-onboarding quit.
+        analytics.fire(
+            .quitCreated(
+                habitCategory: quit.habitCategory,
+                goalMode: quit.goalMode,
+                quitIndex: quit.sortIndex + 1
+            )
+        )
         rebuildSnapshots()
         scheduleWidgetReload()
         return quit
@@ -414,11 +426,18 @@ final class QuitRepository {
         context.insert(profile)
         try context.save() // the ONE commit — quit + profile land together
 
-        // E8 seam (named TODO, not a stub — Architect R6 fire-point assignment):
-        // `quit_created(habitCategory:goalMode:quitIndex:)` fires HERE post-save
-        // when its wiring session lands (quitIndex = quit.sortIndex + 1). The
-        // repository create path is the fire-point so both onboarding AND the
-        // future E6.2 dashboard add emit it exactly once.
+        // QW-3 (S61) — the wiring session landed; this is the seam above, implemented
+        // to its own spec: post-save, `quitIndex = quit.sortIndex + 1`, in the
+        // REPOSITORY create path so onboarding and any future dashboard add emit it
+        // exactly once. Fires BESIDE the durable write (ADR-8) — after the single
+        // commit, so an event can never claim a quit that failed to persist.
+        analytics.fire(
+            .quitCreated(
+                habitCategory: quit.habitCategory,
+                goalMode: quit.goalMode,
+                quitIndex: quit.sortIndex + 1
+            )
+        )
         rebuildSnapshots()
         scheduleWidgetReload()
         return quit
@@ -706,9 +725,21 @@ final class QuitRepository {
             appGroupDefaults: appGroupDefaults
         )
 
-        // E8 seam (named TODO, not a stub): the final `erase_all_completed` fires here
-        // IF opted in, once the closed AnalyticsEvent enum exists (E8.1) — zero events
-        // before consent, and none after erase in the same process lifetime.
+        // QW-3 (S61) — the seam above, implemented. Placed HERE deliberately, and the
+        // position is the whole subtlety: after the local commit and the owned-file
+        // sweep, but BEFORE the remote steps that can throw. The event's claim is
+        // "this device's data is gone", which is true at this line; a fire after a
+        // failing remote step would be unreachable on exactly the runs where the
+        // local erase DID succeed.
+        //
+        // The consent contract needs no guard here — `AnalyticsService.fire` reads
+        // `isOptedIn` at every call, and the composition root binds that to the
+        // repository's own `isAnalyticsOptedIn()`. The AppSettings row carrying the
+        // opt-in was deleted five lines up, so a post-erase read returns false and
+        // this fire is a no-op unless the sink was already opted in when the erase
+        // began. "None after erase in the same process lifetime" therefore holds by
+        // construction rather than by a comment.
+        analytics.fire(.eraseAllCompleted)
 
         // 4. Widgets must drop their streaks regardless of EITHER remote step below.
         scheduleWidgetReload()
