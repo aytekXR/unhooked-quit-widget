@@ -388,8 +388,11 @@ def put_localization(api: Client, app_id: str, locale: str, feedback_email: str,
             body={"data": {"type": "betaAppLocalizations", "id": row["id"], "attributes": attributes}},
         )
         log("  UPDATED")
+        verify_applied(
+            api, f"/betaAppLocalizations/{row['id']}", attributes, f"betaAppLocalization [{locale}]"
+        )
     else:
-        api.request(
+        created = api.request(
             "POST",
             "/betaAppLocalizations",
             body={
@@ -401,6 +404,69 @@ def put_localization(api: Client, app_id: str, locale: str, feedback_email: str,
             },
         )
         log("  CREATED")
+        new_id = (created.get("data") or {}).get("id")
+        if not new_id:
+            fail(
+                "the create returned no id, so there is nothing to read back — treat the "
+                "Test Information for this locale as UNWRITTEN and re-check with --list."
+            )
+        verify_applied(
+            api,
+            f"/betaAppLocalizations/{new_id}",
+            {**attributes, "locale": locale},
+            f"betaAppLocalization [{locale}]",
+        )
+
+
+def verify_applied(api: "Client", path: str, expected: dict, label: str) -> None:
+    """GET the resource back and assert every attribute we just sent actually stuck.
+
+    S61 — THE RULE THIS RESTORES IS THIS REPO'S OWN, AND IT WAS BROKEN IN THE VERY
+    SCRIPTS THAT LEARNED IT. S59 paid for it twice against this same API: Apple
+    answered **201 with `hasAccessToAllBuilds: null`** on a group create, and answered
+    409 for a `contactPhone` its published schema calls optional. The generalised
+    ruling was written down as *"the docs JSON is an oracle for SHAPE, never for
+    ENFORCEMENT — read the resource back and assert the field you sent, because 2xx
+    means accepted, not applied."* Every write path here then logged `UPDATED` straight
+    off the status code and read nothing back.
+
+    That is not theoretical for the next thing the operator will do. They are about to
+    PATCH `contactPhone` — the exact attribute Apple has already been caught mishandling
+    on this account — and a silent drop would leave `--list` reporting the phone as set
+    while Beta App Review stays blocked, with no way to tell the two states apart.
+
+    Comparison is whitespace-tolerant, and digits-only for phone numbers, because Apple
+    normalises formatting and an exact-string compare would cry wolf on `+90 555` vs
+    `+90555`. It still catches the two failures that matter: a field silently DROPPED
+    (empty/None) and a field silently DIFFERENT.
+    """
+    fetched = api.request("GET", path)
+    attrs = (fetched.get("data") or {}).get("attributes") or {}
+    mismatches = []
+    for key, sent in expected.items():
+        if sent is None:
+            continue
+        got = attrs.get(key)
+        if isinstance(sent, bool):
+            if bool(got) != sent:
+                mismatches.append(f"{key}: sent {sent!r}, stored {got!r}")
+            continue
+        sent_s, got_s = str(sent), str(got or "")
+        if "phone" in key.lower():
+            norm = lambda v: "".join(ch for ch in v if ch.isdigit())
+        else:
+            norm = lambda v: " ".join(v.split())
+        if norm(sent_s) != norm(got_s):
+            shown = got_s if got_s else "(EMPTY — Apple accepted the write and dropped it)"
+            mismatches.append(f"{key}: sent {sent_s!r}, stored {shown!r}")
+    if mismatches:
+        fail(
+            f"{label}: Apple returned success and then did NOT store what was sent.\n    "
+            + "\n    ".join(mismatches)
+            + "\n  This is the 'accepted is not applied' failure the read-back exists to catch."
+            "\n  Do NOT re-run blindly — check the field in App Store Connect first."
+        )
+    log(f"  VERIFIED — read back {len(expected)} field(s), all stored as sent")
 
 
 def put_review_detail(
@@ -450,6 +516,9 @@ def put_review_detail(
         body={"data": {"type": "betaAppReviewDetails", "id": detail["id"], "attributes": attributes}},
     )
     log("  UPDATED")
+    verify_applied(
+        api, f"/betaAppReviewDetails/{detail['id']}", attributes, "betaAppReviewDetail"
+    )
     return True
 
 
@@ -472,8 +541,17 @@ def put_whats_new(api: Client, build: dict, locale: str, apply: bool) -> None:
             body={"data": {"type": "betaBuildLocalizations", "id": row["id"], "attributes": {"whatsNew": WHATS_NEW}}},
         )
         log("  UPDATED")
+        # Read-back matters MORE here than anywhere else in this file: whatsNew is
+        # per-build and silently starts blank on every new build, so "it looked like
+        # it worked" is indistinguishable from "there is no briefing" without a GET.
+        verify_applied(
+            api,
+            f"/betaBuildLocalizations/{row['id']}",
+            {"whatsNew": WHATS_NEW},
+            f"whatsNew on build {version} [{locale}]",
+        )
     else:
-        api.request(
+        created = api.request(
             "POST",
             "/betaBuildLocalizations",
             body={
@@ -485,6 +563,18 @@ def put_whats_new(api: Client, build: dict, locale: str, apply: bool) -> None:
             },
         )
         log("  CREATED")
+        new_id = (created.get("data") or {}).get("id")
+        if not new_id:
+            fail(
+                "the create returned no id, so there is nothing to read back — treat the "
+                "'What to Test' on this build as UNWRITTEN and re-check with --list."
+            )
+        verify_applied(
+            api,
+            f"/betaBuildLocalizations/{new_id}",
+            {"whatsNew": WHATS_NEW, "locale": locale},
+            f"whatsNew on build {version} [{locale}]",
+        )
 
 
 def submit_for_review(api: Client, build: dict, apply: bool) -> None:

@@ -320,7 +320,24 @@ def attach(token: str, group_id: str, build_id: str, version: str) -> None:
         f"/betaGroups/{group_id}/relationships/builds",
         body={"data": [{"type": "builds", "id": build_id}]},
     )
-    log(f"  attached build {version} -> group")
+    # S61 — READ THE RELATIONSHIP BACK. The POST answers 204 No Content, which carries
+    # no evidence whatsoever that the build joined the group; this repo has already been
+    # burned by exactly that on exactly this API (S59: HTTP 201 with
+    # `hasAccessToAllBuilds: null` — accepted, not applied). Without this GET, "attached
+    # build 163 -> group" is a statement about a status code, not about delivery, and a
+    # silent miss looks identical to success in every log and in Slack.
+    members = request(
+        token, "GET", f"/betaGroups/{group_id}/relationships/builds", {"limit": 200}
+    )
+    ids = {row.get("id") for row in members.get("data", [])}
+    if build_id not in ids:
+        fail(
+            f"build {version} does NOT appear in the group after a successful POST "
+            f"({len(ids)} build(s) are linked). Apple accepted the relationship and did not "
+            "apply it — the same 'accepted is not applied' failure S59 hit on this API. "
+            "Do not assume testers have this build; check App Store Connect."
+        )
+    log(f"  attached build {version} -> group (verified: build is in the group)")
 
 
 def main() -> None:
