@@ -198,16 +198,41 @@ struct QuizCompletionTests {
             )
         }
 
-        // (4) Analytics carried NO answer content — only the two E5.2 events.
+        // (4) Analytics carried NO answer content.
+        //
+        // QW-3 (S61) added `.quitCreated` to this allow-list, and the reason it does
+        // NOT weaken guard (b) is the point: the guard's claim is "answer values are
+        // unrepresentable", and `quit_created`'s three parameters are
+        // `habit_category` + `goal_mode` (closed enums) and `quit_index` (a 1–3
+        // ordinal). No free text, no note, no spend figure. The quiz create path IS a
+        // quit creation, so the event is legitimately emitted here.
         #expect(
             harness.analyticsSpy.received.allSatisfy {
                 switch $0 {
-                case .onboardingStarted, .quizStepCompleted: true
+                case .onboardingStarted, .quizStepCompleted, .quitCreated: true
                 default: false
                 }
             },
-            "the quiz emits only onboarding_started + quiz_step_completed — answer values are unrepresentable (guard b)"
+            "the quiz emits only onboarding_started, quiz_step_completed and quit_created — answer values are unrepresentable (guard b)"
         )
+
+        // …and the widened allow-list is paid for by a STRONGER check than the one it
+        // widened: guard (b) is now asserted on the PARAMETERS rather than inferred
+        // from the case name, so a future field carrying a note or a spend figure
+        // fails here even if it is added to a case this list already allows.
+        let answerFreeText = ["26", "0.75"] // the fixture's spend + commitment answers
+        for event in harness.analyticsSpy.received {
+            for (key, value) in event.parameters {
+                #expect(
+                    !answerFreeText.contains(value),
+                    """
+                    an analytics event carried a quiz ANSWER value verbatim \
+                    (\(event.kind.rawValue).\(key) = "\(value)") — §10 forbids answer content \
+                    on the wire
+                    """
+                )
+            }
+        }
     }
 
     // MARK: - Named test 4 (doc-canonical): completion creates the quit with
