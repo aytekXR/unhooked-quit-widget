@@ -612,6 +612,42 @@ but the docs say the opposite, so one of the two is wrong. Recorded in
 >
 > Six of seven overhang; two fail.
 
+**SETTLED ON CLEAN DATA (run `30726706430`) — GEOMETRY DOES NOT EXPLAIN IT.** Probe v3
+measures only elements intersecting the viewport and prints each subject's LABEL, so every
+row below is a real visible element belonging to its own frame:
+
+| frame | overhang | visible% | audit | subject |
+|---|---|---|---|---|
+| `ageGate.entry` | **+708.0** | 12.3% | **FAIL** | "Ballast is made for adults…" |
+| `quiz.consent` | **+428.3** | 43.2% | **FAIL** | "You'd share which steps…" |
+| `ageGate.blocked` | +417.3 | 48.3% | pass | "Because Ballast is rated 17+…" |
+| `summary` | +238.3 | 15.3% | pass | "Your first hard window…" |
+| `paywall` | +38.0 | 84.8% | pass | "Your full plan — every widget…" |
+| `quiz.habit` | −355.7 | 100% | pass | "What would you like to focus on?" |
+| `resources` | −152.0 | 100% | pass | "These are free, confidential…" |
+
+**The overhang hypothesis is dead on data that can carry the verdict:** `ageGate.blocked`
+overhangs by 417pt and audits clean on all seven types. A magnitude threshold does not rescue
+it (428.3 fails, 417.3 passes — eleven points apart), and neither does visible fraction
+(`summary` passes at 15.3%, `ageGate.entry` fails at 12.3%).
+
+⚠️ **And the previous correction is itself WITHDRAWN.** It called `ageGate.blocked`
+contaminated — "the entry screen's body copy, the same element to fifteen significant
+figures". The label proves otherwise: it is the blocked screen's OWN copy. Two different
+paragraphs rendered to almost the same height at AX5, and **a coincidence was read as an
+identity, discarding a valid control.**
+
+**Five errors on this one question: three over-claims, two over-refutations.** The constant
+is not direction — it is concluding at the speed of the last number. Four of the five would
+have been prevented by one habit: *name the thing you measured before reasoning about it.*
+
+**NEXT SESSION: stop chasing geometry.** It has been measured three ways and explains nothing.
+Treat the `.contrast` finding as possibly REAL and compute the composite on the shipping BYTES
+— the S53/S54/S58 harness that compiles `ColorToken`/`Theme`/`ThemeMetrics`/`ContrastMath`
+directly — for `content/secondary` on `surface/base` at the sizes these two paragraphs actually
+render at. Above the floor ⇒ the audit is wrong and this table is the bug report. Below ⇒ a real
+defect on two onboarding screens that goldens structurally cannot show.
+
 **⚠️ S61 CORRECTED ITSELF AGAIN — the refutation above was made on CONTAMINATED CONTROLS.**
 The probe took the tallest StaticText anywhere in the tree, so three of the five control frames
 measured something the audit never looked at: `paywall`'s subject sat at **y=1353** and

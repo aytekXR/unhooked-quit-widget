@@ -1009,45 +1009,67 @@ final class A11yAuditUITests: XCTestCase {
     // hit-region defect anyway was reasoning past the data, which is the same habit
     // that produced the bad probe two paragraphs up.
     //
-    // ── THE CORRELATION IS *NOT* DEAD — I KILLED IT ON BAD DATA. ───────────
-    // The hypothesis was: *`.contrast` fires at AX5 exactly when a StaticText's frame
-    // overhangs its scroll viewport.* The probe was wired into the five PASSING AX5
-    // frames as controls, and run `30721226161` killed it outright:
+    // ── SETTLED ON CLEAN DATA: GEOMETRY DOES NOT EXPLAIN IT. STOP CHASING IT. ──
+    // Probe v3 measures only elements that intersect the viewport, and prints each
+    // subject's LABEL so it is identifiable by name instead of inferred from a height.
+    // Run `30726706430`, every row a real visible element belonging to its own frame:
     //
-    //   frame             audit   exceedsViewport   overhangPastViewport
-    //   ageGate.entry     FAIL    true              708.0pt
-    //   quiz.consent      FAIL    true              428.3pt
-    //   ageGate.blocked   pass    true              417.3pt
-    //   summary           pass    true              238.3pt
-    //   paywall           pass    true             1604.7pt
-    //   resources         pass    true             3026.7pt
-    //   quiz.habit        pass    false            -355.7pt
+    //   frame             overhang   visible%   audit   subject
+    //   ageGate.entry      +708.0      12.3%    FAIL    "Ballast is made for adults…"
+    //   quiz.consent       +428.3      43.2%    FAIL    "You'd share which steps…"
+    //   ageGate.blocked    +417.3      48.3%    pass    "Because Ballast is rated 17+…"
+    //   summary            +238.3      15.3%    pass    "Your first hard window…"
+    //   paywall             +38.0      84.8%    pass    "Your full plan — every widget…"
+    //   quiz.habit         -355.7       100%    pass    "What would you like to focus on?"
+    //   resources          -152.0       100%    pass    "These are free, confidential…"
     //
-    // **THAT TABLE LOOKS DECISIVE AND THREE OF ITS FIVE CONTROLS ARE INVALID.**
-    // The probe took the tallest StaticText anywhere in the tree, so on three frames
-    // it measured something the audit never looked at:
+    // **The overhang hypothesis is dead, and this time on data that can carry the
+    // verdict.** `ageGate.blocked` overhangs its viewport by 417pt and audits CLEAN on
+    // all seven types. A magnitude threshold does not rescue it either: 428.3 fails and
+    // 417.3 passes, eleven points apart, which is not a mechanism, it is a coincidence
+    // waiting to be over-read. Nor does visible fraction — `summary` is 15.3% visible
+    // and passes while `ageGate.entry` is 12.3% and fails, but `quiz.consent` fails at
+    // 43.2% while `ageGate.blocked` passes at 48.3%.
     //
-    //   paywall          tallest text at y=1353 — entirely BELOW an 874pt window
-    //   resources        tallest text at y=3328 — 3000pt below the fold
-    //   ageGate.blocked  807.3333333333333pt — the ENTRY screen's body copy, still in
-    //                    the tree; entry reports 807.3333333333334pt, the same element
-    //                    to fifteen significant figures
+    // ⚠️ **AND A CLAIM FROM THE PREVIOUS REVISION IS WITHDRAWN.** It said
+    // `ageGate.blocked` was contaminated — "the ENTRY screen's body copy, the same
+    // element to fifteen significant figures" (807.3333333333333 vs 807.3333333333334).
+    // The label proves otherwise: blocked's subject is *"Because Ballast is rated 17+,
+    // we can't open the full app for you"*, its OWN copy. Two different paragraphs
+    // happened to render to almost the same height at AX5. **A coincidence was read as
+    // an identity, and a valid control was thrown away because of it.**
     //
-    // Strike those and the controls are `summary` (238pt overhang, passes) and
-    // `quiz.habit` (no overhang, passes). **That is ONE counterexample, not five** —
-    // and `summary`'s is marginal, because its subject sits at y=599.7 against a
-    // viewport ending at 642.7, so only ~43pt of it was ever on screen.
+    // ── THE TALLY IS NOW FIVE, AND THE SHAPE HAS NOT CHANGED ─────────────────
+    //   1. compared frame HEIGHT to window height when the ORIGIN made extent the only
+    //      meaningful comparison, and read the false negative as a refutation;
+    //   2. asserted a VoiceOver/hit-region defect while Apple's own `.hitRegion` check
+    //      was passing on those very frames;
+    //   3. measured the tallest element in the TREE rather than the flagged one;
+    //   4. accepted a refutation built on (3) without asking whether the controls were
+    //      comparable to the subject;
+    //   5. declared a valid control contaminated on a numeric coincidence, without
+    //      checking the one field — the label — that would have identified it.
     //
-    // **So the honest state is: the overhang hypothesis is WEAKENED, not refuted, and
-    // the cause is still unknown.** Recording that costs nothing and leaving the tidy
-    // wrong answer in place would have cost the next session a wrong starting point.
+    // Three over-claims and two over-refutations. The constant is not direction, it is
+    // **concluding at the speed of the last number**. Four of the five would have been
+    // prevented by one habit: name the thing you measured before you reason about it.
+    // Probe v3 prints the label for exactly that reason.
     //
-    // ── AND THE PROBE IS MEASURING THE WRONG ELEMENT, WHICH IS WHY ──────────
-    // `paywall` reports its tallest text at **y=1353** and `resources` at **y=3328**, on
-    // an 874pt window — those elements are entirely OFFSCREEN, scrolled far below the
-    // fold. The probe takes the tallest StaticText in the whole tree, so on most frames
-    // it is not measuring the paragraph the audit flagged at all. The two failing rows
-    // are the only ones where "tallest in tree" happens to BE the flagged element.
+    // ── WHAT THE NEXT SESSION SHOULD ACTUALLY DO ─────────────────────────────
+    // **Stop chasing geometry — it has now been measured three ways and explains
+    // nothing.** Treat the `.contrast` finding as possibly REAL and do what this repo
+    // does to every other contrast question: compute the composite on the shipping
+    // BYTES (the S53/S54/S58 harness — it compiles `ColorToken`/`Theme`/`ThemeMetrics`/
+    // `ContrastMath` directly), for `content/secondary` on `surface/base` at the sizes
+    // these two paragraphs actually render at. If the number is above the floor, the
+    // audit is wrong and that is worth reporting to Apple with this table attached. If
+    // it is below, there is a real defect on two onboarding screens and the goldens
+    // could never have shown it — which is the S53 lesson exactly: *a golden proves
+    // pixels did not move, which is a different claim from "the text on them is
+    // legible."*
+    //
+    // (v2's contamination note is superseded by the table above: v3 fixed the two
+    //  genuinely offscreen subjects, and blocked's was never contaminated at all.)
     //
     // ── AN HONEST TALLY, BECAUSE IT SHOULD CHANGE HOW THE NEXT ATTEMPT GOES ─
     // Three measurement errors on this one question, all mine, all the same shape —
