@@ -30,8 +30,10 @@ import XCTest
 /// (QuizFlowModelTests:110 — the minimal path's visible slots; S19-R1 — slots
 /// 1–2 + onboarding_started fire pre-consent and are gate-swallowed; slot 12
 /// is quit-path-conditional and never renders here; 14 is the summary, not a
-/// step event): quiz_step_completed 3,4,5,6,7,8,9,10,11,13 → quiz_completed →
-/// paywall_viewed.
+/// step event): quiz_step_completed 3,4,5,6,7,8,9,10,11,13 → quit_created →
+/// quiz_completed → paywall_viewed. (`quit_created` joined the wire in QW-3/S61:
+/// the quiz's completion IS a quit creation, so the repository fires it between
+/// the last step's advance and the summary's render — see the expectation below.)
 ///
 /// ── SCENARIO-29 RE-LAND · PRE-WORDED VALVE v2 (fires WITHOUT a re-vote) ────
 /// This smoke rides the GREEN run only (audit-style, first-run-is-evidence —
@@ -150,11 +152,20 @@ final class QuizFunnelUITests: XCTestCase {
             bridge.waitForExistence(timeout: 5),
             "the armed spy exposes its bridge element (R29.5 — the unproven READ half's first evidence)"
         )
+        // QW-3 (S61) inserted `quit_created` between the last step and the
+        // summary's fire, and its POSITION here is structural rather than
+        // incidental — which is why the list stays exactly ordered instead of
+        // being relaxed to a set. `QuizFlowModel.advance()` fires slot 13, then
+        // calls `complete()`, which hands the answers to
+        // `QuitRepository` (the `.quitCreated` fire-point); `quiz_completed`
+        // fires later still, from the summary's `.onAppear`
+        // (`onSummaryAppear()`). Any reordering of those three call sites is a
+        // behaviour change worth failing on.
         let expectedThroughSummary = [
             "quiz_step_completed:3", "quiz_step_completed:4", "quiz_step_completed:5",
             "quiz_step_completed:6", "quiz_step_completed:7", "quiz_step_completed:8",
             "quiz_step_completed:9", "quiz_step_completed:10", "quiz_step_completed:11",
-            "quiz_step_completed:13", "quiz_completed",
+            "quiz_step_completed:13", "quit_created", "quiz_completed",
         ].joined(separator: ",")
         XCTAssertEqual(
             bridge.value as? String, expectedThroughSummary,
