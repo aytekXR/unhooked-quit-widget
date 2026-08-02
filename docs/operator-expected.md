@@ -202,8 +202,14 @@ themselves.
 - [ ] **Eyeball the current TestFlight build on your device** — the operator half of accepting the
       redesign (agents verified simulator goldens + CI; your thumb on the real widget flow is the
       missing evidence). Always take the newest build: CI uploads one per green `main`, so the
-      build number moves constantly and no specific number is worth chasing. **Today the newest is
-      145**, and it now carries a "What to Test" note, so TestFlight will show you what to walk.
+      build number moves constantly and no specific number is worth chasing — **so this line no
+      longer names one.** (It used to say "today the newest is 145" two sentences after telling
+      you not to chase a number; the live newest is now **163** and climbing with every green
+      push.) ⚠️ **And the second half of that sentence was wrong in a way worth knowing:** it
+      promised the build "carries a What to Test note". `whatsNew` is a PER-BUILD field, so the
+      note S59 wrote to build 145 was never inherited — **build 163's is EMPTY**, verified live.
+      TestFlight will show you nothing. Until someone writes it, use §1 of
+      `docs/testflight-beta-kit.md` as your walk-through instead.
 - [ ] **Glance at the rebuilt Settings screen (~2 min).** It looks different on
       purpose: the system `List` is gone, replaced by a scrolling column of themed cards, and the
       title moved out of the navigation bar into the content. That change is what retires
@@ -391,10 +397,19 @@ comfortably under 2 s, but that is an inference, not the 10/10 evidence MVP §7 
       **1 passed, 15 failed** of 16 — DNS resolves, everything else fails at TLS.
       A founder copy pass on the two agent-authored pages is owed — three deliberate deviations
       from the §5 blueprint are listed in `site/README.md` for you to overrule.
-      `terms.html` / `privacy.html` are **deliberately absent and counsel-owned**; no agent has
-      written them. The privacy policy is also where the sensitive-class habit-category
-      disclosure lives (see `docs/app-privacy-label.md`), and it must match the App Privacy
-      label exactly — a mismatch between the two is itself a review finding.
+      ⚠️ **S61 — THE SENTENCE THAT USED TO SIT HERE IS NOW WRONG, AND THE CORRECTION CHANGES
+      WHAT YOU ARE WAITING FOR.** It read: *"`terms.html` / `privacy.html` are deliberately
+      absent and counsel-owned; no agent has written them."* **Both files now exist**
+      (`site/terms.html`, `site/privacy.html`), pass `site_copy_lint.py`, and are checked by
+      the deploy self-test at 17/17. So you are no longer waiting on counsel to AUTHOR them —
+      you are waiting on a REVIEW, which is a much shorter clock and one you can start today.
+      Every fact in them is derived from this repo rather than drafted; the Terms page points
+      at Apple's standard EULA rather than inventing a licence. `deploy_public_site.sh` warns
+      until you re-run it with `BALLAST_LEGAL_REVIEWED=1`.
+      **The rider that has NOT changed, and it is the sharp edge:** the privacy policy is where
+      the sensitive-class habit-category disclosure lives (see `docs/app-privacy-label.md`), and
+      it must match the App Privacy label in App Store Connect **exactly** — a mismatch between
+      the two is itself a review finding. Check that pairing specifically when you read it.
 - [ ] **G0 — the trademark half, and S60 narrowed what is actually open.**
       This has been carried as one undifferentiated "name clearance" item. It is two
       halves with very different states, and only one of them is still work:

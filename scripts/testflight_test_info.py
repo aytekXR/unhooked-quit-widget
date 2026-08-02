@@ -264,6 +264,9 @@ def cmd_list(api: Client, app_id: str) -> int:
         )
 
     log()
+    # Defined before the branch: the warning is consumed unconditionally further down,
+    # and an account with no builds must not turn a readiness report into a NameError.
+    whats_new_warning: str | None = None
     if build:
         attrs = build["attributes"]
         log(f"  newest build: {attrs.get('version')}  processing={attrs.get('processingState')}")
@@ -276,6 +279,30 @@ def cmd_list(api: Client, app_id: str) -> int:
             log(f"    whatsNew[{row['attributes'].get('locale')}]: {len(text)} chars {'(EMPTY)' if not text else ''}")
         if not whats_new:
             log("    whatsNew: 0 rows (EMPTY)")
+        # S61 — whatsNew is PRINTED above and was never SCORED below, which is the
+        # exact shape of defect this script exists to prevent. Consequence, verified
+        # live: build 163's whatsNew is empty while S59's note went to build 145 —
+        # `whatsNew` is PER-BUILD and is never inherited, so every green push starts
+        # blank. Once the operator fills contact + phone, this readiness report would
+        # have printed "READY — every field external distribution requires is filled"
+        # over a build whose testers open TestFlight to no briefing at all: no warning
+        # about the close-free hard paywall they meet after onboarding, no instruction
+        # to add the widget, nothing. `testflight-beta-kit.md` promises that briefing.
+        #
+        # WARN and not BLOCKING, deliberately: an empty note does not stop Apple, so
+        # calling it blocking would make `--list` exit non-zero as a shell gate over
+        # something Apple accepts. It degrades the beta rather than preventing it.
+        newest_has_notes = any(
+            (row["attributes"].get("whatsNew") or "").strip() for row in whats_new
+        )
+        if not newest_has_notes:
+            whats_new_warning = (
+                f"build {build['attributes'].get('version')} has an EMPTY 'What to Test' "
+                "(whatsNew is PER-BUILD and never inherited — every new build starts blank). "
+                "Testers would see no briefing; re-run with --apply to write it."
+            )
+        else:
+            whats_new_warning = None
     else:
         log("  newest build: NONE")
 
@@ -306,6 +333,9 @@ def cmd_list(api: Client, app_id: str) -> int:
             blocking.append("no review-contact phone (the API 409s without one — operator's own number)")
         if not (attrs.get("notes") or "").strip():
             warnings.append("no Beta App Review notes")
+
+    if whats_new_warning:
+        warnings.append(whats_new_warning)
 
     if not groups:
         blocking.append("no EXTERNAL beta group (testflight_testers.py --create-external-group)")

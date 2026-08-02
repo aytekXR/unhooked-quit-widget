@@ -146,7 +146,12 @@ anyone. That is the correct division: nothing reaches a human without your actio
 > **S59 — these are no longer hand-typed, and the text below is still the source.**
 > `scripts/testflight_test_info.py` writes §1.1, §1.2 and §1.3 through the App Store
 > Connect API, and `--list` reads them back and scores what external distribution is
-> still missing. **All three are already written on the live account** for the newest build;
+> still missing. **§1.2 and §1.3 are written on the live account. §1.1 IS NOT, and the reason
+> generalises:** `whatsNew` is a **PER-BUILD** field, so the note S59 wrote to build 145 was
+> never inherited by any later build — **build 163's is EMPTY**, verified against the live
+> account in S61. Every green `main` push uploads a new build and every one of them starts
+> blank. Re-run the script for the build you actually ship, or testers open TestFlight to no
+> briefing at all. For the newest build;
 > only the review-contact **phone** is empty, because the API requires one and no
 > agent can invent it. The strings in that script are copied verbatim from the three
 > sections below — **if you edit one, edit the other in the same commit**, which the
