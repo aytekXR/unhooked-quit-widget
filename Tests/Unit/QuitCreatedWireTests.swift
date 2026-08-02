@@ -1,4 +1,9 @@
 import Foundation
+// `MonotonicNow` (used by the file-local ManualClock below) is declared in the
+// StreakEngine PACKAGE, not in Ballast — `QuizCompletionTests`, whose clock shape
+// this copies, imports it for exactly that reason. Omitting it is the one thing
+// `swiftc -parse` cannot catch: the syntax is fine, the name just is not in scope.
+import StreakEngine
 import SwiftData
 import Testing
 @testable import Ballast
