@@ -70,6 +70,24 @@ private final class StubCloudSync: CloudSyncControlling {
 private final class SpyAnalyticsSink: AnalyticsSink {
     private(set) var received: [AnalyticsEvent] = []
     func receive(_ event: AnalyticsEvent) { received.append(event) }
+
+    /// QW-3 (S61) — drop everything the FIXTURE emitted, so each test asserts about
+    /// the events its ACTION fired.
+    ///
+    /// Why this appeared: every test here creates a quit as setup and then asserts on
+    /// the spy's WHOLE array (`received == [.urgeAverted(…)]`, or `.isEmpty` for the
+    /// fires-nothing pins). That was exact and correct while `createQuit` emitted
+    /// nothing — and QW-3 wired `quit_created`, which it now legitimately does, so the
+    /// fixture started showing up in assertions about a different event entirely.
+    ///
+    /// **Resetting after setup is a correction, not a loosening.** Every assertion
+    /// below keeps its exact shape — whole-array equality and `.isEmpty` alike — and
+    /// each one still means precisely what it always meant: *these actions fire this
+    /// and nothing else*. What changes is only that "nothing else" is no longer read
+    /// to include the fixture's own legitimate event. The alternative — filtering each
+    /// assertion down to the case under test — would genuinely have weakened the
+    /// fires-nothing pins, which are the sharpest assertions in the suite.
+    func resetAfterFixtureSetup() { received.removeAll() }
 }
 
 /// One in-memory store + repository per test, with the analytics seam injected the
@@ -130,6 +148,7 @@ struct AnalyticsWiringTests {
     @Test func test_urgeAverted_firesOncePerAvertedOutcome_warmRoute() throws {
         let harness = try Harness()
         let quit = try harness.repository.createQuit(habitCategory: .vape)
+        harness.analyticsSpy.resetAfterFixtureSetup() // QW-3: the create now fires quit_created
 
         try harness.repository.logUrgeEvent(quitID: quit.id, source: .inApp, outcome: .averted)
         #expect(
@@ -149,6 +168,7 @@ struct AnalyticsWiringTests {
     @Test func test_urgeAverted_firesFromColdFlush_onlyForLandedAttributedDrafts() throws {
         let harness = try Harness()
         let quit = try harness.repository.createQuit(habitCategory: .doomscroll)
+        harness.analyticsSpy.resetAfterFixtureSetup() // QW-3: the create now fires quit_created
 
         // Three drafts, one fires: attributed averted → event; nil-quit averted lands
         // honestly unattributed [R-NILQUIT] but urge_averted(habit_category) is not
@@ -176,6 +196,7 @@ struct AnalyticsWiringTests {
     @Test func test_slipUndone_firesOnlyOnRealUndo() throws {
         let harness = try Harness()
         let quit = try harness.repository.createQuit(habitCategory: .alcohol)
+        harness.analyticsSpy.resetAfterFixtureSetup() // QW-3: the create now fires quit_created
         harness.clock.advance(by: 3_600)
 
         let slip = try harness.repository.logSlip(quitID: quit.id, note: nil)
@@ -207,6 +228,7 @@ struct AnalyticsWiringTests {
     @Test func test_wiring_respectsConsentGate_endToEnd() throws {
         let harness = try Harness(optedIn: false)
         let quit = try harness.repository.createQuit(habitCategory: .weed)
+        harness.analyticsSpy.resetAfterFixtureSetup() // QW-3: the create now fires quit_created
 
         try harness.repository.logUrgeEvent(quitID: quit.id, source: .inApp, outcome: .averted)
         harness.clock.advance(by: 3_600)
@@ -224,6 +246,7 @@ struct AnalyticsWiringTests {
     @Test func test_discreetWidgetToggleOn_firesDiscreetModeEnabled_widget() throws {
         let harness = try Harness()
         let quit = try harness.repository.createQuit(habitCategory: .vape)
+        harness.analyticsSpy.resetAfterFixtureSetup() // QW-3: the create now fires quit_created
 
         try harness.repository.setDiscreetMode(quitID: quit.id, enabled: true)
 
@@ -261,6 +284,7 @@ struct AnalyticsWiringTests {
     @Test func test_discreetToggleOff_andIconReset_fireNothing() async throws {
         let harness = try Harness()
         let quit = try harness.repository.createQuit(habitCategory: .alcohol)
+        harness.analyticsSpy.resetAfterFixtureSetup() // QW-3: the create now fires quit_created
         // A switcher whose fireIconEnabled WOULD fire .icon if ever called — so a stray
         // enable on the reset paths would be caught (the assertion is meaningful at green).
         let switcher = AppIconSwitcher(
