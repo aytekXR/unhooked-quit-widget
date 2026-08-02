@@ -74,9 +74,7 @@ struct StreakDetailView: View {
             // The quiet settle (§11), live pushes only: the header fades up
             // ONCE at motion/calm; Reduce Motion → the quick crossfade.
             guard animateHeader else { return }
-            withAnimation(.easeInOut(
-                duration: reduceMotion ? Theme.motion.quick : Theme.motion.calm
-            )) {
+            withAnimation(Theme.motion.entrance(reduceMotion: reduceMotion)) {
                 settled = true
             }
         }
@@ -96,11 +94,11 @@ struct StreakDetailView: View {
                 .monospacedDigit()
                 .foregroundStyle(Theme.color.contentPrimary.color)
                 .fixedSize(horizontal: false, vertical: true)
-            // WaterlineRule (§9.4): the thin horizon under the hero numeral.
-            Rectangle()
-                .fill(Theme.color.borderHairline.color)
-                .frame(height: 1)
-                .accessibilityHidden(true)
+            // WaterlineRule (§9.4): the thin horizon under the hero numeral —
+            // creative §2's SECOND sanctioned spend of the luminous waterline
+            // ("under the dashboard's Day N hero"; the summary hero spends the
+            // first). The primitive owns height + a11y-hidden.
+            WaterlineRule()
         }
         .padding(.top, Theme.space.s4)
         .opacity(animateHeader && !settled ? 0 : 1)

@@ -61,7 +61,11 @@ struct MilestoneUnlockCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.space.s3) {
             if !isDiscreet {
-                MilestoneCrestMark(risen: isRisen)
+                // Reduce Motion renders the crest ALREADY SURFACED (offset dropped,
+                // not just shortened) — the rise becomes the card's opacity-only
+                // crossfade, the QuizSummaryView §6.5 precedent. Settled frame is
+                // byte-identical either way, so goldens hold.
+                MilestoneCrestMark(risen: isRisen || reduceMotion)
                 Text(copy.eyebrow)
                     .font(.footnote.weight(.medium))
                     .foregroundStyle(Theme.color.contentSecondary.color)
@@ -89,11 +93,10 @@ struct MilestoneUnlockCard: View {
         .accessibilityIdentifier("milestoneUnlock.card")
         .onAppear {
             guard animateOnAppear else { return }
-            // The waterline rise: ONE calm breath, or the quick crossfade under Reduce
-            // Motion (the StreakDetailView / StreakRing idiom). No spring, no bounce.
-            withAnimation(.easeOut(
-                duration: reduceMotion ? Theme.motion.quick : Theme.motion.calm
-            )) {
+            // The waterline rise: ONE calm breath, or the quick opacity-only
+            // crossfade under Reduce Motion (the crest mounts pre-surfaced above).
+            // No spring, no bounce — the token-layer entrance pairing.
+            withAnimation(Theme.motion.entrance(reduceMotion: reduceMotion)) {
                 risen = true
             }
         }

@@ -69,7 +69,7 @@ extension View {
     /// first and re-measure**: the binding pair is light `brand/primary` on the
     /// tint, which starts at 4.716 against a 4.5 threshold — the least headroom in
     /// the registry.
-    func themedSelectionTint(cornerRadius: CGFloat = 14) -> some View {
+    func themedSelectionTint(cornerRadius: CGFloat = Theme.radius.m) -> some View {
         background(
             Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint),
             in: RoundedRectangle(cornerRadius: cornerRadius)

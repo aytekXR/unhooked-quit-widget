@@ -19,6 +19,9 @@ import SwiftUI
 struct RootPlaceholderView: View {
     @Environment(RepositoryProvider.self) private var provider: RepositoryProvider?
     @Environment(\.scenePhase) private var scenePhase
+    /// M4 — the dismissal exit bridges (milestone unlock, alcohol notice) honor
+    /// Reduce Motion: 300ms ease-out fade normally, the 200ms crossfade under RM.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var presentation: SlipPresentation?
     /// Bumped after a mutating slip action to re-read the pending-undo banner source
     /// (placeholder-grade: no observation plumbing on this throwaway surface yet).
@@ -88,9 +91,16 @@ struct RootPlaceholderView: View {
                             if showsAlcoholNotice {
                                 AlcoholNoticeCard(slot: AlcoholNoticeSlot(
                                     copy: noticeCopy,
-                                    onDismiss: { showsAlcoholNotice = false },
+                                    // M4 — the exit bridge: the dismissal WRITE is wrapped
+                                    // (never an ambient .animation — refreshToken identity
+                                    // bumps must stay cut) so the card fades while the
+                                    // layout below settles instead of teleporting.
+                                    onDismiss: {
+                                        withAnimation(dismissalBridge) { showsAlcoholNotice = false }
+                                    },
                                     onSeeResources: { resources = ResourcesPresentation(source: nil) }
                                 ))
+                                .transition(.opacity)
                             }
                             storeSlipSurface(repository)
                                 .onAppear {
@@ -196,6 +206,17 @@ struct RootPlaceholderView: View {
         }
     }
 
+    /// M4 — the ONE dismissal exit-bridge curve (dashboard cards fade out while the
+    /// layout settles): 300ms ease-out; the 200ms crossfade under Reduce Motion.
+    /// Applied to the dismissal WRITES only, paired with `.transition(.opacity)` at
+    /// the card use sites — never an ambient `.animation`, so the `.id(refreshToken)`
+    /// identity bumps keep their deliberate cut.
+    private var dismissalBridge: Animation {
+        reduceMotion
+            ? .easeInOut(duration: Theme.motion.quick)
+            : .easeOut(duration: Theme.motion.standard)
+    }
+
     /// UIR-2 — the real dashboard: one `StreakDashboardCard` per active quit (≤ 3),
     /// read placeholder-grade like `storeSlipSurface` (`refreshToken` forces a re-read on
     /// scene-phase transitions until this surface earns observation plumbing). Empty in
@@ -216,13 +237,20 @@ struct RootPlaceholderView: View {
                     // The LIVE Home opts into the waterline rise; snapshots and any audit
                     // mount keep the default settled draw (the StreakRing contract).
                     animateOnAppear: true,
-                    onDone: { self.milestoneUnlock = nil },
+                    // M4 — the exit bridge: ceremonial in deserves at least a fade
+                    // out (the write is wrapped, never an ambient .animation, so
+                    // refreshToken identity bumps stay cut). "See all" stays a cut —
+                    // the Streak Detail push covers the removal.
+                    onDone: {
+                        withAnimation(dismissalBridge) { self.milestoneUnlock = nil }
+                    },
                     onSeeAll: {
                         let quitID = milestoneUnlock.quitID
                         self.milestoneUnlock = nil
                         detailQuitID = quitID
                     }
                 )
+                .transition(.opacity)
             }
             ForEach(quits, id: \.id) { quit in
                 let value = (try? provider?.repository?.streakValue(for: quit.id))
@@ -230,7 +258,9 @@ struct RootPlaceholderView: View {
                 // P2 (§6.7): the card is finally TAPPABLE → Streak Detail. The
                 // press rides the card's whole surface; the card keeps its own
                 // a11y identity (`dashboard.card.<uuid>`) as a descendant, so
-                // the CI anchors hold.
+                // the CI anchors hold. D7: `PlanCardButtonStyle`, not `.plain` —
+                // the pressed-scale feedback every other tappable card carries
+                // (and `.plain`'s R32.9 ghost-dimming risk stays closed).
                 Button {
                     detailQuitID = quit.id
                 } label: {
@@ -243,7 +273,7 @@ struct RootPlaceholderView: View {
                     )
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PlanCardButtonStyle())
                 .accessibilityIdentifier("dashboard.cardLink.\(quit.id.uuidString)")
             }
         }
@@ -399,7 +429,7 @@ struct RootPlaceholderView: View {
         let pending = (try? repository.pendingUndoSlip()) ?? nil
         let quits = (try? repository.activeQuits()) ?? []
 
-        VStack(spacing: 12) {
+        VStack(spacing: Theme.space.s3) {
             if let pending {
                 pendingUndoBanner(repository, slip: pending)
             }
@@ -420,9 +450,12 @@ struct RootPlaceholderView: View {
                         Image(systemName: "arrow.uturn.backward.circle")
                             .foregroundStyle(Theme.color.brandPrimary.color)
                     }
-                    .padding(.horizontal, 16)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint), in: RoundedRectangle(cornerRadius: 14))
+                    // R33.5 / D6: the 56pt slip target rides PADDING, never a
+                    // minHeight floor — the row grows with its text at AX sizes.
+                    .padding(.horizontal, Theme.space.s4)
+                    .padding(.vertical, Theme.space.s5)
+                    .frame(maxWidth: .infinity)
+                    .themedSelectionTint()
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -433,7 +466,7 @@ struct RootPlaceholderView: View {
 
     private func pendingUndoBanner(_ repository: QuitRepository, slip: Slip) -> some View {
         let slipID = slip.id
-        return VStack(spacing: 10) {
+        return VStack(spacing: Theme.space.s3) {
             Text(dashboardCopy.pendingBanner)
                 .font(.subheadline.weight(.medium))
             Button {
@@ -443,15 +476,17 @@ struct RootPlaceholderView: View {
                 Label(dashboardCopy.undoLabel, systemImage: "arrow.uturn.backward.circle")
                     .font(.body.weight(.semibold))
                     .foregroundStyle(Theme.color.brandPrimary.color)
-                    .frame(maxWidth: .infinity, minHeight: 56)
+                    // R33.5 / D6: 56pt-plus via PADDING, never a minHeight floor.
+                    .padding(.vertical, Theme.space.s5)
+                    .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }
-        .padding(16)
+        .padding(Theme.space.s4)
         .frame(maxWidth: .infinity)
         // NEUTRAL — secondary fill, never amber/red (same as the slip flow's banner).
-        .background(Theme.color.surfaceSunken.color, in: RoundedRectangle(cornerRadius: 16))
+        .background(Theme.color.surfaceSunken.color, in: RoundedRectangle(cornerRadius: Theme.radius.m))
     }
 
     /// ME-1 — consume any rendered-but-unfired widget-adoption stamps through

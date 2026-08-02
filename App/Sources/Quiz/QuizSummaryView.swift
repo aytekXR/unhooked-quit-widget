@@ -106,9 +106,7 @@ struct QuizSummaryView: View {
         .onAppear {
             model.onSummaryAppear()
             guard animateReveal else { return }
-            withAnimation(.easeInOut(
-                duration: reduceMotion ? Theme.motion.quick : Theme.motion.calm
-            )) {
+            withAnimation(Theme.motion.entrance(reduceMotion: reduceMotion)) {
                 revealed = true
             }
         }

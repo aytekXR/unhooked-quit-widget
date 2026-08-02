@@ -27,5 +27,9 @@ struct AnswerChipStyle: ButtonStyle {
             .contentShape(Capsule())
             .opacity(configuration.isPressed ? 0.85 : 1)
             .animation(.easeOut(duration: Theme.motion.instant), value: configuration.isPressed)
+            // brandkit §7: chip selection = motion/instant (100ms linear) — the
+            // fill/ink tick between states. Color-only, so it stays under Reduce
+            // Motion; the checkmark glyph remains the non-color state carrier.
+            .animation(.linear(duration: Theme.motion.instant), value: isSelected)
     }
 }

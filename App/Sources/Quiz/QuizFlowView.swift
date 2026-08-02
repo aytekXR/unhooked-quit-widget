@@ -79,13 +79,14 @@ struct QuizFlowView: View {
                 //
                 // Stated honestly: this tween is BEST-EFFORT. `AnyView` erases
                 // structural identity, so SwiftUI may treat each step's field as a
-                // new view and cut rather than interpolate. That is why the
-                // animation is not load-bearing anywhere — the SETTLED frame is
-                // the whole design, it is identical either way, and a 300ms tween
-                // on a 6%-opacity backdrop is polish, not meaning. Claiming a
-                // smooth tween would be asserting rendered behaviour that no free
-                // check on this box can verify; whether it reads as a drift or a
-                // cut is on the operator's device-eyeball list.
+                // new view and cut rather than interpolate. M13 narrows that gap:
+                // the scaffold now pins explicit identity on the field slot
+                // (`.id("scaffold.field")`), keying the view by id rather than
+                // structure so the tween can interpolate. Still not load-bearing —
+                // the SETTLED frame is the whole design, it is identical either
+                // way, and a 300ms tween on a 6%-opacity backdrop is polish, not
+                // meaning; whether it reads as a drift or a cut stays on the
+                // operator's device-eyeball list.
                 .animation(
                     reduceMotion ? nil : .easeInOut(duration: Theme.motion.standard),
                     value: progressFraction
@@ -132,6 +133,15 @@ struct QuizFlowView: View {
             .accessibilityIdentifier("quiz.progress")
     }
 
+    /// M3: the step-change crossfade — an entrance starts fast (ease-out,
+    /// motion/standard); Reduce Motion keeps a 200ms opacity crossfade (the
+    /// house RM idiom — opacity-only either way, so nothing translates).
+    private var stepTransition: Animation {
+        reduceMotion
+            ? .easeInOut(duration: Theme.motion.quick)
+            : .easeOut(duration: Theme.motion.standard)
+    }
+
     private var controls: some View {
         VStack(spacing: Theme.space.s3) {
             // SHOULD-4: the calm completion-retry surface — shown only when the
@@ -152,7 +162,14 @@ struct QuizFlowView: View {
             }
 
             Button {
-                model.advance()
+                // M3: the question CROSSFADES between steps instead of hard-cutting
+                // (the flow's one unanimated element — the bar and the field already
+                // animate). The scaffold's content carries the matching
+                // `.transition(.opacity)`; opacity-only, no slide ("breath, not
+                // bounce" + the keyboard steps both argue against translation).
+                withAnimation(stepTransition) {
+                    model.advance()
+                }
             } label: {
                 Text(model.engine.config.controls.continueLabel)
                     .font(.body.weight(.semibold))
@@ -176,7 +193,9 @@ struct QuizFlowView: View {
             // never hidden or shrunk; fires nothing, preserves answers.
             if model.progressPosition.index > 1 {
                 Button {
-                    model.back()
+                    withAnimation(stepTransition) {
+                        model.back()
+                    }
                 } label: {
                     Text(model.engine.config.controls.backLabel)
                 }

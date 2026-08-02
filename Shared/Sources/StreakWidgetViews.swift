@@ -148,6 +148,11 @@ struct StreakWidgetView: View {
     var pauseDate: Date?
     var style: StreakWidgetStyle = .shipping
 
+    /// D9 (brandkit §2.4): the home families branch their surface/ink on the
+    /// appearance. Read here, WidgetKit-safe — the system vends the scheme to
+    /// extensions, and the snapshot lane drives it via traits exactly as before.
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Group {
             switch family {
@@ -159,7 +164,15 @@ struct StreakWidgetView: View {
             }
         }
         .containerBackground(for: .widget) {
-            Color.clear
+            // Brandkit §2.4: HOME families ride `surface/base` with content-primary
+            // numerals; ACCESSORY families stay clear — the system renders them in
+            // its vibrant material and meaning lives in glyph + text, never hue.
+            switch family {
+            case .small, .medium:
+                WidgetPalette.surfaceBase(colorScheme)
+            case .rectangular, .circular, .inline:
+                Color.clear
+            }
         }
     }
 
@@ -242,6 +255,11 @@ struct StreakWidgetView: View {
                         .font(.caption2.monospacedDigit())
                 }
                 .gaugeStyle(.accessoryCircularCapacity)
+                // D9 (brandkit §2.4): momentum is INDIGO on home families, never
+                // the default accent. Discreet keeps the SYSTEM tint — §2.4's
+                // discreet rule is "only neutrals + the system tint", zero brand
+                // color (R22.2).
+                .tint(StreakWidgetDisplay.isDiscreet(quit) ? nil : WidgetPalette.momentum(colorScheme))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -275,6 +293,10 @@ struct StreakWidgetView: View {
                     }
                     if let progress = StreakWidgetDisplay.milestoneProgress(for: quit, at: entry.date) {
                         ProgressView(value: progress)
+                            // D9 (brandkit §2.4): indigo momentum-family tint on the
+                            // home bar; discreet keeps the system tint (zero brand
+                            // color — R22.2).
+                            .tint(StreakWidgetDisplay.isDiscreet(quit) ? nil : WidgetPalette.momentum(colorScheme))
                         if StreakWidgetDisplay.showsMilestoneLabel(for: quit) {
                             // R34.7 (`type/widgetLabel`): 12pt Medium, tracking +0.3 (see savedLabel above).
                             Text(style.milestoneLabel)
@@ -305,5 +327,31 @@ struct StreakWidgetView: View {
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
         }
+    }
+}
+
+/// D9 (brandkit §2.4) — the two home-family surface/ink pairs, MIRRORED from the
+/// app's token layer (`Theme.swift`: `surface/base`, `brand/secondary`). Shared
+/// compiles into the widget extension, where the app-target Theme does not exist,
+/// so the hexes live here as REGENERATED values, never hand-tuned — an edit to
+/// either token in `Theme.swift` owes this mirror the same bytes (the
+/// `PanicControlStyle`/`StreakWidgetStyle` no-drift precedent). Scheme-branched
+/// plain `Color` values keep this file WidgetKit-safe: no UIKit dynamic providers
+/// enter Shared (the `ColorToken+Color.swift` contract), and the snapshot lane's
+/// trait-driven appearance flips reach `\.colorScheme` exactly as they reach the
+/// system palette.
+private enum WidgetPalette {
+    /// `surface/base` — #F7F6F3 light / #121417 dark (Theme.swift mirror).
+    static func surfaceBase(_ scheme: ColorScheme) -> Color {
+        scheme == .dark
+            ? Color(red: 0x12 / 255.0, green: 0x14 / 255.0, blue: 0x17 / 255.0)
+            : Color(red: 0xF7 / 255.0, green: 0xF6 / 255.0, blue: 0xF3 / 255.0)
+    }
+
+    /// `brand/secondary` (momentum indigo) — #5262BC light / #93A0E8 dark.
+    static func momentum(_ scheme: ColorScheme) -> Color {
+        scheme == .dark
+            ? Color(red: 0x93 / 255.0, green: 0xA0 / 255.0, blue: 0xE8 / 255.0)
+            : Color(red: 0x52 / 255.0, green: 0x62 / 255.0, blue: 0xBC / 255.0)
     }
 }

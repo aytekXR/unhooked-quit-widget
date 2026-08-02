@@ -15,8 +15,11 @@ import SwiftUI
 /// flame, the frozen glyph); `ViewThatFits` is absent — the accessibility-size layout
 /// pivot is read off `@Environment(\.dynamicTypeSize)`; every wrapping `Text` carries
 /// `.fixedSize(horizontal: false, vertical: true)` so it wraps rather than clips; no
-/// `.minimumScaleFactor`, no `.lineLimit(1)`, no `.buttonStyle(.plain)`. The card itself
-/// is non-interactive; the pinned panic entry lives in `RootPlaceholderView`.
+/// `.minimumScaleFactor`, no `.lineLimit(1)`, no `.buttonStyle(.plain)`. The card is
+/// TAPPABLE since P2 — the live dashboard wraps it in a Button that pushes Streak
+/// Detail (riding `PlanCardButtonStyle` for pressed feedback), and the trailing
+/// chevron below carries the push affordance; the pinned panic entry lives in
+/// `RootPlaceholderView`.
 struct StreakDashboardCard: View {
     let model: StreakCardModel
     /// The XCUITest / VoiceOver anchor. Real rows pass `dashboard.card.<quit-uuid>`; the
@@ -41,6 +44,17 @@ struct StreakDashboardCard: View {
             .frame(maxWidth: Theme.layout.contentMaxWidth) // brandkit §5 one-column measure
             .frame(maxWidth: .infinity)
             .themedCard() // surface/raised, radius/m, hairline
+            // D7 — the push affordance: the card taps through to Streak Detail, so it
+            // carries the platform's disclosure cue. Decorative (a11y-hidden — the
+            // Button wrap announces the tap); contentTertiary passes its 3:1
+            // large-glyph tier on raised.
+            .overlay(alignment: .topTrailing) {
+                Image(systemName: "chevron.forward")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Theme.color.contentTertiary.color)
+                    .padding(Theme.space.s4)
+                    .accessibilityHidden(true)
+            }
             // `.contain` (not `.ignore`): the composed VoiceOver sentence is §3-blocked
             // (DashboardCopy.composedLabel), so each Text carries its own natural
             // description. Upgrades to `.ignore` + composedLabel once §3 signs the framing.
@@ -78,20 +92,28 @@ struct StreakDashboardCard: View {
         VStack(alignment: .leading, spacing: Theme.space.s3) {
             // Streak-day hero — ADR-11 data. "Day" is the same pattern as the audited
             // widget (StreakWidgetDisplay.dayText). TEXT STYLE, never a point size.
-            Text("Day \(model.dayNumber)")
-                .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                .monospacedDigit()
-                .foregroundStyle(Theme.color.contentPrimary.color)
-                .fixedSize(horizontal: false, vertical: true)
-
-            // Momentum figure — pure data. The flame is a DECORATIVE Image (point size
-            // exempt, a11y-hidden). The percent is indigo when active, neutral gray when
-            // discreet/frozen (content/secondary keeps it 4.5-clean at subheadline size).
-            HStack(spacing: Theme.space.s2) {
+            // D0: the Ember flame rides the STREAK hero it belongs to (brandkit §2.1
+            // separates streak/flame from momentum/indigo) — a DECORATIVE Image
+            // (point size exempt, a11y-hidden).
+            HStack(alignment: .firstTextBaseline, spacing: Theme.space.s2) {
+                Text("Day \(model.dayNumber)")
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.color.contentPrimary.color)
+                    .fixedSize(horizontal: false, vertical: true)
                 Image(systemName: "flame.fill")
                     .font(.system(size: 20)) // decorative Image — R33.12 exempt
                     .foregroundStyle(Theme.color.accentFlame.color)
                     .accessibilityHidden(true)
+            }
+
+            // Momentum figure — pure data, LABELED (brandkit §8: momentum vs streak
+            // are labeled, not just hued): the same audited word + composition
+            // Streak Detail ships (StreakDetailCopy.momentumLabel), so VoiceOver
+            // hears "82% momentum", never a bare percent. The percent is indigo when
+            // active, neutral gray when discreet/frozen (content/secondary keeps it
+            // 4.5-clean at subheadline size).
+            HStack(spacing: Theme.space.s2) {
                 Text("\(momentumPercent)%")
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                     .monospacedDigit()
@@ -100,6 +122,10 @@ struct StreakDashboardCard: View {
                             ? Theme.color.contentSecondary.color
                             : Theme.color.brandSecondary.color
                     )
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(StreakDetailCopy.momentumLabel)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.color.contentSecondary.color)
                     .fixedSize(horizontal: false, vertical: true)
             }
 

@@ -23,6 +23,7 @@ struct EraseEverythingView: View {
     let onErased: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var stage: Stage
     @State private var isErasing = false
 
@@ -56,6 +57,11 @@ struct EraseEverythingView: View {
             }
         }
         .themedScreenSurface()
+        // M5: the stage machine crossfades like its panic/slip siblings — a 600ms
+        // calm fade into the completion frame (the brand's quiet-celebration
+        // moment; 200ms under Reduce Motion). Value-scoped, so the settled
+        // goldens (captured via `startOnCompletionFrame`) cannot move.
+        .animation(.easeInOut(duration: reduceMotion ? Theme.motion.quick : Theme.motion.calm), value: stage)
         // The completion frame's only exit is the quiet door below — a swipe
         // there would strand the session on a dead (erased) repository. The
         // confirm stage stays freely swipe-dismissible: cancel is always the
@@ -96,6 +102,9 @@ struct EraseEverythingView: View {
                     label: copy.eraseConfirmActionLabel,
                     assistiveHint: copy.eraseAssistiveHint,
                     accessibilityID: "erase.confirm.hold",
+                    // M5: erase-in-flight shows ongoing status — the label swaps
+                    // for a spinner (width-locked) until the run resolves.
+                    isLoading: isErasing,
                     action: runErase
                 )
                 .disabled(isErasing)

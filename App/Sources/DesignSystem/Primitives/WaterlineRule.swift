@@ -7,8 +7,9 @@ import SwiftUI
 /// hero numbers, the summary card's horizon" — and §7 RATIONS it to exactly three
 /// places: under the summary hero, under the dashboard's Day N hero, and above the
 /// panic exit actions. Everywhere else the plain `border/hairline` stays. ME-4
-/// spends the first of the three; the other two are not this session's, and the
-/// ration is the point ("ration it or it becomes wallpaper").
+/// spends the first of the three; Streak Detail's Day-N header spends the second
+/// (P2 §6.17); the panic-exit third stays unspent, and the ration is the point
+/// ("ration it or it becomes wallpaper").
 ///
 /// **It is deliberately NOT Foam, and that is a correction to the spec rather than
 /// a shortcut.** Creative §2 specifies the waterline as white Foam, but every

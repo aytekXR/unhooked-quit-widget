@@ -37,8 +37,8 @@ struct AlcoholNoticeCard: View {
     let slot: AlcoholNoticeSlot
 
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 8) {
+        VStack(spacing: Theme.space.s3) {
+            HStack(spacing: Theme.space.s2) {
                 Image(systemName: "lifepreserver")
                     .foregroundStyle(Theme.color.caution.color)
                     .accessibilityHidden(true)
@@ -68,10 +68,10 @@ struct AlcoholNoticeCard: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("alcoholNotice.seeResources")
         }
-        .padding(16)
+        .padding(Theme.space.s4)
         .frame(maxWidth: .infinity)
         // Amber semantic/caution ONLY — never red (§2 hard rule), calm typography.
-        .background(Theme.color.caution.color.opacity(Theme.alpha.cautionTint), in: RoundedRectangle(cornerRadius: 16))
+        .background(Theme.color.caution.color.opacity(Theme.alpha.cautionTint), in: RoundedRectangle(cornerRadius: Theme.radius.m))
         // ME-4 (S54) — the OPAQUE floor under that 10% tint, and it is load-bearing
         // rather than cosmetic.
         //
@@ -94,7 +94,7 @@ struct AlcoholNoticeCard: View {
         // Byte-identical everywhere the field is absent: the dashboard already
         // mounts this on `.themedScreenSurface()`, i.e. surface/base over
         // surface/base. Zero goldens move.
-        .background(Theme.color.surfaceBase.color, in: RoundedRectangle(cornerRadius: 16))
+        .background(Theme.color.surfaceBase.color, in: RoundedRectangle(cornerRadius: Theme.radius.m))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("alcoholNotice.card")
     }

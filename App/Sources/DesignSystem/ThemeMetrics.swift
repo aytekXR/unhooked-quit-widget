@@ -28,6 +28,8 @@ extension Theme {
 
     /// Motion durations in seconds (brandkit §7 — breath, not bounce). The 4-7-8
     /// pacer curve stays the model's own pattern math; these are the UI tokens.
+    /// Easing pairings — including calm's entrance/crossfade split — live in
+    /// `Theme+Animation.swift` and the brandkit §7 table.
     enum motion {
         static let instant: TimeInterval = 0.1
         static let quick: TimeInterval = 0.2

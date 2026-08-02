@@ -35,7 +35,12 @@ struct WaveTimerView: View {
     private static let breathPeriod: TimeInterval = 19
 
     var body: some View {
-        TimelineView(.animation(paused: startedAt == nil || pauseDate != nil)) { context in
+        // M12 (ADR-6 budget discipline): the drawing's fastest component is the 19s
+        // breath sinusoid, so display-rate redraws (120Hz on ProMotion) buy nothing
+        // for up to 15 minutes on the panic path. 30Hz caps the Canvas work; at the
+        // wave's velocities the per-frame positional change stays sub-perceptual.
+        // Goldens ride `pauseDate` and cannot see cadence.
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: startedAt == nil || pauseDate != nil)) { context in
             let reference = pauseDate ?? context.date
             let elapsed = startedAt.map { max(0, reference.timeIntervalSince($0)) } ?? 0
             Canvas { canvasContext, size in

@@ -54,7 +54,9 @@ struct PanicFlowView: View {
     var body: some View {
         content
             .themedScreenSurface() // UIR-0: surface/base behind every panic frame
-            .animation(.easeInOut(duration: reduceMotion ? 0.2 : 0.6), value: model.stage)
+            // Stage crossfade at motion/calm (motion/quick under Reduce Motion) —
+            // token-for-literal only (M10/D5): the durations are byte-identical.
+            .animation(.easeInOut(duration: reduceMotion ? Theme.motion.quick : Theme.motion.calm), value: model.stage)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("panic.flow")
             // The slipped-exit seam (E4.1): the handoff drives the mount. `exitSlipped`
@@ -168,22 +170,26 @@ private struct StepScaffold<Content: View>: View {
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("panic.flow.moreSupport")
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, Theme.space.s5)
             }
             // R33.5 one-hand rule: skip is PINNED below the scroll, never scrolls off.
             SkipButton(label: skipLabel, action: onSkip)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
+                .padding(.horizontal, Theme.space.s5)
+                .padding(.bottom, Theme.space.s5)
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(identifier)
     }
 
     private var scaffoldBody: some View {
-        VStack(spacing: 20) {
-            VStack(spacing: 10) {
+        VStack(spacing: Theme.space.s5) {
+            // D18: 10 and 28 were off the 4pt scale — settled onto s3/s6.
+            VStack(spacing: Theme.space.s3) {
                 Text(title)
                     .font(.title.weight(.semibold))
+                    // D11: the app's one warm ink (content/primary), never the raw
+                    // system label — sibling text on this screen already rides it.
+                    .foregroundStyle(Theme.color.contentPrimary.color)
                     .multilineTextAlignment(.center)
                     // On the TEXT, not just the container: XCUITest reliably exposes
                     // real elements' identifiers, while nested `.contain` container
@@ -192,12 +198,13 @@ private struct StepScaffold<Content: View>: View {
                     .accessibilityIdentifier("\(identifier).title")
                 Text(instruction)
                     .font(.body)
+                    .foregroundStyle(Theme.color.contentPrimary.color)
                     .multilineTextAlignment(.center)
                     // nil override ⇒ the visible instruction is its own label (the
                     // default reading); every step but bloom-mode breath passes nil.
                     .accessibilityLabel(instructionAccessibilityLabel ?? instruction)
             }
-            .padding(.top, 28)
+            .padding(.top, Theme.space.s6)
             content()
                 // Scrolling steps take natural height; the paging reasons step fills.
                 .frame(maxWidth: .infinity, maxHeight: scrollsContent ? nil : .infinity)
@@ -208,7 +215,7 @@ private struct StepScaffold<Content: View>: View {
                     .multilineTextAlignment(.center)
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, Theme.space.s5)
         .padding(.bottom, Theme.space.s5)
     }
 }
@@ -242,6 +249,12 @@ private struct BreathStepView: View {
     let model: PanicFlowModel
     let reduceMotion: Bool
 
+    /// D13: decorative glyphs scale with Dynamic Type (the AgeGateView pattern;
+    /// brandkit §8: everything scales), capped so a mark never crowds the content
+    /// it decorates. Bases keep the shipped sizes, so default-size frames hold.
+    @ScaledMetric(relativeTo: .largeTitle) private var tapGlyphSize: CGFloat = Theme.type.screenGlyphBase
+    @ScaledMetric(relativeTo: .largeTitle) private var restingGlyphSize: CGFloat = 56
+
     var body: some View {
         let step = model.script.step(.breath)
         StepScaffold(
@@ -273,13 +286,14 @@ private struct BreathStepView: View {
         if model.hapticsOnlyPacer {
             // Haptics-only mode: static instruction + progress ticks — the rhythm
             // lives entirely in CoreHaptics (brandkit §6.10, eyes-free regulation).
-            VStack(spacing: 16) {
+            VStack(spacing: Theme.space.s4) {
                 Image(systemName: "hand.tap")
-                    .font(.system(size: 44))
+                    .font(.system(size: min(tapGlyphSize, Theme.type.screenGlyphCap)))
                     .foregroundStyle(Theme.color.brandPrimary.color)
                     .accessibilityHidden(true)
                 Text(model.script.step(.breath)?.hapticOnlyLabel ?? "")
                     .font(.title3.weight(.medium))
+                    .foregroundStyle(Theme.color.contentPrimary.color)
                     .multilineTextAlignment(.center)
                 if let pattern = model.pacerPattern, pattern.rounds > 0 {
                     HStack(spacing: 10) {
@@ -300,7 +314,7 @@ private struct BreathStepView: View {
             )
         } else {
             Image(systemName: "wind")
-                .font(.system(size: 56))
+                .font(.system(size: min(restingGlyphSize, Theme.type.screenGlyphCap)))
                 .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
         }
@@ -518,6 +532,7 @@ private struct ReasonsStepView: View {
         // dropped with it: the layout gives way, never the glyph (brandkit §8).
         Text(text)
             .font(.largeTitle.weight(.semibold))
+            .foregroundStyle(Theme.color.contentPrimary.color) // D11: one warm ink
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
@@ -538,7 +553,7 @@ private struct RedirectStepView: View {
             skipLabel: step?.skipLabel ?? "",
             onSkip: { model.skip() }
         ) {
-            VStack(spacing: 12) {
+            VStack(spacing: Theme.space.s3) {
                 ForEach(step?.options ?? [], id: \.id) { option in
                     Button {
                         model.selectRedirect(option.id)
@@ -554,7 +569,7 @@ private struct RedirectStepView: View {
                         .padding(.horizontal, Theme.space.s4)
                         .padding(.vertical, Theme.space.s5)
                         .frame(maxWidth: .infinity)
-                        .themedSelectionTint(cornerRadius: 14)
+                        .themedSelectionTint()
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -591,11 +606,14 @@ private struct RedirectStepView: View {
 private struct ExitsView: View {
     let model: PanicFlowModel
 
+    /// D13: the decorative exit glyph scales with Dynamic Type (AgeGateView pattern).
+    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = Theme.type.screenGlyphBase
+
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Theme.space.s4) {
             Spacer()
             Image(systemName: "wind")
-                .font(.system(size: 44, weight: .light))
+                .font(.system(size: min(glyphSize, Theme.type.screenGlyphCap), weight: .light))
                 .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Spacer()
@@ -604,16 +622,14 @@ private struct ExitsView: View {
             } label: {
                 Text(model.exitLabel("averted") ?? "")
                     .font(.body.weight(.semibold))
-                    // brand/onPrimary is scheme-aware by construction (6.0:1 L /
-                    // 7.0:1 D, registry-pinned) — the old manual ternary retires.
-                    .foregroundStyle(Theme.color.brandOnPrimary.color)
                     // R33.5: 56pt target via padding, so the filled pill grows with text.
                     .padding(.vertical, Theme.space.s5)
                     .frame(maxWidth: .infinity)
-                    .background(Theme.color.brandPrimary.color, in: RoundedRectangle(cornerRadius: 16))
-                    .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            // D2: the brandkit §6.1 primary pill via the primitive — the style owns
+            // the capsule, fill, ink, and pressed feedback (press feedback only;
+            // no added decoration or delay on the panic path).
+            .buttonStyle(PrimaryButtonStyle())
             .accessibilityIdentifier("panic.flow.exit.averted")
             Button {
                 model.exitSlipped()
@@ -629,7 +645,7 @@ private struct ExitsView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("panic.flow.exit.slipped")
         }
-        .padding(20)
+        .padding(Theme.space.s5)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("panic.flow.step.exits")
     }
@@ -640,18 +656,22 @@ private struct ExitsView: View {
 private struct CelebrationView: View {
     let model: PanicFlowModel
 
+    /// D13: scales with Dynamic Type; base keeps the shipped 64pt, same 72pt cap.
+    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = 64
+
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Theme.space.s5) {
             Image(systemName: "checkmark.circle")
-                .font(.system(size: 64, weight: .light))
+                .font(.system(size: min(glyphSize, Theme.type.screenGlyphCap), weight: .light))
                 .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Text(model.script.exit("averted")?.confirmation ?? "")
                 .font(.title2.weight(.semibold))
+                .foregroundStyle(Theme.color.contentPrimary.color) // D11
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier("panic.flow.celebration.copy") // real element for the smoke
         }
-        .padding(24)
+        .padding(Theme.space.s6)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("panic.flow.celebration")

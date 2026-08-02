@@ -76,17 +76,21 @@ struct PanicPlaceholderView: View {
 
 /// The bare intervention frame — the E0.3 placeholder content, unchanged.
 private struct BreatheFrame: View {
+    /// D13: the decorative glyph scales with Dynamic Type (AgeGateView pattern).
+    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = 56
+
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Theme.space.s4) {
             Image(systemName: "wind")
-                .font(.system(size: 56))
+                .font(.system(size: min(glyphSize, Theme.type.screenGlyphCap)))
                 .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Text("You're here. Breathe.")
                 .font(.title.weight(.semibold))
+                .foregroundStyle(Theme.color.contentPrimary.color) // D11: one warm ink
                 .multilineTextAlignment(.center)
         }
-        .padding(20)
+        .padding(Theme.space.s5)
     }
 }
 
@@ -99,32 +103,44 @@ private struct PanicQuitPickerView: View {
     let onSelect: (QuitSnapshot) -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Theme.space.s5) {
             Text("Which one needs you right now?")
                 .font(.title2.weight(.semibold))
+                .foregroundStyle(Theme.color.contentPrimary.color) // D11: one warm ink
                 .multilineTextAlignment(.center)
-            VStack(spacing: 12) {
-                ForEach(quits, id: \.id) { quit in
-                    Button {
-                        onSelect(quit)
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "circle.dashed")
-                                .foregroundStyle(Theme.color.brandPrimary.color)
-                                .accessibilityHidden(true)
-                            Text(quit.label ?? "Your goal")
-                                .font(.body.weight(.medium))
-                            Spacer()
+            // D1: the rows SCROLL (the StepScaffold pattern), so at accessibility
+            // sizes every quit stays reachable instead of clipping off-frame.
+            ScrollView {
+                VStack(spacing: Theme.space.s3) {
+                    ForEach(quits, id: \.id) { quit in
+                        Button {
+                            onSelect(quit)
+                        } label: {
+                            HStack(spacing: Theme.space.s3) {
+                                Image(systemName: "circle.dashed")
+                                    .foregroundStyle(Theme.color.brandPrimary.color)
+                                    .accessibilityHidden(true)
+                                Text(quit.label ?? "Your goal")
+                                    .font(.body.weight(.medium))
+                                Spacer()
+                            }
+                            // D1 (R33.5): the 56pt panic target rides PADDING (16h +
+                            // 20v ≈ 62pt at default), growing with the label at
+                            // accessibility sizes — never a minHeight floor, and never
+                            // the old off-scale `.padding(14)`.
+                            .padding(.horizontal, Theme.space.s4)
+                            .padding(.vertical, Theme.space.s5)
+                            .themedSelectionTint()
+                            .contentShape(Rectangle())
                         }
-                        .padding(14)
-                        .background(Theme.color.brandPrimary.color.opacity(Theme.alpha.selectionTint), in: RoundedRectangle(cornerRadius: 14))
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("panic.quitPicker.row.\(quit.id.uuidString)")
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("panic.quitPicker.row.\(quit.id.uuidString)")
                 }
             }
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .padding(20)
+        .padding(Theme.space.s5)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("panic.quitPicker")
     }

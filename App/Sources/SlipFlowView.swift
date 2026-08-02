@@ -45,10 +45,18 @@ struct SlipFlowView: View {
     var body: some View {
         content
             .themedScreenSurface() // UIR-0: surface/base behind every slip stage
-            // Motion/standard 300ms spring — a slip is procedurally identical to any
+            // Motion/standard spring — a slip is procedurally identical to any
             // other log; it never borrows the panic flow's 600ms calm fade.
+            // M10/D5: the literals moved onto the tokens, which settles the old
+            // response drift (0.30 → the canonical 0.35) — one number owns the
+            // truth now; RM crossfade rides motion/quick.
             .animation(
-                reduceMotion ? .easeInOut(duration: 0.2) : .spring(response: 0.3, dampingFraction: 0.85),
+                reduceMotion
+                    ? .easeInOut(duration: Theme.motion.quick)
+                    : .spring(
+                        response: Theme.motion.standardSpringResponse,
+                        dampingFraction: Theme.motion.standardSpringDamping
+                    ),
                 value: model.stage
             )
             .accessibilityElement(children: .contain)
@@ -83,9 +91,15 @@ struct SlipFlowView: View {
 
     // MARK: - Slip glyph (shared)
 
+    /// D13: decorative glyphs scale with Dynamic Type (the AgeGateView pattern),
+    /// capped at the shared screen-glyph ceiling; bases keep the shipped sizes so
+    /// default-size frames are pixel-identical.
+    @ScaledMetric(relativeTo: .largeTitle) private var slipGlyphSize: CGFloat = 56
+    @ScaledMetric(relativeTo: .largeTitle) private var undoneGlyphSize: CGFloat = 64
+
     private var slipGlyph: some View {
         Image(systemName: "arrow.uturn.backward.circle")
-            .font(.system(size: 56, weight: .light))
+            .font(.system(size: min(slipGlyphSize, Theme.type.screenGlyphCap), weight: .light))
             .foregroundStyle(Theme.color.brandPrimary.color)
             .accessibilityHidden(true)
     }
@@ -97,11 +111,12 @@ struct SlipFlowView: View {
         // can grow at accessibility sizes without pushing the buttons off-screen.
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Theme.space.s6) {
                     slipGlyph
-                    VStack(spacing: 12) {
+                    VStack(spacing: Theme.space.s3) {
                         Text(model.copy.confirm.title)
                             .font(.title.weight(.semibold))
+                            .foregroundStyle(Theme.color.contentPrimary.color) // D11
                             .multilineTextAlignment(.center)
                         Text(model.copy.confirm.body)
                             .font(.body)
@@ -118,25 +133,22 @@ struct SlipFlowView: View {
                             .accessibilityIdentifier("slip.flow.confirm.retryNote")
                     }
                 }
-                .padding(24)
+                .padding(Theme.space.s6)
             }
             .scrollBounceBehavior(.basedOnSize)
-            VStack(spacing: 12) {
+            VStack(spacing: Theme.space.s3) {
                 Button {
                     model.confirm()
                 } label: {
                     Text(model.copy.confirm.confirmLabel)
                         .font(.body.weight(.semibold))
-                        // brand/onPrimary is scheme-aware by construction (the old
-                        // manual dark-ternary retires; 6.0:1 L / 7.0:1 D, pinned).
-                        .foregroundStyle(Theme.color.brandOnPrimary.color)
                         // R33.5: 56pt target via padding, filled pill grows with text.
                         .padding(.vertical, Theme.space.s5)
                         .frame(maxWidth: .infinity)
-                        .background(Theme.color.brandPrimary.color, in: RoundedRectangle(cornerRadius: Theme.radius.m))
-                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                // D2: the brandkit §6.1 primary pill via the primitive — capsule,
+                // pressed fill swap + scale; the style owns fill and ink.
+                .buttonStyle(PrimaryButtonStyle())
                 .accessibilityIdentifier("slip.flow.confirm.log")
 
                 Button {
@@ -152,8 +164,8 @@ struct SlipFlowView: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("slip.flow.confirm.cancel")
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.horizontal, Theme.space.s6)
+            .padding(.bottom, Theme.space.s6)
         }
     }
 
@@ -161,12 +173,13 @@ struct SlipFlowView: View {
 
     private var loggedStage: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: Theme.space.s5) {
                 slipGlyph
                 // Real text element (the celebration.copy precedent) — the UI-smoke's
                 // "Logged." proof.
                 Text(model.copy.logged.title)
                     .font(.title.weight(.semibold))
+                    .foregroundStyle(Theme.color.contentPrimary.color) // D11
                     .multilineTextAlignment(.center)
                     // R28.13 (runs 29262073722+29265224603, the audit's ONE
                     // not-human-readable node both times): the terse word+period
@@ -226,7 +239,7 @@ struct SlipFlowView: View {
 
                 undoBanner
             }
-            .padding(24)
+            .padding(Theme.space.s6)
         }
     }
 
@@ -238,62 +251,94 @@ struct SlipFlowView: View {
     private var undoBanner: some View {
         TimelineView(.periodic(from: clock.now, by: 1)) { context in
             let live = started ? model.undoAvailable(at: context.date) : true
-            if live {
-                VStack(spacing: 12) {
-                    // Identifier on a real text element (never the container) — the
-                    // banner "hosts" the undo button as a sibling.
-                    Text(model.copy.undo.banner)
-                        .font(.subheadline.weight(.medium))
-                        .multilineTextAlignment(.center)
-                        .accessibilityIdentifier("slip.flow.undoBanner")
-
-                    Button {
-                        model.undo()
-                    } label: {
-                        Label(model.copy.undo.undoLabel, systemImage: "arrow.uturn.backward.circle")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(Theme.color.brandPrimary.color)
-                            // R33.5: 56pt target via padding, never a minHeight floor.
-                            .padding(.vertical, Theme.space.s5)
-                            .frame(maxWidth: .infinity)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    // Undo is time-limited — voice the window as a HINT on focus (the
-                    // Label text stays the a11y label); the note is the same one below.
-                    .accessibilityHint(model.copy.undo.windowNote)
-                    .accessibilityIdentifier("slip.flow.undo")
-
-                    Text(model.copy.undo.windowNote)
-                        .font(.footnote)
-                        .foregroundStyle(Theme.color.contentSecondary.color)
-                        .multilineTextAlignment(.center)
+            // M9: when the window closes the banner FADES rather than popping out
+            // of the layout mid-read — 300ms ease-out (200ms crossfade under
+            // Reduce Motion; opacity-only either way). The `started` phase-zero
+            // latch keeps snapshots deterministic: `live` is unconditionally true
+            // at capture, so the settled golden frame is unchanged.
+            Group {
+                if live {
+                    bannerContent
                 }
-                .padding(16)
-                .frame(maxWidth: .infinity)
-                // NEUTRAL — sunken surface fill, never amber/red.
-                .background(
-                    Theme.color.surfaceSunken.color,
-                    in: RoundedRectangle(cornerRadius: 16)
-                )
             }
+            .animation(
+                reduceMotion
+                    ? .easeInOut(duration: Theme.motion.quick)
+                    : .easeOut(duration: Theme.motion.standard),
+                value: live
+            )
         }
         .task { started = true }
     }
 
+    private var bannerContent: some View {
+        VStack(spacing: Theme.space.s3) {
+            // Identifier on a real text element (never the container) — the
+            // banner "hosts" the undo button as a sibling.
+            Text(model.copy.undo.banner)
+                .font(.subheadline.weight(.medium))
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("slip.flow.undoBanner")
+
+            Button {
+                model.undo()
+            } label: {
+                Label(model.copy.undo.undoLabel, systemImage: "arrow.uturn.backward.circle")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Theme.color.brandPrimary.color)
+                    // R33.5: 56pt target via padding, never a minHeight floor.
+                    .padding(.vertical, Theme.space.s5)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            // Undo is time-limited — voice the window as a HINT on focus (the
+            // Label text stays the a11y label); the note is the same one below.
+            .accessibilityHint(model.copy.undo.windowNote)
+            .accessibilityIdentifier("slip.flow.undo")
+
+            Text(model.copy.undo.windowNote)
+                .font(.footnote)
+                .foregroundStyle(Theme.color.contentSecondary.color)
+                .multilineTextAlignment(.center)
+        }
+        .padding(Theme.space.s4)
+        .frame(maxWidth: .infinity)
+        // NEUTRAL — sunken surface fill, never amber/red.
+        .background(
+            Theme.color.surfaceSunken.color,
+            in: RoundedRectangle(cornerRadius: Theme.radius.m)
+        )
+        .transition(.opacity) // M9: the exit bridge — fade, no translation
+    }
+
+    /// D8: the app's ONE input language — the quiz's sunken-well treatment
+    /// (UIR-1: "leave the system's `.roundedBorder` for the app's own sunken-well
+    /// treatment"); this was the last system-styled input in a core flow.
     private var reflectionField: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Theme.space.s2) {
             Text(model.copy.reflection.prompt)
                 .font(.footnote)
                 .foregroundStyle(Theme.color.contentSecondary.color)
             TextField(model.copy.reflection.placeholder, text: $noteText, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
                 .lineLimit(2...4)
                 .onChange(of: noteText) { _, newValue in
                     model.noteChanged(newValue)
                 }
-                // The visible prompt above is the field's name for VoiceOver.
+                // The visible prompt above is the field's name for VoiceOver —
+                // label + id sit on the FIELD, before any chrome (the quiz rule).
                 .accessibilityLabel(model.copy.reflection.prompt)
+                .padding(.horizontal, Theme.space.s4)
+                .padding(.vertical, Theme.space.s3)
+                .background(
+                    Theme.color.surfaceSunken.color,
+                    in: RoundedRectangle(cornerRadius: Theme.radius.s)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.radius.s)
+                        .strokeBorder(Theme.color.borderHairline.color, lineWidth: 1)
+                )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -301,17 +346,18 @@ struct SlipFlowView: View {
     // MARK: - Stage 3 · undone
 
     private var undoneStage: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Theme.space.s5) {
             Image(systemName: "checkmark.circle")
-                .font(.system(size: 64, weight: .light))
+                .font(.system(size: min(undoneGlyphSize, Theme.type.screenGlyphCap), weight: .light))
                 .foregroundStyle(Theme.color.brandPrimary.color)
                 .accessibilityHidden(true)
             Text(model.copy.undo.undoneConfirmation)
                 .font(.title2.weight(.semibold))
+                .foregroundStyle(Theme.color.contentPrimary.color) // D11
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier("slip.flow.undone")
         }
-        .padding(24)
+        .padding(Theme.space.s6)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 

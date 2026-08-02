@@ -32,11 +32,16 @@ struct PaywallView: View {
     /// plain constant `Hashable` id; nothing else in the app uses it.
     private static let statusAnchor = "paywall.statusSurface"
 
+    /// M1/D4 — the scroll-to-banner glide is a full-viewport translation, exactly
+    /// the class Reduce Motion opts out of; the banner still arrives (visibility
+    /// is the requirement, the glide is decoration).
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         ScrollViewReader { proxy in
-        VStack(spacing: 20) {
+        VStack(spacing: Theme.space.s5) {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Theme.space.s6) {
                     header
                     planCards
                     if model.selectedPlan == .annual {
@@ -107,8 +112,12 @@ struct PaywallView: View {
                     // measured and rejected.
                     statusSurface
                         .id(Self.statusAnchor)
+                        // M7: the phase change fades the banner in (its
+                        // `.transition(.opacity)`) just before the scroll carries
+                        // it into view — opacity-only, kept under Reduce Motion.
+                        .animation(.easeOut(duration: Theme.motion.quick), value: model.phase)
                 }
-                .padding(.top, 24)
+                .padding(.top, Theme.space.s6)
                 .frame(maxWidth: .infinity)
             }
             .scrollBounceBehavior(.basedOnSize)
@@ -149,12 +158,17 @@ struct PaywallView: View {
         // both are new-API surface.
         .onChange(of: model.phase) { _, phase in
             guard phase == .failed || phase == .restoredEmpty else { return }
-            withAnimation(.easeOut(duration: Theme.motion.standard)) {
+            if reduceMotion {
+                // M1/D4: instant arrival — no travel animation under RM.
                 proxy.scrollTo(Self.statusAnchor, anchor: .bottom)
+            } else {
+                withAnimation(.easeOut(duration: Theme.motion.standard)) {
+                    proxy.scrollTo(Self.statusAnchor, anchor: .bottom)
+                }
             }
         }
         }
-        .padding(20)
+        .padding(Theme.space.s5)
         // ME-9 (§6.6) — the Waterline backdrop, "subdued, ≤ top third". This
         // reproduces `themedScreenSurface()`'s own two modifiers (fill the screen,
         // then paint `surface/base`) with the decorative layer composited over the
@@ -183,7 +197,7 @@ struct PaywallView: View {
     }
 
     private var header: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.space.s2) {
             // E7.2 (R25.8): the zero-shame acknowledgment on the
             // teaser-expiry re-present ONLY — a fact plus reassurance,
             // never a countdown, never loss framing (brandkit §6.8).
@@ -199,7 +213,7 @@ struct PaywallView: View {
             // line, the two-price mechanics disclosure, the zero-shame
             // reassurance. Composed ONLY on source == .winback.
             if let offer = data.winbackOffer {
-                VStack(spacing: 4) {
+                VStack(spacing: Theme.space.s1) {
                     Text(offer.offerLine)
                         .font(.footnote.weight(.medium))
                         .foregroundStyle(Theme.color.contentSecondary.color)
@@ -218,6 +232,7 @@ struct PaywallView: View {
             }
             Text(data.headline)
                 .font(.title.weight(.bold))
+                .foregroundStyle(Theme.color.contentPrimary.color) // D11: one warm ink
                 .multilineTextAlignment(.center)
             Text(data.subhead)
                 .font(.body)
@@ -227,7 +242,7 @@ struct PaywallView: View {
     }
 
     private var planCards: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Theme.space.s3) {
             planCard(
                 plan: .annual,
                 title: data.planAnnualTitle,
@@ -297,6 +312,10 @@ struct PaywallView: View {
             // floor, generalised; nothing in CI can catch this class, so it is
             // removed structurally rather than documented.)
             .background(Theme.color.surfaceBase.color, in: RoundedRectangle(cornerRadius: Theme.radius.l))
+            // brandkit §7: selection tick = motion/instant (100ms linear) on the
+            // fill swap — color-only, so it stays under Reduce Motion; the
+            // checkmark glyph remains the non-color state carrier.
+            .animation(.linear(duration: Theme.motion.instant), value: selected)
         }
         // R32.9 structural: PlanCardButtonStyle suppresses .plain's ghost-disabled dimming
         // (plan cards are always enabled today; closes the future-disable risk window).
@@ -305,7 +324,8 @@ struct PaywallView: View {
     }
 
     private var positioningBlock: some View {
-        VStack(spacing: 6) {
+        // D18: spacing 6 was off the 4pt scale — settled onto s1.
+        VStack(spacing: Theme.space.s1) {
             Text(data.positioning)
                 .font(.footnote.weight(.medium))
             Text(data.positioningNotes)
@@ -353,6 +373,9 @@ struct PaywallView: View {
             }
             .padding(Theme.space.s3)
             .themedCautionCard()
+            // M7: the banner FADES in rather than snapping (the container-level
+            // `.animation(value: model.phase)` at the use site drives it).
+            .transition(.opacity)
         case .restoredEmpty:
             Text(data.restoreEmpty)
                 .font(.footnote)
@@ -384,6 +407,10 @@ struct PaywallView: View {
                 }
                 .font(.body.weight(.semibold))
                 .frame(maxWidth: .infinity, minHeight: Theme.touch.minTarget)
+                // M7: 200ms label↔spinner crossfade — the frame already locks the
+                // width, so no layout shift; opacity-only state indication, kept
+                // under Reduce Motion (it aids comprehension, no movement).
+                .animation(.easeOut(duration: Theme.motion.quick), value: model.phase == .working)
             }
             .buttonStyle(PrimaryButtonStyle())
             .disabled(model.phase == .working)

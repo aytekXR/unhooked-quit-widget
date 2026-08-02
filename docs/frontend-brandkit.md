@@ -116,7 +116,9 @@ All roles are bound to Dynamic Type text styles (sizes below are the `.large` de
 | `type/streakHero` | Custom, scales with `.largeTitle` | 64pt / Bold / SF Pro Rounded, monospaced digits | Dashboard streak number. Monospaced digits so the counter doesn't jitter as it ticks. |
 | `type/panicReason` | Custom, scales with `.largeTitle` | 40pt / Semibold | The user's own motivations, panic step 3. Largest *text* in the app by design intent. |
 | `type/titleXL` | `.largeTitle` | 34pt / Bold | Screen titles, quiz summary headline. |
+| `type/flowTitle` | `.title` | 28pt / Semibold | Flow step titles: panic steps, slip stages, age gate, safety resources. The paywall headline runs this role at Bold — the one sanctioned weight variant. |
 | `type/title` | `.title2` | 22pt / Semibold | Card titles, paywall plan names. |
+| `type/cardTitle` | `.title3` | 20pt / Semibold | In-card titles and section headers: plan cards, settings section headers, milestone unlock titles. Quiet figure/label variants (pacer haptic label, elapsed figure) run Medium. |
 | `type/body` | `.body` | 17pt / Regular | Default copy, quiz questions. |
 | `type/bodyStrong` | `.body` | 17pt / Semibold | Emphasis, button labels. |
 | `type/secondary` | `.subheadline` | 15pt / Regular | Supporting copy, `content/secondary`. |
@@ -191,10 +193,10 @@ Motion philosophy: **breath, not bounce.** Every animation either regulates (pac
 
 | Token | Duration | Easing | Use |
 |---|---|---|---|
-| `motion/instant` | 100ms | linear | State ticks, chip selection. |
-| `motion/quick` | 200ms | easeOut | Button press feedback, sheet content fades. |
+| `motion/instant` | 100ms | linear | State ticks, chip selection; button press **down-stroke** (feedback tracks the finger). |
+| `motion/quick` | 200ms | easeOut | Button press **release** recovery, sheet content fades. |
 | `motion/standard` | 300ms | spring(response 0.35, damping 0.85) | Navigation pushes, sheet presentation, undo banner. |
-| `motion/calm` | 600ms | easeInOut | Milestone reveal, quiet-celebration fade, momentum ring fill. |
+| `motion/calm` | 600ms | easeOut (entrance reveals) / easeInOut (state↔state crossfades) | Milestone reveal, quiet-celebration fade, momentum ring fill (reveals — something appearing starts fast); panic/slip stage switches (crossfades — one frame replacing another stays symmetric). |
 | `motion/breath` | 4s in / 7s hold / 8s out (4-7-8 pattern) | sinusoidal (custom curve mirroring exhalation) | Breath pacer bloom, synced to CoreHaptics; 60fps via TimelineView. |
 
 Rules:

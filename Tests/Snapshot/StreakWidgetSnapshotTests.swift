@@ -24,9 +24,11 @@ import WidgetToolkit
 // D5 medium (light/dark + AX5, 4 goldens each) = 14 new goldens. Predicted renders:
 // D1 DROPS the money line and swaps the panic glyph to `arrow.counterclockwise`
 // (a11y label "Reset"); D5 DROPS money + "saved" and BARES the milestone bar (no
-// "next milestone" label); D2/D3/D4 read no discreet flag and are expected
-// byte-identical to their normal goldens (regression guards). Every non-discreet
-// fixture keeps `discreet` nil, so the committed E6.2 goldens are untouched.
+// "next milestone" label); D2/D3 read no discreet flag and are expected
+// byte-identical to their normal goldens (regression guards). D4/D5's data marks
+// DIVERGE from their normal goldens since D9 (brandkit §2.4): normal home
+// families tint the gauge/bar momentum-indigo, discreet keeps the SYSTEM tint
+// (zero brand color, R22.2). Every non-discreet fixture keeps `discreet` nil.
 //
 // Geometry: `.image(layout: .fixed(width:height:))` with TEST-OWNED canvas constants
 // (below) that APPROXIMATE the WidgetKit canvases on the pinned 6.1" device class —
@@ -276,9 +278,10 @@ struct StreakWidgetSnapshotTests {
     }
 
     @Test func snapshot_smallFamily_discreet() {
-        // D4 — Day 34 + frozen ticker + momentum ring; the small body reads no discreet
-        // flag, so this is expected IDENTICAL to the normal small golden (regression
-        // guard). AX5 included: home-screen families do not clamp Dynamic Type.
+        // D4 — Day 34 + frozen ticker + momentum ring. Since D9 the gauge tint reads
+        // the discreet flag: the SYSTEM tint here (zero brand color, R22.2) vs the
+        // normal small's momentum indigo — no longer identical to the normal golden.
+        // AX5 included: home-screen families do not clamp Dynamic Type.
         assertFamily(
             .small, canvas: Canvas.small,
             entry: Self.streakEntry, quit: Self.discreetQuit, axes: Self.lightDarkAX5
@@ -288,7 +291,8 @@ struct StreakWidgetSnapshotTests {
     @Test func snapshot_mediumFamily_discreet() {
         // D5 — home medium, discreet: money and "saved" ABSENT; the milestone bar is
         // present but BARE — its "next milestone" label is dropped
-        // (`showsMilestoneLabel(for:)` is false under discreet).
+        // (`showsMilestoneLabel(for:)` is false under discreet) and since D9 it keeps
+        // the SYSTEM tint (zero brand color) where normal medium rides indigo.
         assertFamily(
             .medium, canvas: Canvas.medium,
             entry: Self.streakEntry, quit: Self.discreetQuit, axes: Self.lightDarkAX5
