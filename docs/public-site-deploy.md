@@ -67,8 +67,9 @@ server {
     listen [::]:80;
     server_name ballast.beyondkaira.com;
 
-    # ACME needs plain HTTP on this path; everything else goes to TLS.
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+    # ACME needs plain HTTP on this path; everything else goes to TLS. Same form
+    # as the estate's other eight vhosts (`^~` + explicit type + try_files).
+    location ^~ /.well-known/acme-challenge/ { root /var/www/certbot; default_type "text/plain"; try_files $uri =404; }
     location / { return 301 https://$host$request_uri; }
 }
 
@@ -87,8 +88,11 @@ server {
     listen [::]:443 ssl http2;
     server_name ballast.beyondkaira.com;
 
-    ssl_certificate     /etc/letsencrypt/live/ballast.beyondkaira.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/ballast.beyondkaira.com/privkey.pem;
+    # The SHARED SAN bundle, not a per-host cert — measured on the origin
+    # 2026-08-02, see scripts/ballast-nginx.conf for the full note. A per-host
+    # path aborts `nginx -t` at step 3 below, before certbot ever runs.
+    ssl_certificate     /etc/letsencrypt/live/beyondkaira.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/beyondkaira.com/privkey.pem;
     include             /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -143,21 +147,53 @@ than as a page nobody notices is missing.
 
 ## 3. Certificate
 
+**It IS a single bundle — this is `--expand`, not a fresh `certonly`.** That was
+assumed when this section was first written and has since been measured on the
+origin (2026-08-02): all eight live vhosts read
+`/etc/letsencrypt/live/beyondkaira.com/`, and the certificate served on :443
+carries all eight names in one SAN list. `--cert-name beyondkaira.com` is what
+keeps that path stable as names are added; a fresh `certonly` would mint a
+*second* cert at a new path, leave the vhost above pointing at a file that does
+not exist, and burn a rate-limited issuance to do it.
+
+**⚠️ Re-derive the name list from the LIVE cert, never from this doc.** `--expand`
+replaces the SAN list with exactly what you pass — every name you omit stops
+working the moment nginx reloads. Print the current list first and append to it:
+
 ```bash
+# 1. Read the names actually on the live cert. This is the load-bearing step.
+echo | openssl s_client -servername beyondkaira.com -connect 127.0.0.1:443 2>/dev/null \
+  | openssl x509 -noout -text | grep -A1 'Subject Alternative Name'
+# expected today: ams · bedirhandemirel · beyondkaira.com · brier · matbu ·
+#                 pulse · www · yanki   (8 names, all *.beyondkaira.com bar the apex)
+
+# 2. Webroot + site root, then enable the vhost. `nginx -t` passes at this point
+#    even though the cert does not yet cover ballast: the file EXISTS (it is the
+#    shared bundle), so nginx starts fine and only a browser would complain about
+#    the name. That is what makes the HTTP-01 challenge in step 3 reachable.
 sudo mkdir -p /var/www/certbot /var/www/ballast
+sudo cp -r <repo>/site/. /var/www/ballast/
 sudo ln -s /etc/nginx/sites-available/ballast.beyondkaira.com /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx        # must pass BEFORE certbot
 
+# 3. Expand the ONE cert. List every name from step 1, plus ballast.
 sudo certbot certonly --webroot -w /var/www/certbot \
+     --cert-name beyondkaira.com --expand \
+     -d beyondkaira.com -d www.beyondkaira.com \
+     -d ams.beyondkaira.com -d pulse.beyondkaira.com \
+     -d matbu.beyondkaira.com -d brier.beyondkaira.com \
+     -d yanki.beyondkaira.com -d bedirhandemirel.beyondkaira.com \
      -d ballast.beyondkaira.com \
      --non-interactive --agree-tos -m <your-email>
 
 sudo nginx -t && sudo systemctl reload nginx
+sudo certbot renew --dry-run                         # prove renewal still works
 systemctl list-timers | grep -i certbot              # confirm auto-renew is armed
 ```
 
-If the apex certificate is managed as a single bundle, the alternative is to add
-`ballast.beyondkaira.com` to it (`-d beyondkaira.com -d ballast.beyondkaira.com --expand`).
+Step 3's name list is a **snapshot, and snapshots go stale** — if `ikimiz` or any
+other host has been added since this was written, step 1 will show it and step 3
+must include it. That is the whole reason step 1 exists.
 Either is fine; a separate cert keeps the product host independent of the org site.
 
 ## 4. The pages themselves
