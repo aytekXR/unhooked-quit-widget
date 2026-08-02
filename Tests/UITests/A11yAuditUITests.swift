@@ -1009,7 +1009,7 @@ final class A11yAuditUITests: XCTestCase {
     // hit-region defect anyway was reasoning past the data, which is the same habit
     // that produced the bad probe two paragraphs up.
     //
-    // ── THE CORRELATION WAS TESTED AND IS DEAD. CAUSE UNKNOWN. ──────────────
+    // ── THE CORRELATION IS *NOT* DEAD — I KILLED IT ON BAD DATA. ───────────
     // The hypothesis was: *`.contrast` fires at AX5 exactly when a StaticText's frame
     // overhangs its scroll viewport.* The probe was wired into the five PASSING AX5
     // frames as controls, and run `30721226161` killed it outright:
@@ -1023,12 +1023,24 @@ final class A11yAuditUITests: XCTestCase {
     //   resources         pass    true             3026.7pt
     //   quiz.habit        pass    false            -355.7pt
     //
-    // **Six of seven frames overhang; only two fail.** `resources` overhangs by 3027pt
-    // and audits clean on all seven types. `ageGate.blocked` (417pt) and `quiz.consent`
-    // (428pt) have near-identical overhang and opposite outcomes. Overhang does not
-    // predict the failure, so the "the audit samples a rect that is mostly not text"
-    // story is unsupported — **and with it goes the conclusion drawn from it, that the
-    // COLOUR is not the defect. That may still be true. It is no longer evidenced.**
+    // **THAT TABLE LOOKS DECISIVE AND THREE OF ITS FIVE CONTROLS ARE INVALID.**
+    // The probe took the tallest StaticText anywhere in the tree, so on three frames
+    // it measured something the audit never looked at:
+    //
+    //   paywall          tallest text at y=1353 — entirely BELOW an 874pt window
+    //   resources        tallest text at y=3328 — 3000pt below the fold
+    //   ageGate.blocked  807.3333333333333pt — the ENTRY screen's body copy, still in
+    //                    the tree; entry reports 807.3333333333334pt, the same element
+    //                    to fifteen significant figures
+    //
+    // Strike those and the controls are `summary` (238pt overhang, passes) and
+    // `quiz.habit` (no overhang, passes). **That is ONE counterexample, not five** —
+    // and `summary`'s is marginal, because its subject sits at y=599.7 against a
+    // viewport ending at 642.7, so only ~43pt of it was ever on screen.
+    //
+    // **So the honest state is: the overhang hypothesis is WEAKENED, not refuted, and
+    // the cause is still unknown.** Recording that costs nothing and leaving the tidy
+    // wrong answer in place would have cost the next session a wrong starting point.
     //
     // ── AND THE PROBE IS MEASURING THE WRONG ELEMENT, WHICH IS WHY ──────────
     // `paywall` reports its tallest text at **y=1353** and `resources` at **y=3328**, on
@@ -1053,38 +1065,60 @@ final class A11yAuditUITests: XCTestCase {
     // seven run; nothing here is suppressed, and nothing is claimed that a run has not
     // shown.
 
-    /// R61.1 diagnostic. **Prints; never asserts** — a hypothesis that turns out
-    /// wrong must not redden a lane, and `main` must stay green because the
-    /// TestFlight upload lane fires on green merges to it. The numbers land in the
-    /// raw CI log, readable next session with `gh run view <id> --log`.
+    /// R61.1 diagnostic. **Prints; never asserts** — a hypothesis that turns out wrong
+    /// must not redden a lane, and `main` must stay green because the TestFlight upload
+    /// lane fires on green merges to it. The numbers land in the raw CI log, readable
+    /// with `gh run view <id> --log | grep "R61.1\["`.
     ///
-    /// Measures the tallest StaticText rather than the offending one by identifier:
-    /// neither paragraph carries an `accessibilityIdentifier`, and adding one to a
-    /// rule-11 surface for a diagnostic would be production scope creep. The tallest
-    /// static text at AX5 on these two frames IS the paragraph in question.
+    /// **THIRD REVISION, and the reason is the finding.** v1 compared the frame's
+    /// HEIGHT to the window's and read a false negative as a refutation. v2 compared
+    /// extents against the ScrollView — correct — but still measured
+    /// `staticTexts.max(by: height)`, i.e. **the tallest text anywhere in the tree**.
+    /// On three of the five control frames that was not the audited paragraph at all:
+    ///
+    ///   paywall          tallest text at y=1353  ← entirely below an 874pt window
+    ///   resources        tallest text at y=3328  ← ditto, 3000pt below the fold
+    ///   ageGate.blocked  807.3333333333333pt     ← the ENTRY screen's body copy,
+    ///                                              still in the tree; entry reports
+    ///                                              807.3333333333334pt, the same
+    ///                                              element to 15 significant figures
+    ///
+    /// So the "controls" that killed the overhang hypothesis were measuring offscreen
+    /// and stale elements. **Only `summary` and `quiz.habit` were ever clean**, which
+    /// is one counterexample and not five. The refutation recorded above is therefore
+    /// WEAKER than it was written, and this file said so rather than leaving a tidy
+    /// wrong answer in place.
+    ///
+    /// This version measures only what can actually be compared: elements whose frame
+    /// INTERSECTS the scroll viewport, i.e. things a user can see, reported with their
+    /// label so the flagged paragraph is identifiable by name rather than by height.
     private static func recordR61_1Geometry(_ app: XCUIApplication, frame label: String) {
         let window = app.windows.firstMatch.frame
         let scroll = app.scrollViews.firstMatch
-        let tallest = app.staticTexts.allElementsBoundByIndex
-            .max { $0.frame.height < $1.frame.height }
-        guard let tallest else {
-            print("R61.1[\(label)] NO static text found — the mount is wrong, not the geometry")
+        guard scroll.exists else {
+            print("R61.1[\(label)] NO scrollView — cannot compare against a viewport")
             return
         }
-        let text = tallest.frame
-        // The SCROLLVIEW is the rectangle that matters: the viewport ends where the
-        // pinned action zone begins, and a text frame taller than it is one that
-        // overlaps the controls. `exceedsWindow` is kept so the refuted first
-        // hypothesis stays visible next to the corrected one.
-        let viewport = scroll.exists ? scroll.frame : .null
+        let viewport = scroll.frame
+        let texts = app.staticTexts.allElementsBoundByIndex
+
+        // Visible == intersects the viewport. An element wholly above or below it is
+        // not what the audit looked at, and including it is what produced v2's
+        // contaminated controls.
+        let visible = texts.filter { $0.frame.intersects(viewport) && $0.frame.height > 0 }
+        guard let subject = visible.max(by: { $0.frame.height < $1.frame.height }) else {
+            print("R61.1[\(label)] no text intersects the viewport")
+            return
+        }
+        let f = subject.frame
+        let overhang = f.maxY - viewport.maxY
         print(
             "R61.1[\(label)] window=\(window.height)pt "
-            + "scrollView=\(scroll.exists ? "\(viewport.height)pt@y\(viewport.minY)" : "ABSENT") "
-            + "text=\(text.height)pt@y\(text.minY) "
-            + "exceedsWindow=\(text.height > window.height) "
-            + "exceedsViewport=\(scroll.exists && text.maxY > viewport.maxY) "
-            + "overhangPastViewport=\(scroll.exists ? text.maxY - viewport.maxY : 0)pt "
-            + "label=\"\(tallest.label.prefix(48))\""
+            + "viewport=\(viewport.height)pt@y\(viewport.minY) "
+            + "subject=\(f.height)pt@y\(f.minY) "
+            + "overhangPastViewport=\(overhang)pt "
+            + "visibleTexts=\(visible.count)/\(texts.count) "
+            + "label=\"\(subject.label.prefix(64))\""
         )
     }
 

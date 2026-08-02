@@ -610,7 +610,21 @@ but the docs say the opposite, so one of the two is wrong. Recorded in
 > | `resources` | pass | true | 3026.7pt |
 > | `quiz.habit` | pass | false | −355.7pt |
 >
-> Six of seven overhang; two fail. `resources` overhangs by **3027pt** and audits clean on all
+> Six of seven overhang; two fail.
+
+**⚠️ S61 CORRECTED ITSELF AGAIN — the refutation above was made on CONTAMINATED CONTROLS.**
+The probe took the tallest StaticText anywhere in the tree, so three of the five control frames
+measured something the audit never looked at: `paywall`'s subject sat at **y=1353** and
+`resources`' at **y=3328** on an 874pt window (both entirely below the fold), and
+`ageGate.blocked` reported **807.3333333333333pt** against `ageGate.entry`'s
+**807.3333333333334pt** — the same element to fifteen significant figures, i.e. the entry
+screen's body copy still in the tree. Strike those and the controls are `summary` (238pt
+overhang, passes — and marginal, only ~43pt of it on screen) and `quiz.habit` (no overhang,
+passes). **One counterexample, not five.** So the overhang hypothesis is WEAKENED, not dead,
+and the cause is still unknown. The probe now measures only elements whose frame INTERSECTS the
+viewport, reported with their label. **Fourth measurement error on this one question, and the
+first in the over-refuting direction** — the pattern is concluding faster than the instrument
+justifies, in whichever direction the last number pointed. `resources` overhangs by **3027pt** and audits clean on all
 > seven types; `ageGate.blocked` (417pt) and `quiz.consent` (428pt) are near-identical with
 > opposite outcomes. **Overhang does not predict the failure** — so the "the audit samples a
 > rect that is mostly not text" story is unsupported, and so is the conclusion drawn from it
