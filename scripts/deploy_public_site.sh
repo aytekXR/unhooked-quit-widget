@@ -222,22 +222,84 @@ else
 fi
 
 run_remote "webroots" "mkdir -p /var/www/certbot $WEBROOT"
-run_remote "symlink"  "ln -sfn /etc/nginx/sites-available/$HOST /etc/nginx/sites-enabled/$HOST"
 
-# nginx -t BEFORE certbot is the ordering that matters: certbot's webroot plugin
-# needs the :80 server block already serving /.well-known/acme-challenge/.
-run_remote "config test + reload" "nginx -t && systemctl reload nginx"
+# ── S61 — THE BOOTSTRAP THAT WAS MISSING, AND IT WOULD HAVE ABORTED RUN 1 ──────
+# The old order was: install the full block -> `nginx -t && systemctl reload` ->
+# certbot. Its comment was right that certbot's webroot plugin needs the :80 block
+# live first. What it missed is that THE SAME FILE also contains the :443 block,
+# which names a certificate certbot has not issued yet:
+#
+#   ssl_certificate /etc/letsencrypt/live/ballast.beyondkaira.com/fullchain.pem;
+#
+# so `nginx -t` fails before certbot ever runs. Reproduced locally against the real
+# block with the cert absent:
+#
+#   [emerg] cannot load certificate "/etc/letsencrypt/live/ballast.beyondkaira.com/
+#           fullchain.pem": BIO_new_file() failed
+#
+# and this script runs under `set -euo pipefail`, so run 1 dies at step 1 with the
+# site still down. That is the classic certbot chicken-and-egg, and it was live in
+# the operator's one command. Confirmed against the origin the same day: the served
+# certificate is `CN=beyondkaira.com` with SANs for seven OTHER subdomains and not
+# this one, so the lineage genuinely does not exist yet.
+#
+# THE FIX: serve a :80-ONLY block first so ACME can complete, then install the full
+# block once the cert exists. The bootstrap conf is EXTRACTED from the real one at
+# run time rather than kept as a second file, so the two cannot drift.
+BOOTSTRAP_CONF="$(mktemp)"
+awk '
+  /^server[[:space:]]*\{/ { inblock = 1 }
+  inblock {
+    print
+    depth += gsub(/\{/, "{")
+    depth -= gsub(/\}/, "}")
+    if (depth == 0) exit
+  }
+' "$NGINX_CONF" > "$BOOTSTRAP_CONF"
+if ! grep -q "acme-challenge" "$BOOTSTRAP_CONF"; then
+  echo "  FAIL: the extracted :80 bootstrap block has no ACME location — refusing to" >&2
+  echo "        continue, because certbot could never complete the challenge." >&2
+  exit 1
+fi
+if grep -q "ssl_certificate" "$BOOTSTRAP_CONF"; then
+  echo "  FAIL: the extracted bootstrap block still references a certificate, which is" >&2
+  echo "        the exact thing it exists to avoid. Check the server-block order in" >&2
+  echo "        $NGINX_CONF (the :80 block must come first)." >&2
+  exit 1
+fi
+note "bootstrap block: $(wc -l < "$BOOTSTRAP_CONF") lines, :80 only, ACME location present"
+
+if [ "$APPLY" = "1" ]; then
+  scp -o BatchMode=yes "$BOOTSTRAP_CONF" "$SSH_TARGET:/etc/nginx/sites-available/$HOST.bootstrap"
+else
+  note "scp <extracted :80 block> $SSH_TARGET:/etc/nginx/sites-available/$HOST.bootstrap"
+fi
 
 # ------------------------------------------------------------------ 2. certbot
-step "2. TLS certificate"
+step "2. TLS certificate (bootstrap -> issue -> full block)"
 if [ "$SKIP_CERTBOT" = "1" ]; then
-  note "skipped (--skip-certbot)"
+  note "skipped (--skip-certbot) — installing the full block directly"
+  run_remote "symlink"  "ln -sfn /etc/nginx/sites-available/$HOST /etc/nginx/sites-enabled/$HOST"
+  run_remote "config test + reload" "nginx -t && systemctl reload nginx"
 else
-  note "This is the actual gap today: DNS already resolves via a wildcard A record,"
-  note "but the installed certificate does not cover $HOST, so every HTTPS request"
-  note "fails the hostname check before nginx is consulted."
-  run_remote "certbot" "certbot certonly --webroot -w /var/www/certbot -d $HOST --non-interactive --agree-tos -m $CERTBOT_EMAIL"
-  run_remote "reload after issuance" "nginx -t && systemctl reload nginx"
+  note "The gap today, measured rather than assumed: DNS resolves, but the served"
+  note "certificate is CN=beyondkaira.com covering seven other subdomains and NOT"
+  note "$HOST, so HTTPS fails the hostname check before nginx is consulted."
+  note "One remote block, so it is correct whether or not the cert already exists."
+  run_remote "bootstrap + issue + install" "set -e
+    CERT=/etc/letsencrypt/live/$HOST/fullchain.pem
+    if [ ! -f \"\$CERT\" ]; then
+      echo '-> no certificate yet: serving the :80-only block so ACME can complete'
+      ln -sfn /etc/nginx/sites-available/$HOST.bootstrap /etc/nginx/sites-enabled/$HOST
+      nginx -t && systemctl reload nginx
+      certbot certonly --webroot -w /var/www/certbot -d $HOST --non-interactive --agree-tos -m $CERTBOT_EMAIL
+    else
+      echo '-> certificate already present, skipping issuance'
+    fi
+    echo '-> installing the full block'
+    ln -sfn /etc/nginx/sites-available/$HOST /etc/nginx/sites-enabled/$HOST
+    rm -f /etc/nginx/sites-enabled/$HOST.bootstrap
+    nginx -t && systemctl reload nginx"
   run_remote "renewal timer armed" "systemctl list-timers | grep -i certbot || echo 'NOTE: no certbot timer found — check auto-renew'"
 fi
 
