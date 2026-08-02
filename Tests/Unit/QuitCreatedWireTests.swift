@@ -198,10 +198,16 @@ struct QuitCreatedWireTests {
 
         _ = try h.repository.createQuit(from: profile)
 
+        // NOTE the string form: `#expect`'s comment parameter is `Comment?`, which is
+        // ExpressibleByStringLiteral — a LITERAL converts, a concatenated `"a" + "b"`
+        // is a String expression and does not. Multi-line literals are the house form
+        // (`OnboardingLayoutLintTests` uses them) and they are still literals.
         #expect(
             h.spy.received.quitCreatedEvents.count == 1,
-            "the quiz create path fires exactly once — it is the same seam, and the "
-            + "seam's own wording is that BOTH create paths emit"
+            """
+            the quiz create path fires exactly once — it is the same seam, and the \
+            seam's own wording is that BOTH create paths emit
+            """
         )
     }
 
